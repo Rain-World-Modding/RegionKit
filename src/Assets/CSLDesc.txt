@@ -1,0 +1,12 @@
+﻿CustomSpritesLoader mod by Henpemaz
+Allows you to load, replace, or partially overwrite game sprites in a much much much easier way than before.
+
+Sprites or atlases placed inside the Load folder will be automatically loaded when the game starts and will be available for mods to use (ie FancySlugcats) or will be used instead of vanilla assets. Elements with names that match vanilla elements will effectivelly overwrite the old ones. These atlases will not be unloaded by the game and can cause performance issues.
+
+Sprites or atlases placed inside the Replace folder will be loaded instead when the game attempts to load an atlas or image of the same name, it is important that it has the same format (atlas or single image) that the game expects to find and that in the case of an atlas it has all the Elements that the original one had. These atlases can be unloaded by the game if the vanilla ones would be unloaded at any point.
+
+You can organize your sprites in sub-folders inside of Load or Replace. If a folder's name starts with ""_"" (underscore), or if the folder contains a file named ""disabled.txt"", then that folder and sub-folders are ignored.
+
+Note to FancySlugcats users: You can simply put your all your atlases inside `CustomSpritesLoader\Load` instead of adding files to `CustomHeads` and atlases to `Futile\Atlases`, and you'll be able to use them the same way.
+
+Happy modding

@@ -54,15 +54,15 @@ namespace RegionKit.Modules.Effects
         {
             switch(fogType)
             {
-                case FogType.Darkened: return EnumExt_Effects.FogOfWarDarkened;
-                case FogType.Solid: return EnumExt_Effects.FogOfWarSolid;
+                case FogType.Darkened: return new(NewEffects.FogOfWarDarkened, false);
+                case FogType.Solid: return new(NewEffects.FogOfWarSolid, false);
                 default: return RoomSettings.RoomEffect.Type.None;
             }
         }
         public static FogType GetFogType(RoomSettings.RoomEffect.Type effectType)
         {
-            if (effectType == EnumExt_Effects.FogOfWarDarkened) return FogType.Darkened;
-            if (effectType == EnumExt_Effects.FogOfWarSolid) return FogType.Solid;
+            if (effectType.ToString() == NewEffects.FogOfWarDarkened) return FogType.Darkened;
+            if (effectType.ToString() == NewEffects.FogOfWarSolid) return FogType.Solid;
             return FogType.None;
         }
 
@@ -89,7 +89,8 @@ namespace RegionKit.Modules.Effects
 
             if (fovShader == null)
             {
-                Material mat = new Material(Shaders.FogOfWar);
+				//TODO: see if it works anyways
+                Material mat = new Material(_Assets.FogOfWar);
                 fovShader = FShader.CreateShader("FogOfWar", mat.shader);
             }
 
@@ -181,15 +182,15 @@ namespace RegionKit.Modules.Effects
             Vector2 mid = room.MiddleOfTile(x, y);
             int ind1 = -1;
             int ind2 = -1;
-            switch (dir)
+            switch (dir.ToString())
             {
-                case Room.SlopeDirection.DownLeft:
-                case Room.SlopeDirection.UpRight:
+                case nameof(Room.SlopeDirection.DownLeft):
+                case nameof(Room.SlopeDirection.UpRight):
                     ind2 = AddCorner(new Vector2(mid.x - 10f, mid.y + 10f));
                     ind1 = AddCorner(new Vector2(mid.x + 10f, mid.y - 10f));
                     break;
-                case Room.SlopeDirection.DownRight:
-                case Room.SlopeDirection.UpLeft:
+                case nameof(Room.SlopeDirection.DownRight):
+                case nameof(Room.SlopeDirection.UpLeft):
                     ind1 = AddCorner(new Vector2(mid.x - 10f, mid.y - 10f));
                     ind2 = AddCorner(new Vector2(mid.x + 10f, mid.y + 10f));
                     break;

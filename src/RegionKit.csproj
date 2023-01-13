@@ -47,6 +47,12 @@
 		<EditorConfigFiles Remove="./.editorconfig" />
 	</ItemGroup>
 
+	<!-- ER -->
+	<ItemGroup>
+		<Compile Remove="Assets/**"/>
+		<EmbeddedResource Include="Assets/**"/>
+	</ItemGroup>
+
 	<!-- Lib includes. -->
 	<ItemGroup>
 		<Reference Include="0Harmony">

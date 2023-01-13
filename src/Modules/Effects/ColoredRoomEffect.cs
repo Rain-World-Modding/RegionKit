@@ -23,8 +23,12 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 	static string GRKString(RoomSettings.RoomEffect self)
 	{
 		var ret = "";
-		if (TryGetWeak(ConditionalEffects.filterFlags, self, out var flags))
+		if (false
+		//TODO: restore logic?
+			//TryGetWeak(ConditionalEffects.filterFlags, self, out var flags)
+			)
 		{
+			#if false
 			var bitMask = 0;
 			var allTrue = true;
 			for (var i = 0; i < flags.Length; i++)
@@ -34,6 +38,7 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 					bitMask |= 1 << i;
 			if (!allTrue)
 				ret += "-" + bitMask;
+			#endif
 		}
 		return ret;
 	}
@@ -79,7 +84,7 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 				}
 			}
 		}
-		catch { PetrifiedWood.WriteLine("Wrong syntax effect loaded: " + s[0]); }
+		catch { plog.LogError("Wrong syntax effect loaded: " + s[0]); }
 	};
 		On.DevInterface.EffectPanel.ctor += (orig, self, owner, parentNode, pos, effect) =>
 	{
@@ -143,7 +148,7 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 			case "Amount_Slider":
 				self.effect.amount = nubPos;
 				var type = self.effect.type;
-				if (type is RoomSettings.RoomEffect.Type.VoidMelt)
+				if (type == RoomSettings.RoomEffect.Type.VoidMelt)
 				{
 					self.owner.room.game.cameras[0].levelGraphic.alpha = self.effect.amount;
 					if (self.owner.room.game.cameras[0].fullScreenEffect != null)

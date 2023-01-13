@@ -10,6 +10,7 @@ namespace RegionKit.Modules.Effects;
 
 public static class ConditionalEffects
 {
+	#if false
 	public static void Enable()
 	{
 		On.RoomSettings.RoomEffect.ToString += RoomEffect_ToString;
@@ -205,5 +206,5 @@ public static class ConditionalEffects
 	}
 
 	#endregion hooks
-
+#endif
 }

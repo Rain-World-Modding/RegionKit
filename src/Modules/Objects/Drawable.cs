@@ -83,8 +83,8 @@ public class Drawable : CosmeticSprite
 		{
 			try
 			{
-				#error redo file handling
-				WWW www = new WWW(string.Concat("file:///", Custom.RootFolderDirectory(), "Assets", Path.DirectorySeparatorChar, "Futile", Path.DirectorySeparatorChar, "Resources", Path.DirectorySeparatorChar, "Decals", Path.DirectorySeparatorChar, Data.GetValue<string>("spriteName"), ".png"));
+				//TODO: test if changed io works
+				WWW www = new WWW(AssetManager.ResolveFilePath($"decals/{Data.GetValue<string>("SpriteName")}"));
 				Texture2D tex = new Texture2D(1, 1, TextureFormat.ARGB32, false)
 				{
 					wrapMode = TextureWrapMode.Clamp,
@@ -99,7 +99,7 @@ public class Drawable : CosmeticSprite
 			{
 				//ignored
 			}
-			catch (Exception e) when (e is IOException)
+			catch (Exception e) when (e is IO.IOException)
 			{
 				//ignored
 			}

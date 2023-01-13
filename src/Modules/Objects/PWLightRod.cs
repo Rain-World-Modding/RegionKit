@@ -5,7 +5,6 @@ namespace RegionKit.Modules.Objects;
 
 public class PWLightRod : SSLightRod
 {
-	#error where the fuck was it registered
 	public PWLightRod(PlacedObject placedObject, Room room) : base(placedObject, room)
 	{
 		this.color = (this.rodData as PWLightRodData).color;

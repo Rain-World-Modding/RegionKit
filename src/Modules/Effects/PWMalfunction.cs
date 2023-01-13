@@ -11,7 +11,7 @@ namespace RegionKit.Modules.Effects {
             On.AntiGravity.BrokenAntiGravity.Update += BrokenAntiGravity_Update;
             //On.AntiGravity.ctor += AntiGravity_Ctor;
             On.ZapCoil.Update += ZapCoil_Update;
-            On.Redlight.ctor += Redlight_Ctor;
+            On.Redlight.ctor_Room_PlacedObject_LightFixtureData += Redlight_Ctor;
             On.SuperStructureFuses.ctor += SuperStructureFuses_Ctor;
             On.SuperStructureFuses.Update += SuperStructureFuses_Update;
             On.GravityDisruptor.Update += GravityDisruptor_Update;
@@ -33,7 +33,7 @@ namespace RegionKit.Modules.Effects {
         public static float hook_get_DarkPalette(orig_DarkPalette orig, RoomCamera instance) {
             float origVal = orig(instance);
             if (instance.room != null && instance.room.world != null && instance.room.world.rainCycle != null && instance.room.world.rainCycle.brokenAntiGrav != null
-                    && instance.room.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction) > 0f 
+                    && instance.room.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction)) > 0f 
                     && (instance.room.roomSettings.DangerType == RoomRain.DangerType.Thunder || instance.room.roomSettings.DangerType == RoomRain.DangerType.None)) {
                 return Mathf.Max(origVal, 1f - instance.room.world.rainCycle.brokenAntiGrav.CurrentLightsOn);
             }
@@ -42,7 +42,7 @@ namespace RegionKit.Modules.Effects {
         //Make PWMalfunction change electricpower
         public static float hook_get_ElectricPower(orig_ElectricPower orig, Room instance) {
             if (instance.world != null && instance.world.rainCycle != null && instance.world.rainCycle.brokenAntiGrav != null
-                    && instance.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction) > 0f) {
+                    && instance.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction, false)) > 0f) {
                 return instance.world.rainCycle.brokenAntiGrav.CurrentLightsOn;
             }
             return orig(instance);
@@ -66,16 +66,16 @@ namespace RegionKit.Modules.Effects {
             orig.Invoke(instance); //The counter changed here, but also progress is calculated
             if (counterFlag) {
                 for (int i = 0; i < instance.game.cameras.Length; i++) {
-                    if (instance.game.cameras[i].room != null && instance.game.cameras[i].room.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction) > 0f) {
-                        instance.game.cameras[i].room.PlaySound((!instance.on) ? SoundID.Broken_Anti_Gravity_Switch_Off : SoundID.Broken_Anti_Gravity_Switch_On, 0f, instance.game.cameras[i].room.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction), 1f);
+                    if (instance.game.cameras[i].room != null && instance.game.cameras[i].room.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction)) > 0f) {
+                        instance.game.cameras[i].room.PlaySound((!instance.on) ? SoundID.Broken_Anti_Gravity_Switch_Off : SoundID.Broken_Anti_Gravity_Switch_On, 0f, instance.game.cameras[i].room.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction)), 1f);
                         
                     }
                 }
             }
             if (instance.progress > 0f && instance.progress < 1f) {
                 for (int j = 0; j < instance.game.cameras.Length; j++) {
-                    if (instance.game.cameras[j].room.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction) > 0f) {
-                        instance.game.cameras[j].room.ScreenMovement(null, new Vector2(0f, 0f), instance.game.cameras[j].room.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction) * 0.5f * Mathf.Sin(instance.progress * 3.14159274f));
+                    if (instance.game.cameras[j].room.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction)) > 0f) {
+                        instance.game.cameras[j].room.ScreenMovement(null, new Vector2(0f, 0f), instance.game.cameras[j].room.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction)) * 0.5f * Mathf.Sin(instance.progress * 3.14159274f));
                     }
                 }
             }
@@ -86,19 +86,19 @@ namespace RegionKit.Modules.Effects {
             orig.Invoke(instance, eu);
             //makes the zapcoil sound
             float val = 0f;
-            if (instance.room.fullyLoaded && (val = instance.room.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction)) > 0f) {
+            if (instance.room.fullyLoaded && (val = instance.room.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction))) > 0f) {
                 instance.soundLoop.Volume = instance.turnedOn * val;
             }
             //makes the zapcoil switch on/off
-            if (instance.room.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction) > 0f && instance.room.world.rainCycle.brokenAntiGrav != null){
+            if (instance.room.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction)) > 0f && instance.room.world.rainCycle.brokenAntiGrav != null){
                 bool flag = instance.room.world.rainCycle.brokenAntiGrav.to == 1f && instance.room.world.rainCycle.brokenAntiGrav.progress == 1f;
                 if (!flag) {
                     instance.disruption = 1f;
-                    if (instance.powered && Random.value < 0.2f) {
+                    if (instance.powered && RNG.value < 0.2f) {
                         instance.powered = false;
                     }
                 }
-                if (flag && !instance.powered && Random.value < 0.025f) {
+                if (flag && !instance.powered && RNG.value < 0.025f) {
                     instance.powered = true;
                 }
             }
@@ -107,16 +107,16 @@ namespace RegionKit.Modules.Effects {
         //Makes the gravityDisruptor turn on/off with PWMalfunction
         public static void GravityDisruptor_Update(On.GravityDisruptor.orig_Update orig, GravityDisruptor instance, bool eu) {
             orig.Invoke(instance, eu);
-            if (instance.room.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction) > 0f && instance.room.world.rainCycle.brokenAntiGrav != null) {
+            if (instance.room.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction)) > 0f && instance.room.world.rainCycle.brokenAntiGrav != null) {
                 instance.power = instance.room.world.rainCycle.brokenAntiGrav.CurrentAntiGravity;
             }
         }
 
         //Makes redlights work with PWMalfunction
-        public static void Redlight_Ctor(On.Redlight.orig_ctor orig, Redlight instance, Room placedInRoom, PlacedObject placedObject, PlacedObject.LightFixtureData lightData) {
+        public static void Redlight_Ctor(On.Redlight.orig_ctor_Room_PlacedObject_LightFixtureData orig, Redlight instance, Room placedInRoom, PlacedObject placedObject, PlacedObject.LightFixtureData lightData) {
             orig.Invoke(instance, placedInRoom, placedObject, lightData);
             float val = 0f;
-            if ((val = placedInRoom.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction)) > 0f) { 
+            if ((val = placedInRoom.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction))) > 0f) { 
                 instance.gravityDependent = (val > 0f && (float)lightData.randomSeed > 0f);
             }
         }
@@ -127,7 +127,7 @@ namespace RegionKit.Modules.Effects {
             //if (room.world.region != null) { 
             //    orig.Invoke(instance, placedObject, rect, room);
             //}
-            bool val = (room.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction) > 0f);
+            bool val = (room.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction)) > 0f);
             if (val) {
                 instance.gravityDependent = val;
             }
@@ -137,7 +137,7 @@ namespace RegionKit.Modules.Effects {
         //Makes SuperstructureFuses work with PWMalfunction (turns antigravity on for only as long as the function is called)
         public static void SuperStructureFuses_Update(On.SuperStructureFuses.orig_Update orig, SuperStructureFuses instance, bool eu) {
             float temp = instance.room.gravity;
-            if (instance.room.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction) > 0f) {
+            if (instance.room.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction)) > 0f) {
                 instance.room.gravity = 1 - instance.room.ElectricPower;
             }
             orig.Invoke(instance, eu);
@@ -146,7 +146,7 @@ namespace RegionKit.Modules.Effects {
         
         //Allows a new antigravity object to be made when switching between gates since switching worlds deletes the original one. (This is not smooth as of yet)
         public static void RegionGate_Update(On.RegionGate.orig_Update orig, RegionGate instance, bool eu) {
-            if (instance.room.roomSettings.GetEffectAmount(EnumExt_Effects.PWMalfunction) > 0 && instance.room.world != null) {
+            if (instance.room.roomSettings.GetEffectAmount(new(NewEffects.PWMalfunction)) > 0 && instance.room.world != null) {
                 if (instance.startCounter > 0 && instance.rainCycle.brokenAntiGrav != null && (!instance.rainCycle.brokenAntiGrav.on)) {
                     instance.rainCycle.brokenAntiGrav.counter = 1;
                 }

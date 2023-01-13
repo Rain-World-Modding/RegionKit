@@ -13,10 +13,11 @@ using System.Text;
 using MonoMod.RuntimeDetour;
 
 namespace RegionKit.Machinery;
-	/// <summary>
-	/// Handles registration of machinery objects.
-	/// </summary>
-	public static class Module
+/// <summary>
+/// Handles registration of machinery objects.
+/// </summary>
+[RegionKitModule(nameof(Enable), nameof(Disable), "Machinery")]
+public static class Module
 {
 	private static bool appliedOnce = false;
 	/// <summary>

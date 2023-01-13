@@ -7,7 +7,7 @@ using System.Reflection.Emit;
 
 namespace RegionKit.Particles;
 
-[RegionKitModule(nameof(Enable), nameof(Disable))]
+[RegionKitModule(nameof(Enable), nameof(Disable), "Particles")]
 internal static class Module
 {
 	internal static void Enable()

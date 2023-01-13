@@ -7,7 +7,7 @@ using UnityEngine;
 using static RWCustom.Custom;
 using static UnityEngine.Mathf;
 
-namespace RegionKit.Machinery.V1;
+namespace RegionKit.Modules.Machinery.V1;
 public class SimplePiston : UpdatableAndDeletable, IDrawable
 {
 	public SimplePiston(Room rm, PlacedObject pobj) : this(rm, pobj, null) { }

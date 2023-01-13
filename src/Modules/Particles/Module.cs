@@ -5,7 +5,7 @@ using System.Text;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace RegionKit.Particles;
+namespace RegionKit.Modules.Particles;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), "Particles")]
 internal static class Module

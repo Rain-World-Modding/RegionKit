@@ -8,7 +8,7 @@ using RWCustom;
 using static RWCustom.Custom;
 using static SharedPhysics;
 
-namespace RegionKit.Particles.V1;
+namespace RegionKit.Modules.Particles.V1;
 
 /// <summary>
 /// behaviour modules that can be slapped onto particles. Instantiated by <see cref="ParticleBehaviourProvider"/>s, passed by <see cref="RoomParticleSystem"/>s and used by <see cref="GenericParticle"/>s.
@@ -40,11 +40,11 @@ public abstract class PBehaviourModule
 	/// </summary>
 	public class Wavy : PBehaviourModule
 	{
-		public Wavy(GenericParticle gp, Machinery.OscillationParams osp) : base(gp)
+		public Wavy(GenericParticle gp, Modules.Machinery.OscillationParams osp) : base(gp)
 		{
 			wave = osp;
 		}
-		Machinery.OscillationParams wave;
+		Modules.Machinery.OscillationParams wave;
 		public void owner_update()
 		{
 			owner.vel = RotateAroundOrigo(owner.vel, wave.oscm((owner.lifetime + wave.phase) * wave.frq) * wave.amp);//+= PerpendicularVector(owner.vel).normalized * wave.oscm((owner.lifetime + wave.phase) * wave.frq) * wave.amp;//
@@ -196,14 +196,14 @@ public abstract class PBehaviourModule
 	}
 	public class Spin : PBehaviourModule
 	{
-		public Spin(GenericParticle gp, float angVb, Machinery.OscillationParams osp) : base(gp)
+		public Spin(GenericParticle gp, float angVb, Modules.Machinery.OscillationParams osp) : base(gp)
 		{
 			myosp = osp;
 			angVelBase = angVb;
 		}
 
 		readonly float angVelBase;
-		Machinery.OscillationParams myosp;
+		Modules.Machinery.OscillationParams myosp;
 		public override void Disable()
 		{
 			owner.OnUpdatePreMove -= actionCycle;

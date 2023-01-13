@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace RegionKit.Particles.V1;
+namespace RegionKit.Modules.Particles.V1;
 /// <summary>
 /// "Empty" data class for attaching <see cref="PBehaviourModule"/> descendants to newly created particles.
 /// </summary>
@@ -120,10 +120,10 @@ public abstract class ParticleBehaviourProvider : ManagedData
 		[FloatField("phsFluke", -5f, 5f, 0f, displayName: "Phase fluke")]
 		public float phaseFluke;
 
-		protected Machinery.OscillationParams default_op => new(amp, frq, phase, Mathf.Sin);
-		protected Machinery.OscillationParams dev_op => new(ampFluke, frqFluke, phaseFluke, Mathf.Cos);
+		protected Modules.Machinery.OscillationParams default_op => new(amp, frq, phase, Mathf.Sin);
+		protected Modules.Machinery.OscillationParams dev_op => new(ampFluke, frqFluke, phaseFluke, Mathf.Cos);
 
-		public Machinery.OscillationParams GetOscParams()
+		public Modules.Machinery.OscillationParams GetOscParams()
 		{
 			return default_op.Deviate(dev_op);
 		}

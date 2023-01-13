@@ -7,7 +7,7 @@ using RWCustom;
 using static UnityEngine.Mathf;
 using static RWCustom.Custom;
 
-namespace RegionKit.Particles.V1;
+namespace RegionKit.Modules.Particles.V1;
 
 /// <summary>
 /// particle spawner.

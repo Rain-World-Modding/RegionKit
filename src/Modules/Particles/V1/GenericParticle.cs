@@ -8,7 +8,7 @@ using UnityEngine;
 using static UnityEngine.Mathf;
 using static RWCustom.Custom;
 
-namespace RegionKit.Particles.V1;
+namespace RegionKit.Modules.Particles.V1;
 /// <summary>
 /// Working unit for <see cref="RoomParticleSystem"/>.
 /// </summary>

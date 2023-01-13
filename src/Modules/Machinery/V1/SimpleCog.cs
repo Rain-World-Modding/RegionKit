@@ -6,7 +6,7 @@ using UnityEngine;
 
 using static UnityEngine.Mathf;
 
-namespace RegionKit.Machinery.V1;
+namespace RegionKit.Modules.Machinery.V1;
 public class SimpleCog : UpdatableAndDeletable, IDrawable
 {
 	public SimpleCog(Room rm, PlacedObject pobj) : this(rm, pobj, null) { }

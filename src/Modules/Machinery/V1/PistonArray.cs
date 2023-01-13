@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using static RWCustom.Custom;
 
-namespace RegionKit.Machinery.V1;
+namespace RegionKit.Modules.Machinery.V1;
 public class PistonArray : UpdatableAndDeletable
 {
 	public PistonArray(Room rm, PlacedObject obj)

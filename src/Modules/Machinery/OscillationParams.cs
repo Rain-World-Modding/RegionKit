@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace RegionKit.Machinery;
+namespace RegionKit.Modules.Machinery;
 public struct OscillationParams
 {
 	public readonly float amp;

@@ -20,14 +20,14 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DebugType>embedded</DebugType>
 		<TreatWarningsAsErrors>False</TreatWarningsAsErrors>
-		<WarningsAsErrors>$(WarningsAsErrors);NU1605;Nullable;</WarningsAsErrors>
+		<WarningsAsErrors>$(WarningsAsErrors);NU1605;</WarningsAsErrors>
 		<DefineConstants>$(DefineConstants)TRACE;RK;REMIX</DefineConstants>
 	</PropertyGroup>
 	<!-- Release configuration. Build for release. -->
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DebugType>embedded</DebugType>
 		<TreatWarningsAsErrors>False</TreatWarningsAsErrors>
-		<WarningsAsErrors>$(WarningsAsErrors);NU1605;Nullable;</WarningsAsErrors>
+		<WarningsAsErrors>$(WarningsAsErrors);NU1605;</WarningsAsErrors>
 		<DefineConstants>$(DefineConstants)TRACE;RK;REMIX</DefineConstants>
 	</PropertyGroup>
 	<!-- Exclude reference folder from project. -->
@@ -43,7 +43,8 @@
 
 	<!-- Editorconfig -->
 	<ItemGroup>
-		<EditorConfigFiles Include="./.editorconfig" />
+		<None Include="./.editorconfig" />
+		<EditorConfigFiles Remove="./.editorconfig" />
 	</ItemGroup>
 
 	<!-- Lib includes. -->
@@ -113,6 +114,10 @@
 		</Reference>
 		<Reference Include="UnityEngine">
 			<HintPath>lib/UnityEngine.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.InputLegacyModule">
+			<HintPath>lib/UnityEngine.InputLegacyModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">

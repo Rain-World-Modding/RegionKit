@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using RWCustom;
 
-namespace RegionKit.Machinery.V1;
+namespace RegionKit.Modules.Machinery.V1;
 public class BaseMachineryData : ManagedData
 {
 	public BaseMachineryData(PlacedObject owner, ManagedField[]? fields) : base(owner, fields) { }

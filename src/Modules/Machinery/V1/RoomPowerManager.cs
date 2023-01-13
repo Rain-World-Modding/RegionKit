@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-using static RegionKit.Machinery.Module;
+using static RegionKit.Modules.Machinery.Module;
 using static UnityEngine.Mathf;
 
-namespace RegionKit.Machinery.V1;
+namespace RegionKit.Modules.Machinery.V1;
 /// <summary>
 /// Replaces <see cref="Room.ElectricPower"/> behavior when present with custom modifiers. See: <see cref="IRoomPowerModifier"/>.
 /// </summary>

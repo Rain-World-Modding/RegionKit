@@ -1,7 +1,7 @@
 ﻿using static RegionKit.Utils;
 using static UnityEngine.Mathf;
 
-namespace RegionKit.Particles.V1;
+namespace RegionKit.Modules.Particles.V1;
 
 #region spawners
 public abstract class ParticleSystemData : ManagedData

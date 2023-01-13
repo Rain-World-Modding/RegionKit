@@ -12,7 +12,7 @@ using System.Reflection;
 using System.Text;
 using MonoMod.RuntimeDetour;
 
-namespace RegionKit.Machinery;
+namespace RegionKit.Modules.Machinery;
 /// <summary>
 /// Handles registration of machinery objects.
 /// </summary>
@@ -32,17 +32,17 @@ public static class Module
 		}
 		appliedOnce = true;
 
-		foreach (var h in MachineryHooks) h.Apply();
+		foreach (var hk in MachineryHooks) hk.Apply();
 	}
 
-	internal static List<Hook> MachineryHooks;
+	internal static List<Hook> MachineryHooks = null!;
 
 	/// <summary>
 	/// Undoes hooks.
 	/// </summary>
 	public static void Disable()
 	{
-		foreach (var h in MachineryHooks) h.Undo();
+		foreach (var hk in MachineryHooks) hk.Undo();
 	}
 
 	internal static RainWorld rw;
@@ -74,10 +74,18 @@ public static class Module
 	{
 		MachineryHooks = new List<Hook>
 			{
-				new Hook(typeof(RainWorld).GetMethodAllContexts(nameof(RainWorld.Start)), typeof(Module).GetMethodAllContexts(nameof(RW_Start))),
-				new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.AddObject)), typeof(Module).GetMethodAllContexts(nameof(Room_AddObject))),
-				new Hook(typeof(Room).GetPropertyAllContexts(nameof(Room.ElectricPower))!.GetGetMethod(), typeof(Module).GetMethodAllContexts(nameof(Room_GetPower))),
-				new Hook(typeof(RainWorldGame).GetConstructor(new Type[]{ typeof(ProcessManager)}), typeof(Module).GetMethodAllContexts(nameof(RWG_new)))
+				new Hook(
+					typeof(RainWorld).GetMethodAllContexts(nameof(RainWorld.Start)),
+					typeof(Module).GetMethodAllContexts(nameof(RW_Start))),
+				new Hook(
+					typeof(Room).GetMethodAllContexts(nameof(Room.AddObject)),
+					typeof(Module).GetMethodAllContexts(nameof(Room_AddObject))),
+				new Hook(
+					typeof(Room).GetPropertyAllContexts(nameof(Room.ElectricPower))!.GetGetMethod(),
+					typeof(Module).GetMethodAllContexts(nameof(Room_GetPower))),
+				new Hook(
+					typeof(RainWorldGame).GetConstructor(new Type[]{ typeof(ProcessManager)}),
+					typeof(Module).GetMethodAllContexts(nameof(RWG_new)))
 			};
 	}
 	#endregion
@@ -116,10 +124,3 @@ public enum MachineryID
 	Cog
 }
 
-
-//  to-do list/idea stash:
-//  - integrate with brokenzerog
-//  - add more machines
-//  - cog array?
-//  - sounds
-//  - power manager might become performance heavy if there's too many subscribers. consider ways of preventing.

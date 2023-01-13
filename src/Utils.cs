@@ -116,14 +116,14 @@ public static partial class Utils
 	internal static T RandomOrDefault<T>(this T[] arr)
 	{
 		var res = default(T);
-		if (arr.Length > 0) return arr[RND.Range(0, arr.Length)];
+		if (arr.Length > 0) return arr[RNG.Range(0, arr.Length)];
 		return res;
 	}
 	public static T RandomOrDefault<T>(this List<T> l)
 	{
 		if (l.Count == 0) return default;
 		//var R = new System.Random(l.GetHashCode());
-		return l[RND.Range(0, l.Count)];
+		return l[RNG.Range(0, l.Count)];
 	}
 
 	public static void AddMultiple<TKey, TValue>(this Dictionary<TKey, TValue> dict, TValue value, params TKey[] keys)
@@ -139,6 +139,49 @@ public static partial class Utils
 		}
 	}
 	#endregion collections
+	#region weakdicts
+	//moved from M4rbleL1ne's ConditionalEffects
+	public static void RemoveWeak<T>(Dictionary<WeakReference, T> dict, RoomSettings.RoomEffect key)
+	{
+		WeakReference weakKey = null;
+		foreach (var pair in dict)
+			if (pair.Key.IsAlive && pair.Key.Target == key)
+			{
+				weakKey = pair.Key;
+				break;
+			}
+		if (weakKey != null)
+			dict.Remove(weakKey);
+	}
+	public static bool TryGetWeak<T>(Dictionary<WeakReference, T> dict, RoomSettings.RoomEffect key, out T value)
+	{
+		foreach (var pair in dict)
+			if (pair.Key.IsAlive && pair.Key.Target == key)
+			{
+				value = pair.Value;
+				return true;
+			}
+		value = default;
+		return false;
+	}
+	public static T GetWeak<T>(Dictionary<WeakReference, T> dict, RoomSettings.RoomEffect key)
+	{
+		foreach (var pair in dict)
+			if (pair.Key.IsAlive && pair.Key.Target == key)
+				return pair.Value;
+		throw new KeyNotFoundException("Could not get from weak list");
+	}
+	public static void SetWeak<T>(Dictionary<WeakReference, T> dict, RoomSettings.RoomEffect key, T value)
+	{
+		foreach (var pair in dict)
+			if (pair.Key.IsAlive && pair.Key.Target == key)
+			{
+				dict[pair.Key] = value;
+				return;
+			}
+		dict[new WeakReference(key)] = value;
+	}
+	#endregion
 	#region refl flag templates
 	/// <summary>
 	/// Binding flags for all normal contexts.
@@ -370,7 +413,7 @@ public static partial class Utils
 		int minRes = int.MinValue,
 		int maxRes = int.MaxValue)
 	{
-		return IntClamp(RND.Range(start - mDev, start + mDev), minRes, maxRes);
+		return IntClamp(RNG.Range(start - mDev, start + mDev), minRes, maxRes);
 	}
 
 	/// <summary>
@@ -387,7 +430,7 @@ public static partial class Utils
 		float minRes = float.NegativeInfinity,
 		float maxRes = float.PositiveInfinity)
 	{
-		return Clamp(Lerp(start - mDev, start + mDev, RND.value), minRes, maxRes);
+		return Clamp(Lerp(start - mDev, start + mDev, RNG.value), minRes, maxRes);
 	}
 
 	/// <summary>
@@ -396,7 +439,7 @@ public static partial class Utils
 	/// <returns>1f or -1f on a coinflip.</returns>
 	public static float RandSign()
 	{
-		return RND.value > 0.5f ? -1f : 1f;
+		return RNG.value > 0.5f ? -1f : 1f;
 	}
 
 	/// <summary>
@@ -407,7 +450,7 @@ public static partial class Utils
 	/// <returns>Resulting vector.</returns>
 	public static Vector2 V2RandLerp(Vector2 a, Vector2 b)
 	{
-		return Vector2.Lerp(a, b, RND.value);
+		return Vector2.Lerp(a, b, RNG.value);
 	}
 
 	/// <summary>
@@ -429,7 +472,7 @@ public static partial class Utils
 	public static Color RandDev(this Color bcol, Color dbound, bool clamped = true)
 	{
 		Color res = default;
-		for (int i = 0; i < 3; i++) res[i] = bcol[i] + (dbound[i] * RND.Range(-1f, 1f));
+		for (int i = 0; i < 3; i++) res[i] = bcol[i] + (dbound[i] * RNG.Range(-1f, 1f));
 		return clamped ? res.Clamped() : res;
 	}
 	#endregion
@@ -636,15 +679,18 @@ public static partial class Utils
 		=> vec.w is not 0f ? vec : new(vec.x, vec.y, vec.z, 1f);
 	public static IntVector2 ToIntVector2(this Vector2 vec) => new((int)vec.x, (int)vec.y);
 	public static Vector2 ToVector2(this IntVector2 ivec) => new(ivec.x, ivec.y);
-	public static IEnumerable<IntVector2> ReturnTiles(this IntRect ir){
-		for (int i = ir.left; i <= ir.right; i++){
-			for (int j = ir.bottom; j <= ir.top; j++){
+	public static IEnumerable<IntVector2> ReturnTiles(this IntRect ir)
+	{
+		for (int i = ir.left; i <= ir.right; i++)
+		{
+			for (int j = ir.bottom; j <= ir.top; j++)
+			{
 				yield return new(i, j);
 			}
-		}	
+		}
 	}
 
-	
+
 #if RK //RK-specific things
 
 	// public static float GetGlobalPower(this Room self)

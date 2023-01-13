@@ -2,7 +2,7 @@
 namespace RegionKit.Modules.ShelterBehaviors;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), "ShelterBehaviors")]
-public static class Module
+public static class _Module
 {
 	public const string ModID = "ShelterBehaviors";
 	public const string breakVer = "1.0";

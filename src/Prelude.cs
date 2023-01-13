@@ -15,7 +15,7 @@ global using RFL = System.Reflection;
 global using REG = System.Text.RegularExpressions;
 global using BIE = BepInEx;
 
-global using RND = UnityEngine.Random;
+global using RNG = UnityEngine.Random;
 global using UAD = UpdatableAndDeletable;
 
 global using static RegionKit.Mod;

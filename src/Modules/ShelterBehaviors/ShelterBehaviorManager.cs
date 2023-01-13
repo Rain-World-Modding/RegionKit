@@ -177,16 +177,16 @@ namespace RegionKit.Modules.ShelterBehaviors
                 {
 					switch (instance.roomSettings.placedObjects[i].type.ToString())
 					{
-					case Module.EnumNames.PlacedDoor:
+					case _Module.EnumNames.PlacedDoor:
 						this.AddPlacedDoor(instance.roomSettings.placedObjects[i]);
 						break;
-					case Module.EnumNames.TriggerZone:
+					case _Module.EnumNames.TriggerZone:
 						this.AddTriggerZone(instance.roomSettings.placedObjects[i]);
 						break;
-					case Module.EnumNames.NoTriggerZone:
+					case _Module.EnumNames.NoTriggerZone:
 						this.AddNoTriggerZone(instance.roomSettings.placedObjects[i]);
 						break;
-					case Module.EnumNames.SpawnPosition:
+					case _Module.EnumNames.SpawnPosition:
 						this.AddSpawnPosition(instance.roomSettings.placedObjects[i]);
 						break;
 					default:

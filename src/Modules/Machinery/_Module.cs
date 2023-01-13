@@ -17,7 +17,7 @@ namespace RegionKit.Modules.Machinery;
 /// Handles registration of machinery objects.
 /// </summary>
 [RegionKitModule(nameof(Enable), nameof(Disable), "Machinery")]
-public static class Module
+public static class _Module
 {
 	private static bool appliedOnce = false;
 	/// <summary>
@@ -76,16 +76,16 @@ public static class Module
 			{
 				new Hook(
 					typeof(RainWorld).GetMethodAllContexts(nameof(RainWorld.Start)),
-					typeof(Module).GetMethodAllContexts(nameof(RW_Start))),
+					typeof(_Module).GetMethodAllContexts(nameof(RW_Start))),
 				new Hook(
 					typeof(Room).GetMethodAllContexts(nameof(Room.AddObject)),
-					typeof(Module).GetMethodAllContexts(nameof(Room_AddObject))),
+					typeof(_Module).GetMethodAllContexts(nameof(Room_AddObject))),
 				new Hook(
 					typeof(Room).GetPropertyAllContexts(nameof(Room.ElectricPower))!.GetGetMethod(),
-					typeof(Module).GetMethodAllContexts(nameof(Room_GetPower))),
+					typeof(_Module).GetMethodAllContexts(nameof(Room_GetPower))),
 				new Hook(
 					typeof(RainWorldGame).GetConstructor(new Type[]{ typeof(ProcessManager)}),
-					typeof(Module).GetMethodAllContexts(nameof(RWG_new)))
+					typeof(_Module).GetMethodAllContexts(nameof(RWG_new)))
 			};
 	}
 	#endregion

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-using static RegionKit.Modules.Machinery.Module;
+using static RegionKit.Modules.Machinery._Module;
 using static UnityEngine.Mathf;
 
 namespace RegionKit.Modules.Machinery.V1;

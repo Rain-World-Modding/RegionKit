@@ -97,6 +97,47 @@ public static partial class Utils
 		if (dict.ContainsKey(key)) dict[key] = val;
 		else dict.Add(key, val);
 	}
+	internal static bool SetKey<tKey, tValue>(this IDictionary<tKey, tValue> dict, tKey key, tValue val)
+	{
+		if (dict == null) throw new ArgumentNullException();
+		try
+		{
+			if (!dict.ContainsKey(key)) dict.Add(key, val);
+			else dict[key] = val;
+			return true;
+		}
+		catch
+		{
+			return false;
+		}
+
+	}
+	internal static bool IndexInRange(this object[] arr, int index) => index > -1 && index < arr.Length;
+	internal static T RandomOrDefault<T>(this T[] arr)
+	{
+		var res = default(T);
+		if (arr.Length > 0) return arr[RND.Range(0, arr.Length)];
+		return res;
+	}
+	public static T RandomOrDefault<T>(this List<T> l)
+	{
+		if (l.Count == 0) return default;
+		//var R = new System.Random(l.GetHashCode());
+		return l[RND.Range(0, l.Count)];
+	}
+
+	public static void AddMultiple<TKey, TValue>(this Dictionary<TKey, TValue> dict, TValue value, params TKey[] keys)
+	{
+		dict.AddMultiple(value, ieKeys: keys);
+	}
+
+	public static void AddMultiple<TKey, TValue>(this Dictionary<TKey, TValue> dict, TValue value, IEnumerable<TKey> ieKeys)
+	{
+		foreach (TKey key in ieKeys)
+		{
+			dict.SetKey(key, value);
+		}
+	}
 	#endregion collections
 	#region refl flag templates
 	/// <summary>
@@ -340,8 +381,8 @@ public static partial class Utils
 	/// <param name="minRes">Result lower bound.</param>
 	/// <param name="maxRes">Result upper bound.</param>
 	/// <returns>The resulting value.</returns>
-	public static float Deviate(
-		this float start,
+	public static float ClampedFloatDeviation(
+		float start,
 		float mDev,
 		float minRes = float.NegativeInfinity,
 		float maxRes = float.PositiveInfinity)
@@ -593,229 +634,91 @@ public static partial class Utils
 	/// </summary>
 	public static Color ToOpaqueCol(in this Vector4 vec)
 		=> vec.w is not 0f ? vec : new(vec.x, vec.y, vec.z, 1f);
-#if ATMO //atmo-specific things
-
-	/// <summary>
-	/// Strings that evaluate to bool.true
-	/// </summary>
-	public static readonly string[] trueStrings = new[] { "true", "1", "yes", };
-	/// <summary>
-	/// Strings that evaluate to bool.false
-	/// </summary>
-	public static readonly string[] falseStrings = new[] { "false", "0", "no", };
-	internal static SlugcatStats.Name? __tempSlugName;
-	internal static World? __temp_World;
-	internal static int? __CurrentSaveslot => inst.RW?.options?.saveSlot;
-	internal static SlugcatStats.Name? __CurrentCharacter
-		=>
-		inst.RW?.
-		processManager.FindSubProcess<RainWorldGame>()?
-		.GetStorySession?
-		.characterStats.name
-		?? __tempSlugName;
-	internal static void DbgVerbose(
-		this LOG.ManualLogSource logger,
-		object data)
-	{
-		BangBang(logger, nameof(logger));
-		if (log_verbose?.Value ?? false) logger.LogDebug(data);
-	}
-	internal static void LogFrameTime(
-		List<TimeSpan> realup_times,
-		TimeSpan frame,
-		LinkedList<double> realup_readings,
-		int storeCap)
-	{
-		realup_times.Add(frame);
-		if (realup_times.Count == realup_times.Capacity)
-		{
-			TimeSpan total = new(0);
-			for (int i = 0; i < realup_times.Count; i++)
-			{
-				total += realup_times[i];
+	public static IntVector2 ToIntVector2(this Vector2 vec) => new((int)vec.x, (int)vec.y);
+	public static Vector2 ToVector2(this IntVector2 ivec) => new(ivec.x, ivec.y);
+	public static IEnumerable<IntVector2> ReturnTiles(this IntRect ir){
+		for (int i = ir.left; i <= ir.right; i++){
+			for (int j = ir.bottom; j <= ir.top; j++){
+				yield return new(i, j);
 			}
-			realup_readings.AddLast(total.TotalMilliseconds / realup_times.Capacity);
-			if (realup_readings.Count > storeCap) realup_readings.RemoveFirst();
-			realup_times.Clear();
-		}
+		}	
 	}
-	/// <summary>
-	/// Save name for when character is not found
-	/// </summary>
-	public const string SLUG_NOT_FOUND = "ATMO_SER_NOCHAR";
-	//todo: init this
-	internal static SlugcatStats.Name __slugnameNotFound = null!;
-	/// <summary>
-	/// Cache to speed up <see cref="__SlugNameString(int)"/>.
-	/// </summary>
-	internal static readonly Dictionary<int, string> __SlugNameCache = new();
-	//might not need it at all honestly
-#if false
-	/// <summary>
-	/// Returns slugcat name for a given index.
-	/// </summary>
-	/// <param name="slugNumber"></param>
-	/// <returns>Resulting name for the slugcat; <see cref="SLUG_NOT_FOUND"/> if the index is below zero, </returns>
-	private static string __SlugNameString(int slugNumber)
+
+	
+#if RK //RK-specific things
+
+	// public static float GetGlobalPower(this Room self)
+	// {
+	// 	if (ManagersByRoom.TryGetValue(self.GetHashCode(), out var rpm)) return rpm.GetGlobalPower();
+	// 	return self.world?.rainCycle?.brokenAntiGrav?.CurrentLightsOn ?? 1f;
+	// }
+	// public static float GetPower(this Room self, Vector2 point)
+	// {
+	// 	if (ManagersByRoom.TryGetValue(self.GetHashCode(), out var rpm)) return rpm.GetPowerForPoint(point);
+	// 	return self.world?.rainCycle?.brokenAntiGrav?.CurrentLightsOn ?? 1f;
+	// }
+
+	// public static List<IntVector2> ReturnTiles(this IntRect ir)
+	// {
+	// 	var res = new List<IntVector2>();
+	// 	for (int x = ir.left; x < ir.right; x++)
+	// 	{
+	// 		for (int y = ir.bottom; y < ir.top; y++)
+	// 		{
+	// 			res.Add(new IntVector2(x, y));
+	// 		}
+	// 	}
+	// 	return res;
+	// }
+
+	public static void ClampToNormal(this Color self)
 	{
-		//todo: look at how custom slugs will work and revise
-		return __SlugNameCache.EnsureAndGet(slugNumber, () =>
+		self.r = Clamp01(self.r);
+		self.g = Clamp01(self.g);
+		self.b = Clamp01(self.b);
+		self.a = Clamp01(self.a);
+	}
+	public static List<T> AddRangeReturnSelf<T>(this List<T> self, IEnumerable<T> range)
+	{
+		if (self == null) self = new List<T>();
+		self.AddRange(range);
+		return self;
+	}
+	public static Color Deviation(this Color self, Color dev)
+	{
+		var res = new Color();
+		for (int i = 0; i < 4; i++)
 		{
-			string? res = slugNumber switch
-			{
-				< 0 => SLUG_NOT_FOUND,
-				0 => "survivor",
-				1 => "monk",
-				2 => "hunter",
-				_ => null,
-			};
+			res[i] = ClampedFloatDeviation(self[i], dev[i]);
+		}
+		return res;
+	}
+
+	public static FContainer ReturnFContainer(this RoomCamera rcam, ContainerCodes cc)
+		=> rcam.ReturnFContainer(cc.ToString());
+	public static string[] SplitAndRemoveEmpty(this string str, string separator) => str.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+
+	#region refl extensions
+	/// <summary>
+	/// cleans up all non valuetype fields in a type. for realm cleanups
+	/// </summary>
+	/// <param name="t"></param>
+	internal static void CleanUpStatic(this Type t)
+	{
+		foreach (var fld in t.GetFields(BF_ALL_CONTEXTS_STATIC))
+		{
 			try
 			{
-				res ??= __SlugName_WrapSB(slugNumber);
+				if (fld.FieldType.IsValueType || fld.IsLiteral) continue;
+				fld.SetValue(null, default);
 			}
-			catch (TypeLoadException)
-			{
-				plog.LogMessage($"SlugBase not present: character #{slugNumber} has no valid name.");
-			}
-			res ??= ((SlugcatStats.Name)slugNumber).ToString();
-			return res ?? SLUG_NOT_FOUND;
-		});
+			catch { }
+
+		}
+		foreach (var child in t.GetNestedTypes()) child.CleanUpStatic();
 	}
-	private static string __SlugName_WrapSB(int slugNumber)
-	{
-		return SlugBase.PlayerManager.GetCustomPlayer(slugNumber)?.Name ?? SLUG_NOT_FOUND;
-	}
-#endif
-	internal static readonly Dictionary<char, char> __literalEscapes = new()
-	{
-		{ 'q', '\'' },
-		{ 't', '\t' },
-		{ 'n', '\n' }
-	};
-	internal static string ApplyEscapes(this string str)
-	{
-		StringBuilder res = new(str.Length);
-		int slashrow = 0;
-		for (int i = 0; i < str.Length; i++)
-		{
-			char c = str[i];
-			if (c == '\\')
-			{
-				slashrow++;
-			}
-			else if (slashrow > 0)
-			{
-				if (!__literalEscapes.TryGetValue(c, out char escaped))
-				{
-					res.Append('\\', slashrow);
-					slashrow = 0;
-					continue;
-				}
-				if (slashrow % 2 is 0)
-				{
-					res.Append('\\', slashrow / 2);
-					res.Append(c);
-				}
-				else
-				{
-					res.Append('\\', Max((slashrow - 1) / 2, 0));
-					res.Append(escaped);
-				}
-				slashrow = 0;
-			}
-			else
-			{
-				res.Append(c);
-				slashrow = 0;
-			}
-		}
-		return res.ToString();
-	}
-	/// <summary>
-	/// Attempts setting one argpayload to value of another, preferring specified datatype.
-	/// </summary>
-	/// <param name="argv">Payload to take value from</param>
-	/// <param name="target">Payload that will receive value</param>
-	/// <param name="datatype">Preferred data type.</param>
-	public static void Assign<TV, TT>(TV argv, TT target, ArgType datatype = ArgType.STRING)
-	where TV : IArgPayload
-	where TT : IArgPayload
-	{
-		switch (datatype)
-		{
-		case ArgType.DECIMAL:
-		{
-			target.F32 = argv.F32;
-			break;
-		}
-		case ArgType.INTEGER:
-		{
-			target.I32 = argv.I32;
-			break;
-		}
-		case ArgType.BOOLEAN:
-		{
-			target.Bool = argv.Bool;
-			break;
-		}
-		case ArgType.VECTOR:
-		{
-			target.Vec = argv.Vec;
-			break;
-		}
-		case ArgType.STRING:
-		case ArgType.ENUM:
-		case ArgType.OTHER:
-		default:
-		{
-			target.Str = argv.Str;
-			break;
-		}
-		}
-	}
-	/// <summary>
-	/// Wraps an <see cref="IArgPayload"/> with an <see cref="WrapExcept{T}"/>, rerouting selected properties.
-	/// </summary>
-	/// <returns>
-	/// Object that replaces selected get/set behaviours with custom callbacks.
-	/// </returns>
-	public static WrapExcept<T> Except<T>(
-		this T wrap,
-		FakeProp<int>? p_i32 = null,
-		FakeProp<float>? p_f32 = null,
-		FakeProp<string>? p_str = null,
-		FakeProp<bool>? p_bool = null,
-		FakeProp<Vector4>? p_vec = null)
-		where T : IArgPayload
-	{
-		return new WrapExcept<T>(wrap, p_i32, p_f32, p_str, p_bool, p_vec);
-	}
-	/// <summary>
-	/// Wraps an <see cref="IArgPayload"/> with an <see cref="Data.Payloads.WrapExcept{TW}"/> with set property default values: instead of using <paramref name="wrap"/>'s accessors.
-	/// </summary>
-	/// <returns>An object that will act as if it was accessing its own values for every argument passed as non null.</returns>
-	public static WrapExcept<T> ExceptFld<T>(
-		this T wrap,
-		int? i32 = null,
-		float? f32 = null,
-		string? str = null,
-		bool? @bool = null,
-		Vector4? vec = null
-		)
-		where T : IArgPayload
-	{
-		return new WrapExcept<T>(
-			wrap,
-			i32?.FakeAutoimpl(),
-			f32?.FakeAutoimpl(),
-			str?.FakeAutoimpl(),
-			@bool?.FakeAutoimpl(),
-			vec?.FakeAutoimpl());
-	}
-	/// <summary>
-	/// Creates an "autoimplemented" fakeprop.
-	/// </summary>
-	public static FakeProp<T> FakeAutoimpl<T>(this T item) => new(item);
+
+	#endregion
 #endif
 	#endregion
 }

@@ -6,6 +6,7 @@ global using System.Collections.Generic;
 global using System.Linq;
 global using UnityEngine;
 global using RWCustom;
+global using RegionKit;
 
 global using LOG = BepInEx.Logging;
 global using DBG = System.Diagnostics;

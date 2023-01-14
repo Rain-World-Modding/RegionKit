@@ -5,12 +5,11 @@ using System.Text.RegularExpressions;
 using RWCustom;
 using UnityEngine;
 
-
 namespace RegionKit.Modules.EchoExtender;
 [RegionKitModule(nameof(ApplyHooks), nameof(RemoveHooks), moduleName:"EchoExtender")]
-public static class EchoExtender
+public static class _Module
 {
-	public static SlugcatStats.Name SlugcatNumber { get; private set; }
+	public static SlugcatStats.Name SlugcatNumber { get; private set; } = SlugcatStats.Name.White;
 	public static void ApplyHooks()
 	{
 
@@ -141,10 +140,8 @@ public static class EchoExtender
 							break;
 						}
 					}
-
 					continue;
 				}
-
 				self.events.Add(new Conversation.TextEvent(self, 0, line, 0));
 			}
 		}

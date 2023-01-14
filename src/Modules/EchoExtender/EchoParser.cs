@@ -24,8 +24,8 @@ public static class EchoParser
 		{ "UNUSED", "NA_37 - Else6" }
 	};
 
-	public static GhostWorldPresence.GhostID GetEchoID(string regionShort) => (GhostWorldPresence.GhostID)Enum.Parse(typeof(GhostWorldPresence.GhostID), regionShort);
-	public static Conversation.ID GetConversationID(string regionShort) => (Conversation.ID)Enum.Parse(typeof(Conversation.ID), "Ghost_" + regionShort);
+	public static GhostWorldPresence.GhostID GetEchoID(string regionShort) => (GhostWorldPresence.GhostID)ExtEnumBase.Parse(typeof(GhostWorldPresence.GhostID), regionShort, false);
+	public static Conversation.ID GetConversationID(string regionShort) => (Conversation.ID)ExtEnumBase.Parse(typeof(Conversation.ID), "Ghost_" + regionShort, false);
 
 	public static bool EchoIDExists(string regionShort)
 	{

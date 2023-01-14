@@ -4,17 +4,17 @@ using RWCustom;
 
 namespace RegionKit.Modules;
 
-public static class NewObjects
+public static class ExtEn_Objects
 {
-	public static string PWLightrod = nameof(PWLightrod);
+	public static PlacedObject.Type PWLightrod = new(nameof(PWLightrod));
 }
 
 internal static class NewEffects
 {
-	public const string PWMalfunction = nameof(PWMalfunction);
-	public const string FogOfWarSolid = nameof(FogOfWarSolid);
-	public const string FogOfWarDarkened = nameof(FogOfWarDarkened);
-	public const string CloudAdjustment = nameof(CloudAdjustment);
+	public static RoomSettings.RoomEffect.Type PWMalfunction = new(nameof(PWMalfunction), true);
+	public static RoomSettings.RoomEffect.Type FogOfWarSolid = new(nameof(FogOfWarSolid), true);
+	public static RoomSettings.RoomEffect.Type FogOfWarDarkened = new(nameof(FogOfWarDarkened), true);
+	public static RoomSettings.RoomEffect.Type CloudAdjustment = new(nameof(CloudAdjustment), true);
 
 }
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "RoomLoader")]
@@ -22,10 +22,6 @@ static class _RoomLoader
 {
 	public static void Enable()
 	{
-		new RoomSettings.RoomEffect.Type(NewEffects.PWMalfunction, true);
-		new RoomSettings.RoomEffect.Type(NewEffects.FogOfWarSolid, true);
-		new RoomSettings.RoomEffect.Type(NewEffects.FogOfWarDarkened, true);
-		new RoomSettings.RoomEffect.Type(NewEffects.CloudAdjustment, true);
 		On.Room.Loaded += Room_Loaded;
 		On.PlacedObject.GenerateEmptyData += PlacedObject_GenerateEmptyData;
 		On.DevInterface.ObjectsPage.CreateObjRep += ObjectsPage_CreateObjRep;
@@ -48,7 +44,7 @@ static class _RoomLoader
 
 	public static void ObjectsPage_CreateObjRep(On.DevInterface.ObjectsPage.orig_CreateObjRep orig, ObjectsPage self, PlacedObject.Type tp, PlacedObject pObj)
 	{
-		if (tp.ToString() == NewObjects.PWLightrod)
+		if (tp == ExtEn_Objects.PWLightrod)
 		{
 			bool isNewObject = false;
 			if (pObj == null)
@@ -74,7 +70,7 @@ static class _RoomLoader
 	private static void PlacedObject_GenerateEmptyData(On.PlacedObject.orig_GenerateEmptyData orig, PlacedObject self)
 	{
 		orig(self);
-		if (self.type.ToString() == NewObjects.PWLightrod)
+		if (self.type == ExtEn_Objects.PWLightrod)
 		{
 			self.data = new Objects.PWLightRodData(self);
 		}
@@ -93,7 +89,7 @@ static class _RoomLoader
 		{
 			var effect = self.roomSettings.effects[k];
 
-			if (effect.type.ToString() == NewEffects.PWMalfunction && self.world.rainCycle.brokenAntiGrav == null)
+			if (effect.type == NewEffects.PWMalfunction && self.world.rainCycle.brokenAntiGrav == null)
 			{
 				//Directly adds a brokenAntiGraivty to the world
 				self.world.rainCycle.brokenAntiGrav = new AntiGravity.BrokenAntiGravity(self.game.setupValues.gravityFlickerCycleMin, self.game.setupValues.gravityFlickerCycleMax, self.game);
@@ -106,7 +102,7 @@ static class _RoomLoader
 			var obj = self.roomSettings.placedObjects[l];
 			if (obj.active)
 			{
-				if (obj.type.ToString() == NewObjects.PWLightrod)
+				if (obj.type == ExtEn_Objects.PWLightrod)
 				{
 					self.AddObject(new Objects.PWLightRod(obj, self));
 				}

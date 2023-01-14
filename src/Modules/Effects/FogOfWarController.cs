@@ -54,15 +54,15 @@ namespace RegionKit.Modules.Effects
         {
             switch(fogType)
             {
-                case FogType.Darkened: return new(NewEffects.FogOfWarDarkened, false);
-                case FogType.Solid: return new(NewEffects.FogOfWarSolid, false);
+                case FogType.Darkened: return NewEffects.FogOfWarDarkened;
+                case FogType.Solid: return NewEffects.FogOfWarSolid;
                 default: return RoomSettings.RoomEffect.Type.None;
             }
         }
         public static FogType GetFogType(RoomSettings.RoomEffect.Type effectType)
         {
-            if (effectType.ToString() == NewEffects.FogOfWarDarkened) return FogType.Darkened;
-            if (effectType.ToString() == NewEffects.FogOfWarSolid) return FogType.Solid;
+            if (effectType == NewEffects.FogOfWarDarkened) return FogType.Darkened;
+            if (effectType == NewEffects.FogOfWarSolid) return FogType.Solid;
             return FogType.None;
         }
 

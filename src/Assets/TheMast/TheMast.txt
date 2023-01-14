@@ -1,0 +1,20 @@
+{"frames": {
+
+"Symbol_PearlChain":
+{
+	"frame": {"x":1,"y":1,"w":11,"h":24},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":11,"h":24},
+	"sourceSize": {"w":11,"h":24}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "TheMast.png",
+	"format": "RGBA8888",
+	"size": {"w":13,"h":26},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:bf79395c1b5f351d7ffd2d3b5c30a6ef:977e09e99a6efdffaca954c18ddf5e48:5ebf7a8335bd8ed543573fc18e1fa09a$"
+}
+}

@@ -7,16 +7,15 @@ internal static class _Assets
 	{
 	}
 
-	internal static string FogOfWar
+	internal static string FogOfWar => GetUTF8("FogOfWar.txt")!;
+
+	internal static string? GetUTF8(params string[] assetpath)
 	{
-		get
-		{
-			using var stream = RFL.Assembly.GetExecutingAssembly().GetManifestResourceStream("RegionKit.Assets.FogOfWar.txt");
-			byte[] buff = new byte[stream.Length];
-			stream.Read(buff, 0, (int)stream.Length);
-			return System.Text.Encoding.UTF8.GetString(buff);
-		}
-		//var buff = //stream.Read(stream.Length);
+		Func<string, string, string>? aggregator = (x, y) => $"{x}.{y}";
+		using var stream = RFL.Assembly.GetExecutingAssembly().GetManifestResourceStream($"RegionKit.Assets.{assetpath.Stitch((Func<string, string, string>?)aggregator)}");
+		byte[] buff = new byte[stream.Length];
+		stream.Read(buff, 0, (int)stream.Length);
+		return System.Text.Encoding.UTF8.GetString(buff);
 
 	}
 	public static void Disable()

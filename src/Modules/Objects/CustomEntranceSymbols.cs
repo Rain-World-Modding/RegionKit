@@ -152,18 +152,20 @@ namespace RegionKit.Modules.Objects
                 }
             }
 
-            SelectSpritePanel spriteSelectPanel;
+            SelectSpritePanel? spriteSelectPanel;
 
             internal CESControlPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new(250f, 45f), "Custom Entrance Symbol")
             {
-                var data = (parentNode as CESRepresentation).pObj.data as CESData;
+				
+                var data = ((parentNode as CESRepresentation)!.pObj.data as CESData)!;
                 subNodes.Add(new Button(owner, "Sprite_Button", this, new(5f, 5f), 240f, "Sprite: " + data.imageName));
                 subNodes.Add(new Button(owner, "Rotation_Button", this, new(5f, 25f), 240f, "Rotation: " + data.rotation * 360 + "�"));
             }
 
             public void Signal(DevUISignalType type, DevUINode sender, string message)
             {
-                var data = (parentNode as CESRepresentation).pObj.data as CESData;
+                var data = (parentNode as CESRepresentation)!.pObj.data as CESData;
+				if (data is null) return;
                 if (sender.IDstring is "Rotation_Button")
                 {
                     switch (data.rotation)
@@ -181,14 +183,14 @@ namespace RegionKit.Modules.Objects
                             data.rotation = 0f;
                             break;
                     }
-                    (sender as Button).Text = "Rotation: " + data.rotation * 360 + "�";
+                    (sender as Button)!.Text = "Rotation: " + data.rotation * 360 + "�";
                     return;
                 }
-                var rep = parentNode as CESRepresentation;
+                CESRepresentation rep = (parentNode as CESRepresentation)!;
                 if (sender.IDstring.StartsWith("Button_Sprites_Next") && spriteSelectPanel is not null)
                 {
                     var num = int.Parse(sender.IDstring.Substring(19));
-                    var nP = rep.files.Length / 10f - 1f;
+                    var nP = rep!.files.Length / 10f - 1f;
                     if (num < nP)
                     {
                         num++;
@@ -224,7 +226,7 @@ namespace RegionKit.Modules.Objects
                     data.imageName = sender.IDstring;
                     for (int i = 0; i < subNodes.Count; i++)
                     {
-                        if (subNodes[i].IDstring is "Sprite_Button") (subNodes[i] as Button).Text = "Sprite: " + data.imageName;
+                        if (subNodes[i].IDstring is "Sprite_Button") (subNodes[i] as Button)!.Text = "Sprite: " + data.imageName;
                     }
                     if (spriteSelectPanel is not null)
                     {
@@ -244,7 +246,7 @@ namespace RegionKit.Modules.Objects
         {
             panel = new(owner, "CustomEntranceSymbolPanel", this, new(0f, 100f));
             subNodes.Add(panel);
-            panel.pos = (pObj.data as CESData).panelPos;
+            panel.pos = (pObj.data as CESData)!.panelPos;
             fSprites.Add(new("pixel"));
             pixelIndex = fSprites.Count - 1;
             owner.placedObjectsContainer.AddChild(fSprites[pixelIndex]);
@@ -271,7 +273,7 @@ namespace RegionKit.Modules.Objects
         public override void Refresh()
         {
             base.Refresh();
-            (pObj.data as CESData).panelPos = panel.pos;
+            (pObj.data as CESData)!.panelPos = panel.pos;
             MoveSprite(pixelIndex, absPos);
             fSprites[pixelIndex].scaleY = panel.pos.magnitude;
             fSprites[pixelIndex].rotation = Custom.AimFromOneVectorToAnother(absPos, panel.absPos);

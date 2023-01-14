@@ -9,7 +9,7 @@ namespace RegionKit.Modules.TheMast
 {
     internal static class RainThreatFix
     {
-        public static float[] rainThreats;
+        public static float[]? rainThreats;
 
         public static void Apply()
         {

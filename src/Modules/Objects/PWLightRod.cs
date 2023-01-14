@@ -7,7 +7,7 @@ public class PWLightRod : SSLightRod
 {
 	public PWLightRod(PlacedObject placedObject, Room room) : base(placedObject, room)
 	{
-		this.color = (this.rodData as PWLightRodData).color;
+		this.color = (this.rodData as PWLightRodData)!.color;
 		this.lights.Clear();
 		this.UpdateLightAmount();
 	}
@@ -15,14 +15,14 @@ public class PWLightRod : SSLightRod
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		if (!color.Equals((rodData as PWLightRodData).color))
+		if (!color.Equals((rodData as PWLightRodData)!.color))
 		{
 			for (int i = 0; i < lights.Count; i++)
 			{
 				lights[i].light.Destroy();
 			}
 			lights.Clear();
-			color = (rodData as PWLightRodData).color;
+			color = (rodData as PWLightRodData)!.color;
 			UpdateLightAmount();
 		}
 	}
@@ -83,7 +83,7 @@ class PWLightRodRepresentation : SSLightRodRepresentation
 		}
 		subNodes.Clear();
 		subNodes.Add(new PWLightrodControlPanel(owner, "PW_Light_Rod_Panel", this, new Vector2(0f, 100f)));
-		(this.subNodes[this.subNodes.Count - 1] as PWLightrodControlPanel).pos = (pObj.data as PWLightRodData).panelPos;
+		(this.subNodes[this.subNodes.Count - 1] as PWLightrodControlPanel)!.pos = (pObj.data as PWLightRodData)!.panelPos;
 		rod.Destroy();
 		//Prevents bug where a new temporary lightrod is added every time you click on the objects page button.
 		if (isNewObject)
@@ -121,18 +121,19 @@ class PWLightRodRepresentation : SSLightRodRepresentation
 				base.Refresh();
 				float num = 0f;
 				string idstring = IDstring;
+				Color rodColor = ((parentNode.parentNode as PWLightRodRepresentation)!.pObj.data as PWLightRodData)!.color;
 				switch (idstring)
 				{
 				case "ColorR_Slider":
-					num = ((parentNode.parentNode as PWLightRodRepresentation).pObj.data as PWLightRodData).color.r;
+					num = rodColor.r;
 					NumberText = ((int)(num * 255)).ToString();
 					break;
 				case "ColorG_Slider":
-					num = ((parentNode.parentNode as PWLightRodRepresentation).pObj.data as PWLightRodData).color.g;
+					num = rodColor.g;
 					NumberText = ((int)(num * 255)).ToString();
 					break;
 				case "ColorB_Slider":
-					num = ((parentNode.parentNode as PWLightRodRepresentation).pObj.data as PWLightRodData).color.b;
+					num = rodColor.b;
 					NumberText = ((int)(num * 255)).ToString();
 					break;
 				}
@@ -141,7 +142,8 @@ class PWLightRodRepresentation : SSLightRodRepresentation
 			//Allows slider values to change color.
 			public override void NubDragged(float nubPos)
 			{
-				PWLightRodData lightrodColor = (parentNode.parentNode as PWLightRodRepresentation).pObj.data as PWLightRodData;
+				PWLightRodData 
+					lightrodColor = ((parentNode.parentNode as PWLightRodRepresentation)!.pObj.data as PWLightRodData)!;
 				switch (IDstring)
 				{
 				case "ColorR_Slider":

@@ -51,7 +51,7 @@ public static class _Module
 		foreach (var hk in mHk) if (hk.IsApplied) hk.Undo();
 	}
 
-	internal static AttachedField<Room, TempleGuardGraphics> cachedGuards;
+	internal static AttachedField<Room, TempleGuardGraphics>? cachedGuards;
 	private static void guardcache(On.Room.orig_Loaded orig, Room self)
 	{
 		//slightly evil (and nonfunct) abstr hack
@@ -63,12 +63,12 @@ public static class _Module
 			AbstractCreature ac = new AbstractCreature(self.world, StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.TempleGuard), null, self.GetWorldCoordinate(new Vector2(-50000f, -50000f)), new EntityID(-1, (self.abstractRoom.index)));
 			ac.realizedCreature = new TempleGuard(ac, self.world);
 			ac.realizedCreature.graphicsModule = new TempleGuardGraphics(ac.realizedCreature);
-			cachedGuards.Set(self, ac.realizedCreature.graphicsModule as TempleGuardGraphics);
+			cachedGuards?.Set(self, (ac.realizedCreature.graphicsModule as TempleGuardGraphics)!);
 		}
 		orig(self);
 	}
 	internal static AttachedField<GHalo, PlacedHalo> reghalos = new AttachedField<GHalo, PlacedHalo>();
-	internal static PlacedHalo chal;
+	internal static PlacedHalo? chal;
 
 	internal delegate void Room_Void_None(Room instance);
 	internal static void Room_Loaded(Room_Void_None orig, Room instance)
@@ -88,6 +88,7 @@ public static class _Module
 		foreach (var uad in instance.updateList) if (uad is INotifyWhenRoomIsViewed tar) tar.RoomViewed();
 	}
 
+	#if false
 	internal static float halo_speed(
 		Func<GHalo, float> orig,
 		GHalo self)
@@ -105,9 +106,10 @@ public static class _Module
 		{
 			ph = ph ?? chal;
 			//UDe.LogWarning("scrom");
-			return ph.RadAtCircle(c, ts, dis);
+			return ph?.RadAtCircle(c, ts, dis) ?? 0f;
 		}
 		return orig(self, c, ts, dis);
 	}
+	#endif
 
 }

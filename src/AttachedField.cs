@@ -15,12 +15,13 @@ namespace RegionKit;
 /// <typeparam name="TKey">The type to attach the value to.</typeparam>
 /// <typeparam name="TValue">The type the the attached value.</typeparam>
 public class AttachedField<TKey, TValue>
+	where TKey : notnull
 {
 	private static IEqualityComparer<object> _comparer = new KeyComparer();
 	/// <summary>
 	/// Called after a key is garbage collected.
 	/// </summary>
-	public event Action<WeakReference, TValue> OnCulled;
+	public event Action<WeakReference, TValue>? OnCulled;
 	private Dictionary<object, TValue> _dict = new(_comparer);
 	private int _lastGCCount = 0;
 
@@ -58,7 +59,7 @@ public class AttachedField<TKey, TValue>
 	/// </summary>
 	/// <param name="obj">The object to get from.</param>
 	/// <returns>The previously set value for this object, or default(<typeparamref name="TValue"/>) if unset.</returns>
-	public TValue Get(TKey obj)
+	public TValue? Get(TKey obj)
 	{
 		if (obj == null) throw new ArgumentNullException(nameof(obj));
 		if (_dict.TryGetValue(obj, out TValue value)) return value;
@@ -71,7 +72,7 @@ public class AttachedField<TKey, TValue>
 	/// <param name="obj">The object to get from.</param>
 	/// <param name="value">The previously set value for this obejct.</param>
 	/// <returns>True if a value exists for <paramref name="obj"/>, false otherwise.</returns>
-	public bool TryGet(TKey obj, out TValue value)
+	public bool TryGet(TKey obj, out TValue? value)
 	{
 		if (obj == null)
 		{
@@ -86,10 +87,10 @@ public class AttachedField<TKey, TValue>
 	/// </summary>
 	/// <param name="obj">The object key.</param>
 	/// <returns>The attached value, or default(<typeparamref name="TValue"/>) if the value has not been set.</returns>
-	public TValue this[TKey obj]
+	public TValue? this[TKey obj]
 	{
 		get => Get(obj);
-		set => Set(obj, value);
+		set => Set(obj, value!);
 	}
 
 	/// <summary>
@@ -121,7 +122,7 @@ public class AttachedField<TKey, TValue>
 		// Remove them from the dictionary
 		for (int i = _toRemove.Count - 1; i >= 0; i--)
 		{
-			OnCulled?.Invoke(_toRemove[i].Key as WeakReference, _toRemove[i].Value);
+			OnCulled?.Invoke((_toRemove[i].Key as WeakReference)!, _toRemove[i].Value);
 			_dict.Remove(_toRemove[i].Key);
 		}
 		_toRemove.Clear();

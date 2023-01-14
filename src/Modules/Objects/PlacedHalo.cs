@@ -11,22 +11,23 @@ using static RegionKit.Modules.Objects._Module;
 
 using GHalo = TempleGuardGraphics.Halo;
 using URAnd = UnityEngine.Random;
-using UDe = UnityEngine.Debug;
+//using DBG = UnityEngine.Debug;
 
 namespace RegionKit.Modules.Objects
 {
-    public class PlacedHalo : UpdatableAndDeletable, IDrawable
+    public class PlacedHalo : UpdatableAndDeletable//, IDrawable
     {
+		#if false
         public PlacedHalo(PlacedObject owner, Room rm)
         {
             _ow = owner;
             //chal = this;
-            if (cachedGuards.TryGet(rm, out var g))
+            if (cachedGuards?.TryGet(rm, out var g) ?? false)
             {
                 halo = new GHalo(g, 0);
                 reghalos.Set(halo, this);
             }
-            else UDe.LogWarning("Cached guards not found!");
+            else Debug.LogWarning("Cached guards not found!");
             
         }
         public override void Update(bool eu)
@@ -52,7 +53,7 @@ namespace RegionKit.Modules.Objects
         #region idrawable
         public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
         {
-            if (halo == null) UDe.LogWarning("HALO IS NULL!");
+            if (halo == null) Debug.LogWarning("HALO IS NULL!");
             sLeaser.sprites = new FSprite[halo.totalSprites];
             halo.InitiateSprites(sLeaser, rCam);
             AddToContainer(sLeaser, rCam, null);
@@ -75,5 +76,7 @@ namespace RegionKit.Modules.Objects
             }
         }
         #endregion idrawable
+		#endif
     }
+	
 }

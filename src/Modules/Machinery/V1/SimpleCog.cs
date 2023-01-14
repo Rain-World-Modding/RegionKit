@@ -10,13 +10,13 @@ namespace RegionKit.Modules.Machinery.V1;
 public class SimpleCog : UpdatableAndDeletable, IDrawable
 {
 	public SimpleCog(Room rm, PlacedObject pobj) : this(rm, pobj, null) { }
-	public SimpleCog(Room rm, PlacedObject pobj, SimpleCogData acd = null)
+	public SimpleCog(Room rm, PlacedObject? pobj, SimpleCogData? acd = null)
 	{
 		PO = pobj;
 		this.room = rm;
 		_assignedCD = acd;
 		//PetrifiedWood.WriteLine($"Cog created in {rm.abstractRoom?.name}");
-		plog.LogDebug($"({rm.abstractRoom.name}): Created a Cog.");
+		__log.LogDebug($"({rm.abstractRoom.name}): Created a Cog.");
 	}
 	public override void Update(bool eu)
 	{
@@ -37,13 +37,14 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 		}
 	}
 
-	private SimpleCogData _bcd;
-	private readonly SimpleCogData _assignedCD;
-	private PlacedObject PO;
+	private SimpleCogData? _bcd;
+	private readonly SimpleCogData? _assignedCD;
+	private PlacedObject? PO;
 
-	internal MachineryCustomizer _mc;
+	internal MachineryCustomizer? _mc;
 	internal void GrabMC()
 	{
+		if (this.PO is null) return;
 		_mc = _mc
 			?? room.roomSettings.placedObjects.FirstOrDefault(
 				x => x.data is MachineryCustomizer nmc && nmc.GetValue<MachineryID>("amID") == MachineryID.Cog && (x.pos - this.PO.pos).sqrMagnitude <= nmc.GetValue<Vector2>("radius").sqrMagnitude)?.data as MachineryCustomizer
@@ -88,7 +89,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		sLeaser.sprites[0].SetPosition(cpos - camPos);
-		_mc.BringToKin(sLeaser.sprites[0]);
+		_mc?.BringToKin(sLeaser.sprites[0]);
 		sLeaser.sprites[0].rotation = LerpAngle(lastRot, rot, timeStacker);
 
 	}
@@ -101,7 +102,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
 	{
 		foreach (var fs in sLeaser.sprites) fs.RemoveFromContainer();
-		try { (newContatiner ?? rCam.ReturnFContainer(_mc.ContainerName)).AddChild(sLeaser.sprites[0]); }
+		try { (newContatiner ?? rCam.ReturnFContainer(_mc?.ContainerName ?? ContainerCodes.Items)).AddChild(sLeaser.sprites[0]); }
 		catch { rCam.ReturnFContainer("Items").AddChild(sLeaser.sprites[0]); }
 	}
 	#endregion

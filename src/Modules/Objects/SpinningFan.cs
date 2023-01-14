@@ -26,15 +26,17 @@ public class SpinningFan : UpdatableAndDeletable, IDrawable
 	{
 		this.pObj = pObj;
 		this.room = room;
-		speed = (this.pObj.data as ManagedData).GetValue<float>("speed");
-		scale = (this.pObj.data as ManagedData).GetValue<float>("scale");
-		depth = (this.pObj.data as ManagedData).GetValue<float>("depth");
+		var managedData = (this.pObj.data as ManagedData)!;
+		speed = managedData.GetValue<float>("speed");
+		scale = managedData.GetValue<float>("scale");
+		depth = managedData.GetValue<float>("depth");
 	}
 
 	public override void Update(bool eu)
 	{
 		pos = pObj.pos;
-		getToSpeed = Mathf.Lerp(-10f, 10f, (pObj.data as ManagedData).GetValue<float>("speed"));
+		var managedData = (pObj.data as ManagedData)!;
+		getToSpeed = Mathf.Lerp(-10f, 10f, managedData.GetValue<float>("speed"));
 		if (room.world.rainCycle.brokenAntiGrav != null)
 		{
 			float target = room.world.rainCycle.brokenAntiGrav.CurrentLightsOn > 0f ? getToSpeed : 0f;
@@ -44,8 +46,8 @@ public class SpinningFan : UpdatableAndDeletable, IDrawable
 		{
 			speed = getToSpeed;
 		}
-		scale = (pObj.data as ManagedData).GetValue<float>("scale");
-		depth = (pObj.data as ManagedData).GetValue<float>("depth");
+		scale = managedData.GetValue<float>("scale");
+		depth = managedData.GetValue<float>("depth");
 		base.Update(eu);
 	}
 
@@ -70,7 +72,7 @@ public class SpinningFan : UpdatableAndDeletable, IDrawable
 		}
 	}
 
-	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner)
 	{
 		rCam.ReturnFContainer("Foreground").AddChild(sLeaser.sprites[0]);
 	}

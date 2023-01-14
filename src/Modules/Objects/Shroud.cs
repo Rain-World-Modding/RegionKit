@@ -27,7 +27,7 @@ public class Shroud : CosmeticSprite
 		this.pObj = pObj;
 		this.room = room;
 		alpha = 1f;
-		quad = (this.pObj.data as ManagedData).GetValue<Vector2[]>("quad");
+		quad = (this.pObj.data as ManagedData)!.GetValue<Vector2[]>("quad")!;
 		//this.rect = new FloatRect(quad[0],quad[1],quad[2],quad[3]);
 	}
 	public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
@@ -60,10 +60,11 @@ public class Shroud : CosmeticSprite
 
 	public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
-		(sLeaser.sprites[0] as TriangleMesh).MoveVertice(0, pObj.pos - camPos);
-		(sLeaser.sprites[0] as TriangleMesh).MoveVertice(1, pObj.pos + quad[1] - camPos);
-		(sLeaser.sprites[0] as TriangleMesh).MoveVertice(2, pObj.pos + quad[3] - camPos);
-		(sLeaser.sprites[0] as TriangleMesh).MoveVertice(3, pObj.pos + quad[2] - camPos);
+		var triangleMesh = (sLeaser.sprites[0] as TriangleMesh)!;
+		triangleMesh.MoveVertice(0, pObj.pos - camPos);
+		triangleMesh.MoveVertice(1, pObj.pos + quad[1] - camPos);
+		triangleMesh.MoveVertice(2, pObj.pos + quad[3] - camPos);
+		triangleMesh.MoveVertice(3, pObj.pos + quad[2] - camPos);
 		sLeaser.sprites[0].alpha = alpha;
 		sLeaser.sprites[0].color = rCam.PixelColorAtCoordinate(pObj.pos);
 		base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
@@ -71,7 +72,7 @@ public class Shroud : CosmeticSprite
 
 	public override void Update(bool eu)
 	{
-		quad = (pObj.data as ManagedData).GetValue<Vector2[]>("quad");
+		quad = (pObj.data as ManagedData)!.GetValue<Vector2[]>("quad")!;
 		Vector2 camPos = room.game.cameras[0].pos;
 		Vector2[] poly = new Vector2[]
 		{

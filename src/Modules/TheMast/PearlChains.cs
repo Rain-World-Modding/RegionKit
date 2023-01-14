@@ -63,7 +63,7 @@ namespace RegionKit.Modules.TheMast
             if (obj is PearlChain pc)
             {
                 // Don't take pearl chains down from the ceiling
-                if (!(pc.abstractPhysicalObject as AbstractPearlChain).isConsumed)
+                if (!(pc.abstractPhysicalObject as AbstractPearlChain)!.isConsumed)
                 {
                     return 0;
                 }
@@ -92,19 +92,20 @@ namespace RegionKit.Modules.TheMast
             return (T)orig.Method.Invoke(null, new object[] { self, obj });
         }
 
-        public static AbstractPhysicalObject SaveState_AbstractPhysicalObjectFromString(On.SaveState.orig_AbstractPhysicalObjectFromString orig, World world, string objString)
+        public static AbstractPhysicalObject? SaveState_AbstractPhysicalObjectFromString(On.SaveState.orig_AbstractPhysicalObjectFromString orig, World world, string objString)
         {
 			//TODO: almost definitely breaks
-            AbstractPhysicalObject apo = orig(world, objString);
+			//nevermind??
+            AbstractPhysicalObject? apo = orig(world, objString);
             if (apo is not null && apo.type == EnumExt_PearlChains.PearlChain)
             {
                 try
                 {
                     string[] data = Regex.Split(objString, "<oA>");
-                    apo = new AbstractPearlChain(world, EnumExt_PearlChains.PearlChain, null, apo.pos, apo.ID, int.Parse(data[3]), int.Parse(data[4]), null, int.Parse(data[5]));
+                    apo = new AbstractPearlChain(world, EnumExt_PearlChains.PearlChain, null!, apo.pos, apo.ID, int.Parse(data[3]), int.Parse(data[4]), null!, int.Parse(data[5]));
                 } catch(Exception e)
                 {
-                    plog.LogError(new Exception("Failed to load PearlChain", e));
+                    __log.LogError(new Exception("Failed to load PearlChain", e));
                     apo = null;
                 }
             }
@@ -195,8 +196,8 @@ namespace RegionKit.Modules.TheMast
                     PlacedObject pObj = self.roomSettings.placedObjects[i];
                     if (!pObj.active) continue;
                     if (pObj.type != EnumExt_PearlChains.PlacedPearlChain) continue;
-                    if (self.world?.regionState?.ItemConsumed(self.abstractRoom.index, i) ?? false) continue;
-                    AbstractPearlChain apo = new AbstractPearlChain(self.world, EnumExt_PearlChains.PearlChain, null, self.GetWorldCoordinate(pObj.pos), self.game.GetNewID(), self.abstractRoom.index, i, pObj.data as PlacedPearlChainData, (pObj.data as PlacedPearlChainData)?.length ?? 0);
+                    if (self.world.regionState?.ItemConsumed(self.abstractRoom.index, i) ?? false) continue;
+                    AbstractPearlChain apo = new AbstractPearlChain(self.world, EnumExt_PearlChains.PearlChain, null!, self.GetWorldCoordinate(pObj.pos), self.game.GetNewID(), self.abstractRoom.index, i, (pObj.data as PlacedPearlChainData)!, (pObj.data as PlacedPearlChainData)?.length ?? 0);
                     apo.isConsumed = false;
                     self.abstractRoom.AddEntity(apo);
                 }
@@ -234,7 +235,7 @@ namespace RegionKit.Modules.TheMast
                 cp.ClearSprites();
                 cp = new PearlChainControlPanel(owner, "Consumable_Panel", self, new Vector2(0f, 100f), "Consumable: PlacedPearlChain");
                 self.subNodes.Add(cp);
-                cp.pos = (pObj.data as PlacedObject.ConsumableObjectData).panelPos;
+                cp.pos = (pObj.data as PlacedObject.ConsumableObjectData)!.panelPos;
                 _ConsumableRepresentation_controlPanel.SetValue(self, cp);
             }
         }
@@ -256,7 +257,7 @@ namespace RegionKit.Modules.TheMast
             const float chainRadius = 1f;
 
             private const float _pearlSpacing = 10f;
-            private AbstractConsumable Consumable => abstractPhysicalObject as AbstractConsumable;
+            private AbstractConsumable Consumable => (abstractPhysicalObject as AbstractConsumable)!;
 
             public PearlChain(AbstractPearlChain apc, bool attached) : base(apc)
             {
@@ -429,8 +430,8 @@ namespace RegionKit.Modules.TheMast
                 }
                 if (witnesses > 0)
                 {
-                    plog.LogMessage($"pearl chain theft noticed by {witnesses} scavengers!");
-                    if (witnesses == 4) plog.LogWarning("Good luck.");
+                    __log.LogMessage($"pearl chain theft noticed by {witnesses} scavengers!");
+                    if (witnesses == 4) __log.LogWarning("Good luck.");
                 }
             }
 
@@ -469,7 +470,7 @@ namespace RegionKit.Modules.TheMast
                     room.PlaySound(SoundID.SS_AI_Marble_Hit_Floor, firstChunk, false, Custom.LerpMap(speed, 0f, 8f, 0.2f, 1f), 1f);
             }
 
-            public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+            public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner)
             {
                 if (newContatiner == null) newContatiner = rCam.ReturnFContainer("Items");
                 foreach(FSprite sprite in sLeaser.sprites)
@@ -592,7 +593,7 @@ namespace RegionKit.Modules.TheMast
                         length = Vector2.Distance(anchorPos, topPearlPos);
                     } else
                     {
-                        plog.LogMessage("Pearl chain spawned broken!");
+                        __log.LogMessage("Pearl chain spawned broken!");
                         length = -1f;
                         anchorPos = topPearlPos;
                     }
@@ -649,7 +650,7 @@ namespace RegionKit.Modules.TheMast
                     }
                 }
 
-                public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+                public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner)
                 {
                     if (newContatiner == null) newContatiner = rCam.ReturnFContainer("Midground");
                     newContatiner.AddChild(sLeaser.sprites[0]);
@@ -808,7 +809,7 @@ namespace RegionKit.Modules.TheMast
             public override void Refresh()
             {
                 base.Refresh();
-                int length = ((parentNode as ConsumableRepresentation).pObj.data as PlacedPearlChainData).length;
+                int length = ((parentNode as ConsumableRepresentation)!.pObj.data as PlacedPearlChainData)!.length;
                 if (length <= 0)
                     _dispLength.Text = "RANDOM";
                 else
@@ -817,7 +818,7 @@ namespace RegionKit.Modules.TheMast
 
             public void Signal(DevUISignalType type, DevUINode sender, string message)
             {
-                PlacedPearlChainData chainData = (parentNode as ConsumableRepresentation).pObj.data as PlacedPearlChainData;
+                PlacedPearlChainData chainData = ((parentNode as ConsumableRepresentation)!.pObj.data as PlacedPearlChainData)!;
                 string idstring = sender.IDstring;
                 switch(idstring)
                 {

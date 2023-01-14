@@ -15,7 +15,7 @@ namespace RegionKit.Modules.Objects
             _ow = owner;
         }
         private readonly PlacedObject _ow;
-        private BorderTpData ow_data => _ow.data as BorderTpData;
+        private BorderTpData ow_data => (_ow.data as BorderTpData)!;
         private float buffPX => (float)ow_data.buff * 20f;
 
         public override void Update(bool eu)
@@ -49,7 +49,7 @@ namespace RegionKit.Modules.Objects
                 if (shift is { x:0f, y:0f }) continue;
                 foreach (var chunk in po.bodyChunks) chunk.pos += shift;
                 if (po.graphicsModule is not null) po.graphicsModule.Reset();
-                plog.LogDebug("tp! " + po.firstChunk.pos);
+                __log.LogDebug("tp! " + po.firstChunk.pos);
             }
         }
     }

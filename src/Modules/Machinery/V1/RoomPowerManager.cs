@@ -19,7 +19,7 @@ public class RoomPowerManager : UpdatableAndDeletable
 		if (ManagersByRoom.ContainsKey(h)) ManagersByRoom[h] = this;
 		else ManagersByRoom.Add(h, this);
 		PO = pobj;
-		plog.LogDebug($"({rm.abstractRoom.name}): created a RoomPowerManager.");
+		__log.LogDebug($"({rm.abstractRoom.name}): created a RoomPowerManager.");
 	}
 	public override void Update(bool eu)
 	{
@@ -28,7 +28,7 @@ public class RoomPowerManager : UpdatableAndDeletable
 		if (selfCheckTimer > 10) ValidateDeviceSet();
 	}
 	internal PowerManagerData pmData { get { _pmd = _pmd ?? PO?.data as PowerManagerData ?? new PowerManagerData(null); return _pmd; } }
-	private PowerManagerData _pmd;
+	private PowerManagerData? _pmd;
 	private PlacedObject PO;
 	private int selfCheckTimer = 0;
 	/// <summary>

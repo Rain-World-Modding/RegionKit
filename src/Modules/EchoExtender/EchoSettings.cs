@@ -110,7 +110,7 @@ public struct EchoSettings
 	public static EchoSettings FromFile(string path)
 	{
 		//TODO: change paths to fit new fs
-		plog.LogMessage("[Echo Extender] Found settings file: " + path);
+		__log.LogMessage("[Echo Extender] Found settings file: " + path);
 		string[] rows = File.ReadAllLines(path);
 		EchoSettings settings = Empty;
 		foreach (string row in rows)
@@ -127,7 +127,7 @@ public struct EchoSettings
 					{
 						if (!ExtEnumBase.TryParse(typeof(SlugcatStats.Name), rawNum, out object result))
 						{
-							plog.LogWarning($"[Echo Extender] Found an invalid character name '{rawNum}'! Skipping : " + row);
+							__log.LogWarning($"[Echo Extender] Found an invalid character name '{rawNum}'! Skipping : " + row);
 							continue;
 						}
 
@@ -170,14 +170,14 @@ public struct EchoSettings
 					settings.DefaultFlip.AddMultiple(float.Parse(split[1]), difficulties);
 					break;
 				default:
-					plog.LogWarning($"[Echo Extender] Setting '{pass.Trim().ToLower()}' not found! Skipping : " + row);
+					__log.LogWarning($"[Echo Extender] Setting '{pass.Trim().ToLower()}' not found! Skipping : " + row);
 					break;
 				}
 			}
 
 			catch (Exception)
 			{
-				plog.LogWarning("[Echo Extender] Failed to parse line " + row);
+				__log.LogWarning("[Echo Extender] Failed to parse line " + row);
 			}
 		}
 

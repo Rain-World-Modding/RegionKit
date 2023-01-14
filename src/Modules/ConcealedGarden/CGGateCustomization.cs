@@ -9,11 +9,11 @@ namespace RegionKit.Modules.ConcealedGarden;
 internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 {
 	private readonly PlacedObject pObj;
-	private RegionGateGraphics.DoorGraphic leftDoor;
-	private RegionGateGraphics.DoorGraphic rightDoor;
+	private RegionGateGraphics.DoorGraphic? leftDoor;
+	private RegionGateGraphics.DoorGraphic? rightDoor;
 	private bool swappedDrawOrder;
 
-	ManagedData data => pObj.data as ManagedData;
+	ManagedData data => (pObj.data as ManagedData)!;
 
 	public CGGateCustomization(Room room, PlacedObject pObj)
 	{
@@ -22,7 +22,7 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 
 		if (data.GetValue<bool>("nowater"))
 		{
-			IDrawable water = null;
+			IDrawable? water = null;
 			foreach (var item in room.drawableObjects)
 			{
 				if (item is Water)
@@ -92,7 +92,7 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 	{
 		if (!this.swappedDrawOrder)
 		{
-			RoomCamera.SpriteLeaser found = null;
+			RoomCamera.SpriteLeaser? found = null;
 			foreach (var item in rCam.spriteLeasers)
 			{
 				if (item.drawableObject == room.regionGate)

@@ -84,13 +84,13 @@ namespace RegionKit.Modules.Objects
         {
             this.room = room;
             this.pObj = pObj;
-            rect = (pObj.data as FloatRectData).Rect;
+            rect = (pObj.data as FloatRectData)!.Rect;
         }
 
         public override void Update(bool eu)
         {
             base.Update(eu);
-            var r = (pObj.data as FloatRectData).Rect;
+            var r = (pObj.data as FloatRectData)!.Rect;
             if (!rect.EqualsFloatRect(r))
                 rect = r;
         }
@@ -116,12 +116,12 @@ namespace RegionKit.Modules.Objects
 
     public class FloatRectRepresentation : PlacedObjectRepresentation
     {
-        public virtual FloatRectData Data => pObj.data as FloatRectData;
+        public virtual FloatRectData Data => (pObj.data as FloatRectData)!;
 
         public FloatRectRepresentation(DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj, string name) : base(owner, IDstring, parentNode, pObj, name)
         {
             subNodes.Add(new Handle(owner, "Float_Rect_Handle", this, new(80f, 80f)));
-            (subNodes[subNodes.Count - 1] as Handle).pos = Data.handlePos;
+            (subNodes[subNodes.Count - 1] as Handle)!.pos = Data.handlePos;
             for (var i = 0; i < 5; i++)
             {
                 fSprites.Add(new("pixel")
@@ -139,7 +139,7 @@ namespace RegionKit.Modules.Objects
             base.Refresh();
             var camPos = owner.room.game.cameras[0].pos;
             MoveSprite(1, absPos);
-            Data.handlePos = (subNodes[0] as Handle).pos;
+            Data.handlePos = (subNodes[0] as Handle)!.pos;
             var rect = Data.Rect;
             rect.right++;
             rect.top++;

@@ -58,14 +58,14 @@ public abstract class ParticleSystemData : ManagedData
 		c_ownerpos = owner.pos;
 	}
 	//cached tileset
-	protected List<IntVector2> c_ST;
+	protected List<IntVector2>? c_ST;
 	/// <summary>
 	/// Returns true when settings have been changed and tile set needs re-generating again. See code: <see cref="ReturnSuitableTiles(Room)"/>
 	/// </summary>
 	protected virtual bool AreaNeedsRefresh => c_ownerpos != owner.pos;
 	protected Vector2 c_ownerpos;
 
-	public ParticleSystemData(PlacedObject owner, List<ManagedField> additionalFields)
+	public ParticleSystemData(PlacedObject owner, List<ManagedField>? additionalFields)
 		: base(owner, null)
 	{
 		//c_ST = GetSuitableTiles();

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace RegionKit.AridBarrens;
+namespace RegionKit.Modules.AridBarrens;
 
 [RegionKitModule(nameof(Register), nameof(Disable), moduleName:"AridBarrens")]
 static class _Module

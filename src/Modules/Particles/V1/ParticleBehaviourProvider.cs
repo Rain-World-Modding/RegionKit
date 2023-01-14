@@ -10,7 +10,7 @@ namespace RegionKit.Modules.Particles.V1;
 /// </summary>
 public abstract class ParticleBehaviourProvider : ManagedData
 {
-	public abstract PBehaviourModule GetNewForParticle(GenericParticle p);
+	public abstract PBehaviourModule? GetNewForParticle(GenericParticle p);
 	/// <summary>
 	/// Affects sorting of providers in <see cref="RoomParticleSystem.Modifiers"/>. Higher value -> applied later.
 	/// </summary>
@@ -26,7 +26,7 @@ public abstract class ParticleBehaviourProvider : ManagedData
 	/// </summary>
 	/// <param name="owner"></param>
 	/// <param name="addFields">List of additional <see cref="ManagedField"/>. Can be null.</param>
-	public ParticleBehaviourProvider(PlacedObject owner, List<ManagedField> addFields) :
+	public ParticleBehaviourProvider(PlacedObject owner, List<ManagedField>? addFields) :
 		base(owner, null)
 	{
 
@@ -55,20 +55,20 @@ public abstract class ParticleBehaviourProvider : ManagedData
 		public static void RegisterPModType<T>(string key)
 			where T : PBehaviourModule
 		{
-			if (string.IsNullOrEmpty(key)) { plog.LogError("Can not register a null/empty key!"); return; }//throw new ArgumentException();
-			if (RegisteredDelegates.ContainsKey(key)) { plog.LogError($"Duplicate key: {key}!"); return; }
+			if (string.IsNullOrEmpty(key)) { __log.LogError("Can not register a null/empty key!"); return; }//throw new ArgumentException();
+			if (RegisteredDelegates.ContainsKey(key)) { __log.LogError($"Duplicate key: {key}!"); return; }
 			RegisteredDelegates.Add
 				(key, new Func<GenericParticle, PBehaviourModule>
 				(x => { return (PBehaviourModule)Activator.CreateInstance(typeof(T), x); }));
 			try
 			{
 				RegisteredDelegates[key](new GenericParticle(default, default));
-				plog.LogMessage($"Registered plain module: {key}.");
+				__log.LogMessage($"Registered plain module: {key}.");
 			}
 			catch (Exception e)
 			{
 				RegisteredDelegates.Remove(key);
-				plog.LogError($"Could not register {key}. Exception on test instantiate.\n{e}");
+				__log.LogError($"Could not register {key}. Exception on test instantiate.\n{e}");
 			}
 		}
 		/// <summary>
@@ -82,21 +82,21 @@ public abstract class ParticleBehaviourProvider : ManagedData
 			{
 				del(new GenericParticle(default, default));
 				RegisteredDelegates.Add(key, del);
-				plog.LogMessage($"Registered plain module: {key}");
+				__log.LogMessage($"Registered plain module: {key}");
 			}
 			catch (Exception e)
 			{
-				plog.LogError($"Error registering delegate {del} under {key}: exception on test instatiate.\n{e}");
+				__log.LogError($"Error registering delegate {del} under {key}: exception on test instatiate.\n{e}");
 			}
 		}
 		/// <summary>
 		/// key to get new instances of <see cref="PBehaviourModule"/> descendants by
 		/// </summary>
 		[StringField("sk", "affliction", displayName: "Addon key")]
-		public string SelectedKey;
+		public string SelectedKey = "";
 		public PlainModuleRegister(PlacedObject owner, List<ManagedField> addFields) : base(owner, addFields) { }
 
-		public override PBehaviourModule GetNewForParticle(GenericParticle p)
+		public override PBehaviourModule? GetNewForParticle(GenericParticle p)
 		{
 			if (RegisteredDelegates.TryGetValue(SelectedKey, out var del)) { return del(p); }
 			return null;

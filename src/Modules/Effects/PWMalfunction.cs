@@ -173,7 +173,8 @@ class PWMalfunction
 	//Allows a new antigravity object to be made when switching between gates since switching worlds deletes the original one. (This is not smooth as of yet)
 	public static void RegionGate_Update(On.RegionGate.orig_Update orig, RegionGate instance, bool eu)
 	{
-		if (instance.room.roomSettings.GetEffectAmount(NewEffects.PWMalfunction) > 0 && instance.room.world != null)
+		if (instance.room.world is null) goto ORIG_;
+		if (instance.room.roomSettings.GetEffectAmount(NewEffects.PWMalfunction) > 0)
 		{
 			if (instance.startCounter > 0 && instance.rainCycle.brokenAntiGrav != null && (!instance.rainCycle.brokenAntiGrav.on))
 			{
@@ -187,6 +188,7 @@ class PWMalfunction
 				instance.room.world.rainCycle.brokenAntiGrav = new AntiGravity.BrokenAntiGravity(instance.room.game.setupValues.gravityFlickerCycleMin, instance.room.game.setupValues.gravityFlickerCycleMax, instance.room.game);
 			}
 		}
+	ORIG_:;
 		orig.Invoke(instance, eu);
 	}
 

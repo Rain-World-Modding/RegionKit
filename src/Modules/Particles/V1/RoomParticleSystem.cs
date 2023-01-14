@@ -19,7 +19,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 	/// </summary>
 	/// <param name="owner"></param>
 	/// <param name="room"></param>
-	public RoomParticleSystem(PlacedObject owner, Room room) : this(owner, room, owner.pos, owner.data as ParticleSystemData, GenericParticle.MakeNew)
+	public RoomParticleSystem(PlacedObject owner, Room room) : this(owner, room, owner.pos, (owner.data as ParticleSystemData)!, GenericParticle.MakeNew)
 	{
 
 	}
@@ -41,7 +41,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 		DelayRequestedByMe = Min(Min(IdealTotalBootUpFrames, TotalForceFrameLimit));
 		room.waitToEnterAfterFullyLoaded = Max(room.waitToEnterAfterFullyLoaded, DelayRequestedByMe);
 		ForceFramesMultiplier = (int)(BaseComfortableFpF / AverageComputeCost() / ((ComfortableParticleDensity > AverageDensity()) ? (1f) : (AverageDensity() / ComfortableParticleDensity)));
-		plog.LogMessage($"{IdealTotalBootUpFrames}, {AverageLifetime()}, {ForceFramesMultiplier}");
+		__log.LogMessage($"{IdealTotalBootUpFrames}, {AverageLifetime()}, {ForceFramesMultiplier}");
 	}
 	#region warmup setup;
 	//this section has settings for "warmup" = faking constant activity and making it look like particle system works offscreen constantly
@@ -124,9 +124,9 @@ public class RoomParticleSystem : UpdatableAndDeletable
 	/// progresses cooldown and spawns things when necessary
 	/// </summary>
 	/// <returns>newly created <see cref="GenericParticle"/>, null if none was made</returns>
-	protected virtual GenericParticle ProgressCreationCycle()
+	protected virtual GenericParticle? ProgressCreationCycle()
 	{
-		GenericParticle p = null;
+		GenericParticle? p = null;
 		cooldown--;
 		if (cooldown <= 0)
 		{
@@ -201,7 +201,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 	/// <summary>
 	/// A random subscriber is invoked whenever a particle needs to be created
 	/// </summary>
-	public event ParticleCreate BirthEvent;
+	public event ParticleCreate? BirthEvent;
 
 	/// <summary>
 	/// pulls a random tile and returns a random position within it

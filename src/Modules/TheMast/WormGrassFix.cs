@@ -58,7 +58,7 @@ namespace RegionKit.Modules.TheMast
             orig(self, eu);
             if(_clipScavBody)
             {
-                BodyChunk mbc = (self as Creature).mainBodyChunk;
+                BodyChunk mbc = (self as Creature)!.mainBodyChunk;
                 _lastLastClipPos = mbc.lastLastPos;
                 _lastClipPos = mbc.lastPos;
                 _clipPos = mbc.pos;

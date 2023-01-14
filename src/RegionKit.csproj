@@ -138,6 +138,10 @@
 			<HintPath>lib/UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="UnityEngine.UnityWebRequestModule">
+			<HintPath>lib/UnityEngine.UnityWebRequestModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 		<Reference Include="netstandard">
 			<HintPath>lib/netstandard.dll</HintPath>
 			<Private>False</Private>

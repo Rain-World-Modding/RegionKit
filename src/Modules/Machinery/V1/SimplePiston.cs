@@ -11,11 +11,11 @@ namespace RegionKit.Modules.Machinery.V1;
 public class SimplePiston : UpdatableAndDeletable, IDrawable
 {
 	public SimplePiston(Room rm, PlacedObject pobj) : this(rm, pobj, null) { }
-	public SimplePiston(Room rm, PlacedObject pobj, PistonData mdt = null)
+	public SimplePiston(Room rm, PlacedObject? pobj, PistonData? mdt = null)
 	{
 		PO = pobj;
 		this._assignedMData = mdt;
-		plog.LogDebug($"({rm.abstractRoom.name}): Created simplePiston" + mdt == null ? "." : "as a part of an array.");
+		__log.LogDebug($"({rm.abstractRoom.name}): Created simplePiston" + mdt == null ? "." : "as a part of an array.");
 	}
 	public override void Update(bool eu)
 	{
@@ -34,10 +34,10 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 			return r;
 		}
 	}
-	private PistonData _bpd;
-	private readonly PistonData _assignedMData;
+	private PistonData? _bpd;
+	private readonly PistonData? _assignedMData;
 
-	internal readonly PlacedObject PO;
+	internal readonly PlacedObject? PO;
 	private double _lt = 0f;
 	internal Vector2 originPoint => PO?.pos ?? _assignedMData?.forcePos ?? default;
 	internal float effRot => mData.align ? ((int)mData.rotation / 45 * 45) : mData.rotation;
@@ -64,10 +64,11 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 	internal Vector2 currentPos;
 	internal Vector2 oldPos;
 
-	internal MachineryCustomizer _mc;
+	internal MachineryCustomizer? _mc;
 
 	internal void GrabMC()
 	{
+		if (PO is null) return;
 		_mc = _mc
 			?? room.roomSettings.placedObjects.FirstOrDefault(
 				x => x.data is MachineryCustomizer nmc && nmc.GetValue<MachineryID>("amID") == MachineryID.Piston && (x.pos - this.PO.pos).sqrMagnitude <= nmc.GetValue<Vector2>("radius").sqrMagnitude)?.data as MachineryCustomizer
@@ -86,8 +87,8 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		var pos = Vector2.Lerp(oldPos, currentPos, timeStacker);
-		_mc.BringToKin(sLeaser.sprites[0]);
-		sLeaser.sprites[0].rotation = effRot + _mc.addRot;
+		_mc?.BringToKin(sLeaser.sprites[0]);
+		sLeaser.sprites[0].rotation = effRot + _mc?.addRot ?? 0f;
 		sLeaser.sprites[0].x = pos.x - camPos.x;
 		sLeaser.sprites[0].y = pos.y - camPos.y;
 	}
@@ -97,10 +98,10 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 
 	}
 
-	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner)
 	{
 		foreach (var fs in sLeaser.sprites) fs.RemoveFromContainer();
-		try { (newContatiner ?? rCam.ReturnFContainer(_mc.ContainerName)).AddChild(sLeaser.sprites[0]); }
+		try { (newContatiner ?? rCam.ReturnFContainer(_mc?.ContainerName ?? ContainerCodes.Items)).AddChild(sLeaser.sprites[0]); }
 		catch { rCam.ReturnFContainer("Items").AddChild(sLeaser.sprites[0]); }
 
 	}

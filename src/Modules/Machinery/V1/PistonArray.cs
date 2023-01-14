@@ -12,13 +12,13 @@ public class PistonArray : UpdatableAndDeletable
 	{
 		this.PO = obj;
 		this.room = rm;
-		plog.LogDebug($"({rm.abstractRoom.name}): Creating piston array...");
+		__log.LogDebug($"({rm.abstractRoom.name}): Creating piston array...");
 		GeneratePistons();
 	}
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		if (room.game?.devUI == null) return;
+		if (room.game?.devUI is null || pistons is null) return;
 		for (int i = 0; i < pistons.Length; i++)
 		{
 			var pair = pistons[i];
@@ -29,7 +29,8 @@ public class PistonArray : UpdatableAndDeletable
 
 	private readonly PlacedObject PO;
 	internal PistonArrayData pArrData => (PO?.data as PistonArrayData)!;
-	internal Tuple<PistonData, SimplePiston>[] pistons;
+	internal (PistonData, SimplePiston)[]? pistons;
+	internal MachineryCustomizer? _mc;
 	internal Vector2 p1 => PO.pos;
 	internal Vector2 p2 => pArrData.GetValue<Vector2>("point2");
 	internal float baseDir => VecToDeg(PerpendicularVector(p2));
@@ -62,8 +63,6 @@ public class PistonArray : UpdatableAndDeletable
 	}
 	internal float rotByIndex(int index) { return baseDir + pArrData.relativeRotation; }
 	#endregion
-
-	internal MachineryCustomizer _mc;
 	internal void GrabMC()
 	{
 		_mc = _mc
@@ -84,14 +83,14 @@ public class PistonArray : UpdatableAndDeletable
 	{
 		GrabMC();
 		CleanUpPistons();
-		pistons = new Tuple<PistonData, SimplePiston>[pArrData.pistonCount];
+		pistons = new (PistonData, SimplePiston)[pArrData.pistonCount];
 		for (int i = 0; i < pistons.Length; i++)
 		{
 			var pdata = pdByIndex(i);
 			var piston = new SimplePiston(room, null, pdata);
 			this.room.AddObject(piston);
 			piston._mc = this._mc;
-			pistons[i] = new Tuple<PistonData, SimplePiston>(pdata, piston);
+			pistons[i] = (pdata, piston);
 
 		}
 	}
@@ -99,6 +98,7 @@ public class PistonArray : UpdatableAndDeletable
 	public override void Destroy()
 	{
 		base.Destroy();
+		if (pistons is null) return;
 		foreach (var pair in pistons) pair.Item2.Destroy();
 	}
 }

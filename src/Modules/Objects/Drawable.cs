@@ -38,7 +38,7 @@ public class Drawable : CosmeticSprite
 		HUD2
 	}
 
-	public ManagedData Data => LocalPlacedObject.data as ManagedData;
+	public ManagedData Data => (LocalPlacedObject.data as ManagedData)!;
 
 	public Vector2 PlacedObjectTile => LocalPlacedObject.pos;
 
@@ -63,7 +63,20 @@ public class Drawable : CosmeticSprite
 		sLeaser.sprites = new FSprite[] { mesh };
 	}
 
-	public Vector2[] Quad => new[] { Data.GetValue<Vector2[]>("quad")[0], Data.GetValue<Vector2[]>("quad")[1], Data.GetValue<Vector2[]>("quad")[3], Data.GetValue<Vector2[]>("quad")[2] };
+	public Vector2[] Quad
+	{
+		get
+		{
+			var vecs = Data.GetValue<Vector2[]>("quad")!;
+			return new[]
+			{
+				vecs[0],
+				vecs[1],
+				vecs[3],
+				vecs[2]
+			};
+		}
+	}
 
 	public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{

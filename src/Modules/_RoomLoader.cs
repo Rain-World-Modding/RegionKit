@@ -31,8 +31,9 @@ static class _RoomLoader
 	private static void RoomSettingsPage_Refresh(On.DevInterface.RoomSettingsPage.orig_Refresh orig, RoomSettingsPage self)
 	{
 		orig(self);
-
+		#if false
 		Effects.FogOfWar.Refresh(self.owner.room);
+		#endif
 	}
 
 	public static void Disable()
@@ -82,9 +83,11 @@ static class _RoomLoader
 		orig(self);
 		//ManyMoreFixes Patch
 		if (self.game == null) { return; }
-
+		
+		#if false
 		Modules.Effects.FogOfWar.Refresh(self);
-
+		#endif
+		
 		//Load all the effects
 		for (int k = 0; k < self.roomSettings.effects.Count; k++)
 		{

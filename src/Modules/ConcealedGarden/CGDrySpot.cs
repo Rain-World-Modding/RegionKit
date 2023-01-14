@@ -11,7 +11,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 {
 	private readonly PlacedObject pObj;
 	private bool swappedDrawOrder;
-	private RoomCamera.SpriteLeaser waterLeaser;
+	private RoomCamera.SpriteLeaser? waterLeaser;
 
 	internal static void Register()
 	{
@@ -19,7 +19,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 			typeof(CGDrySpot), typeof(CGDrySpotData), typeof(ManagedRepresentation)));
 	}
 
-	CGDrySpotData data => pObj.data as CGDrySpotData;
+	CGDrySpotData data => (pObj.data as CGDrySpotData)!;
 
 	public CGDrySpot(Room room, PlacedObject pObj)
 	{
@@ -89,7 +89,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 		{
 			if (!this.swappedDrawOrder) // water updates first, so we can update after it :/
 			{
-				RoomCamera.SpriteLeaser found = null;
+				RoomCamera.SpriteLeaser? found = null;
 				foreach (var item in rCam.spriteLeasers)
 				{
 					if (item.drawableObject == room.waterObject)
@@ -115,6 +115,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 				}
 				int num = Custom.IntClamp(room.waterObject.PreviousSurfacePoint(camPos.x - 30f), 0, room.waterObject.surface.GetLength(0) - 1);
 				int num2 = Custom.IntClamp(num + room.waterObject.pointsToRender, 0, room.waterObject.surface.GetLength(0) - 1);
+				var waterTriangleMesh = (waterLeaser.sprites[1] as WaterTriangleMesh)!;
 				for (int i = num; i < num2; i++)
 				{
 					int num3 = (i - num) * 2;
@@ -136,13 +137,14 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 					}
 
 					// goes straight down rather than at an angle
-					(waterLeaser.sprites[1] as WaterTriangleMesh).MoveVertice(num3, new Vector2(vector.x, y));
-					(waterLeaser.sprites[1] as WaterTriangleMesh).MoveVertice(num3 + 1, vector);
-					(waterLeaser.sprites[1] as WaterTriangleMesh).MoveVertice(num3 + 2, new Vector2(vector3.x, y));
-					(waterLeaser.sprites[1] as WaterTriangleMesh).MoveVertice(num3 + 3, vector3);
+					
+					waterTriangleMesh.MoveVertice(num3, new Vector2(vector.x, y));
+					waterTriangleMesh.MoveVertice(num3 + 1, vector);
+					waterTriangleMesh.MoveVertice(num3 + 2, new Vector2(vector3.x, y));
+					waterTriangleMesh.MoveVertice(num3 + 3, vector3);
 				}
 
-				(waterLeaser.sprites[1] as WaterTriangleMesh).color = new Color(0f, 0f, 0f);
+				waterTriangleMesh.color = new Color(0f, 0f, 0f);
 			}
 		}
 	}

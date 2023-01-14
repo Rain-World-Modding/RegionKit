@@ -14,8 +14,8 @@ public class GlowingSwimmersCI
 {
 	public static class EnumExt_GlowingSwimmers
 	{
-		public static RoomSettings.RoomEffect.Type GlowingSwimmers;
-		public static CosmeticInsect.Type GlowingSwimmerInsect;
+		public static RoomSettings.RoomEffect.Type GlowingSwimmers = new(nameof(GlowingSwimmers), true);
+		public static CosmeticInsect.Type GlowingSwimmerInsect = new(nameof(GlowingSwimmerInsect), true);
 	}
 
 	public static void Apply()
@@ -71,7 +71,7 @@ public class GlowingSwimmer : CosmeticInsect
 	public float breath;
 	public float lastBreath;
 	public Vector2[,] segments;
-	public LightSource lightSource;
+	public LightSource? lightSource;
 
 	public GlowingSwimmer(Room room, Vector2 pos) : base(room, pos, GlowingSwimmersCI.EnumExt_GlowingSwimmers.GlowingSwimmerInsect)
 	{

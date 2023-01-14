@@ -27,20 +27,21 @@ public class SteamHazard : UpdatableAndDeletable
 	public float dangerRange;
 	public Vector2 fromPos;
 	public Vector2 toPos;
-	public Vector2[] steamZone;
+	public Vector2[]? steamZone;
 	public Smoke.SteamSmoke steam;
 	public RectangularDynamicSoundLoop soundLoop;
 	public SteamHazard(PlacedObject pObj, Room room)
 	{
 		placedObject = pObj;
 		this.room = room;
-		durationRate = (placedObject.data as ManagedData).GetValue<float>("f1");
-		frequencyRate = (placedObject.data as ManagedData).GetValue<float>("f2");
+		ManagedData managedData = (placedObject.data as ManagedData)!;
+		durationRate = managedData.GetValue<float>("f1");
+		frequencyRate = managedData.GetValue<float>("f2");
 		duration = 0f;
 		frequency = 0f;
-		lifetime = (placedObject.data as ManagedData).GetValue<float>("f3");
+		lifetime = managedData.GetValue<float>("f3");
 		fromPos = placedObject.pos;
-		toPos = (placedObject.data as ManagedData).GetValue<Vector2>("v1");
+		toPos = managedData.GetValue<Vector2>("v1");
 		steam = new Smoke.SteamSmoke(this.room);
 		soundLoop = new RectangularDynamicSoundLoop(this, new FloatRect(fromPos.x - 20f, fromPos.y - 20f, fromPos.x + 20f, fromPos.y + 20f), this.room);
 		soundLoop.sound = SoundID.Gate_Water_Steam_LOOP;
@@ -49,12 +50,13 @@ public class SteamHazard : UpdatableAndDeletable
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		durationRate = (placedObject.data as ManagedData).GetValue<float>("f1");
-		frequencyRate = (placedObject.data as ManagedData).GetValue<float>("f2");
-		lifetime = (placedObject.data as ManagedData).GetValue<float>("f3");
+		ManagedData managedData = (placedObject.data as ManagedData)!;
+		durationRate = managedData.GetValue<float>("f1");
+		frequencyRate = managedData.GetValue<float>("f2");
+		lifetime = managedData.GetValue<float>("f3");
 		dangerRange = 0.9f;
 		fromPos = placedObject.pos;
-		toPos = (placedObject.data as ManagedData).GetValue<Vector2>("v1");
+		toPos = managedData.GetValue<Vector2>("v1");
 
 		//Steam burst
 		if (soundLoop != null)
@@ -101,16 +103,16 @@ public class SteamHazard : UpdatableAndDeletable
 
 							if (Vector2.Distance(steam.particles[i].pos, v) < 20f)
 							{
-								if (room.physicalObjects[w][j] is Creature)
+								if (room.physicalObjects[w][j] is Creature crit)
 								{
-									if ((room.physicalObjects[w][j] as Creature).stun == 0)
+									if (crit.stun == 0)
 									{
-										(room.physicalObjects[w][j] as Creature).stun = 100;
-										room.AddObject(new CreatureSpasmer(room.physicalObjects[w][j] as Creature, false, (room.physicalObjects[w][j] as Creature).stun));
+										crit.stun = 100;
+										room.AddObject(new CreatureSpasmer(room.physicalObjects[w][j] as Creature, false, crit.stun));
 										float silentChance = room.game.cameras[0].virtualMicrophone.soundLoader.soundTriggers[(int)SoundID.Gate_Water_Steam_Puff].silentChance;
 										room.game.cameras[0].virtualMicrophone.soundLoader.soundTriggers[(int)SoundID.Gate_Water_Steam_Puff].silentChance = 0f;
-										room.PlaySound(SoundID.Gate_Water_Steam_Puff, (room.physicalObjects[w][j] as Creature).mainBodyChunk, false, 0.8f, 1f);
-										room.PlaySound(SoundID.Big_Spider_Spit_Warning_Rustle, (room.physicalObjects[w][j] as Creature).mainBodyChunk, false, 1f, 1f);
+										room.PlaySound(SoundID.Gate_Water_Steam_Puff, crit.mainBodyChunk, false, 0.8f, 1f);
+										room.PlaySound(SoundID.Big_Spider_Spit_Warning_Rustle, crit.mainBodyChunk, false, 1f, 1f);
 										room.game.cameras[0].virtualMicrophone.soundLoader.soundTriggers[(int)SoundID.Gate_Water_Steam_Puff].silentChance = silentChance;
 										return;
 									}

@@ -361,7 +361,7 @@ namespace RegionKit.Modules.TheMast
                     options = (WindData.AffectGroup[])Enum.GetValues(typeof(WindData.AffectGroup));
                 }
                 
-                private WindData Data
+                private WindData? Data
                 {
                     get
                     {
@@ -373,18 +373,18 @@ namespace RegionKit.Modules.TheMast
                 public override void Refresh()
                 {
                     base.Refresh();
-                    SwitchOption(Data.affectGroup);
+                    SwitchOption(Data?.affectGroup ?? 0);
                 }
                 
                 private void SwitchOption(WindData.AffectGroup ag)
                 {
-                    Data.affectGroup = ag;
+					if (Data is not null) Data.affectGroup = ag;
                     Text = ag.ToString();
                 }
 
                 public override void Clicked()
                 {
-                    int op = Array.IndexOf(options, Data.affectGroup) + 1;
+                    int op = Array.IndexOf(options, Data?.affectGroup ?? 0) + 1;
                     SwitchOption(options[op % options.Length]);
                 }
             }
@@ -400,7 +400,7 @@ namespace RegionKit.Modules.TheMast
                     options = (WindData.VertGroup[])Enum.GetValues(typeof(WindData.VertGroup));
                 }
 
-                private WindData Data
+                private WindData? Data
                 {
                     get
                     {
@@ -412,18 +412,18 @@ namespace RegionKit.Modules.TheMast
                 public override void Refresh()
                 {
                     base.Refresh();
-                    SwitchOption(Data.vertGroup);
+                    SwitchOption(Data?.vertGroup ?? 0);
                 }
 
                 private void SwitchOption(WindData.VertGroup ag)
                 {
-                    Data.vertGroup = ag;
+                    if (Data is not null) Data.vertGroup = ag;
                     Text = ag.ToString();
                 }
 
                 public override void Clicked()
                 {
-                    int op = Array.IndexOf(options, Data.vertGroup) + 1;
+                    int op = Array.IndexOf(options, Data?.vertGroup ?? 0) + 1;
                     SwitchOption(options[op % options.Length]);
                 }
             }

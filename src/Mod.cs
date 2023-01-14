@@ -8,7 +8,9 @@ public class Mod : BIE.BaseUnityPlugin
 	//private readonly List<ActionWithData> _enableDels = new();
 	private readonly List<ModuleInfo> _modules = new();
 	private bool _modulesSetUp = false;
-	internal static LOG.ManualLogSource plog => __inst.Logger;
+	private RainWorld _rw = null!;
+	internal static LOG.ManualLogSource __log => __inst.Logger;
+	internal static RainWorld __RW => __inst._rw;
 	public void OnEnable()
 	{
 		__inst = this;
@@ -54,7 +56,7 @@ public class Mod : BIE.BaseUnityPlugin
 
 	public void FixedUpdate()
 	{
-
+		_rw ??= FindObjectOfType<RainWorld>();
 		foreach (var mod in _modules)
 		{
 			try

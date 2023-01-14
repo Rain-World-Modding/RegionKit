@@ -113,7 +113,8 @@ public static partial class Utils
 
 	}
 	internal static bool IndexInRange(this object[] arr, int index) => index > -1 && index < arr.Length;
-	internal static T RandomOrDefault<T>(this T[] arr)
+	internal static T? RandomOrDefault<T>(this T[] arr)
+		where T : notnull
 	{
 		var res = default(T);
 		if (arr.Length > 0) return arr[RNG.Range(0, arr.Length)];
@@ -648,7 +649,7 @@ public static string? ResourceAsString(string resname, Encoding? enc = null, Ass
 		byte[]? bf = ResourceBytes(resname, casm);
 		return bf is null ? null : enc.GetString(bf);
 	}
-	catch (Exception ee) { plog.LogError($"Error getting ER: {ee}"); return null; }
+	catch (Exception ee) { __log.LogError($"Error getting ER: {ee}"); return null; }
 }
 /// <summary>
 /// Deconstructs a KeyValuePair.

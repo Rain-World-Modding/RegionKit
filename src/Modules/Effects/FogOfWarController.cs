@@ -12,6 +12,7 @@ namespace RegionKit.Modules.Effects;
 /// </summary>
 public class FogOfWarController : CosmeticSprite
 {
+	#if false
 	internal static bool hackToDelayDrawingUntilAfterTheLevelMoves;
 
 	private const bool showShortcuts = true;
@@ -723,4 +724,5 @@ internal class ShortcutDisplay : CosmeticSprite
 		if (owner.slatedForDeletetion)
 			Destroy();
 	}
+	#endif
 }

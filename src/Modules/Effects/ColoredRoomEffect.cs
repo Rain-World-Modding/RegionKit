@@ -24,11 +24,11 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 	{
 		var ret = "";
 		if (false
-		//TODO: restore logic?
+			//TODO: restore logic?
 			//TryGetWeak(ConditionalEffects.filterFlags, self, out var flags)
 			)
 		{
-			#if false
+#if false
 			var bitMask = 0;
 			var allTrue = true;
 			for (var i = 0; i < flags.Length; i++)
@@ -38,7 +38,7 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 					bitMask |= 1 << i;
 			if (!allTrue)
 				ret += "-" + bitMask;
-			#endif
+#endif
 		}
 		return ret;
 	}
@@ -51,9 +51,9 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 		colorSettings[self] = new();
 		for (var i = 0; i < coloredEffects.Count; i++)
 		{
-			if (coloredEffects[i] == type)
+			if (coloredEffects[i] == type && colorSettings[self] is ColorSettings settings)
 			{
-				colorSettings[self].colored = true;
+				settings.colored = true;
 				break;
 			}
 		}
@@ -62,8 +62,8 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 	{
 		var reg = GRKString(self);
 		var res = orig(self);
-		if (colorSettings.TryGet(self, out var cs) && cs.colored)
-			res = $"{self.type}-{self.amount}-{self.panelPosition.x}-{self.panelPosition.y}{reg}-Color-{colorSettings[self].colorR}-{colorSettings[self].colorG}-{colorSettings[self].colorB}";
+		if (colorSettings.TryGet(self, out var cs) && (cs?.colored ?? false))
+			res = $"{self.type}-{self.amount}-{self.panelPosition.x}-{self.panelPosition.y}{reg}-Color-{colorSettings[self]?.colorR ?? 0f}-{colorSettings[self]?.colorG ?? 0f}-{colorSettings[self]?.colorB ?? 0f}";
 		return res;
 	};
 		On.RoomSettings.RoomEffect.FromString += (orig, self, s) =>
@@ -76,20 +76,23 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 				if (s[i] is "Color" && colorSettings.TryGetNoVar(self))
 				{
 					self.amount = float.Parse(s[1]); //--> amount doesn't work if I don't add it again
-					colorSettings[self].colored = true;
-					colorSettings[self].colorR = float.Parse(s[i + 1]);
-					colorSettings[self].colorG = float.Parse(s[i + 2]);
-					colorSettings[self].colorB = float.Parse(s[i + 3]);
+					ColorSettings? settings = colorSettings[self];
+					if (settings is null) continue;
+					//if ()
+					settings.colored = true;
+					settings.colorR = float.Parse(s[i + 1]);
+					settings.colorG = float.Parse(s[i + 2]);
+					settings.colorB = float.Parse(s[i + 3]);
 					break;
 				}
 			}
 		}
-		catch { plog.LogError("Wrong syntax effect loaded: " + s[0]); }
+		catch { __log.LogError("Wrong syntax effect loaded: " + s[0]); }
 	};
 		On.DevInterface.EffectPanel.ctor += (orig, self, owner, parentNode, pos, effect) =>
 	{
 		orig(self, owner, parentNode, pos, effect);
-		if (colorSettings.TryGet(effect, out var cs) && cs.colored)
+		if (colorSettings.TryGet(effect, out var cs) && (cs?.colored ?? false))
 		{
 			self.size.y += 60f;
 			var indSn = -1;
@@ -115,9 +118,10 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 		On.DevInterface.EffectPanel.EffectPanelSlider.Refresh += (orig, self) =>
 	{
 		orig(self);
-		if (colorSettings.TryGet(self.effect, out var cs) && cs.colored)
+		if (colorSettings.TryGet(self.effect, out var cs) && (cs?.colored ?? false))
 		{
 			var num = 0f;
+			ColorSettings? settings = colorSettings[self.effect];
 			switch (self.IDstring)
 			{
 			case "Amount_Slider":
@@ -125,13 +129,13 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 				self.NumberText = (int)(num * 100f) + "%"; //--> amount slider doesn't work if I don't add it again
 				break;
 			case "ColorR_Slider":
-				num = colorSettings[self.effect].colorR;
+				num = settings?.colorR ?? 0f;
 				break;
 			case "ColorG_Slider":
-				num = colorSettings[self.effect].colorG;
+				num = settings?.colorG ?? 0f;
 				break;
 			case "ColorB_Slider":
-				num = colorSettings[self.effect].colorB;
+				num = settings?.colorB ?? 0f;
 				break;
 			}
 			if (self.IDstring is "ColorR_Slider" or "ColorG_Slider" or "ColorB_Slider")
@@ -141,8 +145,9 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 	};
 		On.DevInterface.EffectPanel.EffectPanelSlider.NubDragged += (orig, self, nubPos) =>
 	{
-		if (!self.effect.inherited && colorSettings.TryGet(self.effect, out var cs) && cs.colored)
+		if (!self.effect.inherited && colorSettings.TryGet(self.effect, out var cs) && (cs?.colored ?? false))
 		{
+			ColorSettings settings = colorSettings[self.effect]!;
 			switch (self.IDstring)
 			{
 			case "Amount_Slider":
@@ -156,13 +161,13 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 				}
 				break;
 			case "ColorR_Slider":
-				colorSettings[self.effect].colorR = nubPos;
+				settings.colorR = nubPos;
 				break;
 			case "ColorG_Slider":
-				colorSettings[self.effect].colorG = nubPos;
+				settings.colorG = nubPos;
 				break;
 			case "ColorB_Slider":
-				colorSettings[self.effect].colorB = nubPos;
+				settings.colorB = nubPos;
 				break;
 			}
 			self.Refresh();
@@ -178,7 +183,7 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 		for (var i = 0; i < self.effects.Count; i++)
 		{
 			if (self.effects[i].type == type && colorSettings.TryGetNoVar(self.effects[i]))
-				return colorSettings[self.effects[i]].colorR;
+			return colorSettings[self.effects[i]]!.colorR;
 		}
 		return 0f;
 	}
@@ -188,7 +193,7 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 		for (var i = 0; i < self.effects.Count; i++)
 		{
 			if (self.effects[i].type == type && colorSettings.TryGetNoVar(self.effects[i]))
-				return colorSettings[self.effects[i]].colorG;
+				return colorSettings[self.effects[i]]!.colorG;
 		}
 		return 0f;
 	}
@@ -198,7 +203,7 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 		for (var i = 0; i < self.effects.Count; i++)
 		{
 			if (self.effects[i].type == type && colorSettings.TryGetNoVar(self.effects[i]))
-				return colorSettings[self.effects[i]].colorB;
+				return colorSettings[self.effects[i]]!.colorB;
 		}
 		return 0f;
 	}
@@ -208,7 +213,7 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 		for (var i = 0; i < self.effects.Count; i++)
 		{
 			if (self.effects[i].type == type && colorSettings.TryGetNoVar(self.effects[i]))
-				return colorSettings[self.effects[i]].Color;
+				return colorSettings[self.effects[i]]!.Color;
 		}
 		return Color.black;
 	}
@@ -220,11 +225,13 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 		for (var i = 0; i < self.effects.Count; i++)
 		{
 			if (self.effects[i].type == type && colorSettings.TryGetNoVar(self.effects[i]))
-				return colorSettings[self.effects[i]].colored;
+				return colorSettings[self.effects[i]]!.colored;
 		}
 		return false;
 	}
 
-	public static bool TryGetNoVar<TKey, TValue>(this AttachedField<TKey, TValue> self, TKey obj) => self.TryGet(obj, out _);
+	public static bool TryGetNoVar<TKey, TValue>(this AttachedField<TKey, TValue> self, TKey obj) 
+		where TKey : notnull
+		=> self.TryGet(obj, out _);
 	#endregion Extensions
 }

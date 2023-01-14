@@ -53,11 +53,11 @@ public static class _Module
 			//RegisterEmptyObjectType("ShelterBhvrPlacedDoor", typeof()) TODO directional data and rep;
 			RegisterFullyManagedObjectType(new ManagedField[]{
 				new IntVector2Field("dir", new RWCustom.IntVector2(0,1), IntVector2Field.IntVectorReprType.fourdir), }
-			, null, EnumNames.PlacedDoor);
+			, null!, EnumNames.PlacedDoor);
 
 			RegisterEmptyObjectType(EnumNames.TriggerZone, typeof(PlacedObject.GridRectObjectData), typeof(DevInterface.GridRectObjectRepresentation));
 			RegisterEmptyObjectType(EnumNames.NoTriggerZone, typeof(PlacedObject.GridRectObjectData), typeof(DevInterface.GridRectObjectRepresentation));
-			RegisterEmptyObjectType(EnumNames.SpawnPosition, null, null); // No data required :)
+			RegisterEmptyObjectType(EnumNames.SpawnPosition, null!, null!); // No data required :)
 		}
 		else{
 			

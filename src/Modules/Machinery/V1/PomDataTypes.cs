@@ -8,7 +8,7 @@ public class BaseMachineryData : ManagedData
 {
 	public BaseMachineryData(PlacedObject owner, ManagedField[]? fields) : base(owner, fields) { }
 
-	internal MachineryCustomizer assignedMC;
+	internal MachineryCustomizer? assignedMC;
 }
 
 #region pistons
@@ -28,7 +28,7 @@ public class PistonData : BaseMachineryData
 	internal float frequency = 1f;
 	internal Vector2 forcePos;
 
-	public PistonData(PlacedObject owner) : base(owner, null)
+	public PistonData(PlacedObject? owner) : base(owner!, null)
 	{
 
 	}
@@ -84,7 +84,7 @@ public class SimpleCogData : BaseMachineryData
 	internal float baseAngVel;
 	internal float rad;
 
-	public SimpleCogData(PlacedObject owner) : base(owner, null)
+	public SimpleCogData(PlacedObject? owner) : base(owner!, null)
 	{
 
 	}
@@ -100,7 +100,7 @@ public class MachineryCustomizer : ManagedData
 	internal string shaderName = "Basic";
 	//[StringField("container", "Items", displayName:"rCam container")]
 	[EnumField<ContainerCodes>("containerCode", ContainerCodes.Items, displayName: "Container")]
-	internal string ContainerName;
+	internal ContainerCodes ContainerName;
 	[FloatField("scX", 0f, 35f, 1f, increment: 0.1f, ManagedFieldWithPanel.ControlType.text, displayName: "X scale")]
 	internal float scX = 1f;
 	[FloatField("scY", 0f, 35f, 1f, increment: 0.1f, ManagedFieldWithPanel.ControlType.text, displayName: "Y scale")]
@@ -133,12 +133,12 @@ public class MachineryCustomizer : ManagedData
 		other.anchorY = anchY;
 		try { other.element = Futile.atlasManager.GetElementWithName(elementName); }
 		catch { other.element = Futile.atlasManager.GetElementWithName("pixel"); }
-		try { other.shader = _Module.rw.Shaders[shaderName]; }
+		try { other.shader = __RW.Shaders[shaderName]; }
 		catch { other.shader = FShader.defaultShader; }
 	}
 
-	public MachineryCustomizer(PlacedObject owner) :
-		base(owner, null)
+	public MachineryCustomizer(PlacedObject? owner) :
+		base(owner!, null)
 	{ }
 }
 
@@ -147,7 +147,7 @@ public class PowerManagerData : ManagedData
 	[FloatField("basePower", 0f, 1f, 1f, increment: 0.02f, displayName: "Base power")]
 	internal float basePowerLevel;
 
-	public PowerManagerData(PlacedObject owner) : base(owner, new ManagedField[] { })
+	public PowerManagerData(PlacedObject? owner) : base(owner!, new ManagedField[] { })
 	{
 
 	}

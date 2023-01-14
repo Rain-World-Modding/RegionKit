@@ -52,7 +52,7 @@ public static class _Module
 
 	private static void StoryGameSessionOnCtor(On.StoryGameSession.orig_ctor orig, StoryGameSession self, SlugcatStats.Name savestatenumber, RainWorldGame game)
 	{
-		plog.LogInfo("[Echo Extender] Loading Echoes from Region Mods...");
+		__log.LogInfo("[Echo Extender] Loading Echoes from Region Mods...");
 		EchoParser.LoadAllRegions(savestatenumber);
 		orig(self, savestatenumber, game);
 	}
@@ -79,7 +79,7 @@ public static class _Module
 	private static void RoomOnLoaded(On.Room.orig_Loaded orig, Room self)
 	{
 		// ReSharper disable once InconsistentNaming
-		PlacedObject EEGhostSpot = null;
+		PlacedObject? EEGhostSpot = null;
 		if (self.game != null)
 		{ // Actual ingame loading
 			EEGhostSpot = self.roomSettings.placedObjects.FirstOrDefault((v) => v.type == EnumExt_EchoExtender.EEGhostSpot && v.active);
@@ -105,15 +105,15 @@ public static class _Module
 		bool SODcondition = settings.SpawnOnThisDifficulty(SlugcatNumber);
 		bool karmaCondition = settings.KarmaCondition(karma, karmacap, SlugcatNumber);
 		bool karmaCapCondition = settings.GetMinimumKarmaCap(SlugcatNumber) <= karmacap;
-		plog.LogInfo($"[Echo Extender] Getting echo conditions for {ghostid}");
-		plog.LogInfo($"[Echo Extender] Using difficulty {SlugcatNumber}");
-		plog.LogInfo($"[Echo Extender] Spawn On Difficulty : {(SODcondition ? "Met" : "Not Met")} [Required: <{string.Join(", ", (settings.SpawnOnDifficulty.Length > 0 ? settings.SpawnOnDifficulty : EchoSettings.Default.SpawnOnDifficulty).Select(i => i.ToString()).ToArray())}>]");
-		plog.LogInfo($"[Echo Extender] Minimum Karma : {(karmaCondition ? "Met" : "Not Met")} [Required: {(settings.GetMinimumKarma(SlugcatNumber) == -2 ? "Dynamic" : settings.GetMinimumKarma(SlugcatNumber).ToString())}, Having: {karma}]");
-		plog.LogInfo($"[Echo Extender] Minimum Karma Cap : {(karmaCapCondition ? "Met" : "Not Met")} [Required: {settings.GetMinimumKarmaCap(SlugcatNumber)}, Having: {karmacap}]");
+		__log.LogInfo($"[Echo Extender] Getting echo conditions for {ghostid}");
+		__log.LogInfo($"[Echo Extender] Using difficulty {SlugcatNumber}");
+		__log.LogInfo($"[Echo Extender] Spawn On Difficulty : {(SODcondition ? "Met" : "Not Met")} [Required: <{string.Join(", ", (settings.SpawnOnDifficulty.Length > 0 ? settings.SpawnOnDifficulty : EchoSettings.Default.SpawnOnDifficulty).Select(i => i.ToString()).ToArray())}>]");
+		__log.LogInfo($"[Echo Extender] Minimum Karma : {(karmaCondition ? "Met" : "Not Met")} [Required: {(settings.GetMinimumKarma(SlugcatNumber) == -2 ? "Dynamic" : settings.GetMinimumKarma(SlugcatNumber).ToString())}, Having: {karma}]");
+		__log.LogInfo($"[Echo Extender] Minimum Karma Cap : {(karmaCapCondition ? "Met" : "Not Met")} [Required: {settings.GetMinimumKarmaCap(SlugcatNumber)}, Having: {karmacap}]");
 		bool prime = settings.GetPriming(SlugcatNumber);
 		bool primedCond = prime ? ghostpreviouslyencountered == 1 : ghostpreviouslyencountered != 2;
-		plog.LogInfo($"[Echo Extender] Primed : {(primedCond ? "Met" : "Not Met")} [Required: {(prime ? 1 : 0)}, Having {ghostpreviouslyencountered}]");
-		plog.LogInfo($"[Echo Extender] Spawning Echo : {primedCond && SODcondition && karmaCondition && karmaCapCondition}");
+		__log.LogInfo($"[Echo Extender] Primed : {(primedCond ? "Met" : "Not Met")} [Required: {(prime ? 1 : 0)}, Having {ghostpreviouslyencountered}]");
+		__log.LogInfo($"[Echo Extender] Spawning Echo : {primedCond && SODcondition && karmaCondition && karmaCapCondition}");
 		return
 			primedCond &&
 			SODcondition &&
@@ -168,8 +168,8 @@ public static class _Module
 		{
 			self.ghostRoom = world.GetAbstractRoom(EchoParser.EchoSettings[ghostid].GetEchoRoom(SlugcatNumber));
 			self.songName = EchoParser.EchoSettings[ghostid].GetEchoSong(SlugcatNumber);
-			plog.LogInfo($"[Echo Extender] Set Song: {self.songName}");
-			plog.LogInfo($"[Echo Extender] Set Room {self.ghostRoom?.name}");
+			__log.LogInfo($"[Echo Extender] Set Song: {self.songName}");
+			__log.LogInfo($"[Echo Extender] Set Room {self.ghostRoom?.name}");
 		}
 	}
 

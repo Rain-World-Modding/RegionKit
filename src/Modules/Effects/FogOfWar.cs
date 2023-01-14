@@ -14,8 +14,9 @@ internal static class FogOfWar
 {
 	public static void Patch()
 	{
-		On.RoomCamera.DrawUpdate += RoomCamera_DrawUpdate;
+		//On.RoomCamera.DrawUpdate += RoomCamera_DrawUpdate;
 	}
+	#if false
 
 	private static void RoomCamera_DrawUpdate(On.RoomCamera.orig_DrawUpdate orig, RoomCamera self, float timeStacker, float timeSpeed)
 	{
@@ -47,4 +48,5 @@ internal static class FogOfWar
 				room.AddObject(new FogOfWarController(room));
 		}
 	}
+	#endif
 }

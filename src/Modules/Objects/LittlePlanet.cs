@@ -111,7 +111,7 @@ namespace RegionKit.Modules.Objects
         {
             this.room = room;
             PObj = placedObj;
-            Data = placedObj.data as LittlePlanetData;
+            Data = (placedObj.data as LittlePlanetData)!;
             pos = placedObj.pos;
             lastPos = pos;
             underWaterMode = room.GetTilePosition(PObj.pos).y < room.defaultWaterLevel;
@@ -163,7 +163,7 @@ namespace RegionKit.Modules.Objects
             for (var i = 1; i < sLeaser.sprites.Length - 1; i++)
                 sLeaser.sprites[i].scale = baseRad / 400f * i;
             sLeaser.sprites[1].scale -= sLeaser.sprites[1].scale / 4f;
-            AddToContainer(sLeaser, rCam, null);
+            AddToContainer(sLeaser, rCam, null!);
         }
 
         public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
@@ -206,7 +206,7 @@ namespace RegionKit.Modules.Objects
             base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
         }
 
-        public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContainer)
+        public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContainer)
         {
             newContainer ??= rCam.ReturnFContainer("GrabShaders");
             sLeaser.sprites.RemoveFromContainer();
@@ -222,7 +222,21 @@ namespace RegionKit.Modules.Objects
             {
                 LittlePlanet.LittlePlanetData Data { get; init; }
 
-                public ControlSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title) : base(owner, IDstring, parentNode, pos, title, false, 110f) => Data = (parentNode.parentNode as LittlePlanetRepresentation).pObj.data as LittlePlanet.LittlePlanetData;
+                public ControlSlider(
+					DevUI owner,
+					string IDstring,
+					DevUINode parentNode,
+					Vector2 pos,
+					string title) : base(
+						owner,
+						IDstring,
+						parentNode,
+						pos,
+						title,
+						false,
+						110f) 
+					=> Data 
+						= ((parentNode.parentNode as LittlePlanetRepresentation)!.pObj.data as LittlePlanet.LittlePlanetData)!;
 
                 public override void Refresh()
                 {
@@ -298,7 +312,7 @@ namespace RegionKit.Modules.Objects
         {
             panel = new(owner, "LittlePlanet_Panel", this, new(0f, 100f));
             subNodes.Add(panel);
-            panel.pos = (pObj.data as LittlePlanet.LittlePlanetData).panelPos;
+            panel.pos = (pObj.data as LittlePlanet.LittlePlanetData)!.panelPos;
             fSprites.Add(new("pixel"));
             linePixelSpriteIndex = fSprites.Count - 1;
             owner.placedObjectsContainer.AddChild(fSprites[linePixelSpriteIndex]);
@@ -311,7 +325,7 @@ namespace RegionKit.Modules.Objects
             MoveSprite(linePixelSpriteIndex, absPos);
             fSprites[linePixelSpriteIndex].scaleY = panel.pos.magnitude;
             fSprites[linePixelSpriteIndex].rotation = Custom.AimFromOneVectorToAnother(absPos, panel.absPos);
-            (pObj.data as LittlePlanet.LittlePlanetData).panelPos = panel.pos;
+            (pObj.data as LittlePlanet.LittlePlanetData)!.panelPos = panel.pos;
         }
     }
 
@@ -332,7 +346,7 @@ namespace RegionKit.Modules.Objects
 
     public static class EnumExt_LittlePlanet
     {
-        public static PlacedObject.Type LittlePlanet;
+        public static PlacedObject.Type LittlePlanet = new(nameof(LittlePlanet), true);
     }
 
     public static class EmbeddedResourceLoader

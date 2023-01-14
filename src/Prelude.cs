@@ -18,6 +18,7 @@ global using BIE = BepInEx;
 
 global using RNG = UnityEngine.Random;
 global using UAD = UpdatableAndDeletable;
+global using WRQ = UnityEngine.Networking.UnityWebRequest;
 
 global using static RegionKit.Mod;
 global using static RegionKit.Utils;

@@ -6,7 +6,7 @@ public class ColouredLightSource : UpdatableAndDeletable
 {
 	public PlacedObject LocalPlacedObject;
 	public LightSource LightSource;
-	public ManagedData Data;
+	public ManagedData? Data;
 	public bool flickering;
 
 	private static readonly ManagedField[] Fields = {
@@ -21,9 +21,10 @@ public class ColouredLightSource : UpdatableAndDeletable
 
 	public ColouredLightSource(PlacedObject pObj, Room room)
 	{
+		//Data = new(pObj, null);
 		this.room = room;
 		LocalPlacedObject = pObj;
-		Data = pObj.data as ManagedData;
+		Data = (pObj.data as ManagedData)!;
 
 		LightSource = new LightSource(LocalPlacedObject.pos, false, Data?.GetValue<Color>("lightCol") ?? Color.white, this);
 		LightSource.affectedByPaletteDarkness = Data?.GetValue<float>("paletteDarkness") ?? 0.5f;
@@ -34,7 +35,7 @@ public class ColouredLightSource : UpdatableAndDeletable
 	{
 		base.Update(eu);
 
-		float rad = Data.GetValue<Vector2>("radius").magnitude;
+		float rad = Data!.GetValue<Vector2>("radius").magnitude;
 		float alpha = Data.GetValue<float>("alphaChannel");
 		bool flat = Data.GetValue<bool>("flatLight");
 		Color col = Data.GetValue<Color>("lightCol");

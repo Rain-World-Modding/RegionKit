@@ -91,19 +91,19 @@ public class GenericParticle : CosmeticSprite
 	/// <summary>
 	/// invoked near the end of every frame
 	/// </summary>
-	public event lcStages OnUpdatePreMove;
+	public event lcStages? OnUpdatePreMove;
 	/// <summary>
 	/// Invoked after base update call. Can be used to undo position changes.
 	/// </summary>
-	public event lcStages OnUpdatePostMove;
+	public event lcStages? OnUpdatePostMove;
 	/// <summary>
 	/// invoked on first frame
 	/// </summary>
-	public event lcStages OnCreate;
+	public event lcStages? OnCreate;
 	/// <summary>
 	/// invoked when particle is about to be destroyed
 	/// </summary>
-	public event lcStages OnDestroy;
+	public event lcStages? OnDestroy;
 	#endregion
 
 	#region lifecycle
@@ -173,7 +173,7 @@ public class GenericParticle : CosmeticSprite
 	/// <summary>
 	/// attached light source
 	/// </summary>
-	protected LightSource myLight;
+	protected LightSource? myLight;
 	protected bool SetUpRan = false;
 	public float lifetime { get; protected set; } = 0f;
 	private float lastRot;
@@ -195,8 +195,8 @@ public class GenericParticle : CosmeticSprite
 		}
 		catch (Exception fue)
 		{
-			plog.LogError($"Invalid atlas element {visuals.aElm}!");
-			plog.LogError(fue);
+			__log.LogError($"Invalid atlas element {visuals.aElm}!");
+			__log.LogError(fue);
 			sLeaser.sprites[0] = new FSprite("SkyDandelion", true);// .element = Futile.atlasManager.GetElementWithName("SkyDandelion");
 		}
 		room.game.rainWorld.Shaders.TryGetValue("Basic", out var sh);

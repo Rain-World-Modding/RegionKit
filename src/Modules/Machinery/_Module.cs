@@ -48,12 +48,12 @@ public static class _Module
 		foreach (var hk in MachineryHooks) hk.Undo();
 	}
 
-	internal static RainWorld rw;
+	//internal static RainWorld rw;
 	#region hooks
 	private static void RW_Start(RainWorld_Start orig, RainWorld self)
 	{
 		orig(self);
-		rw = self;
+		//rw = self;
 	}
 	private delegate void RainWorld_Start(RainWorld self);
 	private static void Room_AddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)

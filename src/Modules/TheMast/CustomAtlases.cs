@@ -12,39 +12,32 @@ namespace RegionKit.Modules.TheMast
 {
     internal static class CustomAtlases
     {
-        public static FAtlas FetchAtlas(string name)
+        public static FAtlas? FetchAtlas(string name)
         {
             if (Futile.atlasManager.DoesContainAtlas(name)) return Futile.atlasManager.GetAtlasWithName(name);
             else return LoadAtlas(name);
         }
-
-        private static FAtlas LoadAtlas(string name)
+        private static FAtlas? LoadAtlas(string name)
         {
             Assembly asm = Assembly.GetExecutingAssembly();
 
             // Load image from resources
             Texture2D tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
             {
-                Stream atlasImage = asm.GetManifestResourceStream($"RegionKit.TheMast.Atlases.{name}.png");
-                byte[] data = new byte[atlasImage.Length];
-                atlasImage.Read(data, 0, data.Length);
+                //Stream atlasImage = asm.GetManifestResourceStream($"RegionKit.TheMast.Atlases.{name}.png");
+                byte[]? data = _Assets.GetBytes("TheMast", name, "png");
+				if (data is null) return null;
+                //atlasImage.Read(data, 0, data.Length);
                 tex.LoadImage(data);
                 tex.filterMode = FilterMode.Point;
             }
 
-            string json;
-            {
-                Stream atlasJson = asm.GetManifestResourceStream($"RegionKit.TheMast.Atlases.{name}.txt");
-                byte[] data = new byte[atlasJson.Length];
-                atlasJson.Read(data, 0, data.Length);
-                json = System.Text.Encoding.UTF8.GetString(data);
-            }
+            string? json = _Assets.GetUTF8("TheMast", name, "txt");
 
             FAtlas atlas = Futile.atlasManager.LoadAtlasFromTexture(name, tex, false);
-            LoadAtlasData(atlas, json);
+            if (json is not null) LoadAtlasData(atlas, json);
             return atlas;
         }
-
         // Fixes a bug from FAtlas.LoadAtlasData
         private static FieldInfo _FAtlas_elementsByName = typeof(FAtlas).GetField("_elementsByName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         private static MethodInfo _FAtlasManager_AddAtlas = typeof(FAtlasManager).GetMethod("AddAtlas", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);

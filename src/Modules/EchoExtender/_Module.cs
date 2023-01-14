@@ -6,7 +6,7 @@ using RWCustom;
 using UnityEngine;
 
 namespace RegionKit.Modules.EchoExtender;
-[RegionKitModule(nameof(ApplyHooks), nameof(RemoveHooks), moduleName:"EchoExtender")]
+[RegionKitModule(nameof(ApplyHooks), nameof(RemoveHooks), moduleName:"Echo Extender")]
 public static class _Module
 {
 	public static SlugcatStats.Name SlugcatNumber { get; private set; } = SlugcatStats.Name.White;

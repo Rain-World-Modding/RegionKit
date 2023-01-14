@@ -1,6 +1,4 @@
 using System.Reflection;
-//using ActionWithData = System.ValueTuple<System.Action, string>;
-
 namespace RegionKit;
 
 [BIE.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "2.0")]
@@ -18,32 +16,45 @@ public class Mod : BIE.BaseUnityPlugin
 		_modulesSetUp = true;
 		foreach (var mod in _modules)
 		{
-			try
-			{
-				mod.enable();
-			}
-			catch (Exception ex)
-			{
-				Logger.LogError($"Could not enable {name}: {ex}");
-			}
+			RunEnableOn(mod);
 		}
 		TheRitual.Commence();
 	}
+	
+	[VM.MethodImpl(VM.MethodImplOptions.AggressiveInlining)]
+	private void RunEnableOn(ModuleInfo mod)
+	{
+		try
+		{
+			mod.enable();
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError($"Could not enable {name}: {ex}");
+		}
+	}
+	[VM.MethodImpl(VM.MethodImplOptions.AggressiveInlining)]
 	public void OnDisable()
 	{
 		foreach (var mod in _modules)
 		{
-			try
-			{
-				mod.disable();
-			}
-			catch (Exception ex)
-			{
-				Logger.LogError($"Error disabling {name}: {ex}");
-			}
+			RunDisableOn(mod);
 		}
 		__inst = null!;
 	}
+
+	private void RunDisableOn(ModuleInfo mod)
+	{
+		try
+		{
+			mod.disable();
+		}
+		catch (Exception ex)
+		{
+			Logger.LogError($"Error disabling {name}: {ex}");
+		}
+	}
+
 	public void FixedUpdate()
 	{
 
@@ -100,6 +111,10 @@ public class Mod : BIE.BaseUnityPlugin
 				counter = 0,
 				errored = false
 			});
+			if (_modulesSetUp){
+				RunEnableOn(_modules.Last());
+			}
+
 			return true;
 		}
 		return false;

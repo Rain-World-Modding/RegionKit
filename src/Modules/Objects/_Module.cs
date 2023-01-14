@@ -38,7 +38,8 @@ public static class _Module
                 //new Hook(typeof(GHalo).GetMethodAllContexts("get_Speed"), _mt.GetMethodAllContexts(nameof(halo_speed)))
             };
 		}
-		else{
+		else
+		{
 			foreach (var hk in mHk) if (!hk.IsApplied) hk.Apply();
 		}
 		_ranOnce = true;

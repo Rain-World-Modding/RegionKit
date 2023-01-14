@@ -21,6 +21,5 @@ internal static class _Assets
 	public static void Disable()
 	{
 
-
 	}
 }

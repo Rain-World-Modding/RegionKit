@@ -40,6 +40,7 @@ static class _RoomLoader
 		On.Room.Loaded -= Room_Loaded;
 		On.PlacedObject.GenerateEmptyData -= PlacedObject_GenerateEmptyData;
 		On.DevInterface.ObjectsPage.CreateObjRep -= ObjectsPage_CreateObjRep;
+		On.DevInterface.RoomSettingsPage.Refresh -= RoomSettingsPage_Refresh;
 	}
 
 	public static void ObjectsPage_CreateObjRep(On.DevInterface.ObjectsPage.orig_CreateObjRep orig, ObjectsPage self, PlacedObject.Type tp, PlacedObject pObj)

@@ -1,7 +1,7 @@
 ﻿
 namespace RegionKit.Modules.ShelterBehaviors;
 
-[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "ShelterBehaviors")]
+[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Shelter Behaviors")]
 public static class _Module
 {
 	public const string ModID = "ShelterBehaviors";
@@ -27,11 +27,7 @@ public static class _Module
 		On.AbstractCreature.RealizeInRoom += CreatureShuffleHook;
 
 		//ApplyHooks();
-		if (EnabledOnce)
-		{
-			
-		}
-		else
+		if (!EnabledOnce)
 		{
 			RegisterFullyManagedObjectType(new ManagedField[]{
 				new BooleanField("nvd", true, displayName:"No Vanilla Door"),
@@ -62,6 +58,9 @@ public static class _Module
 			RegisterEmptyObjectType(EnumNames.TriggerZone, typeof(PlacedObject.GridRectObjectData), typeof(DevInterface.GridRectObjectRepresentation));
 			RegisterEmptyObjectType(EnumNames.NoTriggerZone, typeof(PlacedObject.GridRectObjectData), typeof(DevInterface.GridRectObjectRepresentation));
 			RegisterEmptyObjectType(EnumNames.SpawnPosition, null, null); // No data required :)
+		}
+		else{
+			
 		}
 	}
 

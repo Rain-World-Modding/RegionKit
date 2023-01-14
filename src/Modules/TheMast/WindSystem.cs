@@ -11,7 +11,7 @@ namespace RegionKit.Modules.TheMast
 {
     public static class EnumExt_WindSystem
     {
-        public static PlacedObject.Type PlacedWind;
+        public static PlacedObject.Type PlacedWind = new(nameof(PlacedWind), true);
     }
 
     internal static class WindSystem

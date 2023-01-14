@@ -592,7 +592,7 @@ namespace RegionKit.Modules.TheMast
                         length = Vector2.Distance(anchorPos, topPearlPos);
                     } else
                     {
-                        PetrifiedWood.WriteLine("Pearl chain spawned broken!");
+                        plog.LogMessage("Pearl chain spawned broken!");
                         length = -1f;
                         anchorPos = topPearlPos;
                     }

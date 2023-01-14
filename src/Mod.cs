@@ -20,8 +20,6 @@ public class Mod : BIE.BaseUnityPlugin
 		}
 		TheRitual.Commence();
 	}
-	
-	[VM.MethodImpl(VM.MethodImplOptions.AggressiveInlining)]
 	private void RunEnableOn(ModuleInfo mod)
 	{
 		try
@@ -33,7 +31,6 @@ public class Mod : BIE.BaseUnityPlugin
 			Logger.LogError($"Could not enable {name}: {ex}");
 		}
 	}
-	[VM.MethodImpl(VM.MethodImplOptions.AggressiveInlining)]
 	public void OnDisable()
 	{
 		foreach (var mod in _modules)

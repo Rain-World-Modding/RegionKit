@@ -13,7 +13,7 @@ global using DBG = System.Diagnostics;
 global using IO = System.IO;
 global using RFL = System.Reflection;
 global using REG = System.Text.RegularExpressions;
-global using VM = System.Runtime.CompilerServices;
+global using VM = System.Runtime;
 global using BIE = BepInEx;
 
 global using RNG = UnityEngine.Random;

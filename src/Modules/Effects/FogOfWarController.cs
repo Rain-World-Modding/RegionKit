@@ -89,7 +89,7 @@ namespace RegionKit.Modules.Effects
 
             if (fovShader == null)
             {
-				//TODO: see if it works anyways
+				//TODO: make the shader load properly
                 Material mat = new Material(_Assets.FogOfWar);
                 fovShader = FShader.CreateShader("FogOfWar", mat.shader);
             }

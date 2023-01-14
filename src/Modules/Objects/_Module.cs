@@ -1,6 +1,6 @@
 namespace RegionKit.Modules.Objects;
 
-[RegionKitModule(nameof(Enable), nameof(Disable), "MiscObjects")]
+[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "MiscObjects")]
 public static class _Module
 {
 	private static bool _ranOnce = false;

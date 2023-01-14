@@ -1,14 +1,23 @@
 
-internal class RegionKitModuleAttribute : Attribute
+public class RegionKitModuleAttribute : Attribute
 {
 	internal readonly string enableMethod;
 	internal readonly string disableMethod;
-	internal readonly string? moduleNameOverride;
+	internal readonly string? tickMethod;
+	internal readonly int tickPeriod;
+	internal readonly string? moduleName;
 
-	internal RegionKitModuleAttribute(string enableMethod, string disableMethod, string? moduleNameOverride = null)
+	public RegionKitModuleAttribute(
+		string enableMethod,
+		string disableMethod,
+		string? tickMethod = null,
+		int tickPeriod = 1,
+		string? moduleName = null)
 	{
 		this.enableMethod = enableMethod;
 		this.disableMethod = disableMethod;
-		this.moduleNameOverride = moduleNameOverride;
+		this.tickMethod = tickMethod;
+		this.tickPeriod = tickPeriod;
+		this.moduleName = moduleName;
 	}
 }

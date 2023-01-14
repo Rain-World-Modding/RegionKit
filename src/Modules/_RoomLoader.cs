@@ -17,12 +17,11 @@ internal static class NewEffects
 	public const string CloudAdjustment = nameof(CloudAdjustment);
 
 }
-[RegionKitModule(nameof(Patch), nameof(Disable), "RoomLoader")]
+[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "RoomLoader")]
 static class _RoomLoader
 {
-	public static void Patch()
+	public static void Enable()
 	{
-		//EnumExtEffects.PWMalfunction = new(nameof(EnumExtEffects.PWMalfunction), true);
 		new RoomSettings.RoomEffect.Type(NewEffects.PWMalfunction, true);
 		new RoomSettings.RoomEffect.Type(NewEffects.FogOfWarSolid, true);
 		new RoomSettings.RoomEffect.Type(NewEffects.FogOfWarDarkened, true);

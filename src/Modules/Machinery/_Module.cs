@@ -16,7 +16,7 @@ namespace RegionKit.Modules.Machinery;
 /// <summary>
 /// Handles registration of machinery objects.
 /// </summary>
-[RegionKitModule(nameof(Enable), nameof(Disable), "Machinery")]
+[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Machinery")]
 public static class _Module
 {
 	private static bool appliedOnce = false;

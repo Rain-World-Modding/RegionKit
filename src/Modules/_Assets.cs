@@ -1,6 +1,6 @@
 namespace RegionKit.Modules;
 
-[RegionKitModule(nameof(Enable), nameof(Disable), "Shaders")]
+[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Assets")]
 internal static class _Assets
 {
 	public static void Enable()
@@ -13,7 +13,7 @@ internal static class _Assets
 	{
 		get
 		{
-			using var stream = RFL.Assembly.GetExecutingAssembly().GetManifestResourceStream("Assets.FogOfWar.txt");
+			using var stream = RFL.Assembly.GetExecutingAssembly().GetManifestResourceStream("RegionKit.Assets.FogOfWar.txt");
 			try
 			{
 				byte[] buff = new byte[stream.Length];

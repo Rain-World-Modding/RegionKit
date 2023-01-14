@@ -1,7 +1,7 @@
 ﻿
 namespace RegionKit.Modules.ShelterBehaviors;
 
-[RegionKitModule(nameof(Enable), nameof(Disable), "ShelterBehaviors")]
+[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "ShelterBehaviors")]
 public static class _Module
 {
 	public const string ModID = "ShelterBehaviors";

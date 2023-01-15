@@ -10,16 +10,15 @@ static class _Module
 {
 	public static void Register()
 	{
-		On.Room.Loaded += AB_RoomloadDetour;
+		_CommonHooks.PostRoomLoad += RoomPostLoad;
 	}
 	public static void Disable()
 	{
-		On.Room.Loaded -= AB_RoomloadDetour;
+		_CommonHooks.PostRoomLoad -= RoomPostLoad;
 	}
 
-	public static void AB_RoomloadDetour(On.Room.orig_Loaded orig, Room self)
+	private static void RoomPostLoad(Room self)
 	{
-		orig(self);
 		for (int k = 0; k < self.roomSettings.effects.Count; k++)
 		{
 			if (self.roomSettings.effects[k].type == EnumExt_AridBarrens.SandStorm)

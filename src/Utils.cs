@@ -119,8 +119,10 @@ public static partial class Utils
 		var res = default(T);
 		if (arr.Length > 0) return arr[RNG.Range(0, arr.Length)];
 		return res;
+
+		///var x = new int?[] { 1, null }.RandomOrDefault();
 	}
-	public static T RandomOrDefault<T>(this List<T> l)
+	public static T? RandomOrDefault<T>(this List<T> l)
 	{
 		if (l.Count == 0) return default;
 		//var R = new System.Random(l.GetHashCode());
@@ -144,7 +146,7 @@ public static partial class Utils
 	//moved from M4rbleL1ne's ConditionalEffects
 	public static void RemoveWeak<T>(Dictionary<WeakReference, T> dict, RoomSettings.RoomEffect key)
 	{
-		WeakReference weakKey = null;
+		WeakReference? weakKey = null;
 		foreach (var pair in dict)
 			if (pair.Key.IsAlive && pair.Key.Target == key)
 			{
@@ -154,7 +156,7 @@ public static partial class Utils
 		if (weakKey != null)
 			dict.Remove(weakKey);
 	}
-	public static bool TryGetWeak<T>(Dictionary<WeakReference, T> dict, RoomSettings.RoomEffect key, out T value)
+	public static bool TryGetWeak<T>(Dictionary<WeakReference, T> dict, RoomSettings.RoomEffect key, out T? value)
 	{
 		foreach (var pair in dict)
 			if (pair.Key.IsAlive && pair.Key.Target == key)
@@ -481,294 +483,294 @@ public static partial class Utils
 	public static T ParseExtEnum<T>(string str, bool ignoreCase = false)
 		where T : ExtEnumBase
 		=> (T)ExtEnumBase.Parse(typeof(T), str, ignoreCase);
-public static T Zero<T>()
-	=> (T)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(T));
-/// <summary>
-/// Attempts to parse enum value from a string, in a non-throwing fashion.
-/// </summary>
-/// <typeparam name="T">Enum type</typeparam>
-/// <param name="str">Source string</param>
-/// <param name="result">out-result.</param>
-/// <returns>Whether parsing was successful.</returns>
-public static bool TryParseEnum<T>(string str, out T? result)
-	where T : Enum
-{
-	Array values = Enum.GetValues(typeof(T));
-	foreach (T val in values)
+	public static T Zero<T>()
+		=> (T)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(T));
+	/// <summary>
+	/// Attempts to parse enum value from a string, in a non-throwing fashion.
+	/// </summary>
+	/// <typeparam name="T">Enum type</typeparam>
+	/// <param name="str">Source string</param>
+	/// <param name="result">out-result.</param>
+	/// <returns>Whether parsing was successful.</returns>
+	public static bool TryParseEnum<T>(string str, out T? result)
+		where T : Enum
 	{
-		if (str == val.ToString())
+		Array values = Enum.GetValues(typeof(T));
+		foreach (T val in values)
 		{
-			result = val;
-			return true;
+			if (str == val.ToString())
+			{
+				result = val;
+				return true;
+			}
+		}
+		result = default;
+		return false;
+	}
+	/// <summary>
+	/// Attempts to parse a vector4 from string; expected format is "x;y;z;w", z or w may be absent.
+	/// </summary>
+	public static bool TryParseVec4(string str, out Vector4 vec)
+	{
+		string[] spl;
+		Vector4 vecres = default;
+		bool vecparsed = false;
+		if ((spl = REG.Regex.Split(str, "\\s*;\\s*")).Length is 2 or 3 or 4)
+		{
+			vecparsed = true;
+			for (int i = 0; i < spl.Length; i++)
+			{
+				if (!float.TryParse(spl[i], out float val)) vecparsed = false;
+				vecres[i] = val;
+			}
+		}
+		vec = vecres;
+		return vecparsed;
+	}
+	/// <summary>
+	/// Joins two strings with a comma and a space.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <returns></returns>
+	public static string JoinWithComma(string x, string y)
+	{
+		return $"{x}, {y}";
+	}
+	/// <summary>
+	/// Stitches a given collection with, returns an empty string if empty.
+	/// </summary>
+	/// <param name="coll"></param>
+	/// <param name="aggregator">Aggregator function. <see cref="JoinWithComma"/> by default.</param>
+	/// <returns>Resulting string.</returns>
+	public static string Stitch(
+		this IEnumerable<string> coll,
+		Func<string, string, string>? aggregator = null)
+	{
+		BangBang(coll, nameof(coll));
+		return coll is null || coll.Count() is 0 ? string.Empty : coll.Aggregate(aggregator ?? JoinWithComma);
+	}
+	/// <summary>
+	/// Creates an <see cref="IntRect"/> from two corner points.
+	/// </summary>
+	/// <param name="p1"></param>
+	/// <param name="p2"></param>
+	/// <returns></returns>
+	public static IntRect ConstructIR(IntVector2 p1, IntVector2 p2)
+	{
+		Vector4 vec = new Color();
+		return new(Min(p1.x, p2.x), Min(p1.y, p2.y), Max(p1.x, p2.x), Max(p1.y, p2.y));
+	}
+	/// <summary>
+	/// <see cref="IO.Path.Combine"/> but params.
+	/// </summary>
+	/// <param name="parts"></param>
+	/// <returns></returns>
+	public static string CombinePath(params string[] parts)
+	{
+		return parts.Aggregate(IO.Path.Combine);
+	}
+	/// <summary>
+	/// Current RainWorld instance. Uses Unity lookup, may be slow.
+	/// </summary>
+	public static RainWorld CRW
+		=> UnityEngine.Object.FindObjectOfType<RainWorld>();
+	/// <summary>
+	/// Gets a <see cref="StaticWorld"/> template object by type.
+	/// </summary>
+	/// <param name="t"></param>
+	/// <returns></returns>
+	public static CreatureTemplate GetCreatureTemplate(CreatureTemplate.Type t)
+	{
+		return StaticWorld.creatureTemplates[(int)t];
+	}
+	/// <summary>
+	/// Finds specified subprocess in ProcessManager (looks at both mainloop and side processes).
+	/// </summary>
+	/// <typeparam name="T">Type of subprocess.</typeparam>
+	/// <param name="manager">must not be null.</param>
+	/// <returns>Found subprocess; null if none.</returns>
+	public static T? FindSubProcess<T>(this ProcessManager manager)
+		where T : MainLoopProcess
+	{
+		BangBang(manager, nameof(manager));
+		if (manager.currentMainLoop is T tmain) return tmain;
+		foreach (MainLoopProcess sideprocess in manager.sideProcesses) if (sideprocess is T tside) return tside;
+		return null;
+	}
+	/// <summary>
+	/// Attempts to find an <see cref="UpdatableAndDeletable"/> of specified type
+	/// </summary>
+	public static T? FindUAD<T>(this Room rm)
+	{
+		BangBang(rm, nameof(rm));
+		for (int i = 0; i < rm.updateList.Count; i++)
+		{
+			if (rm.updateList[i] is T t) return t;
+		}
+		return default;
+	}
+	/// <summary>
+	/// Yields all <see cref="UpdatableAndDeletable"/>s of specified type.
+	/// </summary>
+	public static IEnumerable<T> FindAllUAD<T>(this Room rm)
+	{
+		for (int i = 0; i < rm.updateList.Count; i++)
+		{
+			if (rm.updateList[i] is T t) yield return t;
 		}
 	}
-	result = default;
-	return false;
-}
-/// <summary>
-/// Attempts to parse a vector4 from string; expected format is "x;y;z;w", z or w may be absent.
-/// </summary>
-public static bool TryParseVec4(string str, out Vector4 vec)
-{
-	string[] spl;
-	Vector4 vecres = default;
-	bool vecparsed = false;
-	if ((spl = REG.Regex.Split(str, "\\s*;\\s*")).Length is 2 or 3 or 4)
+	/// <summary>
+	/// Gets bytes from ER of an assembly.
+	/// </summary>
+	/// <param name="resname">name of the resource</param>
+	/// <param name="casm">target assembly. If unspecified, RK asm</param>
+	/// <returns>resulting byte array</returns>
+	public static byte[]? ResourceBytes(string resname, Assembly? casm = null)
 	{
-		vecparsed = true;
-		for (int i = 0; i < spl.Length; i++)
+		if (resname is null) throw new ArgumentNullException("can not get with a null name");
+		casm ??= Assembly.GetExecutingAssembly();
+		IO.Stream? str = casm.GetManifestResourceStream(resname);
+		byte[]? bf = str is null ? null : new byte[str.Length];
+		str?.Read(bf, 0, (int)str.Length);
+		return bf;
+	}
+	/// <summary>
+	/// Gets an ER of an assembly and returns it as string. Default encoding is UTF-8
+	/// </summary>
+	/// <param name="resname">Name of ER</param>
+	/// <param name="enc">Encoding. If none is specified, UTF-8</param>
+	/// <param name="casm">assembly to get resource from. If unspecified, RK asm.</param> 
+	/// <returns>Resulting string. If none is found, <c>null</c> </returns>
+	public static string? ResourceAsString(string resname, Encoding? enc = null, Assembly? casm = null)
+	{
+		enc ??= Encoding.UTF8;
+		casm ??= Assembly.GetExecutingAssembly();
+		try
 		{
-			if (!float.TryParse(spl[i], out float val)) vecparsed = false;
-			vecres[i] = val;
+			byte[]? bf = ResourceBytes(resname, casm);
+			return bf is null ? null : enc.GetString(bf);
+		}
+		catch (Exception ee) { __log.LogError($"Error getting ER: {ee}"); return null; }
+	}
+	/// <summary>
+	/// Deconstructs a KeyValuePair.
+	/// </summary>
+	/// <typeparam name="TKey"></typeparam>
+	/// <typeparam name="TVal"></typeparam>
+	/// <param name="kvp"></param>
+	/// <param name="k"></param>
+	/// <param name="v"></param>
+	public static void Deconstruct<TKey, TVal>(this KeyValuePair<TKey, TVal> kvp, out TKey k, out TVal v)
+	{
+		k = kvp.Key;
+		v = kvp.Value;
+	}
+	/// <summary>
+	/// Throws <see cref="System.ArgumentNullException"/> if item is null.
+	/// </summary>
+	public static void BangBang(object? item, string name = "???")
+	{
+		if (item is null) throw new ArgumentNullException(name);
+	}
+	/// <summary>
+	/// Throws <see cref="System.InvalidOperationException"/> if item is not null.
+	/// </summary>
+	public static void AntiBang(object? item, string name)
+	{
+		if (item is not null) throw new InvalidOperationException($"{name} is not null");
+	}
+	/// <summary>
+	/// Creates a Color from a vector and makes sure its alpha is not zero.
+	/// </summary>
+	public static Color ToOpaqueCol(in this Vector4 vec)
+		=> vec.w is not 0f ? vec : new(vec.x, vec.y, vec.z, 1f);
+	public static IntVector2 ToIntVector2(this Vector2 vec) => new((int)vec.x, (int)vec.y);
+	public static Vector2 ToVector2(this IntVector2 ivec) => new(ivec.x, ivec.y);
+	public static IEnumerable<IntVector2> ReturnTiles(this IntRect ir)
+	{
+		for (int i = ir.left; i <= ir.right; i++)
+		{
+			for (int j = ir.bottom; j <= ir.top; j++)
+			{
+				yield return new(i, j);
+			}
 		}
 	}
-	vec = vecres;
-	return vecparsed;
-}
-/// <summary>
-/// Joins two strings with a comma and a space.
-/// </summary>
-/// <param name="x"></param>
-/// <param name="y"></param>
-/// <returns></returns>
-public static string JoinWithComma(string x, string y)
-{
-	return $"{x}, {y}";
-}
-/// <summary>
-/// Stitches a given collection with, returns an empty string if empty.
-/// </summary>
-/// <param name="coll"></param>
-/// <param name="aggregator">Aggregator function. <see cref="JoinWithComma"/> by default.</param>
-/// <returns>Resulting string.</returns>
-public static string Stitch(
-	this IEnumerable<string> coll,
-	Func<string, string, string>? aggregator = null)
-{
-	BangBang(coll, nameof(coll));
-	return coll is null || coll.Count() is 0 ? string.Empty : coll.Aggregate(aggregator ?? JoinWithComma);
-}
-/// <summary>
-/// Creates an <see cref="IntRect"/> from two corner points.
-/// </summary>
-/// <param name="p1"></param>
-/// <param name="p2"></param>
-/// <returns></returns>
-public static IntRect ConstructIR(IntVector2 p1, IntVector2 p2)
-{
-	Vector4 vec = new Color();
-	return new(Min(p1.x, p2.x), Min(p1.y, p2.y), Max(p1.x, p2.x), Max(p1.y, p2.y));
-}
-/// <summary>
-/// <see cref="IO.Path.Combine"/> but params.
-/// </summary>
-/// <param name="parts"></param>
-/// <returns></returns>
-public static string CombinePath(params string[] parts)
-{
-	return parts.Aggregate(IO.Path.Combine);
-}
-/// <summary>
-/// Current RainWorld instance. Uses Unity lookup, may be slow.
-/// </summary>
-public static RainWorld CRW
-	=> UnityEngine.Object.FindObjectOfType<RainWorld>();
-/// <summary>
-/// Gets a <see cref="StaticWorld"/> template object by type.
-/// </summary>
-/// <param name="t"></param>
-/// <returns></returns>
-public static CreatureTemplate GetCreatureTemplate(CreatureTemplate.Type t)
-{
-	return StaticWorld.creatureTemplates[(int)t];
-}
-/// <summary>
-/// Finds specified subprocess in ProcessManager (looks at both mainloop and side processes).
-/// </summary>
-/// <typeparam name="T">Type of subprocess.</typeparam>
-/// <param name="manager">must not be null.</param>
-/// <returns>Found subprocess; null if none.</returns>
-public static T? FindSubProcess<T>(this ProcessManager manager)
-	where T : MainLoopProcess
-{
-	BangBang(manager, nameof(manager));
-	if (manager.currentMainLoop is T tmain) return tmain;
-	foreach (MainLoopProcess sideprocess in manager.sideProcesses) if (sideprocess is T tside) return tside;
-	return null;
-}
-/// <summary>
-/// Attempts to find an <see cref="UpdatableAndDeletable"/> of specified type
-/// </summary>
-public static T? FindUAD<T>(this Room rm)
-{
-	BangBang(rm, nameof(rm));
-	for (int i = 0; i < rm.updateList.Count; i++)
-	{
-		if (rm.updateList[i] is T t) return t;
-	}
-	return default;
-}
-/// <summary>
-/// Yields all <see cref="UpdatableAndDeletable"/>s of specified type.
-/// </summary>
-public static IEnumerable<T> FindAllUAD<T>(this Room rm)
-{
-	for (int i = 0; i < rm.updateList.Count; i++)
-	{
-		if (rm.updateList[i] is T t) yield return t;
-	}
-}
-/// <summary>
-/// Gets bytes from ER of an assembly.
-/// </summary>
-/// <param name="resname">name of the resource</param>
-/// <param name="casm">target assembly. If unspecified, RK asm</param>
-/// <returns>resulting byte array</returns>
-public static byte[]? ResourceBytes(string resname, Assembly? casm = null)
-{
-	if (resname is null) throw new ArgumentNullException("can not get with a null name");
-	casm ??= Assembly.GetExecutingAssembly();
-	IO.Stream? str = casm.GetManifestResourceStream(resname);
-	byte[]? bf = str is null ? null : new byte[str.Length];
-	str?.Read(bf, 0, (int)str.Length);
-	return bf;
-}
-/// <summary>
-/// Gets an ER of an assembly and returns it as string. Default encoding is UTF-8
-/// </summary>
-/// <param name="resname">Name of ER</param>
-/// <param name="enc">Encoding. If none is specified, UTF-8</param>
-/// <param name="casm">assembly to get resource from. If unspecified, RK asm.</param> 
-/// <returns>Resulting string. If none is found, <c>null</c> </returns>
-public static string? ResourceAsString(string resname, Encoding? enc = null, Assembly? casm = null)
-{
-	enc ??= Encoding.UTF8;
-	casm ??= Assembly.GetExecutingAssembly();
-	try
-	{
-		byte[]? bf = ResourceBytes(resname, casm);
-		return bf is null ? null : enc.GetString(bf);
-	}
-	catch (Exception ee) { __log.LogError($"Error getting ER: {ee}"); return null; }
-}
-/// <summary>
-/// Deconstructs a KeyValuePair.
-/// </summary>
-/// <typeparam name="TKey"></typeparam>
-/// <typeparam name="TVal"></typeparam>
-/// <param name="kvp"></param>
-/// <param name="k"></param>
-/// <param name="v"></param>
-public static void Deconstruct<TKey, TVal>(this KeyValuePair<TKey, TVal> kvp, out TKey k, out TVal v)
-{
-	k = kvp.Key;
-	v = kvp.Value;
-}
-/// <summary>
-/// Throws <see cref="System.ArgumentNullException"/> if item is null.
-/// </summary>
-public static void BangBang(object? item, string name = "???")
-{
-	if (item is null) throw new ArgumentNullException(name);
-}
-/// <summary>
-/// Throws <see cref="System.InvalidOperationException"/> if item is not null.
-/// </summary>
-public static void AntiBang(object? item, string name)
-{
-	if (item is not null) throw new InvalidOperationException($"{name} is not null");
-}
-/// <summary>
-/// Creates a Color from a vector and makes sure its alpha is not zero.
-/// </summary>
-public static Color ToOpaqueCol(in this Vector4 vec)
-	=> vec.w is not 0f ? vec : new(vec.x, vec.y, vec.z, 1f);
-public static IntVector2 ToIntVector2(this Vector2 vec) => new((int)vec.x, (int)vec.y);
-public static Vector2 ToVector2(this IntVector2 ivec) => new(ivec.x, ivec.y);
-public static IEnumerable<IntVector2> ReturnTiles(this IntRect ir)
-{
-	for (int i = ir.left; i <= ir.right; i++)
-	{
-		for (int j = ir.bottom; j <= ir.top; j++)
-		{
-			yield return new(i, j);
-		}
-	}
-}
 
 
 #if RK //RK-specific things
 
-// public static float GetGlobalPower(this Room self)
-// {
-// 	if (ManagersByRoom.TryGetValue(self.GetHashCode(), out var rpm)) return rpm.GetGlobalPower();
-// 	return self.world?.rainCycle?.brokenAntiGrav?.CurrentLightsOn ?? 1f;
-// }
-// public static float GetPower(this Room self, Vector2 point)
-// {
-// 	if (ManagersByRoom.TryGetValue(self.GetHashCode(), out var rpm)) return rpm.GetPowerForPoint(point);
-// 	return self.world?.rainCycle?.brokenAntiGrav?.CurrentLightsOn ?? 1f;
-// }
+	// public static float GetGlobalPower(this Room self)
+	// {
+	// 	if (ManagersByRoom.TryGetValue(self.GetHashCode(), out var rpm)) return rpm.GetGlobalPower();
+	// 	return self.world?.rainCycle?.brokenAntiGrav?.CurrentLightsOn ?? 1f;
+	// }
+	// public static float GetPower(this Room self, Vector2 point)
+	// {
+	// 	if (ManagersByRoom.TryGetValue(self.GetHashCode(), out var rpm)) return rpm.GetPowerForPoint(point);
+	// 	return self.world?.rainCycle?.brokenAntiGrav?.CurrentLightsOn ?? 1f;
+	// }
 
-// public static List<IntVector2> ReturnTiles(this IntRect ir)
-// {
-// 	var res = new List<IntVector2>();
-// 	for (int x = ir.left; x < ir.right; x++)
-// 	{
-// 		for (int y = ir.bottom; y < ir.top; y++)
-// 		{
-// 			res.Add(new IntVector2(x, y));
-// 		}
-// 	}
-// 	return res;
-// }
+	// public static List<IntVector2> ReturnTiles(this IntRect ir)
+	// {
+	// 	var res = new List<IntVector2>();
+	// 	for (int x = ir.left; x < ir.right; x++)
+	// 	{
+	// 		for (int y = ir.bottom; y < ir.top; y++)
+	// 		{
+	// 			res.Add(new IntVector2(x, y));
+	// 		}
+	// 	}
+	// 	return res;
+	// }
 
-public static void ClampToNormal(this Color self)
-{
-	self.r = Clamp01(self.r);
-	self.g = Clamp01(self.g);
-	self.b = Clamp01(self.b);
-	self.a = Clamp01(self.a);
-}
-public static List<T> AddRangeReturnSelf<T>(this List<T> self, IEnumerable<T> range)
-{
-	if (self == null) self = new List<T>();
-	self.AddRange(range);
-	return self;
-}
-public static Color Deviation(this Color self, Color dev)
-{
-	var res = new Color();
-	for (int i = 0; i < 4; i++)
+	public static void ClampToNormal(this Color self)
 	{
-		res[i] = ClampedFloatDeviation(self[i], dev[i]);
+		self.r = Clamp01(self.r);
+		self.g = Clamp01(self.g);
+		self.b = Clamp01(self.b);
+		self.a = Clamp01(self.a);
 	}
-	return res;
-}
-
-public static FContainer ReturnFContainer(this RoomCamera rcam, ContainerCodes cc)
-	=> rcam.ReturnFContainer(cc.ToString());
-public static string[] SplitAndRemoveEmpty(this string str, string separator) => str.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
-
-#region refl extensions
-/// <summary>
-/// cleans up all non valuetype fields in a type. for realm cleanups
-/// </summary>
-/// <param name="t"></param>
-internal static void CleanUpStatic(this Type t)
-{
-	foreach (var fld in t.GetFields(BF_ALL_CONTEXTS_STATIC))
+	public static List<T> AddRangeReturnSelf<T>(this List<T> self, IEnumerable<T> range)
 	{
-		try
+		if (self == null) self = new List<T>();
+		self.AddRange(range);
+		return self;
+	}
+	public static Color Deviation(this Color self, Color dev)
+	{
+		var res = new Color();
+		for (int i = 0; i < 4; i++)
 		{
-			if (fld.FieldType.IsValueType || fld.IsLiteral) continue;
-			fld.SetValue(null, default);
+			res[i] = ClampedFloatDeviation(self[i], dev[i]);
 		}
-		catch { }
-
+		return res;
 	}
-	foreach (var child in t.GetNestedTypes()) child.CleanUpStatic();
-}
+
+	public static FContainer ReturnFContainer(this RoomCamera rcam, ContainerCodes cc)
+		=> rcam.ReturnFContainer(cc.ToString());
+	public static string[] SplitAndRemoveEmpty(this string str, string separator) => str.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+
+	#region refl extensions
+	/// <summary>
+	/// cleans up all non valuetype fields in a type. for realm cleanups
+	/// </summary>
+	/// <param name="t"></param>
+	internal static void CleanUpStatic(this Type t)
+	{
+		foreach (var fld in t.GetFields(BF_ALL_CONTEXTS_STATIC))
+		{
+			try
+			{
+				if (fld.FieldType.IsValueType || fld.IsLiteral) continue;
+				fld.SetValue(null, default);
+			}
+			catch { }
+
+		}
+		foreach (var child in t.GetNestedTypes()) child.CleanUpStatic();
+	}
 
 	#endregion
 #endif

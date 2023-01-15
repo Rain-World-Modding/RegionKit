@@ -12,9 +12,8 @@ namespace RegionKit.Modules.Objects
 
         public static void ApplyHooks()
         {
-            On.Room.Loaded += (orig, self) =>
+            _CommonHooks.PostRoomLoad += (self) =>
             {
-                orig(self);
                 for (var i = 0; i < self.roomSettings.placedObjects.Count; i++)
                 {
                     var pObj = self.roomSettings.placedObjects[i];

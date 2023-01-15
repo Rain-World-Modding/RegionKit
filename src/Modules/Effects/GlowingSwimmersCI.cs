@@ -20,23 +20,7 @@ public class GlowingSwimmersCI
 
 	public static void Apply()
 	{
-		On.Room.Loaded += (orig, self) =>
-			{
-				orig(self);
-				for (var i = 0; i < self.roomSettings.effects.Count; i++)
-				{
-					var effect = self.roomSettings.effects[i];
-					if (effect.type == EnumExt_GlowingSwimmers.GlowingSwimmers)
-					{
-						if (self.insectCoordinator is null)
-						{
-							self.insectCoordinator = new(self);
-							self.AddObject(self.insectCoordinator);
-						}
-						self.insectCoordinator.AddEffect(effect);
-					}
-				}
-			};
+		_CommonHooks.PostRoomLoad += RoomPostLoad;
 		On.InsectCoordinator.SpeciesDensity_Type_1 += (orig, type) => type == EnumExt_GlowingSwimmers.GlowingSwimmerInsect ? .8f : orig(type);
 		On.InsectCoordinator.RoomEffectToInsectType += (orig, type) => type == EnumExt_GlowingSwimmers.GlowingSwimmers ? EnumExt_GlowingSwimmers.GlowingSwimmerInsect : orig(type);
 		On.InsectCoordinator.TileLegalForInsect += (orig, type, room, testPos) => type == EnumExt_GlowingSwimmers.GlowingSwimmerInsect ? room.GetTile(testPos).DeepWater : orig(type, room, testPos);
@@ -59,6 +43,23 @@ public class GlowingSwimmersCI
 				else
 					orig(self, type, pos, swarm);
 			};
+	}
+
+	private static void RoomPostLoad(Room self)
+	{
+		for (var i = 0; i < self.roomSettings.effects.Count; i++)
+		{
+			var effect = self.roomSettings.effects[i];
+			if (effect.type == EnumExt_GlowingSwimmers.GlowingSwimmers)
+			{
+				if (self.insectCoordinator is null)
+				{
+					self.insectCoordinator = new(self);
+					self.AddObject(self.insectCoordinator);
+				}
+				self.insectCoordinator.AddEffect(effect);
+			}
+		}
 	}
 }
 

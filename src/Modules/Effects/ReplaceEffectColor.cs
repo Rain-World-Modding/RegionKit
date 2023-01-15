@@ -21,9 +21,8 @@ public class ReplaceEffectColor : UpdatableAndDeletable /// By M4rbleL1ne/LB Gam
 			ColoredRoomEffect.coloredEffects.Add(ReplaceEffectColorA);
 			ColoredRoomEffect.coloredEffects.Add(ReplaceEffectColorB);
 		};
-		On.Room.Loaded += (orig, self) =>
+		_CommonHooks.PostRoomLoad += (self) =>
 		{
-			orig(self);
 			for (var k = 0; k < self.roomSettings.effects.Count; k++)
 			{
 				var effect = self.roomSettings.effects[k];

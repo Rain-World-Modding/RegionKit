@@ -22,7 +22,7 @@ static class _RoomLoader
 {
 	public static void Enable()
 	{
-		On.Room.Loaded += Room_Loaded;
+		_CommonHooks.PostRoomLoad += RoomPostLoad;
 		On.PlacedObject.GenerateEmptyData += PlacedObject_GenerateEmptyData;
 		On.DevInterface.ObjectsPage.CreateObjRep += ObjectsPage_CreateObjRep;
 		On.DevInterface.RoomSettingsPage.Refresh += RoomSettingsPage_Refresh;
@@ -31,14 +31,14 @@ static class _RoomLoader
 	private static void RoomSettingsPage_Refresh(On.DevInterface.RoomSettingsPage.orig_Refresh orig, RoomSettingsPage self)
 	{
 		orig(self);
-		#if false
+#if false
 		Effects.FogOfWar.Refresh(self.owner.room);
-		#endif
+#endif
 	}
 
 	public static void Disable()
 	{
-		On.Room.Loaded -= Room_Loaded;
+		_CommonHooks.PostRoomLoad -= RoomPostLoad;
 		On.PlacedObject.GenerateEmptyData -= PlacedObject_GenerateEmptyData;
 		On.DevInterface.ObjectsPage.CreateObjRep -= ObjectsPage_CreateObjRep;
 		On.DevInterface.RoomSettingsPage.Refresh -= RoomSettingsPage_Refresh;
@@ -78,16 +78,14 @@ static class _RoomLoader
 		}
 	}
 
-	private static void Room_Loaded(On.Room.orig_Loaded orig, Room self)
+	private static void RoomPostLoad(Room self)
 	{
-		orig(self);
-		//ManyMoreFixes Patch
 		if (self.game == null) { return; }
-		
-		#if false
+
+#if false
 		Modules.Effects.FogOfWar.Refresh(self);
-		#endif
-		
+#endif
+
 		//Load all the effects
 		for (int k = 0; k < self.roomSettings.effects.Count; k++)
 		{

@@ -1,4 +1,4 @@
-
+﻿
 public class RegionKitModuleAttribute : Attribute
 {
 	internal readonly string enableMethod;

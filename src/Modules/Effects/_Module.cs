@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Effects;
+﻿namespace RegionKit.Modules.Effects;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Effects")]
 internal static class _Module

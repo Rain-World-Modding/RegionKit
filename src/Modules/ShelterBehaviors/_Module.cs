@@ -59,8 +59,9 @@ public static class _Module
 			RegisterEmptyObjectType(EnumNames.NoTriggerZone, typeof(PlacedObject.GridRectObjectData), typeof(DevInterface.GridRectObjectRepresentation));
 			RegisterEmptyObjectType(EnumNames.SpawnPosition, null!, null!); // No data required :)
 		}
-		else{
-			
+		else
+		{
+
 		}
 	}
 

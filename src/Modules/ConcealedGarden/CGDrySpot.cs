@@ -137,7 +137,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 					}
 
 					// goes straight down rather than at an angle
-					
+
 					waterTriangleMesh.MoveVertice(num3, new Vector2(vector.x, y));
 					waterTriangleMesh.MoveVertice(num3 + 1, vector);
 					waterTriangleMesh.MoveVertice(num3 + 2, new Vector2(vector3.x, y));

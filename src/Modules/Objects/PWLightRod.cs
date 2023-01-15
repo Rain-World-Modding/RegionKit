@@ -142,7 +142,7 @@ class PWLightRodRepresentation : SSLightRodRepresentation
 			//Allows slider values to change color.
 			public override void NubDragged(float nubPos)
 			{
-				PWLightRodData 
+				PWLightRodData
 					lightrodColor = ((parentNode.parentNode as PWLightRodRepresentation)!.pObj.data as PWLightRodData)!;
 				switch (IDstring)
 				{

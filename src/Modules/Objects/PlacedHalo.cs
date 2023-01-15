@@ -5,19 +5,18 @@
 //by: thalber, ??? months later:
 //uhhhgghg?
 
-using static UnityEngine.Mathf;
-using static RWCustom.Custom;
 using static RegionKit.Modules.Objects._Module;
-
+using static RWCustom.Custom;
+using static UnityEngine.Mathf;
 using GHalo = TempleGuardGraphics.Halo;
 using URAnd = UnityEngine.Random;
 //using DBG = UnityEngine.Debug;
 
 namespace RegionKit.Modules.Objects
 {
-    public class PlacedHalo : UpdatableAndDeletable//, IDrawable
-    {
-		#if false
+	public class PlacedHalo : UpdatableAndDeletable//, IDrawable
+	{
+#if false
         public PlacedHalo(PlacedObject owner, Room rm)
         {
             _ow = owner;
@@ -50,7 +49,7 @@ namespace RegionKit.Modules.Objects
             return ((circle + 1f) * 20f + Lerp(halo.rad[0, 1], halo.rad[0, 0], timeStacker) * (1f - Lerp(ltk, tk, timeStacker))) * Lerp(Lerp(halo.rad[1, 1], halo.rad[1, 0], timeStacker), 0.7f, Lerp(ltk, tk, timeStacker)) * Lerp(1f, URAnd.value * disruption, Pow(disruption, 2f));
         }
 
-        #region idrawable
+		#region idrawable
         public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
         {
             if (halo == null) Debug.LogWarning("HALO IS NULL!");
@@ -75,8 +74,8 @@ namespace RegionKit.Modules.Objects
                 newContatiner.AddChild(sp);
             }
         }
-        #endregion idrawable
-		#endif
-    }
-	
+		#endregion idrawable
+#endif
+	}
+
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RegionKit.Modules.AridBarrens;
 
-[RegionKitModule(nameof(Register), nameof(Disable), moduleName:"AridBarrens")]
+[RegionKitModule(nameof(Register), nameof(Disable), moduleName: "AridBarrens")]
 static class _Module
 {
 	public static void Register()

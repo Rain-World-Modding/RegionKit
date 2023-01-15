@@ -1,10 +1,10 @@
-﻿using UnityEngine;
+﻿using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using DevInterface;
 using RWCustom;
-using System.Linq;
-using System.IO;
-using System.Reflection;
+using UnityEngine;
 
 namespace RegionKit.Modules.Objects
 {

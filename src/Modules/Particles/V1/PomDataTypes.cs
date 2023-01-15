@@ -201,13 +201,13 @@ public class WholeScreenSpawnerData : ParticleSystemData
 
 public class ParticleVisualCustomizer : ManagedData
 {
-	[ColorField("sColBase", 1f, 1f, 1f, 1f, DisplayName:"Sprite color base")]
+	[ColorField("sColBase", 1f, 1f, 1f, 1f, DisplayName: "Sprite color base")]
 	public Color spriteColor;
-	[ColorField("sColFluke", 0f, 0f, 0f, 0f, DisplayName:"Sprite color fluke")]
+	[ColorField("sColFluke", 0f, 0f, 0f, 0f, DisplayName: "Sprite color fluke")]
 	public Color spriteColorFluke;
-	[ColorField("lColBase", 1f, 1f, 1f, 1f, DisplayName:"Light color base")]
+	[ColorField("lColBase", 1f, 1f, 1f, 1f, DisplayName: "Light color base")]
 	public Color lightColor;
-	[ColorField("lColFluke", 0f, 0f, 0f, 0f, DisplayName:"Light color fluke")]
+	[ColorField("lColFluke", 0f, 0f, 0f, 0f, DisplayName: "Light color fluke")]
 	public Color lightColorFluke;
 	[BooleanField("flat", false, displayName: "Flat light")]
 	public bool flatLight;
@@ -238,7 +238,7 @@ public class ParticleVisualCustomizer : ManagedData
 
 	public ParticleVisualCustomizer(PlacedObject owner) : base(owner, null)
 	{
-		
+
 	}
 
 	public PVisualState DataForNew()

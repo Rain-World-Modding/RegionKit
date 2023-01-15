@@ -18,6 +18,7 @@ internal class CGFourthLayerFix
 		if (self.bkgwww == null)
 		{
 			string text = WorldLoader.FindRoomFile(newRoom.abstractRoom.name, true, $"{camPos + 1}_bkg.png");
+			if (!IO.File.Exists(text)) return;
 			Uri uri = new Uri(text);
 			if (uri.IsFile && System.IO.File.Exists(uri.LocalPath))
 			{

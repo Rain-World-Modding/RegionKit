@@ -30,12 +30,13 @@ public static class _Module
 			RegisterMPO();
 			GenerateHooks();
 		}
-		else{
+		else
+		{
 			foreach (var hk in MachineryHooks) hk.Apply();
 		}
 		appliedOnce = true;
 
-		
+
 	}
 
 	internal static List<Hook> MachineryHooks = null!;

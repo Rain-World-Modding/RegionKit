@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using DevInterface;
+using UnityEngine;
 
 namespace RegionKit.Modules.Effects;
 
@@ -183,7 +183,7 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 		for (var i = 0; i < self.effects.Count; i++)
 		{
 			if (self.effects[i].type == type && colorSettings.TryGetNoVar(self.effects[i]))
-			return colorSettings[self.effects[i]]!.colorR;
+				return colorSettings[self.effects[i]]!.colorR;
 		}
 		return 0f;
 	}
@@ -230,7 +230,7 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 		return false;
 	}
 
-	public static bool TryGetNoVar<TKey, TValue>(this AttachedField<TKey, TValue> self, TKey obj) 
+	public static bool TryGetNoVar<TKey, TValue>(this AttachedField<TKey, TValue> self, TKey obj)
 		where TKey : notnull
 		=> self.TryGet(obj, out _);
 	#endregion Extensions

@@ -1,7 +1,7 @@
 ﻿//Author : DELTATIME
-using UnityEngine;
-using MonoMod.RuntimeDetour;
 using System.Reflection;
+using MonoMod.RuntimeDetour;
+using UnityEngine;
 namespace RegionKit.Modules.Effects;
 //Enum is extended in RoomLoader.cs
 class PWMalfunction

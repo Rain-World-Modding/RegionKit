@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 using RWCustom;
-using static UnityEngine.Mathf;
+using UnityEngine;
 using static RWCustom.Custom;
+using static UnityEngine.Mathf;
 
 namespace RegionKit.Modules.Particles.V1;
 

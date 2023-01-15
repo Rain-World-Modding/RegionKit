@@ -1,8 +1,8 @@
-using System;
-using UnityEngine;
+﻿using System;
 using RWCustom;
-using Random = UnityEngine.Random;
+using UnityEngine;
 using static RWCustom.Custom;
+using Random = UnityEngine.Random;
 
 /// <summary>
 /// By LB Gamer/M4rbleL1ne

@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using RWCustom;
 using UnityEngine;
-
-using static UnityEngine.Mathf;
 using static RWCustom.Custom;
+using static UnityEngine.Mathf;
 
 namespace RegionKit.Modules.Particles.V1;
 /// <summary>

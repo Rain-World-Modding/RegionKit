@@ -1,4 +1,4 @@
-namespace RegionKit;
+﻿namespace RegionKit;
 
 public static class TheRitual
 {

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 using RWCustom;
+using UnityEngine;
 
 namespace RegionKit.Modules.Effects;
 
@@ -12,7 +12,7 @@ namespace RegionKit.Modules.Effects;
 /// </summary>
 public class FogOfWarController : CosmeticSprite
 {
-	#if false
+#if false
 	internal static bool hackToDelayDrawingUntilAfterTheLevelMoves;
 
 	private const bool showShortcuts = true;
@@ -724,5 +724,5 @@ internal class ShortcutDisplay : CosmeticSprite
 		if (owner.slatedForDeletetion)
 			Destroy();
 	}
-	#endif
+#endif
 }

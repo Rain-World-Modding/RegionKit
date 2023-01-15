@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.ConcealedGarden;
+﻿namespace RegionKit.Modules.ConcealedGarden;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "The Mast")]
 internal static class _Module

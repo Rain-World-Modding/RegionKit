@@ -1,4 +1,4 @@
-using MonoMod.RuntimeDetour;
+﻿using MonoMod.RuntimeDetour;
 
 using GHalo = global::TempleGuardGraphics.Halo;
 
@@ -88,7 +88,7 @@ public static class _Module
 		foreach (var uad in instance.updateList) if (uad is INotifyWhenRoomIsViewed tar) tar.RoomViewed();
 	}
 
-	#if false
+#if false
 	internal static float halo_speed(
 		Func<GHalo, float> orig,
 		GHalo self)
@@ -110,6 +110,6 @@ public static class _Module
 		}
 		return orig(self, c, ts, dis);
 	}
-	#endif
+#endif
 
 }

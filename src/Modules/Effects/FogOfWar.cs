@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using EffectType = RoomSettings.RoomEffect.Type;
 using UnityEngine;
+using EffectType = RoomSettings.RoomEffect.Type;
 
 namespace RegionKit.Modules.Effects;
 
@@ -16,7 +16,7 @@ internal static class FogOfWar
 	{
 		//On.RoomCamera.DrawUpdate += RoomCamera_DrawUpdate;
 	}
-	#if false
+#if false
 
 	private static void RoomCamera_DrawUpdate(On.RoomCamera.orig_DrawUpdate orig, RoomCamera self, float timeStacker, float timeSpeed)
 	{
@@ -48,5 +48,5 @@ internal static class FogOfWar
 				room.AddObject(new FogOfWarController(room));
 		}
 	}
-	#endif
+#endif
 }

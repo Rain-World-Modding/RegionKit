@@ -1,6 +1,6 @@
-namespace RegionKit;
+﻿namespace RegionKit;
 
-
+[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Common Hooks")]
 internal static class _CommonHooks
 {
 

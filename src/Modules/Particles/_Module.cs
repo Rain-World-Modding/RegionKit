@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
 
 namespace RegionKit.Modules.Particles;
 
@@ -30,7 +30,7 @@ internal static class _Module
 		RegisterManagedObject<V1.RoomParticleSystem, V1.OffscreenSpawnerData, ManagedRepresentation>("OffscreenParticleSpawner");
 		RegisterManagedObject<V1.RoomParticleSystem, V1.WholeScreenSpawnerData, ManagedRepresentation>("WholeScreenSpawner");
 
-		
+
 	}
 	internal static void Disable()
 	{

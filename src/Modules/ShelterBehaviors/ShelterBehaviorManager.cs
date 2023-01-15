@@ -1,7 +1,7 @@
-﻿using RWCustom;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using System.Linq;
+using RWCustom;
+using UnityEngine;
 namespace RegionKit.Modules.ShelterBehaviors
 {
 	/// <summary>
@@ -471,7 +471,7 @@ namespace RegionKit.Modules.ShelterBehaviors
 						this.room.game.GoToDeathScreen();
 					}
 				}
-				EXIT_:;
+			EXIT_:;
 				noDoorCloseCount++;
 			}
 		}

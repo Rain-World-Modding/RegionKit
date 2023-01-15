@@ -1,4 +1,4 @@
-namespace RegionKit;
+﻿namespace RegionKit;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Assets")]
 internal static class _Assets
@@ -15,7 +15,8 @@ internal static class _Assets
 		var buff = GetBytes(assetpath);
 		return System.Text.Encoding.UTF8.GetString(buff);
 	}
-	internal static byte[]? GetBytes(params string[] assetpath){
+	internal static byte[]? GetBytes(params string[] assetpath)
+	{
 		Func<string, string, string>? aggregator = (x, y) => $"{x}.{y}";
 		using var stream = RFL.Assembly.GetExecutingAssembly().GetManifestResourceStream($"RegionKit.Assets.{assetpath.Stitch((Func<string, string, string>?)aggregator)}");
 		if (stream is null) return null;

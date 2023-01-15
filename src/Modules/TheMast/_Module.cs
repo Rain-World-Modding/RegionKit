@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.TheMast;
+﻿namespace RegionKit.Modules.TheMast;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "The Mast")]
 internal static class _Module

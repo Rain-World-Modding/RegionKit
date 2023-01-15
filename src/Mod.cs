@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 namespace RegionKit;
 
 [BIE.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "2.0")]
@@ -68,7 +68,8 @@ public class Mod : BIE.BaseUnityPlugin
 					mod?.tick?.Invoke();
 				}
 			}
-			catch (Exception ex){
+			catch (Exception ex)
+			{
 				Logger.LogError($"Module {mod.name} error in tick: {ex}");
 			}
 		}
@@ -110,7 +111,8 @@ public class Mod : BIE.BaseUnityPlugin
 				counter = 0,
 				errored = false
 			});
-			if (_modulesSetUp){
+			if (_modulesSetUp)
+			{
 				RunEnableOn(_modules.Last());
 			}
 

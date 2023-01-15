@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using RWCustom;
+using UnityEngine;
 
 namespace RegionKit.Modules.Machinery.V1;
 public class BaseMachineryData : ManagedData

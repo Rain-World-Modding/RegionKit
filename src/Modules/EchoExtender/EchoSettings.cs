@@ -91,17 +91,17 @@ public struct EchoSettings
 	}
 
 	// Hook-friendly
-	public static List<SlugcatStats.Name> DefaultDifficulties() 
-	=> new (){ SlugcatStats.Name.White, SlugcatStats.Name.Yellow, SlugcatStats.Name.Red };
+	public static List<SlugcatStats.Name> DefaultDifficulties()
+	=> new() { SlugcatStats.Name.White, SlugcatStats.Name.Yellow, SlugcatStats.Name.Red };
 
 	public static EchoSettings Empty => new EchoSettings()
 	{
-		EchoRoom = new (),
+		EchoRoom = new(),
 		EchoSizeMultiplier = new(),
-		EffectRadius = new (),
-		MinimumKarma = new (),
-		MinimumKarmaCap = new (),
-		RequirePriming = new (),
+		EffectRadius = new(),
+		MinimumKarma = new(),
+		MinimumKarmaCap = new(),
+		RequirePriming = new(),
 		EchoSong = new(),
 		SpawnOnDifficulty = new SlugcatStats.Name[0],
 		DefaultFlip = new()
@@ -109,7 +109,6 @@ public struct EchoSettings
 
 	public static EchoSettings FromFile(string path)
 	{
-		//TODO: change paths to fit new fs
 		__log.LogMessage("[Echo Extender] Found settings file: " + path);
 		string[] rows = File.ReadAllLines(path);
 		EchoSettings settings = Empty;

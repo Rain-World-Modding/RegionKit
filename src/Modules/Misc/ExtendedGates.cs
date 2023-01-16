@@ -22,24 +22,27 @@ public static class ExtendedGates
 {
 	public static bool IsVanilla(Req req)
 	{
-		return req.ToString() is "1" or "2" or "3" or "4" or "5" or "L" or "R";
+		return req?.ToString() is "1" or "2" or "3" or "4" or "5" or "L" or "R";
 	}
-	public static int GetKarmaLevel(this Req req){
+	public static int GetKarmaLevel(this Req req)
+	{
 		int result = -1;
 		string str = req.ToString();
-		if (str.StartsWith(ALT_PREFIX)){
+		if (str.StartsWith(ALT_PREFIX))
+		{
 			int.TryParse(str[4..], out result);
 		}
-		else{
+		else
+		{
 			int.TryParse(str, out result);
 		}
 		return result - 1;
 	}
 	private const string ALT_PREFIX = "Alt_";
 
-	public static bool IsAlt(Req req){
-
-		return req.ToString().StartsWith(ALT_PREFIX);
+	public static bool IsAlt(Req req)
+	{
+		return req?.ToString().StartsWith(ALT_PREFIX) ?? false;
 	}
 	internal static class Enums_EG
 	{
@@ -156,28 +159,21 @@ public static class ExtendedGates
 	private static void RainWorld_LoadResources(On.RainWorld.orig_LoadResources orig, RainWorld self)
 	{
 		LoadAditionalResources(); // Don't want to overwrite, wants to be overwritable, load first :)
+
 		orig(self);
-	}
-	private static Req? TryFetchReq(string req)
-	{
-		if (TryParseExtEnum_Example(req, true, out Req? x)) return x;
-		return null;
 	}
 
 	#region MAPHOOKS
 	private static void GateMarker_ctor(On.HUD.Map.GateMarker.orig_ctor orig, HUD.Map.GateMarker self, HUD.Map map, int room, RegionGate.GateRequirement req, bool showAsOpen)
 	{
 		orig(self, map, room, IsVanilla(req) ? req : Req.OneKarma, showAsOpen);
-		if (IsVanilla(req)) return;
-		int karma = req.ToString() switch
+		if (IsVanilla(req))
 		{
-			nameof(Req.OneKarma) => 0,
-			nameof(Req.TwoKarma) => 1,
-			nameof(Req.ThreeKarma) => 2,
-			nameof(Req.FourKarma) => 3,
-			nameof(Req.FiveKarma) => 4,
-			_ => 0
-		};
+			__logger.LogInfo($"Vanilla req {req}, skipping");
+			return;
+		}
+		int karma = 0;
+		__logger.LogInfo($"Constructing custom gate marker image...");
 		string reqstr = req.ToString();
 		switch (reqstr)
 		{
@@ -241,8 +237,8 @@ public static class ExtendedGates
 
 				string req1 = array2[1];
 				string req2 = array2[2];
-				Req? result = TryFetchReq(req1);
-				Req? result2 = TryFetchReq(req2);
+				Req? result = new(req1);
+				Req? result2 = new(req2);
 				//if (result > 1000) result -= 1000; // alt art mode irrelevant here
 				//if (result2 > 1000) result2 -= 1000; // alt art mode irrelevant here
 
@@ -299,60 +295,58 @@ public static class ExtendedGates
 	{
 		orig(self, room);
 
-		string path2 = AssetManager.ResolveFilePath("world.gates/extendedlocks.txt");//path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "extendedLocks.txt";
+		string path2 = AssetManager.ResolveFilePath("world/gates/extendedlocks.txt");//path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "extendedLocks.txt";
 		if (!File.Exists(path2))
 		{
+			__logger.LogMessage("ExtendedLocks is not present; skipping");
 			return;
 		}
-		string[] array = File.ReadAllLines(path2);
+		string[] lines = File.ReadAllLines(path2);
 
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < lines.Length; i++)
 		{
-			if (string.IsNullOrEmpty(array[i]) || string.IsNullOrEmpty(array[i].Trim())) continue;
-			if (array[i].IndexOf("//") > -1)
+			if (string.IsNullOrEmpty(lines[i]) || string.IsNullOrEmpty(lines[i].Trim())) continue;
+			if (lines[i].IndexOf("//") > -1)
 			{
-				array[i] = array[i].Substring(array[i].IndexOf("//"));
+				__logger.LogMessage("Found comment?..");
+				lines[i] = lines[i].Substring(lines[i].IndexOf("//"));
 			}
-			if (string.IsNullOrEmpty(array[i]) || string.IsNullOrEmpty(array[i].Trim())) continue;
-			string[] array2 = Regex.Split(array[i], " : ");
-			if (array2[0] == room.abstractRoom.name)
+			if (string.IsNullOrEmpty(lines[i]) || string.IsNullOrEmpty(lines[i].Trim())) continue;
+
+			string[] array2 = Regex.Split(lines[i], "\\s+:\\s+");
+			if (array2[0] != room.abstractRoom.name)
 			{
-				self.karmaGlyphs[0].Destroy();
-				self.karmaGlyphs[1].Destroy();
+				__logger.LogDebug($"{lines[i]} does not match {room.abstractRoom.name}");
+				continue;
+			}
+			__logger.LogMessage($"Found a match!");
+			self.karmaGlyphs[0].Destroy();
+			self.karmaGlyphs[1].Destroy();
+			string req1 = array2[1];
+			string req2 = array2[2];
+			self.karmaRequirements[0] = new(req1);
+			self.karmaRequirements[1] = new(req2);
+			bool alt1 = IsAlt(self.karmaRequirements[0]);
+			bool alt2 = IsAlt(self.karmaRequirements[1]);
+			__logger.LogMessage($"{req1} {req2} {alt1} {alt2}");
+			self.karmaGlyphs = new GateKarmaGlyph[2];
+			self.karmaGlyphs[0] = new GateKarmaGlyph(false, self, self.karmaRequirements[0]/*  + (alt1 ? 1000 : 0) */);
+			room.AddObject(self.karmaGlyphs[0]);
+			self.karmaGlyphs[1] = new GateKarmaGlyph(true, self, self.karmaRequirements[1] /* + (alt2 ? 1000 : 0) */);
+			room.AddObject(self.karmaGlyphs[1]);
 
-				string req1 = array2[1];
-				string req2 = array2[2];
-				self.karmaRequirements[0] = TryFetchReq(req1);
-				self.karmaRequirements[1] = TryFetchReq(req2);
-				bool alt1 = IsAlt(self.karmaRequirements[0]);
-				bool alt2 = IsAlt(self.karmaRequirements[1]);
-
-				self.karmaGlyphs = new GateKarmaGlyph[2];
-				self.karmaGlyphs[0] = new GateKarmaGlyph(false, self, self.karmaRequirements[0]/*  + (alt1 ? 1000 : 0) */);
-				room.AddObject(self.karmaGlyphs[0]);
-				self.karmaGlyphs[1] = new GateKarmaGlyph(true, self, self.karmaRequirements[1] /* + (alt2 ? 1000 : 0) */);
-				room.AddObject(self.karmaGlyphs[1]);
-				// Above was just this
-				//for (int j = 0; j < 2; j++)
-				//{
-				//    self.karmaGlyphs[j] = new GateKarmaGlyph(j == 1, self, self.karmaRequirements[j]);
-				//    room.AddObject(self.karmaGlyphs[j]);
-				//}
-
-				if (array2.Length > 3 && array2[3].ToLower() == "multi") // "Infinite" uses
+			if (array2.Length > 3 && array2[3].ToLower() == "multi") // "Infinite" uses
+			{
+				if (self is WaterGate wg) // sets water level, don't want to get into crazy float craze
 				{
-					if (self is WaterGate wg) // sets water level, don't want to get into crazy float craze
-					{
-						wg.waterLeft = 30f; // ((!room.world.regionState.gatesPassedThrough[room.abstractRoom.gateIndex]) ? 2f : 1f);
-					}
-					else if (self is ElectricGate eg)
-					{
-						eg.batteryLeft = 30f; // ((!room.world.regionState.gatesPassedThrough[room.abstractRoom.gateIndex]) ? 2f : 1f);
-					}
+					wg.waterLeft = 30f; // ((!room.world.regionState.gatesPassedThrough[room.abstractRoom.gateIndex]) ? 2f : 1f);
 				}
-
-				return;
+				else if (self is ElectricGate eg)
+				{
+					eg.batteryLeft = 30f; // ((!room.world.regionState.gatesPassedThrough[room.abstractRoom.gateIndex]) ? 2f : 1f);
+				}
 			}
+			return;
 		}
 	}
 
@@ -368,13 +362,14 @@ public static class ExtendedGates
 		{
 		case nameof(RegionGate.Mode.MiddleClosed):
 			int num = self.PlayersInZone();
+			//if (RNG.value < 0.05f) __logger.LogDebug($"{num},{self.dontOpen},{self.PlayersStandingStill()},{self.EnergyEnoughToOpen},{PlayersMeetSpecialRequirements(self)}");
 			if (num > 0 && num < 3 && !self.dontOpen && self.PlayersStandingStill() && self.EnergyEnoughToOpen && PlayersMeetSpecialRequirements(self))
 			{
 				self.startCounter = preupdateCounter + 1;
 			}
-
-			if (self.startCounter == 69)
+			if (self.startCounter == 59)
 			{
+				__logger.LogDebug("Opening...");
 				// OPEN THE GATES on the next frame
 				if (self.room.game.GetStorySession.saveStateNumber == SlugcatStats.Name.Yellow)
 				{
@@ -385,10 +380,19 @@ public static class ExtendedGates
 			break;
 
 		case nameof(RegionGate.Mode.ClosingAirLock):
-			if (preupdateCounter == 69) // We did it... last frame
+			if (preupdateCounter == 59) // We did it... last frame
 			{
 				// if it shouldn't be unlocked, lock it back
-				self.unlocked = (self.room.game.GetStorySession.saveStateNumber == SlugcatStats.Name.Yellow && self.room.game.GetStorySession.saveState.deathPersistentSaveData.unlockedGates.Contains(self.room.abstractRoom.name)) || (self.room.game.StoryCharacter != SlugcatStats.Name.Red && File.Exists(AssetManager.ResolveFilePath("nifflasmode.txt")));
+				self.unlocked =
+				(
+					self.room.game.GetStorySession.saveStateNumber == SlugcatStats.Name.Yellow
+					&& self.room.game.GetStorySession.saveState.deathPersistentSaveData.unlockedGates.Contains(self.room.abstractRoom.name)
+				)
+				||
+				(
+					self.room.game.StoryCharacter != SlugcatStats.Name.Red
+					&& File.Exists(AssetManager.ResolveFilePath("nifflasmode.txt"))
+				);
 			}
 
 			if (self.room.game.overWorld.worldLoader == null) // In-region gate support
@@ -404,20 +408,21 @@ public static class ExtendedGates
 
 	private static bool RegionGate_KarmaBlinkRed(On.RegionGate.orig_KarmaBlinkRed orig, RegionGate self)
 	{
-		if (self.mode != RegionGate.Mode.MiddleClosed)
-		{
-			int num = self.PlayersInZone();
-			if (num > 0 && num < 3)
-			{
-				//self.letThroughDir = (num == 1);
-				if (!self.dontOpen && self.karmaRequirements[(!(num == 1)) ? 1 : 0] == Enums_EG.Forbidden) // Forbidden
-				{
-					return true;
-				}
-			}
-		}
-		// Orig doesn't blink if "unlocked", but we know better, forbiden shall stay forbidden
 		return orig(self) && !PlayersMeetSpecialRequirements(self);
+		// return false;
+		// if (self.mode != RegionGate.Mode.MiddleClosed)
+		// {
+		// 	int num = self.PlayersInZone();
+		// 	if (num > 0 && num < 3)
+		// 	{
+		// 		//self.letThroughDir = (num == 1);
+		// 		if (!self.dontOpen && self.karmaRequirements[(!(num == 1)) ? 1 : 0] == Enums_EG.Forbidden) // Forbidden
+		// 		{
+		// 			return true;
+		// 		}
+		// 	}
+		// }
+		// Orig doesn't blink if "unlocked", but we know better, forbiden shall stay forbidden
 	}
 
 	private static bool PlayersMeetSpecialRequirements(RegionGate self)
@@ -435,7 +440,7 @@ public static class ExtendedGates
 			// caused problems with karmablinkred
 			// self.dontOpen = true; // Hope this works against MONK players smh.
 			break;
-		case nameof (Enums_EG.CommsMark): // comsmark
+		case nameof(Enums_EG.CommsMark): // comsmark
 			if (self.room.game.GetStorySession.saveState.deathPersistentSaveData.theMark || self.unlocked)
 				return true;
 			break;
@@ -448,7 +453,9 @@ public static class ExtendedGates
 				return true;
 			break;
 		default: // default karma gate handled by the game
-			break;
+			var player = (self.room.game.Players.FirstOrDefault().realizedCreature as Player);
+			return player?.Karma >= self.karmaRequirements[0].GetKarmaLevel();
+			
 		}
 
 		return false;
@@ -491,7 +498,7 @@ public static class ExtendedGates
 						altArt = true;
 					}
 					var intreq = trueReq.GetKarmaLevel();
-					if (int.Parse(trueReq.ToString()) > 5)
+					if (intreq > 5)
 					{
 						int cap = (self.room.game.session as StoryGameSession)!.saveState.deathPersistentSaveData.karmaCap;
 						if (cap < intreq) cap = Mathf.Max(6, intreq);
@@ -556,6 +563,7 @@ public static class ExtendedGates
 
 	internal static void LoadAditionalResources()
 	{
+		__logger.LogInfo("Loading additional EG resources");
 		LoadCustomAtlas("ExtendedGateSymbols", _Assets.GetStream("ExtendedGates", "ExtendedGateSymbols.png"), _Assets.GetStream("ExtendedGates", "ExtendedGateSymbols.json"));
 	}
 

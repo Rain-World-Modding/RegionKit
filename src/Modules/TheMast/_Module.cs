@@ -3,10 +3,10 @@
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "The Mast")]
 internal static class _Module
 {
-	private static bool _ranOnce = false;
+	private static bool __appliedOnce = false;
 	public static void Enable()
 	{
-		if (!_ranOnce)
+		if (!__appliedOnce)
 		{
 			ArenaBackgrounds.Apply();
 			BetterClouds.Apply();
@@ -18,7 +18,7 @@ internal static class _Module
 			WindSystem.Apply();
 			WormGrassFix.Apply();
 		}
-		_ranOnce = true;
+		__appliedOnce = true;
 	}
 	public static void Disable()
 	{

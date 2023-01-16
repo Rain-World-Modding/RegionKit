@@ -6,7 +6,7 @@ namespace RegionKit;
 /// <summary>
 /// contains general purpose utility methods
 /// </summary>
-public static partial class Utils
+internal static partial class Utils
 {
 	#region fields
 	// /// <summary>
@@ -480,9 +480,51 @@ public static partial class Utils
 	}
 	#endregion
 	#region misc bs
+	public static IEnumerable<int> Range(int bound)
+	{
+		for (int i = 0; i < bound; i++) yield return i;
+	}
 	public static T ParseExtEnum<T>(string str, bool ignoreCase = false)
 		where T : ExtEnumBase
 		=> (T)ExtEnumBase.Parse(typeof(T), str, ignoreCase);
+	public static bool TryParseExtEnum<T>(string str, bool ignoreCase, out T val)
+		where T : ExtEnumBase
+	{
+		var res = ExtEnumBase.TryParse(typeof(T), str, false, out ExtEnumBase o_val);
+		val = (T)o_val;
+		return res;
+	}
+
+	public static bool TryParseExtEnum_Example<T>(string value, bool ignoreCase, out T? result)
+		where T : ExtEnum<T>
+	{
+		Type enumType = typeof(T);
+		result = null;
+		if (enumType == null || value == null || !enumType.IsExtEnum()) return false;
+		value = value.Trim();
+		if (value.Length == 0) return false;
+		int resindex = -1;
+		ExtEnumType extEnumType = ExtEnumBase.GetExtEnumType(enumType);
+		StringComparer comp = ignoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture;
+		
+		for (int i = 0; i < extEnumType.entries.Count; i++)
+		{
+			if (comp.Compare(extEnumType.entries[i], value) == 0)
+			{
+				value = extEnumType.entries[i];
+				resindex = i;
+				result = (T)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(T));
+				result.index = resindex;
+				result.value = value;
+				result.localVersion = ExtEnum<T>.valuesVersion;
+				//result.enumType = typeof(T);
+				return true;
+			}
+		}
+		//entry not found
+		return false;
+	}
+
 	public static T Zero<T>()
 		=> (T)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(T));
 	/// <summary>
@@ -651,7 +693,7 @@ public static partial class Utils
 			byte[]? bf = ResourceBytes(resname, casm);
 			return bf is null ? null : enc.GetString(bf);
 		}
-		catch (Exception ee) { __log.LogError($"Error getting ER: {ee}"); return null; }
+		catch (Exception ee) { __logger.LogError($"Error getting ER: {ee}"); return null; }
 	}
 	/// <summary>
 	/// Deconstructs a KeyValuePair.
@@ -699,31 +741,7 @@ public static partial class Utils
 	}
 
 
-#if RK //RK-specific things
-
-	// public static float GetGlobalPower(this Room self)
-	// {
-	// 	if (ManagersByRoom.TryGetValue(self.GetHashCode(), out var rpm)) return rpm.GetGlobalPower();
-	// 	return self.world?.rainCycle?.brokenAntiGrav?.CurrentLightsOn ?? 1f;
-	// }
-	// public static float GetPower(this Room self, Vector2 point)
-	// {
-	// 	if (ManagersByRoom.TryGetValue(self.GetHashCode(), out var rpm)) return rpm.GetPowerForPoint(point);
-	// 	return self.world?.rainCycle?.brokenAntiGrav?.CurrentLightsOn ?? 1f;
-	// }
-
-	// public static List<IntVector2> ReturnTiles(this IntRect ir)
-	// {
-	// 	var res = new List<IntVector2>();
-	// 	for (int x = ir.left; x < ir.right; x++)
-	// 	{
-	// 		for (int y = ir.bottom; y < ir.top; y++)
-	// 		{
-	// 			res.Add(new IntVector2(x, y));
-	// 		}
-	// 	}
-	// 	return res;
-	// }
+#if RK
 
 	public static void ClampToNormal(this Color self)
 	{

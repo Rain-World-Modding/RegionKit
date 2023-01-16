@@ -52,7 +52,7 @@ public static class _Module
 
 	private static void StoryGameSessionOnCtor(On.StoryGameSession.orig_ctor orig, StoryGameSession self, SlugcatStats.Name savestatenumber, RainWorldGame game)
 	{
-		__log.LogInfo("[Echo Extender] Loading Echoes from Region Mods...");
+		__logger.LogInfo("[Echo Extender] Loading Echoes from Region Mods...");
 		EchoParser.LoadAllRegions(savestatenumber);
 		orig(self, savestatenumber, game);
 	}
@@ -82,13 +82,13 @@ public static class _Module
 		PlacedObject? EEGhostSpot = null;
 		if (self.game != null)
 		{ // Actual ingame loading
-			EEGhostSpot = self.roomSettings.placedObjects.FirstOrDefault((v) => v.type == EnumExt_EchoExtender.EEGhostSpot && v.active);
+			EEGhostSpot = self.roomSettings.placedObjects.FirstOrDefault((v) => v.type == Enums_EchoExtender.EEGhostSpot && v.active);
 			if (EEGhostSpot != null) EEGhostSpot.type = PlacedObject.Type.GhostSpot; // Temporary switcheroo to trigger vanilla code that handles ghosts
 		}
 
 		orig(self);
 		// Unswitcheroo
-		if (self.game != null && EEGhostSpot != null) EEGhostSpot.type = EnumExt_EchoExtender.EEGhostSpot;
+		if (self.game != null && EEGhostSpot != null) EEGhostSpot.type = Enums_EchoExtender.EEGhostSpot;
 	}
 
 	private static void DeathPersistentSaveDataOnCtor(On.DeathPersistentSaveData.orig_ctor orig, DeathPersistentSaveData self, SlugcatStats.Name slugcat)
@@ -105,15 +105,15 @@ public static class _Module
 		bool SODcondition = settings.SpawnOnThisDifficulty(SlugcatNumber);
 		bool karmaCondition = settings.KarmaCondition(karma, karmacap, SlugcatNumber);
 		bool karmaCapCondition = settings.GetMinimumKarmaCap(SlugcatNumber) <= karmacap;
-		__log.LogInfo($"[Echo Extender] Getting echo conditions for {ghostid}");
-		__log.LogInfo($"[Echo Extender] Using difficulty {SlugcatNumber}");
-		__log.LogInfo($"[Echo Extender] Spawn On Difficulty : {(SODcondition ? "Met" : "Not Met")} [Required: <{string.Join(", ", (settings.SpawnOnDifficulty.Length > 0 ? settings.SpawnOnDifficulty : EchoSettings.Default.SpawnOnDifficulty).Select(i => i.ToString()).ToArray())}>]");
-		__log.LogInfo($"[Echo Extender] Minimum Karma : {(karmaCondition ? "Met" : "Not Met")} [Required: {(settings.GetMinimumKarma(SlugcatNumber) == -2 ? "Dynamic" : settings.GetMinimumKarma(SlugcatNumber).ToString())}, Having: {karma}]");
-		__log.LogInfo($"[Echo Extender] Minimum Karma Cap : {(karmaCapCondition ? "Met" : "Not Met")} [Required: {settings.GetMinimumKarmaCap(SlugcatNumber)}, Having: {karmacap}]");
+		__logger.LogInfo($"[Echo Extender] Getting echo conditions for {ghostid}");
+		__logger.LogInfo($"[Echo Extender] Using difficulty {SlugcatNumber}");
+		__logger.LogInfo($"[Echo Extender] Spawn On Difficulty : {(SODcondition ? "Met" : "Not Met")} [Required: <{string.Join(", ", (settings.SpawnOnDifficulty.Length > 0 ? settings.SpawnOnDifficulty : EchoSettings.Default.SpawnOnDifficulty).Select(i => i.ToString()).ToArray())}>]");
+		__logger.LogInfo($"[Echo Extender] Minimum Karma : {(karmaCondition ? "Met" : "Not Met")} [Required: {(settings.GetMinimumKarma(SlugcatNumber) == -2 ? "Dynamic" : settings.GetMinimumKarma(SlugcatNumber).ToString())}, Having: {karma}]");
+		__logger.LogInfo($"[Echo Extender] Minimum Karma Cap : {(karmaCapCondition ? "Met" : "Not Met")} [Required: {settings.GetMinimumKarmaCap(SlugcatNumber)}, Having: {karmacap}]");
 		bool prime = settings.GetPriming(SlugcatNumber);
 		bool primedCond = prime ? ghostpreviouslyencountered == 1 : ghostpreviouslyencountered != 2;
-		__log.LogInfo($"[Echo Extender] Primed : {(primedCond ? "Met" : "Not Met")} [Required: {(prime ? 1 : 0)}, Having {ghostpreviouslyencountered}]");
-		__log.LogInfo($"[Echo Extender] Spawning Echo : {primedCond && SODcondition && karmaCondition && karmaCapCondition}");
+		__logger.LogInfo($"[Echo Extender] Primed : {(primedCond ? "Met" : "Not Met")} [Required: {(prime ? 1 : 0)}, Having {ghostpreviouslyencountered}]");
+		__logger.LogInfo($"[Echo Extender] Spawning Echo : {primedCond && SODcondition && karmaCondition && karmaCapCondition}");
 		return
 			primedCond &&
 			SODcondition &&
@@ -168,8 +168,8 @@ public static class _Module
 		{
 			self.ghostRoom = world.GetAbstractRoom(EchoParser.EchoSettings[ghostid].GetEchoRoom(SlugcatNumber));
 			self.songName = EchoParser.EchoSettings[ghostid].GetEchoSong(SlugcatNumber);
-			__log.LogInfo($"[Echo Extender] Set Song: {self.songName}");
-			__log.LogInfo($"[Echo Extender] Set Room {self.ghostRoom?.name}");
+			__logger.LogInfo($"[Echo Extender] Set Song: {self.songName}");
+			__logger.LogInfo($"[Echo Extender] Set Room {self.ghostRoom?.name}");
 		}
 	}
 

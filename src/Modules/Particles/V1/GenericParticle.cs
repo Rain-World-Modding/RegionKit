@@ -194,8 +194,8 @@ public class GenericParticle : CosmeticSprite
 		}
 		catch (Exception fue)
 		{
-			__log.LogError($"Invalid atlas element {visuals.aElm}!");
-			__log.LogError(fue);
+			__logger.LogError($"Invalid atlas element {visuals.aElm}!");
+			__logger.LogError(fue);
 			sLeaser.sprites[0] = new FSprite("SkyDandelion", true);// .element = Futile.atlasManager.GetElementWithName("SkyDandelion");
 		}
 		room.game.rainWorld.Shaders.TryGetValue("Basic", out var sh);

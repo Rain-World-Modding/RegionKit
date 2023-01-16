@@ -12,7 +12,7 @@ public class PistonArray : UpdatableAndDeletable
 	{
 		this.PO = obj;
 		this.room = rm;
-		__log.LogDebug($"({rm.abstractRoom.name}): Creating piston array...");
+		__logger.LogDebug($"({rm.abstractRoom.name}): Creating piston array...");
 		GeneratePistons();
 	}
 	public override void Update(bool eu)

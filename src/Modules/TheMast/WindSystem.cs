@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 //Made by Slime_Cubed and Doggo
 namespace RegionKit.Modules.TheMast
 {
-	public static class EnumExt_WindSystem
+	public static class Enums_WindSystem
 	{
 		public static PlacedObject.Type PlacedWind = new(nameof(PlacedWind), true);
 	}
@@ -28,7 +28,7 @@ namespace RegionKit.Modules.TheMast
 		private static void QuadObjectRepresentation_ctor(On.DevInterface.QuadObjectRepresentation.orig_ctor orig, QuadObjectRepresentation self, DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj, string name)
 		{
 			orig(self, owner, IDstring, parentNode, pObj, name);
-			if (pObj.type == EnumExt_WindSystem.PlacedWind)
+			if (pObj.type == Enums_WindSystem.PlacedWind)
 			{
 				// Replace the default control panel with one specific to placed wind
 				WindControlPanel controlPanel = new WindControlPanel(owner, "Wind_Control_Panel", self, new Vector2(0f, 100f));
@@ -51,13 +51,13 @@ namespace RegionKit.Modules.TheMast
 		private static void PlacedObject_GenerateEmptyData(On.PlacedObject.orig_GenerateEmptyData orig, PlacedObject self)
 		{
 			orig(self);
-			if (self.type == EnumExt_WindSystem.PlacedWind)
+			if (self.type == Enums_WindSystem.PlacedWind)
 				self.data = new WindData(self);
 		}
 
 		private static void ObjectsPage_CreateObjRep(On.DevInterface.ObjectsPage.orig_CreateObjRep orig, ObjectsPage self, PlacedObject.Type tp, PlacedObject pObj)
 		{
-			if (tp == EnumExt_WindSystem.PlacedWind)
+			if (tp == Enums_WindSystem.PlacedWind)
 			{
 				// From ObjectsPage.CreateObjRep
 				if (pObj == null)
@@ -82,7 +82,7 @@ namespace RegionKit.Modules.TheMast
 			{
 				PlacedObject pObj = self.roomSettings.placedObjects[i];
 				if (!pObj.active) continue;
-				if (pObj.type != EnumExt_WindSystem.PlacedWind) continue;
+				if (pObj.type != Enums_WindSystem.PlacedWind) continue;
 				self.AddObject(new Wind(pObj));
 			}
 		}

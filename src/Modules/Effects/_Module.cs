@@ -3,17 +3,17 @@
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Effects")]
 internal static class _Module
 {
-	private static bool _appliedOnce = false;
+	private static bool __appliedOnce = false;
 	public static void Enable()
 	{
-		if (!_appliedOnce)
+		if (!__appliedOnce)
 		{
 			ColoredRoomEffect.Apply();
 			FogOfWar.Patch();
 			GlowingSwimmersCI.Apply();
 			ReplaceEffectColor.Apply();
 		}
-		_appliedOnce = true;
+		__appliedOnce = true;
 	}
 	public static void Disable()
 	{

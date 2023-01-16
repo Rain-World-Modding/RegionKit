@@ -7,13 +7,13 @@ namespace RegionKit.Modules.Objects;
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "MiscObjects")]
 public static class _Module
 {
-	private static bool _ranOnce = false;
+	private static bool __appliedOnce = false;
 
 	private static List<Hook> mHk = new();
 	public static void Enable()
 	{
 		//TODO: make unapplies?
-		if (!_ranOnce)
+		if (!__appliedOnce)
 		{
 			ColouredLightSource.RegisterAsFullyManagedObject();
 			Drawable.Register();
@@ -42,7 +42,7 @@ public static class _Module
 		{
 			foreach (var hk in mHk) if (!hk.IsApplied) hk.Apply();
 		}
-		_ranOnce = true;
+		__appliedOnce = true;
 
 
 	}

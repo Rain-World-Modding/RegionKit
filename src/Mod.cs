@@ -9,7 +9,7 @@ public class Mod : BIE.BaseUnityPlugin
 	private readonly List<ModuleInfo> _modules = new();
 	private bool _modulesSetUp = false;
 	private RainWorld _rw = null!;
-	internal static LOG.ManualLogSource __log => __inst.Logger;
+	internal static LOG.ManualLogSource __logger => __inst.Logger;
 	internal static RainWorld __RW => __inst._rw;
 	public void OnEnable()
 	{

@@ -23,19 +23,19 @@ namespace RegionKit.Modules.Objects
 				for (var i = 0; i < self.roomSettings.placedObjects.Count; i++)
 				{
 					var pObj = self.roomSettings.placedObjects[i];
-					if (pObj.type == EnumExt_LittlePlanet.LittlePlanet)
+					if (pObj.type == Enums_LittlePlanet.LittlePlanet)
 						self.AddObject(new LittlePlanet(self, pObj));
 				}
 			};
 			On.PlacedObject.GenerateEmptyData += (orig, self) =>
 			{
 				orig(self);
-				if (self.type == EnumExt_LittlePlanet.LittlePlanet)
+				if (self.type == Enums_LittlePlanet.LittlePlanet)
 					self.data = new LittlePlanetData(self);
 			};
 			On.DevInterface.ObjectsPage.CreateObjRep += (orig, self, tp, pObj) =>
 			{
-				if (tp == EnumExt_LittlePlanet.LittlePlanet)
+				if (tp == Enums_LittlePlanet.LittlePlanet)
 				{
 					if (pObj is null)
 					{
@@ -343,7 +343,7 @@ namespace RegionKit.Modules.Objects
 		}
 	}
 
-	public static class EnumExt_LittlePlanet
+	public static class Enums_LittlePlanet
 	{
 		public static PlacedObject.Type LittlePlanet = new(nameof(LittlePlanet), true);
 	}
@@ -354,8 +354,9 @@ namespace RegionKit.Modules.Objects
 		{
 			//todo: update ER
 			var thisAssembly = Assembly.GetExecutingAssembly();
-			var resourceName = thisAssembly.GetManifestResourceNames().First(r => r.Contains(name));
-			var resource = thisAssembly.GetManifestResourceStream(resourceName);
+			//var resourceName = thisAssembly.GetManifestResourceNames().First(r => r.Contains(name));
+			
+			var resource = _Assets.GetStream("LittlePlanet", name, "png");
 			using MemoryStream memoryStream = new();
 			var buffer = new byte[16384];
 			int count;

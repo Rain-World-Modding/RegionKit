@@ -5,7 +5,7 @@ namespace RegionKit.Modules.Objects
 {
 	public class RKProjectedCircle
 	{
-		public static class EnumExt_ProjectedCircle
+		public static class Enums_ProjectedCircle
 		{
 			public static PlacedObject.Type ProjectedCircle = new("ProjectedCircle", true);
 		}
@@ -17,7 +17,7 @@ namespace RegionKit.Modules.Objects
 				for (var i = 0; i < self.roomSettings.placedObjects.Count; i++)
 				{
 					var pObj = self.roomSettings.placedObjects[i];
-					if (pObj.active && pObj.type == EnumExt_ProjectedCircle.ProjectedCircle)
+					if (pObj.active && pObj.type == Enums_ProjectedCircle.ProjectedCircle)
 						self.AddObject(new ProjectedCircleObject(self, pObj));
 				}
 			};

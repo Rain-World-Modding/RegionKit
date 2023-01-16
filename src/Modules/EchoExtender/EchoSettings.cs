@@ -109,7 +109,7 @@ public struct EchoSettings
 
 	public static EchoSettings FromFile(string path)
 	{
-		__log.LogMessage("[Echo Extender] Found settings file: " + path);
+		__logger.LogMessage("[Echo Extender] Found settings file: " + path);
 		string[] rows = File.ReadAllLines(path);
 		EchoSettings settings = Empty;
 		foreach (string row in rows)
@@ -124,9 +124,9 @@ public struct EchoSettings
 				{
 					foreach (string rawNum in pass.Substring(1, pass.IndexOf(')') - 1).SplitAndRemoveEmpty(","))
 					{
-						if (!ExtEnumBase.TryParse(typeof(SlugcatStats.Name), rawNum, out object result))
+						if (!ExtEnumBase.TryParse(typeof(SlugcatStats.Name), rawNum, false, out ExtEnumBase result))
 						{
-							__log.LogWarning($"[Echo Extender] Found an invalid character name '{rawNum}'! Skipping : " + row);
+							__logger.LogWarning($"[Echo Extender] Found an invalid character name '{rawNum}'! Skipping : " + row);
 							continue;
 						}
 
@@ -169,14 +169,14 @@ public struct EchoSettings
 					settings.DefaultFlip.AddMultiple(float.Parse(split[1]), difficulties);
 					break;
 				default:
-					__log.LogWarning($"[Echo Extender] Setting '{pass.Trim().ToLower()}' not found! Skipping : " + row);
+					__logger.LogWarning($"[Echo Extender] Setting '{pass.Trim().ToLower()}' not found! Skipping : " + row);
 					break;
 				}
 			}
 
 			catch (Exception)
 			{
-				__log.LogWarning("[Echo Extender] Failed to parse line " + row);
+				__logger.LogWarning("[Echo Extender] Failed to parse line " + row);
 			}
 		}
 

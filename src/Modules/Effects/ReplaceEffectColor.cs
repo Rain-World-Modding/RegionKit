@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
-using static RegionKit.Modules.Effects.ReplaceEffectColor.EnumExt_ReplaceEffectColor;
+using static RegionKit.Modules.Effects.ReplaceEffectColor.Enums_ReplaceEffectColor;
 
 namespace RegionKit.Modules.Effects;
 
 public class ReplaceEffectColor : UpdatableAndDeletable /// By M4rbleL1ne/LB Gamer
 {
-	public static class EnumExt_ReplaceEffectColor
+	public static class Enums_ReplaceEffectColor
 	{
 		public static RoomSettings.RoomEffect.Type ReplaceEffectColorA = new(nameof(ReplaceEffectColorA), true);
 		public static RoomSettings.RoomEffect.Type ReplaceEffectColorB = new(nameof(ReplaceEffectColorB), true);

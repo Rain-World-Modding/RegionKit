@@ -21,11 +21,11 @@ static class _Module
 	{
 		for (int k = 0; k < self.roomSettings.effects.Count; k++)
 		{
-			if (self.roomSettings.effects[k].type == EnumExt_AridBarrens.SandStorm)
+			if (self.roomSettings.effects[k].type == Enums_AridBarrens.SandStorm)
 			{
 				self.AddObject(new SandStorm(self.roomSettings.effects[k], self));
 			}
-			else if (self.roomSettings.effects[k].type == EnumExt_AridBarrens.SandPuffs)
+			else if (self.roomSettings.effects[k].type == Enums_AridBarrens.SandPuffs)
 			{
 				self.AddObject(new SandPuffs(self.roomSettings.effects[k], self));
 			}

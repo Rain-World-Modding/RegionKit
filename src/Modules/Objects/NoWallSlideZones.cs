@@ -14,7 +14,7 @@ namespace RegionKit.Modules.Objects
 {
 	public class NoWallSlideZones
 	{
-		public static class EnumExt_NoWallSlideZones
+		public static class Enums_NoWallSlideZones
 		{
 			public static PlacedObject.Type NoWallSlideZone = new("NoWallSlideZone", true);
 		}
@@ -27,13 +27,13 @@ namespace RegionKit.Modules.Objects
 				for (var i = 0; i < self.roomSettings.placedObjects.Count; i++)
 				{
 					var pObj = self.roomSettings.placedObjects[i];
-					if (pObj.active && pObj.type == EnumExt_NoWallSlideZones.NoWallSlideZone)
+					if (pObj.active && pObj.type == Enums_NoWallSlideZones.NoWallSlideZone)
 						self.AddObject(new NoWallSlideZone(self, pObj));
 				}
 			};
 			On.DevInterface.ObjectsPage.CreateObjRep += (orig, self, tp, pObj) =>
 			{
-				if (tp == EnumExt_NoWallSlideZones.NoWallSlideZone)
+				if (tp == Enums_NoWallSlideZones.NoWallSlideZone)
 				{
 					if (pObj is null)
 					{
@@ -52,7 +52,7 @@ namespace RegionKit.Modules.Objects
 			On.PlacedObject.GenerateEmptyData += (orig, self) =>
 			{
 				orig(self);
-				if (self.type == EnumExt_NoWallSlideZones.NoWallSlideZone)
+				if (self.type == Enums_NoWallSlideZones.NoWallSlideZone)
 					self.data = new FloatRectData(self);
 			};
 			On.Player.WallJump += (orig, self, direction) =>

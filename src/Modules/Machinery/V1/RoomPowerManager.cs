@@ -19,7 +19,7 @@ public class RoomPowerManager : UpdatableAndDeletable
 		if (ManagersByRoom.ContainsKey(h)) ManagersByRoom[h] = this;
 		else ManagersByRoom.Add(h, this);
 		PO = pobj;
-		__log.LogDebug($"({rm.abstractRoom.name}): created a RoomPowerManager.");
+		__logger.LogDebug($"({rm.abstractRoom.name}): created a RoomPowerManager.");
 	}
 	public override void Update(bool eu)
 	{

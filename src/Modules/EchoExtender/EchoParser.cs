@@ -48,7 +48,7 @@ public static class EchoParser
 		{
 			string regInitials = region.name;
 			string convPath = AssetManager.ResolveFilePath($"world/{region.name}/echoconv.txt");
-			__log.LogInfo($"[Echo Extender] Checking region {region.name} for Echo.");
+			__logger.LogInfo($"[Echo Extender] Checking region {region.name} for Echo.");
 			if (File.Exists(convPath))
 			{
 				string convText = File.ReadAllText(convPath);
@@ -59,18 +59,18 @@ public static class EchoParser
 				{
 					ExtendedEchoIDs.Add(new GhostWorldPresence.GhostID(regInitials, true));
 					EchoConversations.Add(new Conversation.ID($"Ghost_{regInitials}", true), convText);
-					__log.LogInfo("[Echo Extender] Added conversation for echo in region " + regInitials);
+					__logger.LogInfo("[Echo Extender] Added conversation for echo in region " + regInitials);
 				}
 				else
 				{
-					__log.LogWarning("[Echo Extender] An echo for this region already exists, skipping.");
+					__logger.LogWarning("[Echo Extender] An echo for this region already exists, skipping.");
 				}
 
 				EchoSettings.SetKey(GetEchoID(regInitials), settings);
 			}
 			else
 			{
-				__log.LogInfo("[Echo Extender] No conversation file found!");
+				__logger.LogInfo("[Echo Extender] No conversation file found!");
 			}
 		}
 	}
@@ -78,7 +78,7 @@ public static class EchoParser
 
 	public static string ManageXOREncryption(string text, string path)
 	{
-		__log.LogInfo("[Echo Extender] Managing XOR Encryption, only supports English so far");
+		__logger.LogInfo("[Echo Extender] Managing XOR Encryption, only supports English so far");
 		string xor = Custom.xorEncrypt(text, 54 + 1 + (int)InGameTranslator.LanguageID.English * 7);
 		if (xor.StartsWith("###ENCRYPTED")) return xor.Substring("###ENCRYPTED".Length);
 		File.WriteAllText(path, Custom.xorEncrypt("###ENCRYPTED" + text, 54 + 1 + (int)InGameTranslator.LanguageID.English * 7));

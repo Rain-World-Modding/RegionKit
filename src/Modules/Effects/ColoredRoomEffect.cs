@@ -87,7 +87,7 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 				}
 			}
 		}
-		catch { __log.LogError("Wrong syntax effect loaded: " + s[0]); }
+		catch { __logger.LogError("Wrong syntax effect loaded: " + s[0]); }
 	};
 		On.DevInterface.EffectPanel.ctor += (orig, self, owner, parentNode, pos, effect) =>
 	{

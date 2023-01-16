@@ -12,7 +12,7 @@ using Random = UnityEngine.Random;
 //Made by Slime_Cubed and Doggo
 namespace RegionKit.Modules.TheMast
 {
-	public static class EnumExt_PearlChains
+	public static class Enums_PearlChains
 	{
 		public static AbstractPhysicalObject.AbstractObjectType PearlChain = new(nameof(PearlChain), true);
 		public static PlacedObject.Type PlacedPearlChain = new(nameof(PlacedPearlChain), true);
@@ -52,7 +52,7 @@ namespace RegionKit.Modules.TheMast
 
 		private static string ItemSymbol_SpriteNameForItem(On.ItemSymbol.orig_SpriteNameForItem orig, AbstractPhysicalObject.AbstractObjectType itemType, int intData)
 		{
-			if (itemType == EnumExt_PearlChains.PearlChain)
+			if (itemType == Enums_PearlChains.PearlChain)
 				return "Symbol_PearlChain";
 			else
 				return orig(itemType, intData);
@@ -97,16 +97,16 @@ namespace RegionKit.Modules.TheMast
 			//TODO: almost definitely breaks
 			//nevermind??
 			AbstractPhysicalObject? apo = orig(world, objString);
-			if (apo is not null && apo.type == EnumExt_PearlChains.PearlChain)
+			if (apo is not null && apo.type == Enums_PearlChains.PearlChain)
 			{
 				try
 				{
 					string[] data = Regex.Split(objString, "<oA>");
-					apo = new AbstractPearlChain(world, EnumExt_PearlChains.PearlChain, null!, apo.pos, apo.ID, int.Parse(data[3]), int.Parse(data[4]), null!, int.Parse(data[5]));
+					apo = new AbstractPearlChain(world, Enums_PearlChains.PearlChain, null!, apo.pos, apo.ID, int.Parse(data[3]), int.Parse(data[4]), null!, int.Parse(data[5]));
 				}
 				catch (Exception e)
 				{
-					__log.LogError(new Exception("Failed to load PearlChain", e));
+					__logger.LogError(new Exception("Failed to load PearlChain", e));
 					apo = null;
 				}
 			}
@@ -119,14 +119,14 @@ namespace RegionKit.Modules.TheMast
 			if (self.id == Conversation.ID.Moon_Misc_Item)
 			{
 				InGameTranslator.LanguageID lang = self.interfaceOwner.rainWorld.inGameTranslator.currentLanguage;
-				if (self.describeItem == EnumExt_PearlChains.MiscItemPearlChain)
+				if (self.describeItem == Enums_PearlChains.MiscItemPearlChain)
 				{
 					self.events.Add(new Conversation.TextEvent(self, 10, Translator.GetString("PearlChain-1", lang), 0));
 					self.events.Add(new Conversation.TextEvent(self, 30, Translator.GetString("PearlChain-2", lang), 0));
 					//self.events.Add(new Conversation.TextEvent(self, 10, "Some data pearls with holes burned through their centers, tied with some sort<LINE>of twined plant fiber. I can't read the pearls, they're far too damaged.", 0));
 					//self.events.Add(new Conversation.TextEvent(self, 30, "Did you get this from the scavengers? I'd advise that you don't take pearls from them,<LINE><PLAYERNAME> - they value them quite highly and can be dangerous if provoked.", 0));
 				}
-				else if (self.describeItem == EnumExt_PearlChains.MiscItemSinglePearlChain)
+				else if (self.describeItem == Enums_PearlChains.MiscItemSinglePearlChain)
 				{
 					self.events.Add(new Conversation.TextEvent(self, 10, Translator.GetString("SinglePearlChain-1", lang), 0));
 					self.events.Add(new Conversation.TextEvent(self, 30, Translator.GetString("SinglePearlChain-2", lang), 0));
@@ -134,14 +134,14 @@ namespace RegionKit.Modules.TheMast
 					//self.events.Add(new Conversation.TextEvent(self, 30, "Did you get this from the scavengers? I'd advise that you don't take pearls from them,<LINE><PLAYERNAME> - they value them quite highly and can be dangerous if provoked.", 0));
 				}
 				else return;
-				self.State.miscItemsDescribed.Add(EnumExt_PearlChains.MiscItemSinglePearlChain);//[//][(int)EnumExt_PearlChains.MiscItemSinglePearlChain] = true;
-				self.State.miscItemsDescribed.Add(EnumExt_PearlChains.MiscItemPearlChain);//[(int)EnumExt_PearlChains.MiscItemPearlChain]// = true;
+				self.State.miscItemsDescribed.Add(Enums_PearlChains.MiscItemSinglePearlChain);//[//][(int)EnumExt_PearlChains.MiscItemSinglePearlChain] = true;
+				self.State.miscItemsDescribed.Add(Enums_PearlChains.MiscItemPearlChain);//[(int)EnumExt_PearlChains.MiscItemPearlChain]// = true;
 			}
 		}
 
 		public static SLOracleBehaviorHasMark.MiscItemType SLOracleBehaviorHasMark_TypeOfMiscItem(On.SLOracleBehaviorHasMark.orig_TypeOfMiscItem orig, SLOracleBehaviorHasMark self, PhysicalObject testItem)
 		{
-			if (testItem is PearlChain pc) return (pc.pearlCount == 1) ? EnumExt_PearlChains.MiscItemSinglePearlChain : EnumExt_PearlChains.MiscItemPearlChain;
+			if (testItem is PearlChain pc) return (pc.pearlCount == 1) ? Enums_PearlChains.MiscItemSinglePearlChain : Enums_PearlChains.MiscItemPearlChain;
 			return orig(self, testItem);
 		}
 
@@ -173,7 +173,7 @@ namespace RegionKit.Modules.TheMast
 
 		public static void PlacedObject_GenerateEmptyData(On.PlacedObject.orig_GenerateEmptyData orig, PlacedObject self)
 		{
-			if (self.type == EnumExt_PearlChains.PlacedPearlChain)
+			if (self.type == Enums_PearlChains.PlacedPearlChain)
 				self.data = new PlacedPearlChainData(self);
 			else
 				orig(self);
@@ -196,9 +196,9 @@ namespace RegionKit.Modules.TheMast
 				{
 					PlacedObject pObj = self.roomSettings.placedObjects[i];
 					if (!pObj.active) continue;
-					if (pObj.type != EnumExt_PearlChains.PlacedPearlChain) continue;
+					if (pObj.type != Enums_PearlChains.PlacedPearlChain) continue;
 					if (self.world.regionState?.ItemConsumed(self.abstractRoom.index, i) ?? false) continue;
-					AbstractPearlChain apo = new AbstractPearlChain(self.world, EnumExt_PearlChains.PearlChain, null!, self.GetWorldCoordinate(pObj.pos), self.game.GetNewID(), self.abstractRoom.index, i, (pObj.data as PlacedPearlChainData)!, (pObj.data as PlacedPearlChainData)?.length ?? 0);
+					AbstractPearlChain apo = new AbstractPearlChain(self.world, Enums_PearlChains.PearlChain, null!, self.GetWorldCoordinate(pObj.pos), self.game.GetNewID(), self.abstractRoom.index, i, (pObj.data as PlacedPearlChainData)!, (pObj.data as PlacedPearlChainData)?.length ?? 0);
 					apo.isConsumed = false;
 					self.abstractRoom.AddEntity(apo);
 				}
@@ -207,7 +207,7 @@ namespace RegionKit.Modules.TheMast
 
 		public static void ObjectsPage_CreateObjRep(On.DevInterface.ObjectsPage.orig_CreateObjRep orig, ObjectsPage self, PlacedObject.Type tp, PlacedObject pObj)
 		{
-			if (tp == EnumExt_PearlChains.PlacedPearlChain)
+			if (tp == Enums_PearlChains.PlacedPearlChain)
 			{
 				// From ObjectsPage.CreateObjRep
 				if (pObj == null)
@@ -228,7 +228,7 @@ namespace RegionKit.Modules.TheMast
 		public static void ConsumableRepresentation_ctor(On.DevInterface.ConsumableRepresentation.orig_ctor orig, ConsumableRepresentation self, DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj, string name)
 		{
 			orig(self, owner, IDstring, parentNode, pObj, name);
-			if (pObj.type == EnumExt_PearlChains.PlacedPearlChain)
+			if (pObj.type == Enums_PearlChains.PlacedPearlChain)
 			{
 				// Replace the default control panel with one specific to pearl chains
 				var cp = (ConsumableRepresentation.ConsumableControlPanel)_ConsumableRepresentation_controlPanel.GetValue(self);
@@ -433,8 +433,8 @@ namespace RegionKit.Modules.TheMast
 				}
 				if (witnesses > 0)
 				{
-					__log.LogMessage($"pearl chain theft noticed by {witnesses} scavengers!");
-					if (witnesses == 4) __log.LogWarning("Good luck.");
+					__logger.LogMessage($"pearl chain theft noticed by {witnesses} scavengers!");
+					if (witnesses == 4) __logger.LogWarning("Good luck.");
 				}
 			}
 
@@ -598,7 +598,7 @@ namespace RegionKit.Modules.TheMast
 					}
 					else
 					{
-						__log.LogMessage("Pearl chain spawned broken!");
+						__logger.LogMessage("Pearl chain spawned broken!");
 						length = -1f;
 						anchorPos = topPearlPos;
 					}

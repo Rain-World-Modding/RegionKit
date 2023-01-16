@@ -11,7 +11,7 @@ namespace RegionKit.Modules.Objects
 {
 	public sealed class CustomEntranceSymbols
 	{
-		public static class EnumExt_CES
+		public static class Enums_CES
 		{
 			public static PlacedObject.Type CustomEntranceSymbol = new("CustomEntranceSymbol", true);
 		}
@@ -28,7 +28,7 @@ namespace RegionKit.Modules.Objects
 					for (var m = 0; m < self.room.roomSettings.placedObjects.Count; m++)
 					{
 						var pObj = self.room.roomSettings.placedObjects[m];
-						if (pObj.type == EnumExt_CES.CustomEntranceSymbol && pObj.active && pObj.data is CESData data && self.room.GetTilePosition(pObj.pos) == self.room.shortcuts[l].StartTile)
+						if (pObj.type == Enums_CES.CustomEntranceSymbol && pObj.active && pObj.data is CESData data && self.room.GetTilePosition(pObj.pos) == self.room.shortcuts[l].StartTile)
 						{
 							if (self.entranceSprites[l, 0] is null)
 							{
@@ -54,7 +54,7 @@ namespace RegionKit.Modules.Objects
 			};
 			On.DevInterface.ObjectsPage.CreateObjRep += (orig, self, tp, pObj) =>
 			{
-				if (tp == EnumExt_CES.CustomEntranceSymbol)
+				if (tp == Enums_CES.CustomEntranceSymbol)
 				{
 					if (pObj is null)
 					{
@@ -73,7 +73,7 @@ namespace RegionKit.Modules.Objects
 			On.PlacedObject.GenerateEmptyData += (orig, self) =>
 			{
 				orig(self);
-				if (self.type == EnumExt_CES.CustomEntranceSymbol)
+				if (self.type == Enums_CES.CustomEntranceSymbol)
 					self.data = new CESData(self);
 			};
 		}

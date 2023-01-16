@@ -19,13 +19,13 @@ namespace RegionKit.Modules.Machinery;
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Machinery")]
 public static class _Module
 {
-	private static bool appliedOnce = false;
+	private static bool __appliedOnce = false;
 	/// <summary>
 	/// Applies hooks and registers MPO.
 	/// </summary>
 	public static void Enable()
 	{
-		if (!appliedOnce)
+		if (!__appliedOnce)
 		{
 			RegisterMPO();
 			GenerateHooks();
@@ -34,7 +34,7 @@ public static class _Module
 		{
 			foreach (var hk in MachineryHooks) hk.Apply();
 		}
-		appliedOnce = true;
+		__appliedOnce = true;
 
 
 	}
@@ -106,7 +106,7 @@ public static class _Module
 }
 
 
-public static class EnumExt_RKMachinery
+public static class Enums_RKMachinery
 {
 	//public static AbstractPhysicalObject.AbstractObjectType abstractPiston;
 }

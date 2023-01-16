@@ -23,14 +23,14 @@ namespace RegionKit.Modules.TheMast
 		}
 
 		// Set to true to inhibit WaterGates from being initialized or added to rooms
-		private static bool _forceElectricGate = false;
+		private static bool __forceElectricGate = false;
 
 		private static void WaterGate_ctor(On.WaterGate.orig_ctor orig, WaterGate self, Room room)
 		{
 			// Leaves the object in an uninitialized state if it will be replaced with an ElectricGate
 			// This way it will not add any auxiliary objects, such as karma symbols
 			// Most operations on this object will fail
-			if (_forceElectricGate)
+			if (__forceElectricGate)
 			{
 				room.regionGate = new ElectricGate(room);
 				room.AddObject(room.regionGate);
@@ -40,7 +40,7 @@ namespace RegionKit.Modules.TheMast
 
 		private static void Room_AddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
 		{
-			if (obj is WaterGate && _forceElectricGate) return;
+			if (obj is WaterGate && __forceElectricGate) return;
 			orig(self, obj);
 		}
 
@@ -48,9 +48,9 @@ namespace RegionKit.Modules.TheMast
 		{
 			if (electricGates.Contains(self.abstractRoom.name))
 			{
-				_forceElectricGate = true;
+				__forceElectricGate = true;
 				orig(self);
-				_forceElectricGate = false;
+				__forceElectricGate = false;
 			}
 			else
 			{

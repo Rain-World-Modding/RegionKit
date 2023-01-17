@@ -16,6 +16,7 @@ global using LOG = BepInEx.Logging;
 global using DBG = System.Diagnostics;
 global using IO = System.IO;
 global using RFL = System.Reflection;
+global using TXT = System.Text;
 global using VM = System.Runtime;
 global using REG = System.Text.RegularExpressions;
 global using WRQ = UnityEngine.Networking.UnityWebRequest;

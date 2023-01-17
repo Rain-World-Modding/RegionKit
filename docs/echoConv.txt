@@ -1,0 +1,11 @@
+This is an example echo conversation.<LINE>This is on a new line!
+
+This is in a new dialogue box.
+
+(White)This dialogue box will only appear for survivor.
+
+(Yellow)This dialogue box will only appear for monk.
+
+(Red)This dialogue box will only appear for hunter.
+
+(White,Yellow)This dialogue box will appear for monk and survivor.

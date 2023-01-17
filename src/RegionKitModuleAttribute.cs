@@ -1,4 +1,4 @@
-﻿
+﻿//todo: support for named loggers
 public class RegionKitModuleAttribute : Attribute
 {
 	internal readonly string enableMethod;

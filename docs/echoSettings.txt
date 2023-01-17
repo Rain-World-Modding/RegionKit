@@ -1,0 +1,18 @@
+#This array of numbers determines what difficulties the echo will spawn on (0 = Survivor, 1 = Monk, 2 = Hunter)
+difficulties : White, Yellow, Red
+#This tag determines whether the player must visit the location of the Echo first, before it appears
+(White,Yellow)priming : true
+(Red)priming : false
+#This tag determines the relative size of the Echo (1 = 100%)
+size : 1
+#These tags determine the minimum required karma and the minimum required karma cap for the Echo to spawn. Lowest karma value is 1. Settings minkarma to -1 will set the karma requirement relative to the karma cap. See the wiki on how the base game does that.
+minkarma : -1
+minkarmacap : 1
+#This tag determines the approximate screen-radius of the Echo effect (meaning it only applies from the core room that many rooms away)
+radius : 4
+#This tag determines which song plays at the location of the echo. You can either specify another echo's region (ex.: CC) or the name of a track (ex.: NA_34 - Else3)
+echosong : SH
+#This setting tells the game which room the echo spawns in. THIS FIELD IS REQUIRED AS OF 1.0
+room : XX_A01
+#Flips the echo relative to the camera (0 = facing towards, 1 = facing right?, -1 = facing left?)
+defaultflip : 1.0

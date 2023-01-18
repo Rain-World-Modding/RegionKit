@@ -91,52 +91,52 @@ namespace RegionKit.Modules.Objects
 			public override string ToString() => $"{base.ToString()}~Color(~{red}~{green}~{blue}~)~Alpha:~{alpha}~{panelPos.x}~{panelPos.y}~Speed:~{speed}";
 		}
 
-		bool underWaterMode;
-		Color color;
-		readonly float baseRad;
-		float alpha;
-		float speed;
-		readonly float[] lastRot = new float[4];
-		readonly float[] rot = new float[4];
-		readonly float[] rotSpeed = new float[4] { -1f, .5f, -.25f, .125f };
-		readonly float[] lastScaleX = new float[3];
-		readonly float[] scaleX = new float[3];
-		readonly bool[] increaseRad = new bool[3];
+		private bool _underWaterMode;
+		private Color _color;
+		private readonly float _baseRad;
+		private float _alpha;
+		private float _speed;
+		private readonly float[] _lastRot = new float[4];
+		private readonly float[] _rot = new float[4];
+		private readonly float[] _rotSpeed = new float[4] { -1f, .5f, -.25f, .125f };
+		private readonly float[] _lastScaleX = new float[3];
+		private readonly float[] _scaleX = new float[3];
+		private readonly bool[] _increaseRad = new bool[3];
 
-		PlacedObject PObj { get; init; }
-		LittlePlanetData Data { get; init; }
+		private PlacedObject _PObj { get; init; }
+		private LittlePlanetData _Data { get; init; }
 
 		public LittlePlanet(Room room, PlacedObject placedObj)
 		{
 			this.room = room;
-			PObj = placedObj;
-			Data = (placedObj.data as LittlePlanetData)!;
+			_PObj = placedObj;
+			_Data = (placedObj.data as LittlePlanetData)!;
 			pos = placedObj.pos;
 			lastPos = pos;
-			underWaterMode = room.GetTilePosition(PObj.pos).y < room.defaultWaterLevel;
-			color = Data.Color;
-			baseRad = Data.Rad;
-			alpha = Data.alpha;
-			speed = Data.speed;
+			_underWaterMode = room.GetTilePosition(_PObj.pos).y < room.defaultWaterLevel;
+			_color = _Data.Color;
+			_baseRad = _Data.Rad;
+			_alpha = _Data.alpha;
+			_speed = _Data.speed;
 		}
 
 		public override void Update(bool eu)
 		{
-			pos = PObj.pos;
-			underWaterMode = room.GetTilePosition(PObj.pos).y < room.defaultWaterLevel;
-			color = Data.Color;
-			alpha = Data.alpha;
-			speed = Data.speed;
+			pos = _PObj.pos;
+			_underWaterMode = room.GetTilePosition(_PObj.pos).y < room.defaultWaterLevel;
+			_color = _Data.Color;
+			_alpha = _Data.alpha;
+			_speed = _Data.speed;
 			base.Update(eu);
 			for (var i = 0; i < 4; i++)
 			{
-				lastRot[i] = rot[i];
-				rot[i] += rotSpeed[i] * speed;
+				_lastRot[i] = _rot[i];
+				_rot[i] += _rotSpeed[i] * _speed;
 			}
 			for (var i = 0; i < 3; i++)
 			{
-				lastScaleX[i] = scaleX[i];
-				scaleX[i] += (increaseRad[i] ? .02f : -.02f) * speed;
+				_lastScaleX[i] = _scaleX[i];
+				_scaleX[i] += (_increaseRad[i] ? .02f : -.02f) * _speed;
 			}
 		}
 
@@ -146,8 +146,8 @@ namespace RegionKit.Modules.Objects
 			{
 				new("Futile_White")
 				{
-					shader = rCam.game.rainWorld.Shaders[(!underWaterMode) ? "FlatLight" : "UnderWaterLight"],
-					scale = baseRad / 6f
+					shader = rCam.game.rainWorld.Shaders[(!_underWaterMode) ? "FlatLight" : "UnderWaterLight"],
+					scale = _baseRad / 6f
 				},
 				new("LittlePlanet") { shader = rCam.game.rainWorld.Shaders["Hologram"] },
 				new("LittlePlanetRing") { shader = rCam.game.rainWorld.Shaders["Hologram"] },
@@ -155,12 +155,12 @@ namespace RegionKit.Modules.Objects
 				new("LittlePlanetRing") { shader = rCam.game.rainWorld.Shaders["Hologram"] },
 				new("Futile_White")
 				{
-					shader = rCam.game.rainWorld.Shaders[(!underWaterMode) ? "FlatLight" : "UnderWaterLight"],
-					scale = baseRad / 24f
+					shader = rCam.game.rainWorld.Shaders[(!_underWaterMode) ? "FlatLight" : "UnderWaterLight"],
+					scale = _baseRad / 24f
 				}
 			};
 			for (var i = 1; i < sLeaser.sprites.Length - 1; i++)
-				sLeaser.sprites[i].scale = baseRad / 400f * i;
+				sLeaser.sprites[i].scale = _baseRad / 400f * i;
 			sLeaser.sprites[1].scale -= sLeaser.sprites[1].scale / 4f;
 			AddToContainer(sLeaser, rCam, null!);
 		}
@@ -170,38 +170,38 @@ namespace RegionKit.Modules.Objects
 			var sPos = Vector2.Lerp(lastPos, pos, timeStacker);
 			var sRot = new[]
 			{
-				Mathf.Lerp(lastRot[0], rot[0], timeStacker),
-				Mathf.Lerp(lastRot[1], rot[1], timeStacker),
-				Mathf.Lerp(lastRot[2], rot[2], timeStacker),
-				Mathf.Lerp(lastRot[3], rot[3], timeStacker)
+				Mathf.Lerp(_lastRot[0], _rot[0], timeStacker),
+				Mathf.Lerp(_lastRot[1], _rot[1], timeStacker),
+				Mathf.Lerp(_lastRot[2], _rot[2], timeStacker),
+				Mathf.Lerp(_lastRot[3], _rot[3], timeStacker)
 			};
 			var sScaleX = new[]
 			{
-				baseRad / 400f * 2f * Mathf.Sin(Mathf.Lerp(lastScaleX[0], scaleX[0], timeStacker) * Mathf.PI),
-				baseRad / 400f * 3f * Mathf.Cos(Mathf.Lerp(lastScaleX[1], scaleX[1], timeStacker) * Mathf.PI),
-				baseRad / 400f * 4f * Mathf.Sin(Mathf.Lerp(lastScaleX[0], scaleX[0], timeStacker) * Mathf.PI)
+				_baseRad / 400f * 2f * Mathf.Sin(Mathf.Lerp(_lastScaleX[0], _scaleX[0], timeStacker) * Mathf.PI),
+				_baseRad / 400f * 3f * Mathf.Cos(Mathf.Lerp(_lastScaleX[1], _scaleX[1], timeStacker) * Mathf.PI),
+				_baseRad / 400f * 4f * Mathf.Sin(Mathf.Lerp(_lastScaleX[0], _scaleX[0], timeStacker) * Mathf.PI)
 			};
 			foreach (var s in sLeaser.sprites)
 			{
 				s.x = sPos.x - camPos.x;
 				s.y = sPos.y - camPos.y;
-				s.alpha = alpha;
+				s.alpha = _alpha;
 			}
 			for (var i = 1; i < sLeaser.sprites.Length - 1; i++)
 				sLeaser.sprites[i].rotation = sRot[i - 1];
 			for (var i = 2; i < sLeaser.sprites.Length - 1; i++)
 			{
 				sLeaser.sprites[i].scaleX = sScaleX[i - 2];
-				if (sLeaser.sprites[i].scaleX >= baseRad / 400f * i)
-					increaseRad[i - 2] = false;
+				if (sLeaser.sprites[i].scaleX >= _baseRad / 400f * i)
+					_increaseRad[i - 2] = false;
 				else if (sLeaser.sprites[i].scaleX <= 0f)
-					increaseRad[i - 2] = true;
+					_increaseRad[i - 2] = true;
 			}
 			sLeaser.sprites[0].alpha /= 2f;
-			sLeaser.sprites[0].shader = rCam.game.rainWorld.Shaders[(!underWaterMode) ? "FlatLight" : "UnderWaterLight"];
-			sLeaser.sprites[5].shader = rCam.game.rainWorld.Shaders[(!underWaterMode) ? "FlatLight" : "UnderWaterLight"];
+			sLeaser.sprites[0].shader = rCam.game.rainWorld.Shaders[(!_underWaterMode) ? "FlatLight" : "UnderWaterLight"];
+			sLeaser.sprites[5].shader = rCam.game.rainWorld.Shaders[(!_underWaterMode) ? "FlatLight" : "UnderWaterLight"];
 			for (var i = 0; i < sLeaser.sprites.Length; i++)
-				sLeaser.sprites[i].color = color;
+				sLeaser.sprites[i].color = _color;
 			base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
 		}
 
@@ -304,27 +304,27 @@ namespace RegionKit.Modules.Objects
 			public void Signal(DevUISignalType type, DevUINode sender, string message) { }
 		}
 
-		readonly int linePixelSpriteIndex;
-		readonly LittlePlanetControlPanel panel;
+		private readonly int _linePixelSpriteIndex;
+		private readonly LittlePlanetControlPanel _panel;
 
 		public LittlePlanetRepresentation(DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj, string name) : base(owner, IDstring, parentNode, pObj, pObj.type.ToString(), true)
 		{
-			panel = new(owner, "LittlePlanet_Panel", this, new(0f, 100f));
-			subNodes.Add(panel);
-			panel.pos = (pObj.data as LittlePlanet.LittlePlanetData)!.panelPos;
+			_panel = new(owner, "LittlePlanet_Panel", this, new(0f, 100f));
+			subNodes.Add(_panel);
+			_panel.pos = (pObj.data as LittlePlanet.LittlePlanetData)!.panelPos;
 			fSprites.Add(new("pixel"));
-			linePixelSpriteIndex = fSprites.Count - 1;
-			owner.placedObjectsContainer.AddChild(fSprites[linePixelSpriteIndex]);
-			fSprites[linePixelSpriteIndex].anchorY = 0f;
+			_linePixelSpriteIndex = fSprites.Count - 1;
+			owner.placedObjectsContainer.AddChild(fSprites[_linePixelSpriteIndex]);
+			fSprites[_linePixelSpriteIndex].anchorY = 0f;
 		}
 
 		public override void Refresh()
 		{
 			base.Refresh();
-			MoveSprite(linePixelSpriteIndex, absPos);
-			fSprites[linePixelSpriteIndex].scaleY = panel.pos.magnitude;
-			fSprites[linePixelSpriteIndex].rotation = Custom.AimFromOneVectorToAnother(absPos, panel.absPos);
-			(pObj.data as LittlePlanet.LittlePlanetData)!.panelPos = panel.pos;
+			MoveSprite(_linePixelSpriteIndex, absPos);
+			fSprites[_linePixelSpriteIndex].scaleY = _panel.pos.magnitude;
+			fSprites[_linePixelSpriteIndex].rotation = Custom.AimFromOneVectorToAnother(absPos, _panel.absPos);
+			(pObj.data as LittlePlanet.LittlePlanetData)!.panelPos = _panel.pos;
 		}
 	}
 

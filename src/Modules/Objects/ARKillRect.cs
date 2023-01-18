@@ -16,14 +16,14 @@ namespace RegionKit.Modules.Objects
 
 	public class ARKillRect : UpdatableAndDeletable
 	{
-		public PlacedObject po;
-		public IntRect rect;
+		public PlacedObject _PO;
+		public IntRect _rect;
 
 		public ARKillRect(Room room, PlacedObject pObj)
 		{
 			this.room = room;
-			po = pObj;
-			rect = (po.data as PlacedObject.GridRectObjectData)!.Rect;
+			_PO = pObj;
+			_rect = (_PO.data as PlacedObject.GridRectObjectData)!.Rect;
 		}
 
 		public override void Update(bool eu)
@@ -35,7 +35,7 @@ namespace RegionKit.Modules.Objects
 				{
 					for (int k = 0; k < room.physicalObjects[i][j].bodyChunks.Length; k++)
 					{
-						if (Custom.InsideRect(room.GetTilePosition(room.physicalObjects[i][j].bodyChunks[k].pos), rect))
+						if (Custom.InsideRect(room.GetTilePosition(room.physicalObjects[i][j].bodyChunks[k].pos), _rect))
 						{
 							if (room.physicalObjects[i][j] is Creature crit)
 							{

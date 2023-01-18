@@ -6,11 +6,14 @@ internal static class _Module
 	private static bool __appliedOnce;
 	public static void Enable()
 	{
-		//todo: wrap first
-		CloudAdjustment.Apply();
+		if (!__appliedOnce)
+		{
+			CloudAdjustment.Apply();
+			SunBlockerFix.Apply();
+		}
 		ExtendedGates.Enable();
-		SunBlockerFix.Apply();
 		SuperstructureFusesFix.Patch();
+		
 	}
 	public static void Disable()
 	{

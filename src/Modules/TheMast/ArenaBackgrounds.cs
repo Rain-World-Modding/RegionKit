@@ -11,7 +11,7 @@ namespace RegionKit.Modules.TheMast
 	{
 		// Offsets of background scenes for any given arena, measured in level tiles
 		// All levels that use a background scene must be in this list
-		public static Dictionary<string, Vector2> sceneOffsets = new Dictionary<string, Vector2>()
+		private static Dictionary<string, Vector2> __sceneOffsets = new Dictionary<string, Vector2>()
 		{
 			{ "Spire", new Vector2(-1900f, 500f) },
 			{ "SI_Array", new Vector2(-1900f, 200f) }
@@ -26,7 +26,7 @@ namespace RegionKit.Modules.TheMast
 		private static Vector2 BackgroundScene_RoomToWorldPos(On.BackgroundScene.orig_RoomToWorldPos orig, BackgroundScene self, Vector2 inRoomPos)
 		{
 			AbstractRoom room = self.room.world.GetAbstractRoom(self.room.abstractRoom.index);
-			if (sceneOffsets.TryGetValue(room.name, out Vector2 v))
+			if (__sceneOffsets.TryGetValue(room.name, out Vector2 v))
 			{
 				Vector2 mapPos = self.sceneOrigo / 20f;
 				mapPos += v;

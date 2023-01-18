@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace RegionKit.Modules.Objects
 {
-	//todo: apply
+	//todo: merge hooks into module body
     //Made By LeeMoriya
     public static class NewObjects
     {
@@ -13,8 +13,6 @@ namespace RegionKit.Modules.Objects
             On.PlacedObject.GenerateEmptyData += PlacedObject_GenerateEmptyData;
             On.DevInterface.ObjectsPage.CreateObjRep += ObjectsPage_CreateObjRep;
             On.Room.Loaded += Room_Loaded;
-            /// Unused
-            //On.RoomCamera.ctor += RoomCamera_ctor;
         }
 
         /*private static void RoomCamera_ctor(On.RoomCamera.orig_ctor orig, RoomCamera self, RainWorldGame game, int cameraNumber)

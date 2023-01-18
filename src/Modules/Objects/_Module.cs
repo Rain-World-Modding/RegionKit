@@ -9,12 +9,14 @@ public static class _Module
 {
 	private static bool __appliedOnce = false;
 
-	private static List<Hook> mHk = new();
+	private static List<Hook> __objectHooks = new();
 	public static void Enable()
 	{
 		//TODO: make unapplies?
 		if (!__appliedOnce)
 		{
+			//NewEffects/
+			NewObjects.Hook();
 			ColouredLightSource.RegisterAsFullyManagedObject();
 			Drawable.Register();
 			//RegisterManagedObject<PWLightRod, PWLightRodData, PWLightRodRepresentation>("PWLightRod", false);
@@ -30,7 +32,7 @@ public static class _Module
 			RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect");
 			RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>("PlacedWaterfall");
 
-			mHk = new List<Hook>
+			__objectHooks = new List<Hook>
 			{
 				new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.Loaded)), typeof(_Module).GetMethodAllContexts(nameof(Room_Loaded))),
 				new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.NowViewed)), typeof(_Module).GetMethodAllContexts(nameof(Room_Viewed))),
@@ -40,7 +42,7 @@ public static class _Module
 		}
 		else
 		{
-			foreach (var hk in mHk) if (!hk.IsApplied) hk.Apply();
+			foreach (var hk in __objectHooks) if (!hk.IsApplied) hk.Apply();
 		}
 		__appliedOnce = true;
 
@@ -48,10 +50,10 @@ public static class _Module
 	}
 	public static void Disable()
 	{
-		foreach (var hk in mHk) if (hk.IsApplied) hk.Undo();
+		foreach (var hk in __objectHooks) if (hk.IsApplied) hk.Undo();
 	}
 
-	internal static AttachedField<Room, TempleGuardGraphics>? cachedGuards;
+	internal static AttachedField<Room, TempleGuardGraphics>? __cachedGuards;
 	private static void guardcache(On.Room.orig_Loaded orig, Room self)
 	{
 		//slightly evil (and nonfunct) abstr hack
@@ -63,12 +65,12 @@ public static class _Module
 			AbstractCreature ac = new AbstractCreature(self.world, StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.TempleGuard), null, self.GetWorldCoordinate(new Vector2(-50000f, -50000f)), new EntityID(-1, (self.abstractRoom.index)));
 			ac.realizedCreature = new TempleGuard(ac, self.world);
 			ac.realizedCreature.graphicsModule = new TempleGuardGraphics(ac.realizedCreature);
-			cachedGuards?.Set(self, (ac.realizedCreature.graphicsModule as TempleGuardGraphics)!);
+			__cachedGuards?.Set(self, (ac.realizedCreature.graphicsModule as TempleGuardGraphics)!);
 		}
 		orig(self);
 	}
-	internal static AttachedField<GHalo, PlacedHalo> reghalos = new AttachedField<GHalo, PlacedHalo>();
-	internal static PlacedHalo? chal;
+	internal static AttachedField<GHalo, PlacedHalo> __reghalos = new AttachedField<GHalo, PlacedHalo>();
+	internal static PlacedHalo? __chal;
 
 	internal delegate void Room_Void_None(Room instance);
 	internal static void Room_Loaded(Room_Void_None orig, Room instance)

@@ -27,7 +27,6 @@ public class PistonData : BaseMachineryData
 	[FloatField("frequency", 0.05f, 2f, 1f, displayName: "Frequency", increment: 0.05f, control: ManagedFieldWithPanel.ControlType.text)]
 	internal float frequency = 1f;
 	internal Vector2 forcePos;
-
 	public PistonData(PlacedObject? owner) : base(owner!, null)
 	{
 

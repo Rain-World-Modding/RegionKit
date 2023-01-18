@@ -14,20 +14,20 @@ public static class ShroudObjRep
 
 public class Shroud : CosmeticSprite
 {
-	public PlacedObject pObj;
-	public FloatRect rect;
-	public Vector2[] quad;
-	public float alpha;
-	public bool active;
-	public bool playerInside;
-	public int ID;
+	private readonly PlacedObject _pObj;
+	private readonly FloatRect _rect;
+	internal Vector2[] _quad;
+	private float _alpha;
+	private bool _active;
+	private bool _playerInside;
+	private int _ID;
 
 	public Shroud(PlacedObject pObj, Room room)
 	{
-		this.pObj = pObj;
+		this._pObj = pObj;
 		this.room = room;
-		alpha = 1f;
-		quad = (this.pObj.data as ManagedData)!.GetValue<Vector2[]>("quad")!;
+		_alpha = 1f;
+		_quad = (this._pObj.data as ManagedData)!.GetValue<Vector2[]>("quad")!;
 		//this.rect = new FloatRect(quad[0],quad[1],quad[2],quad[3]);
 	}
 	public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
@@ -61,44 +61,44 @@ public class Shroud : CosmeticSprite
 	public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		var triangleMesh = (sLeaser.sprites[0] as TriangleMesh)!;
-		triangleMesh.MoveVertice(0, pObj.pos - camPos);
-		triangleMesh.MoveVertice(1, pObj.pos + quad[1] - camPos);
-		triangleMesh.MoveVertice(2, pObj.pos + quad[3] - camPos);
-		triangleMesh.MoveVertice(3, pObj.pos + quad[2] - camPos);
-		sLeaser.sprites[0].alpha = alpha;
-		sLeaser.sprites[0].color = rCam.PixelColorAtCoordinate(pObj.pos);
+		triangleMesh.MoveVertice(0, _pObj.pos - camPos);
+		triangleMesh.MoveVertice(1, _pObj.pos + _quad[1] - camPos);
+		triangleMesh.MoveVertice(2, _pObj.pos + _quad[3] - camPos);
+		triangleMesh.MoveVertice(3, _pObj.pos + _quad[2] - camPos);
+		sLeaser.sprites[0].alpha = _alpha;
+		sLeaser.sprites[0].color = rCam.PixelColorAtCoordinate(_pObj.pos);
 		base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
 	}
 
 	public override void Update(bool eu)
 	{
-		quad = (pObj.data as ManagedData)!.GetValue<Vector2[]>("quad")!;
+		_quad = (_pObj.data as ManagedData)!.GetValue<Vector2[]>("quad")!;
 		Vector2 camPos = room.game.cameras[0].pos;
 		Vector2[] poly = new Vector2[]
 		{
-		pObj.pos - camPos,
-		pObj.pos + quad[1]- camPos,
-		pObj.pos + quad[3]- camPos,
-		pObj.pos + quad[2]- camPos,
+		_pObj.pos - camPos,
+		_pObj.pos + _quad[1]- camPos,
+		_pObj.pos + _quad[3]- camPos,
+		_pObj.pos + _quad[2]- camPos,
 		};
 
-		if (active)
+		if (_active)
 		{
-			alpha -= 0.03f;
+			_alpha -= 0.03f;
 		}
 		else
 		{
-			alpha += 0.05f;
+			_alpha += 0.05f;
 		}
 
-		alpha = Mathf.Clamp(alpha, 0f, 1f);
+		_alpha = Mathf.Clamp(_alpha, 0f, 1f);
 
 		base.Update(eu);
 	}
 
 	public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 	{
-		sLeaser.sprites[0].color = rCam.PixelColorAtCoordinate(pObj.pos);
+		sLeaser.sprites[0].color = rCam.PixelColorAtCoordinate(_pObj.pos);
 		base.ApplyPalette(sLeaser, rCam, palette);
 	}
 }

@@ -9,9 +9,9 @@ namespace RegionKit.Modules.ConcealedGarden;
 
 internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 {
-	private readonly PlacedObject pObj;
-	private bool swappedDrawOrder;
-	private RoomCamera.SpriteLeaser? waterLeaser;
+	private readonly PlacedObject _pObj;
+	private bool _swappedDrawOrder;
+	private RoomCamera.SpriteLeaser? _waterLeaser;
 
 	internal static void Register()
 	{
@@ -19,12 +19,12 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 			typeof(CGDrySpot), typeof(CGDrySpotData), typeof(ManagedRepresentation)));
 	}
 
-	CGDrySpotData data => (pObj.data as CGDrySpotData)!;
+	private CGDrySpotData _Data => (_pObj.data as CGDrySpotData)!;
 
 	public CGDrySpot(Room room, PlacedObject pObj)
 	{
 		this.room = room;
-		this.pObj = pObj;
+		this._pObj = pObj;
 	}
 
 	public override void Update(bool eu)
@@ -33,7 +33,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 
 		if (room.waterObject != null)
 		{
-			FloatRect ownrect = data.rect;
+			FloatRect ownrect = _Data.Rect;
 			bool inside = false;
 			for (int i = 0; i < room.waterObject.surface.GetLength(0); i++)
 			{
@@ -87,7 +87,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 	{
 		if (room.waterObject != null)
 		{
-			if (!this.swappedDrawOrder) // water updates first, so we can update after it :/
+			if (!this._swappedDrawOrder) // water updates first, so we can update after it :/
 			{
 				RoomCamera.SpriteLeaser? found = null;
 				foreach (var item in rCam.spriteLeasers)
@@ -101,12 +101,12 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 				{
 					rCam.spriteLeasers.Remove(found);
 					rCam.spriteLeasers.Add(found);
-					swappedDrawOrder = true;
-					this.waterLeaser = found;
+					_swappedDrawOrder = true;
+					this._waterLeaser = found;
 				}
 			}
 
-			if (this.waterLeaser != null) // redraw water but good
+			if (this._waterLeaser != null) // redraw water but good
 			{
 				float y = -10f;
 				if (room.waterObject.cosmeticLowerBorder > -1f)
@@ -115,7 +115,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 				}
 				int num = Custom.IntClamp(room.waterObject.PreviousSurfacePoint(camPos.x - 30f), 0, room.waterObject.surface.GetLength(0) - 1);
 				int num2 = Custom.IntClamp(num + room.waterObject.pointsToRender, 0, room.waterObject.surface.GetLength(0) - 1);
-				var waterTriangleMesh = (waterLeaser.sprites[1] as WaterTriangleMesh)!;
+				var waterTriangleMesh = (_waterLeaser.sprites[1] as WaterTriangleMesh)!;
 				for (int i = num; i < num2; i++)
 				{
 					int num3 = (i - num) * 2;
@@ -149,14 +149,14 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 		}
 	}
 
-	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam) { sLeaser.sprites = new FSprite[0]; swappedDrawOrder = false; }
+	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam) { sLeaser.sprites = new FSprite[0]; _swappedDrawOrder = false; }
 	public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette) { }
 	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner) { }
 
 
 	class CGDrySpotData : ManagedData
 	{
-		public FloatRect rect
+		public FloatRect Rect
 		{
 			get
 			{

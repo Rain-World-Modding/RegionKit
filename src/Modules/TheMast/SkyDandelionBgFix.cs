@@ -15,7 +15,7 @@ namespace RegionKit.Modules.TheMast
 			On.SkyDandelions.SkyDandelion.AddToContainer += SkyDandelion_AddToContainer;
 		}
 
-		private static RoomSettings.RoomEffect.Type[] _bgEffects = new RoomSettings.RoomEffect.Type[]
+		private static RoomSettings.RoomEffect.Type[] __bgEffects = new RoomSettings.RoomEffect.Type[]
 		{
 			RoomSettings.RoomEffect.Type.AboveCloudsView,
 			RoomSettings.RoomEffect.Type.RoofTopView,
@@ -24,8 +24,8 @@ namespace RegionKit.Modules.TheMast
 
 		private static bool HasBackgroundScene(Room room)
 		{
-			for (int i = 0; i < _bgEffects.Length; i++)
-				if (room.roomSettings.GetEffect(_bgEffects[i]) != null) return true;
+			for (int i = 0; i < __bgEffects.Length; i++)
+				if (room.roomSettings.GetEffect(__bgEffects[i]) != null) return true;
 			return false;
 		}
 

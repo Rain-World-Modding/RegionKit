@@ -155,6 +155,8 @@ public abstract class PBehaviourModule
 	}
 	public class stickToSurface : wallCollision
 	{
+		private Vector2 _cpos;
+		private bool _stuck;
 		public stickToSurface(GenericParticle gp) : base(gp)
 		{
 
@@ -170,26 +172,24 @@ public abstract class PBehaviourModule
 			base.Enable();
 			owner.OnUpdatePreMove += preMoveAct;
 		}
-		Vector2 cpos;
 
 		private void preMoveAct()
 		{
-			if (stuck) owner.vel = default;
-			cpos = owner.pos;
+			if (_stuck) owner.vel = default;
+			_cpos = owner.pos;
 		}
 
 		protected override void postMoveAct()
 		{
-			if (stuck)
+			if (_stuck)
 			{
-				owner.pos = cpos;
-				owner.lastPos = cpos;
+				owner.pos = _cpos;
+				owner.lastPos = _cpos;
 			}
 			var op = owner.pos;
 			base.postMoveAct();
-			if (op != owner.pos) stuck = true;
+			if (op != owner.pos) _stuck = true;
 		}
-		private bool stuck;
 
 		public override float ComputationalCost => base.ComputationalCost + 0.07f;
 	}
@@ -197,12 +197,12 @@ public abstract class PBehaviourModule
 	{
 		public Spin(GenericParticle gp, float angVb, Modules.Machinery.OscillationParams osp) : base(gp)
 		{
-			myosp = osp;
-			angVelBase = angVb;
+			_myosp = osp;
+			_angVelBase = angVb;
 		}
 
-		readonly float angVelBase;
-		Modules.Machinery.OscillationParams myosp;
+		private readonly float _angVelBase;
+		private Modules.Machinery.OscillationParams _myosp;
 		public override void Disable()
 		{
 			owner.OnUpdatePreMove -= actionCycle;
@@ -215,7 +215,7 @@ public abstract class PBehaviourModule
 
 		private void actionCycle()
 		{
-			owner.rot += angVelBase + myosp.oscm(owner.lifetime * myosp.frq) * myosp.amp;
+			owner.rot += _angVelBase + _myosp.oscm(owner.lifetime * _myosp.frq) * _myosp.amp;
 		}
 		public override float ComputationalCost => base.ComputationalCost + 0.06f;
 	}

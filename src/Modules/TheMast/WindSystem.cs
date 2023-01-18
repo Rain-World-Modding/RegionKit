@@ -42,7 +42,7 @@ namespace RegionKit.Modules.TheMast
 			List<UpdatableAndDeletable> objs = self.owner.room.updateList;
 			for (int i = objs.Count - 1; i >= 0; i--)
 			{
-				if ((objs[i] is Wind wind) && (wind.placedObj == objRep.pObj))
+				if ((objs[i] is Wind wind) && (wind._placedObj == objRep.pObj))
 					wind.RemoveFromRoom();
 			}
 			orig(self, objRep);
@@ -89,14 +89,14 @@ namespace RegionKit.Modules.TheMast
 
 		public class Wind : UpdatableAndDeletable
 		{
-			public PlacedObject placedObj;
+			internal PlacedObject _placedObj;
 
 			public Wind(PlacedObject pObj)
 			{
-				placedObj = pObj;
+				_placedObj = pObj;
 			}
 
-			private WindData Data => (WindData)placedObj.data;
+			private WindData Data => (WindData)_placedObj.data;
 
 			public override void Update(bool eu)
 			{
@@ -241,7 +241,7 @@ namespace RegionKit.Modules.TheMast
 			};
 			private float EstimateOverlap(BodyChunk c)
 			{
-				WindData wd = (WindData)placedObj.data;
+				WindData wd = (WindData)_placedObj.data;
 				float o = 0f;
 				for (int i = _testPoints.Length - 1; i >= 0; i--)
 				{
@@ -255,8 +255,8 @@ namespace RegionKit.Modules.TheMast
 
 			private bool WindAffectsPoint(Vector2 p)
 			{
-				WindData wd = (WindData)placedObj.data;
-				p -= placedObj.pos;
+				WindData wd = (WindData)_placedObj.data;
+				p -= _placedObj.pos;
 				return TriContainsPoint(p, Vector2.zero, wd.handles[0], wd.handles[1]) || TriContainsPoint(p, wd.handles[1], wd.handles[2], Vector2.zero);
 			}
 
@@ -288,16 +288,16 @@ namespace RegionKit.Modules.TheMast
 		public class WindData : PlacedObject.QuadObjectData
 		{
 			public float velocity;
+			public AffectGroup affectGroup;
+			public VertGroup vertGroup;
 			public enum AffectGroup : byte
 			{
 				Visuals, Objects, Creatures
 			}
-			public AffectGroup affectGroup;
 			public enum VertGroup : byte
 			{
 				Horizontal, Vertical
 			}
-			public VertGroup vertGroup;
 
 			public WindData(PlacedObject owner) : base(owner)
 			{

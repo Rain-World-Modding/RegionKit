@@ -9,20 +9,20 @@ namespace RegionKit.Modules.Objects
 	{
 		public PlacedWaterFall(PlacedObject owner, Room room) : base(room, (owner.pos / 20).ToIntVector2(), (owner.data as PlacedWaterfallData)?.flow ?? 1f, (owner.data as PlacedWaterfallData)?.width ?? 1)
 		{
-			po = owner;
+			_po = owner;
 			__logger.LogDebug($"({room.abstractRoom.name}): created PlacedWaterfall.");
 		}
-		private PlacedObject po;
-		private PlacedWaterfallData pwd => (po?.data as PlacedWaterfallData)!;
+		private PlacedObject _po;
+		private PlacedWaterfallData _Data => (_po?.data as PlacedWaterfallData)!;
 
 		public override void Update(bool eu)
 		{
 			base.Update(eu);
-			this.pos = po.pos;
-			if (pwd != null)
+			this.pos = _po.pos;
+			if (_Data != null)
 			{
-				this.setFlow = pwd.flow;
-				this.width = pwd.width;
+				this.setFlow = _Data.flow;
+				this.width = _Data.width;
 			}
 		}
 	}

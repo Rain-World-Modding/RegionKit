@@ -7,14 +7,14 @@ using UnityEngine;
 
 namespace RegionKit.Modules.EchoExtender;
 
-public static class EchoParser
+internal static class EchoParser
 {
-	public static readonly Dictionary<Conversation.ID, string> EchoConversations = new Dictionary<Conversation.ID, string>();
-	public static readonly HashSet<GhostWorldPresence.GhostID> ExtendedEchoIDs = new HashSet<GhostWorldPresence.GhostID>();
-	public static readonly Dictionary<string, string> EchoLocations = new Dictionary<string, string>();
-	public static readonly Dictionary<GhostWorldPresence.GhostID, EchoSettings> EchoSettings = new Dictionary<GhostWorldPresence.GhostID, EchoSettings>();
+	internal static readonly Dictionary<Conversation.ID, string> __echoConversations = new Dictionary<Conversation.ID, string>();
+	internal static readonly HashSet<GhostWorldPresence.GhostID> __extendedEchoIDs = new HashSet<GhostWorldPresence.GhostID>();
+	internal static readonly Dictionary<string, string> __echoLocations = new Dictionary<string, string>();
+	internal static readonly Dictionary<GhostWorldPresence.GhostID, EchoSettings> __echoSettings = new Dictionary<GhostWorldPresence.GhostID, EchoSettings>();
 
-	public static readonly Dictionary<string, string> EchoSongs = new Dictionary<string, string> {
+	internal static readonly Dictionary<string, string> __echoSongs = new Dictionary<string, string> {
 		{ "CC", "NA_32 - Else1" },
 		{ "SI", "NA_38 - Else7" },
 		{ "LF", "NA_36 - Else5" },
@@ -57,8 +57,8 @@ public static class EchoParser
 				var settings = File.Exists(settingsPath) ? RegionKit.Modules.EchoExtender.EchoSettings.FromFile(settingsPath) : RegionKit.Modules.EchoExtender.EchoSettings.Default;
 				if (!EchoIDExists(regInitials))
 				{
-					ExtendedEchoIDs.Add(new GhostWorldPresence.GhostID(regInitials, true));
-					EchoConversations.Add(new Conversation.ID($"Ghost_{regInitials}", true), convText);
+					__extendedEchoIDs.Add(new GhostWorldPresence.GhostID(regInitials, true));
+					__echoConversations.Add(new Conversation.ID($"Ghost_{regInitials}", true), convText);
 					__logger.LogInfo("[Echo Extender] Added conversation for echo in region " + regInitials);
 				}
 				else
@@ -66,7 +66,7 @@ public static class EchoParser
 					__logger.LogWarning("[Echo Extender] An echo for this region already exists, skipping.");
 				}
 
-				EchoSettings.SetKey(GetEchoID(regInitials), settings);
+				__echoSettings.SetKey(GetEchoID(regInitials), settings);
 			}
 			else
 			{

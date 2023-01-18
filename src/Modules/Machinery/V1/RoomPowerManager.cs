@@ -18,19 +18,19 @@ public class RoomPowerManager : UpdatableAndDeletable
 		var h = rm.GetHashCode();
 		if (ManagersByRoom.ContainsKey(h)) ManagersByRoom[h] = this;
 		else ManagersByRoom.Add(h, this);
-		PO = pobj;
+		_PO = pobj;
 		__logger.LogDebug($"({rm.abstractRoom.name}): created a RoomPowerManager.");
 	}
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		selfCheckTimer++;
-		if (selfCheckTimer > 10) ValidateDeviceSet();
+		_selfCheckTimer++;
+		if (_selfCheckTimer > 10) ValidateDeviceSet();
 	}
-	internal PowerManagerData pmData { get { _pmd = _pmd ?? PO?.data as PowerManagerData ?? new PowerManagerData(null); return _pmd; } }
+	internal PowerManagerData pmData { get { _pmd = _pmd ?? _PO?.data as PowerManagerData ?? new PowerManagerData(null); return _pmd; } }
 	private PowerManagerData? _pmd;
-	private PlacedObject PO;
-	private int selfCheckTimer = 0;
+	private PlacedObject _PO;
+	private int _selfCheckTimer = 0;
 	/// <summary>
 	/// Local resulting power. Applied on top of <see cref="GetGlobalPower"/>.
 	/// </summary>
@@ -40,7 +40,7 @@ public class RoomPowerManager : UpdatableAndDeletable
 	{
 		var res = pmData.basePowerLevel;
 		res += GetGlobalPower();
-		foreach (var unit in subs) if (unit.Enabled) res += unit.BonusForPoint(point);
+		foreach (var unit in _subs) if (unit.Enabled) res += unit.BonusForPoint(point);
 		res = Clamp01(res);
 		return res;
 	}
@@ -51,26 +51,26 @@ public class RoomPowerManager : UpdatableAndDeletable
 	public float GetGlobalPower()
 	{
 		var res = pmData.basePowerLevel;
-		foreach (var unit in subs) { if (unit.Enabled) res += unit.GlobalBonus(); }
+		foreach (var unit in _subs) { if (unit.Enabled) res += unit.GlobalBonus(); }
 		res = Clamp01(res);
 		return res;
 	}
 
 	public void RegisterPowerDevice(IRoomPowerModifier obj)
 	{
-		subs.Add(obj);
+		_subs.Add(obj);
 		ValidateDeviceSet();
 	}
 	private void ValidateDeviceSet()
 	{
-		selfCheckTimer = 0;
-		for (int i = subs.Count - 1; i >= 0; i--)
+		_selfCheckTimer = 0;
+		for (int i = _subs.Count - 1; i >= 0; i--)
 		{
-			if (subs[i].RemoveOnValidation) subs.RemoveAt(i);
+			if (_subs[i].RemoveOnValidation) _subs.RemoveAt(i);
 		}
 	}
 
-	internal List<IRoomPowerModifier> subs = new List<IRoomPowerModifier>();
+	private List<IRoomPowerModifier> _subs = new List<IRoomPowerModifier>();
 	/// <summary>
 	/// Use this interface to modify room power levels. Has to be impl by an <see cref="UpdatableAndDeletable"/>.
 	/// </summary>

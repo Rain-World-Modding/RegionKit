@@ -41,21 +41,21 @@ internal class CloudAdjustment
 
 	}
 
-	private static bool CRS;
-	public static float Offset = 0f;
-	public static float OffsetMin = -1000f;
-	public static float OffsetMax = 1620f;
-	public static float startAltitude = 20000f;
-	public static float endAltitude = 31400f;
+	//private static bool CRS;
+	internal static float __offset = 0f;
+	internal static float __offsetMin = -1000f;
+	internal static float __offsetMax = 1620f;
+	internal static float __startAltitude = 20000f;
+	internal static float __endAltitude = 31400f;
 
 	private static void World_LoadMapConfig(On.World.orig_LoadMapConfig orig, World self, SlugcatStats.Name slugcatNumber)
 	{
 		//reset to the default values, before attempting to change them
-		Offset = 0f;
-		OffsetMin = -500f;
-		OffsetMax = 1620f;
-		startAltitude = 20000f;
-		endAltitude = 31400f;
+		__offset = 0f;
+		__offsetMin = -500f;
+		__offsetMax = 1620f;
+		__startAltitude = 20000f;
+		__endAltitude = 31400f;
 		if (self.game != null && self.game.IsStorySession)
 		{
 
@@ -96,7 +96,7 @@ internal class CloudAdjustment
 				{
 					//a.y = Mathf.Lerp(startAltitude / 20f - 100, endAltitude / 10f, (float)Math.Pow(self.room.roomSettings.effects[k].amount, 2.5))
 
-					a.y += Mathf.Lerp(OffsetMin, OffsetMax, self.room.roomSettings.effects[k].amount);
+					a.y += Mathf.Lerp(__offsetMin, __offsetMax, self.room.roomSettings.effects[k].amount);
 					NewValue = true;
 
 				}
@@ -109,9 +109,9 @@ internal class CloudAdjustment
 		}
 
 
-		if (Clouds && Offset != 0f)
+		if (Clouds && __offset != 0f)
 		{
-			a.y += Offset;
+			a.y += __offset;
 			NewValue = true;
 		}
 
@@ -135,21 +135,21 @@ internal class CloudAdjustment
 		{
 			//if these variables are changed from default, change them
 			bool Change = false;
-			if (startAltitude != 20000f)
+			if (__startAltitude != 20000f)
 			{
-				self.startAltitude = startAltitude;
+				self.startAltitude = __startAltitude;
 				Change = true;
 			}
-			if (endAltitude != 31400f)
+			if (__endAltitude != 31400f)
 			{
-				self.endAltitude = endAltitude;
+				self.endAltitude = __endAltitude;
 				Change = true;
 			}
 
 			if (Change)
 			{
 				self.sceneOrigo = new Vector2(2514f, (self.startAltitude + self.endAltitude) / 2f);
-				Debug.Log("Cloud offset is" + Offset);
+				Debug.Log("Cloud offset is" + __offset);
 			}
 		}
 	}
@@ -196,23 +196,23 @@ internal class CloudAdjustment
 				switch (array[0])
 				{
 				case "CloudOffset":
-					float.TryParse(array[1], out Offset);
+					float.TryParse(array[1], out __offset);
 					break;
 
 				case "CloudSliderMin":
-					float.TryParse(array[1], out OffsetMin);
+					float.TryParse(array[1], out __offsetMin);
 					break;
 
 				case "CloudSliderMax":
-					float.TryParse(array[1], out OffsetMax);
+					float.TryParse(array[1], out __offsetMax);
 					break;
 
 				case "CloudStartAltitude":
-					float.TryParse(array[1], out startAltitude);
+					float.TryParse(array[1], out __startAltitude);
 					break;
 
 				case "CloudEndAltitude":
-					float.TryParse(array[1], out endAltitude);
+					float.TryParse(array[1], out __endAltitude);
 					break;
 				}
 

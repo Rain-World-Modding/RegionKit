@@ -26,18 +26,18 @@ namespace RegionKit.Modules.Objects
 
 	public class ProjectedCircleObject : UpdatableAndDeletable, IOwnProjectedCircles
 	{
-		public PlacedObject pObj;
+		private readonly PlacedObject _pObj;
 
 		public ProjectedCircleObject(Room room, PlacedObject pObj)
 		{
 			this.room = room;
-			this.pObj = pObj;
+			this._pObj = pObj;
 			room.AddObject(new ProjectedCircle(room, this, 0, 180f));
 		}
 
 		public bool CanHostCircle() => true;
 
-		public Vector2 CircleCenter(int index, float timeStacker) => pObj.pos;
+		public Vector2 CircleCenter(int index, float timeStacker) => _pObj.pos;
 
 		public Room HostingCircleFromRoom() => this.room;
 	}

@@ -12,7 +12,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 	public SimpleCog(Room rm, PlacedObject pobj) : this(rm, pobj, null) { }
 	public SimpleCog(Room rm, PlacedObject? pobj, SimpleCogData? acd = null)
 	{
-		PO = pobj;
+		_PO = pobj;
 		this.room = rm;
 		_assignedCD = acd;
 		//PetrifiedWood.WriteLine($"Cog created in {rm.abstractRoom?.name}");
@@ -22,16 +22,16 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 	{
 		base.Update(eu);
 		_lt += room.ElectricPower;
-		lastRot = rot;
-		rot = (rot + cAngVel) % 360f;
+		_lastRot = _rot;
+		_rot = (_rot + _CAngVel) % 360f;
 		//if (Input.GetKeyDown(KeyCode.F3)) Console.WriteLine($"{cAngVel} : {cData.angVelShiftAmp}, {cData.angVelShiftFrq}");
 	}
 
-	internal SimpleCogData cData
+	private SimpleCogData _CogData
 	{
 		get
 		{
-			var r = _assignedCD ?? PO?.data as SimpleCogData;
+			var r = _assignedCD ?? _PO?.data as SimpleCogData;
 			if (r == null) { _bcd = _bcd ?? new SimpleCogData(null); return _bcd; }
 			return r;
 		}
@@ -39,29 +39,29 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 
 	private SimpleCogData? _bcd;
 	private readonly SimpleCogData? _assignedCD;
-	private PlacedObject? PO;
+	private PlacedObject? _PO;
 
-	internal MachineryCustomizer? _mc;
-	internal void GrabMC()
+	private MachineryCustomizer? _customizer;
+	private void _GrabMC()
 	{
-		if (this.PO is null) return;
-		_mc = _mc
+		if (this._PO is null) return;
+		_customizer = _customizer
 			?? room.roomSettings.placedObjects.FirstOrDefault(
-				x => x.data is MachineryCustomizer nmc && nmc.GetValue<MachineryID>("amID") == MachineryID.Cog && (x.pos - this.PO.pos).sqrMagnitude <= nmc.GetValue<Vector2>("radius").sqrMagnitude)?.data as MachineryCustomizer
+				x => x.data is MachineryCustomizer nmc && nmc.GetValue<MachineryID>("amID") == MachineryID.Cog && (x.pos - this._PO.pos).sqrMagnitude <= nmc.GetValue<Vector2>("radius").sqrMagnitude)?.data as MachineryCustomizer
 			?? new MachineryCustomizer(null);
 	}
 
-	internal Vector2 cpos => PO?.pos ?? _assignedCD?.owner.pos ?? default;
+	private Vector2 _CPos => _PO?.pos ?? _assignedCD?.owner.pos ?? default;
 	private float _lt;
-	internal float lastRot;
-	internal float rot;
-	internal float cAngVel
+	private float _lastRot;
+	private float _rot;
+	private float _CAngVel
 	{
 		get
 		{
-			var res = Lerp(0f, cData.baseAngVel, room.ElectricPower);
+			var res = Lerp(0f, _CogData.baseAngVel, room.ElectricPower);
 			Func<float, float> targetFunc;
-			switch (cData.opmode)
+			switch (_CogData.opmode)
 			{
 			default:
 			case OperationMode.Sinal:
@@ -71,7 +71,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 				targetFunc = Cos;
 				break;
 			}
-			res += cData.angVelShiftAmp * targetFunc(_lt * cData.angVelShiftFrq);
+			res += _CogData.angVelShiftAmp * targetFunc(_lt * _CogData.angVelShiftFrq);
 			res = Lerp(0f, res, room.ElectricPower);
 			return res;
 		}
@@ -80,7 +80,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 	#region idrawable things
 	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
-		GrabMC();
+		_GrabMC();
 		sLeaser.sprites = new FSprite[1];
 		sLeaser.sprites[0] = new FSprite("ShelterGate_cog");
 		AddToContainer(sLeaser, rCam, null!);
@@ -88,9 +88,9 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 
 	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
-		sLeaser.sprites[0].SetPosition(cpos - camPos);
-		_mc?.BringToKin(sLeaser.sprites[0]);
-		sLeaser.sprites[0].rotation = LerpAngle(lastRot, rot, timeStacker);
+		sLeaser.sprites[0].SetPosition(_CPos - camPos);
+		_customizer?.BringToKin(sLeaser.sprites[0]);
+		sLeaser.sprites[0].rotation = LerpAngle(_lastRot, _rot, timeStacker);
 
 	}
 
@@ -102,7 +102,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
 	{
 		foreach (var fs in sLeaser.sprites) fs.RemoveFromContainer();
-		try { (newContatiner ?? rCam.ReturnFContainer(_mc?.ContainerName ?? ContainerCodes.Items)).AddChild(sLeaser.sprites[0]); }
+		try { (newContatiner ?? rCam.ReturnFContainer(_customizer?.ContainerName ?? ContainerCodes.Items)).AddChild(sLeaser.sprites[0]); }
 		catch { rCam.ReturnFContainer("Items").AddChild(sLeaser.sprites[0]); }
 	}
 	#endregion

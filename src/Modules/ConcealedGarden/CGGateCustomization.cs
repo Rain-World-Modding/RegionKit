@@ -8,19 +8,19 @@ namespace RegionKit.Modules.ConcealedGarden;
 
 internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 {
-	private readonly PlacedObject pObj;
-	private RegionGateGraphics.DoorGraphic? leftDoor;
-	private RegionGateGraphics.DoorGraphic? rightDoor;
-	private bool swappedDrawOrder;
+	private readonly PlacedObject _pObj;
+	private RegionGateGraphics.DoorGraphic? _leftDoor;
+	private RegionGateGraphics.DoorGraphic? _rightDoor;
+	private bool _swappedDrawOrder;
 
-	ManagedData data => (pObj.data as ManagedData)!;
+	private ManagedData _Data => (_pObj.data as ManagedData)!;
 
 	public CGGateCustomization(Room room, PlacedObject pObj)
 	{
 		this.room = room;
-		this.pObj = pObj;
+		this._pObj = pObj;
 
-		if (data.GetValue<bool>("nowater"))
+		if (_Data.GetValue<bool>("nowater"))
 		{
 			IDrawable? water = null;
 			foreach (var item in room.drawableObjects)
@@ -34,16 +34,16 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 			if (water != null) room.drawableObjects.Remove(water);
 		}
 
-		if (data.GetValue<bool>("noleft"))
+		if (_Data.GetValue<bool>("noleft"))
 		{
 			room.regionGate.doors[0].closeSpeed = 0f;
-			this.leftDoor = room.regionGate.graphics.doorGraphs[0];
+			this._leftDoor = room.regionGate.graphics.doorGraphs[0];
 		}
 
-		if (data.GetValue<bool>("noright"))
+		if (_Data.GetValue<bool>("noright"))
 		{
 			room.regionGate.doors[2].closeSpeed = 0f;
-			this.rightDoor = room.regionGate.graphics.doorGraphs[2];
+			this._rightDoor = room.regionGate.graphics.doorGraphs[2];
 		}
 
 
@@ -65,17 +65,17 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 		base.Update(eu);
 
 		if (room.regionGate.washingCounter == 0) room.regionGate.washingCounter = 200;
-		if (leftDoor != null)
+		if (_leftDoor != null)
 		{
-			leftDoor.lastClosedFac = room.regionGate.doors[0].closedFac;
+			_leftDoor.lastClosedFac = room.regionGate.doors[0].closedFac;
 			room.regionGate.goalDoorPositions[0] = room.regionGate.doors[0].closedFac;
 		}
-		if (rightDoor != null)
+		if (_rightDoor != null)
 		{
-			rightDoor.lastClosedFac = room.regionGate.doors[2].closedFac;
+			_rightDoor.lastClosedFac = room.regionGate.doors[2].closedFac;
 			room.regionGate.goalDoorPositions[2] = room.regionGate.doors[2].closedFac;
 		}
-		if (data.GetValue<bool>("zdontstop"))
+		if (_Data.GetValue<bool>("zdontstop"))
 		{
 			if (room.regionGate.startCounter == 60)
 			{
@@ -90,7 +90,7 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 	// We need to do stuff in the draw loop >:3c
 	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
-		if (!this.swappedDrawOrder)
+		if (!this._swappedDrawOrder)
 		{
 			RoomCamera.SpriteLeaser? found = null;
 			foreach (var item in rCam.spriteLeasers)
@@ -104,30 +104,30 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 			{
 				rCam.spriteLeasers.Remove(found);
 				rCam.spriteLeasers.Add(found);
-				swappedDrawOrder = true;
+				_swappedDrawOrder = true;
 			}
 		}
 		// I'm too lazy to properly handle custom doors that nobody has made yet
-		if (leftDoor != null)
+		if (_leftDoor != null)
 		{
 			foreach (var item in rCam.spriteLeasers)
 			{
 				if (item.drawableObject == room.regionGate)
 				{
-					for (int i = 0; i < leftDoor.TotalSprites; i++)
+					for (int i = 0; i < _leftDoor.TotalSprites; i++)
 					{
 						item.sprites[i].isVisible = false;
 					}
 				}
 			}
 		}
-		if (rightDoor != null)
+		if (_rightDoor != null)
 		{
 			foreach (var item in rCam.spriteLeasers)
 			{
 				if (item.drawableObject == room.regionGate)
 				{
-					for (int i = rightDoor.TotalSprites * 2; i < rightDoor.TotalSprites * 3; i++)
+					for (int i = _rightDoor.TotalSprites * 2; i < _rightDoor.TotalSprites * 3; i++)
 					{
 						item.sprites[i].isVisible = false;
 					}

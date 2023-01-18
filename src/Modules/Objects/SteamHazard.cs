@@ -18,79 +18,79 @@ public static class SteamObjRep
 
 public class SteamHazard : UpdatableAndDeletable
 {
-	public PlacedObject placedObject;
-	public float durationRate;
-	public float frequencyRate;
-	public float duration;
-	public float frequency;
-	public float lifetime;
-	public float dangerRange;
-	public Vector2 fromPos;
-	public Vector2 toPos;
-	public Vector2[]? steamZone;
-	public Smoke.SteamSmoke steam;
-	public RectangularDynamicSoundLoop soundLoop;
+	private readonly PlacedObject _placedObject;
+	private float _durationRate;
+	private float _frequencyRate;
+	private float _duration;
+	private float _frequency;
+	private float _lifetime;
+	private float _dangerRange;
+	private Vector2 _fromPos;
+	private Vector2 _toPos;
+	private Vector2[]? _steamZone;
+	private Smoke.SteamSmoke _steam;
+	private RectangularDynamicSoundLoop _soundLoop;
 	public SteamHazard(PlacedObject pObj, Room room)
 	{
-		placedObject = pObj;
+		_placedObject = pObj;
 		this.room = room;
-		ManagedData managedData = (placedObject.data as ManagedData)!;
-		durationRate = managedData.GetValue<float>("f1");
-		frequencyRate = managedData.GetValue<float>("f2");
-		duration = 0f;
-		frequency = 0f;
-		lifetime = managedData.GetValue<float>("f3");
-		fromPos = placedObject.pos;
-		toPos = managedData.GetValue<Vector2>("v1");
-		steam = new Smoke.SteamSmoke(this.room);
-		soundLoop = new RectangularDynamicSoundLoop(this, new FloatRect(fromPos.x - 20f, fromPos.y - 20f, fromPos.x + 20f, fromPos.y + 20f), this.room);
-		soundLoop.sound = SoundID.Gate_Water_Steam_LOOP;
+		ManagedData managedData = (_placedObject.data as ManagedData)!;
+		_durationRate = managedData.GetValue<float>("f1");
+		_frequencyRate = managedData.GetValue<float>("f2");
+		_duration = 0f;
+		_frequency = 0f;
+		_lifetime = managedData.GetValue<float>("f3");
+		_fromPos = _placedObject.pos;
+		_toPos = managedData.GetValue<Vector2>("v1");
+		_steam = new Smoke.SteamSmoke(this.room);
+		_soundLoop = new RectangularDynamicSoundLoop(this, new FloatRect(_fromPos.x - 20f, _fromPos.y - 20f, _fromPos.x + 20f, _fromPos.y + 20f), this.room);
+		_soundLoop.sound = SoundID.Gate_Water_Steam_LOOP;
 	}
 
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		ManagedData managedData = (placedObject.data as ManagedData)!;
-		durationRate = managedData.GetValue<float>("f1");
-		frequencyRate = managedData.GetValue<float>("f2");
-		lifetime = managedData.GetValue<float>("f3");
-		dangerRange = 0.9f;
-		fromPos = placedObject.pos;
-		toPos = managedData.GetValue<Vector2>("v1");
+		ManagedData managedData = (_placedObject.data as ManagedData)!;
+		_durationRate = managedData.GetValue<float>("f1");
+		_frequencyRate = managedData.GetValue<float>("f2");
+		_lifetime = managedData.GetValue<float>("f3");
+		_dangerRange = 0.9f;
+		_fromPos = _placedObject.pos;
+		_toPos = managedData.GetValue<Vector2>("v1");
 
 		//Steam burst
-		if (soundLoop != null)
+		if (_soundLoop != null)
 		{
-			if (soundLoop.Volume > 0f)
+			if (_soundLoop.Volume > 0f)
 			{
-				soundLoop.Update();
+				_soundLoop.Update();
 			}
-			frequency += frequencyRate * Time.deltaTime;
-			if (frequency >= 1f)
+			_frequency += _frequencyRate * Time.deltaTime;
+			if (_frequency >= 1f)
 			{
-				soundLoop.Volume = 0.6f;
-				duration += durationRate * Time.deltaTime;
-				steam.EmitSmoke(fromPos, toPos * 0.15f, room.RoomRect, lifetime);
-				if (duration >= 1f)
+				_soundLoop.Volume = 0.6f;
+				_duration += _durationRate * Time.deltaTime;
+				_steam.EmitSmoke(_fromPos, _toPos * 0.15f, room.RoomRect, _lifetime);
+				if (_duration >= 1f)
 				{
-					duration = 0f;
-					frequency = 0f;
+					_duration = 0f;
+					_frequency = 0f;
 				}
 			}
 			else
 			{
-				soundLoop.Volume -= 0.5f * Time.deltaTime;
-				if (soundLoop.Volume <= 0f)
+				_soundLoop.Volume -= 0.5f * Time.deltaTime;
+				if (_soundLoop.Volume <= 0f)
 				{
-					soundLoop.Stop();
+					_soundLoop.Stop();
 				}
 			}
 		}
 
 		//Creature hit by steam
-		for (int i = 0; i < steam.particles.Count; i++)
+		for (int i = 0; i < _steam.particles.Count; i++)
 		{
-			if (steam.particles[i].life > dangerRange)
+			if (_steam.particles[i].life > _dangerRange)
 			{
 				for (int w = 0; w < room.physicalObjects.Length; w++)
 				{
@@ -101,7 +101,7 @@ public class SteamHazard : UpdatableAndDeletable
 							Vector2 a = room.physicalObjects[w][j].bodyChunks[k].ContactPoint.ToVector2();
 							Vector2 v = room.physicalObjects[w][j].bodyChunks[k].pos + a * (room.physicalObjects[w][j].bodyChunks[k].rad + 30f);
 
-							if (Vector2.Distance(steam.particles[i].pos, v) < 20f)
+							if (Vector2.Distance(_steam.particles[i].pos, v) < 20f)
 							{
 								if (room.physicalObjects[w][j] is Creature crit)
 								{

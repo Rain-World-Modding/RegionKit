@@ -13,23 +13,23 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 	public SimplePiston(Room rm, PlacedObject pobj) : this(rm, pobj, null) { }
 	public SimplePiston(Room rm, PlacedObject? pobj, PistonData? mdt = null)
 	{
-		PO = pobj;
+		_PO = pobj;
 		this._assignedMData = mdt;
 		__logger.LogDebug($"({rm.abstractRoom.name}): Created simplePiston" + mdt == null ? "." : "as a part of an array.");
 	}
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		oldPos = currentPos;
+		_oldPos = _currentPos;
 		_lt += room.ElectricPower;
-		currentPos = originPoint + DegToVec(effRot) * Shift;
+		_currentPos = _OriginPoint + DegToVec(_EffRot) * _Shift;
 	}
 
-	internal PistonData mData
+	internal PistonData _PistonData
 	{
 		get
 		{
-			var r = _assignedMData ?? PO?.data as PistonData;
+			var r = _assignedMData ?? _PO?.data as PistonData;
 			if (r == null) { _bpd = _bpd ?? new PistonData(null); return _bpd; }
 			return r;
 		}
@@ -37,17 +37,17 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 	private PistonData? _bpd;
 	private readonly PistonData? _assignedMData;
 
-	internal readonly PlacedObject? PO;
+	internal readonly PlacedObject? _PO;
 	private double _lt = 0f;
-	internal Vector2 originPoint => PO?.pos ?? _assignedMData?.forcePos ?? default;
-	internal float effRot => mData.align ? ((int)mData.rotation / 45 * 45) : mData.rotation;
-	internal float Shift
+	private Vector2 _OriginPoint => _PO?.pos ?? _assignedMData?.forcePos ?? default;
+	private float _EffRot => _PistonData.align ? ((int)_PistonData.rotation / 45 * 45) : _PistonData.rotation;
+	private float _Shift
 	{
 		get
 		{
-			var res = mData.amplitude;
+			var res = _PistonData.amplitude;
 			Func<double, double> chosenFunc;
-			switch (mData.opmode)
+			switch (_PistonData.opmode)
 			{
 			default:
 			case OperationMode.Sinal:
@@ -57,28 +57,28 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 				chosenFunc = Math.Cos;
 				break;
 			}
-			res *= (float)chosenFunc((_lt + mData.phase) * mData.frequency);
+			res *= (float)chosenFunc((_lt + _PistonData.phase) * _PistonData.frequency);
 			return res;
 		}
 	}
-	internal Vector2 currentPos;
-	internal Vector2 oldPos;
+	private Vector2 _currentPos;
+	private Vector2 _oldPos;
 
 	internal MachineryCustomizer? _mc;
 
-	internal void GrabMC()
+	private void _GrabMC()
 	{
-		if (PO is null) return;
+		if (_PO is null) return;
 		_mc = _mc
 			?? room.roomSettings.placedObjects.FirstOrDefault(
-				x => x.data is MachineryCustomizer nmc && nmc.GetValue<MachineryID>("amID") == MachineryID.Piston && (x.pos - this.PO.pos).sqrMagnitude <= nmc.GetValue<Vector2>("radius").sqrMagnitude)?.data as MachineryCustomizer
+				x => x.data is MachineryCustomizer nmc && nmc.GetValue<MachineryID>("amID") == MachineryID.Piston && (x.pos - this._PO.pos).sqrMagnitude <= nmc.GetValue<Vector2>("radius").sqrMagnitude)?.data as MachineryCustomizer
 			?? new MachineryCustomizer(null);
 	}
 
 	#region irawable things
 	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
-		GrabMC();
+		_GrabMC();
 		sLeaser.sprites = new FSprite[1];
 		sLeaser.sprites[0] = new FSprite("pixel");
 		this.AddToContainer(sLeaser, rCam, null);
@@ -86,9 +86,9 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 
 	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
-		var pos = Vector2.Lerp(oldPos, currentPos, timeStacker);
+		var pos = Vector2.Lerp(_oldPos, _currentPos, timeStacker);
 		_mc?.BringToKin(sLeaser.sprites[0]);
-		sLeaser.sprites[0].rotation = effRot + _mc?.addRot ?? 0f;
+		sLeaser.sprites[0].rotation = _EffRot + _mc?.addRot ?? 0f;
 		sLeaser.sprites[0].x = pos.x - camPos.x;
 		sLeaser.sprites[0].y = pos.y - camPos.y;
 	}

@@ -9,12 +9,12 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 {
 	public SandStorm(RoomSettings.RoomEffect effect, Room room) : base(room)
 	{
-		deathtimer = 0;
-		this.effect = effect;
+		_deathtimer = 0;
+		this._effect = effect;
 		this.sceneOrigo = new Vector2(2514f, 26000);
-		this.generalFog = new Fog(this);
-		this.AddElement(this.generalFog);
-		this.rainReach = new int[room.TileWidth];
+		this._generalFog = new Fog(this);
+		this.AddElement(this._generalFog);
+		this._rainReach = new int[room.TileWidth];
 		for (int i = 0; i < room.TileWidth; i++)
 		{
 			bool flag = true;
@@ -23,41 +23,36 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 				if (flag && room.GetTile(i, j).Solid)
 				{
 					flag = false;
-					this.rainReach[i] = j;
+					this._rainReach[i] = j;
 				}
 			}
 		}
-		this.particles = new List<SandPart>();
+		this._particles = new List<SandPart>();
 		float num = Mathf.Lerp(0f, 0.6f, effect.amount);
-		this.totParticles = Custom.IntClamp((int)((float)(room.TileWidth * room.TileHeight) * num), 1, 300);
+		this._totParticles = Custom.IntClamp((int)((float)(room.TileWidth * room.TileHeight) * num), 1, 300);
 	}
-
-	private RainCycle cycle
+	private RainCycle _Cycle
 	{
 		get
 		{
 			return this.room.game.world.rainCycle;
 		}
 	}
-
 	public float Intensity
 	{
 		get
 		{
-			return this.effect.amount * Mathf.Pow(Mathf.InverseLerp((float)(this.cycle.cycleLength - 400), (float)(this.cycle.cycleLength + 2400), (float)this.cycle.timer), 2.2f);
+			return this._effect.amount * Mathf.Pow(Mathf.InverseLerp((float)(this._Cycle.cycleLength - 400), (float)(this._Cycle.cycleLength + 2400), (float)this._Cycle.timer), 2.2f);
 		}
 	}
-
 	public override void AddElement(BackgroundScene.BackgroundSceneElement element)
 	{
 		base.AddElement(element);
 	}
-
 	public override void Destroy()
 	{
 		base.Destroy();
 	}
-
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
@@ -65,51 +60,51 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 		{
 			return;
 		}
-		for (int i = this.particles.Count - 1; i >= 0; i--)
+		for (int i = this._particles.Count - 1; i >= 0; i--)
 		{
-			if (this.particles[i].slatedForDeletetion)
+			if (this._particles[i].slatedForDeletetion)
 			{
-				this.particles.RemoveAt(i);
+				this._particles.RemoveAt(i);
 			}
 			else
 			{
-				this.particles[i].vel += this.wind * 0.2f;
+				this._particles[i].vel += this._wind * 0.2f;
 			}
 		}
-		if (this.particles.Count < this.totParticles * Mathf.Pow(this.Intensity, 0.2f))
+		if (this._particles.Count < this._totParticles * Mathf.Pow(this.Intensity, 0.2f))
 		{
 			this.AddSpark();
 		}
-		this.wind += Custom.RNV() * 0.1f;
-		this.wind *= 0.98f;
-		this.wind = Vector2.ClampMagnitude(this.wind, 1f);
-		if (this.soundLoop == null)
+		this._wind += Custom.RNV() * 0.1f;
+		this._wind *= 0.98f;
+		this._wind = Vector2.ClampMagnitude(this._wind, 1f);
+		if (this._soundLoop == null)
 		{
-			this.soundLoop = new DisembodiedDynamicSoundLoop(this);
-			this.soundLoop.sound = SoundID.Void_Sea_Worm_Swimby_Woosh_LOOP;
-			this.soundLoop.Volume = 0f;
+			this._soundLoop = new DisembodiedDynamicSoundLoop(this);
+			this._soundLoop.sound = SoundID.Void_Sea_Worm_Swimby_Woosh_LOOP;
+			this._soundLoop.Volume = 0f;
 		}
 		else
 		{
-			this.soundLoop.Update();
-			this.soundLoop.Volume = Mathf.Pow(this.Intensity, 0.5f);
+			this._soundLoop.Update();
+			this._soundLoop.Volume = Mathf.Pow(this.Intensity, 0.5f);
 		}
-		if (this.soundLoop2 == null)
+		if (this._soundLoop2 == null)
 		{
-			this.soundLoop2 = new DisembodiedDynamicSoundLoop(this);
-			this.soundLoop2.sound = SoundID.Gate_Electric_Steam_LOOP;
-			this.soundLoop2.Volume = 0f;
+			this._soundLoop2 = new DisembodiedDynamicSoundLoop(this);
+			this._soundLoop2.sound = SoundID.Gate_Electric_Steam_LOOP;
+			this._soundLoop2.Volume = 0f;
 		}
 		else
 		{
-			this.soundLoop2.Update();
-			this.soundLoop2.Volume = Mathf.Pow(this.Intensity, 0.1f) * Mathf.Lerp(0.5f + 0.5f * Mathf.Sin(this.sin * 3.14159274f * 2f), 0f, Mathf.Pow(this.Intensity, 8f));
+			this._soundLoop2.Update();
+			this._soundLoop2.Volume = Mathf.Pow(this.Intensity, 0.1f) * Mathf.Lerp(0.5f + 0.5f * Mathf.Sin(this._sin * 3.14159274f * 2f), 0f, Mathf.Pow(this.Intensity, 8f));
 		}
 
-		this.sin += 0.002f;
-		if (this.closeToWallTiles != null && this.room.BeingViewed && UnityEngine.Random.value < Mathf.InverseLerp(1000f, 9120f, (float)(this.room.TileWidth * this.room.TileHeight)) * 2f * Mathf.Pow(this.Intensity, 0.3f))
+		this._sin += 0.002f;
+		if (this._closeToWallTiles != null && this.room.BeingViewed && UnityEngine.Random.value < Mathf.InverseLerp(1000f, 9120f, (float)(this.room.TileWidth * this.room.TileHeight)) * 2f * Mathf.Pow(this.Intensity, 0.3f))
 		{
-			IntVector2 pos = this.closeToWallTiles[UnityEngine.Random.Range(0, this.closeToWallTiles.Count)];
+			IntVector2 pos = this._closeToWallTiles[UnityEngine.Random.Range(0, this._closeToWallTiles.Count)];
 			Vector2 pos2 = this.room.MiddleOfTile(pos) + new Vector2(Mathf.Lerp(-10f, 10f, UnityEngine.Random.value), Mathf.Lerp(-10f, 10f, UnityEngine.Random.value));
 			float num = UnityEngine.Random.value * this.Intensity;
 			if (this.room.ViewedByAnyCamera(pos2, 50f))
@@ -122,12 +117,12 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 			ThrowAroundObjects();
 		}
 
-		if (this.Intensity > 0.99f && killedCreatures == false)
+		if (this.Intensity > 0.99f && _killedCreatures == false)
 		{
-			deathtimer++;
-			if (deathtimer > 500)
+			_deathtimer++;
+			if (_deathtimer > 500)
 			{
-				deathtimer = 450;
+				_deathtimer = 450;
 				for (int j = 0; j < this.room.physicalObjects.Length; j++)
 				{
 					for (int k = 0; k < this.room.physicalObjects[j].Count; k++)
@@ -139,12 +134,12 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 								crit.Violence(null, null, this.room.physicalObjects[j][k].bodyChunks[0], null, Creature.DamageType.Blunt, 1.8f, 40f);
 								if ((this.room.physicalObjects[j][k] as Creature) is Player)
 								{
-									killedCreatures = true;
+									_killedCreatures = true;
 								}
 							}
 							else if ((this.room.physicalObjects[j][k] as Creature) is Player)
 							{
-								killedCreatures = true;
+								_killedCreatures = true;
 							}
 						}
 					}
@@ -175,7 +170,7 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 			}
 			SandPart particle = new SandPart(vector);
 			this.room.AddObject(particle);
-			this.particles.Add(particle);
+			this._particles.Add(particle);
 		}
 	}
 
@@ -183,7 +178,7 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 	{
 		get
 		{
-			return this.effect.amount * Intensity;
+			return this._effect.amount * Intensity;
 		}
 	}
 
@@ -203,7 +198,7 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 					IntVector2 tilePosition = this.room.GetTilePosition(bodyChunk.pos + new Vector2(Mathf.Lerp(-bodyChunk.rad, bodyChunk.rad, UnityEngine.Random.value), Mathf.Lerp(-bodyChunk.rad, bodyChunk.rad, UnityEngine.Random.value)));
 					float num = this.InsidePushAround;
 					//bool flag = false;
-					if (this.rainReach[Custom.IntClamp(tilePosition.x, 0, this.room.TileWidth - 1)] < tilePosition.y)
+					if (this._rainReach[Custom.IntClamp(tilePosition.x, 0, this.room.TileWidth - 1)] < tilePosition.y)
 					{
 						//flag = true;
 						num = Mathf.Max(Intensity, this.InsidePushAround);
@@ -223,102 +218,46 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 
 	public void ShortcutsReady()
 	{
-		killedCreatures = false;
+		_killedCreatures = false;
 	}
 
 	public void AIMapReady()
 	{
-		this.closeToWallTiles = new List<IntVector2>();
+		this._closeToWallTiles = new List<IntVector2>();
 		for (int i = 0; i < this.room.TileWidth; i++)
 		{
 			for (int j = 0; j < this.room.TileHeight; j++)
 			{
 				if (this.room.aimap.getAItile(i, j).terrainProximity == 1)
 				{
-					this.closeToWallTiles.Add(new IntVector2(i, j));
+					this._closeToWallTiles.Add(new IntVector2(i, j));
 				}
 			}
 		}
 	}
 
-	private RoomSettings.RoomEffect effect;
+	private RoomSettings.RoomEffect _effect;
 
-	public List<IntVector2>? closeToWallTiles;
+	private List<IntVector2>? _closeToWallTiles;
 
-	public bool killedCreatures = true;
+	private bool _killedCreatures = true;
 
-	private float sin;
+	private float _sin;
 
-	public int[] rainReach;
+	private int[] _rainReach;
 
-	private int deathtimer = 0;
+	private int _deathtimer = 0;
 
-	public List<SandPart> particles;
+	private List<SandPart> _particles;
 
-	private int totParticles;
+	private int _totParticles;
 
-	public Vector2 wind;
+	private Vector2 _wind;
 
-	public DisembodiedDynamicSoundLoop? soundLoop;
+	private DisembodiedDynamicSoundLoop? _soundLoop;
 
-	public DisembodiedDynamicSoundLoop? soundLoop2;
-	public class SandPuff : CosmeticSprite
-	{
-		public SandPuff(Vector2 pos, float size)
-		{
-			this.pos = pos;
-			this.lastPos = pos;
-			this.size = size;
-			this.lastLife = 1f;
-			this.life = 1f;
-			this.lifeTime = Mathf.Lerp(40f, 120f, UnityEngine.Random.value) * Mathf.Lerp(0.5f, 1.5f, size);
-		}
-
-		public override void Update(bool eu)
-		{
-			base.Update(eu);
-			this.pos.y = this.pos.y + 0.5f;
-			this.pos.x = this.pos.x + 0.25f;
-			this.lastLife = this.life;
-			this.life -= 1f / this.lifeTime;
-			if (this.lastLife < 0f)
-			{
-				this.Destroy();
-			}
-		}
-
-		public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
-		{
-			sLeaser.sprites = new FSprite[1];
-			sLeaser.sprites[0] = new FSprite("Futile_White", true);
-			sLeaser.sprites[0].shader = rCam.game.rainWorld.Shaders["Spores"];
-			this.AddToContainer(sLeaser, rCam, rCam.ReturnFContainer("Background"));
-			base.InitiateSprites(sLeaser, rCam);
-		}
-
-		public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
-		{
-			sLeaser.sprites[0].x = Mathf.Lerp(this.lastPos.x, this.pos.x, timeStacker) - camPos.x;
-			sLeaser.sprites[0].y = Mathf.Lerp(this.lastPos.y, this.pos.y, timeStacker) - camPos.y;
-			sLeaser.sprites[0].scale = 10f * Mathf.Pow(1f - Mathf.Lerp(this.lastLife, this.life, timeStacker), 0.35f) * Mathf.Lerp(0.5f, 2.5f, this.size);
-			sLeaser.sprites[0].alpha = Mathf.Lerp(this.lastLife, this.life, timeStacker);
-			base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
-		}
-
-		public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
-		{
-			sLeaser.sprites[0].color = palette.texture.GetPixel(9, 5);
-			base.ApplyPalette(sLeaser, rCam, palette);
-		}
-
-		private float life;
-
-		private float lastLife;
-
-		private float lifeTime;
-
-		private float size;
-	}
+	private DisembodiedDynamicSoundLoop? _soundLoop2;
+	private SandStorm.Fog _generalFog;
 
 	public class Fog : BackgroundScene.FullScreenSingleColor
 	{
@@ -326,24 +265,20 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 		{
 			this.depth = 0f;
 		}
-
-		private float Intensity
+		private float _Intensity
 		{
 			get
 			{
 				return (this.scene as SandStorm)!.Intensity;
 			}
 		}
-
-
-		private SandStorm SandStormScene
+		private SandStorm _SandStormScene
 		{
 			get
 			{
 				return (this.scene as SandStorm)!;
 			}
 		}
-
 		public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 		{
 			sLeaser.sprites = new FSprite[1];
@@ -357,177 +292,16 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 			sLeaser.sprites[0].alpha = this.alpha;
 			this.AddToContainer(sLeaser, rCam, null);
 		}
-
 		public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
-			this.alpha = Intensity / 1.1f;
+			this.alpha = _Intensity / 1.1f;
 			base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
 		}
-
 		public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 		{
 			this.color = palette.skyColor;
 			base.ApplyPalette(sLeaser, rCam, palette);
 		}
-	}
-
-	public SandStorm.Fog generalFog;
-	public class SandPart : CosmeticSprite
-	{
-		public SandPart(Vector2 pos)
-		{
-			this.pos = pos;
-			this.lastLastPos = pos;
-			this.lastPos = pos;
-			this.vel = new Vector2(0f, 0f);
-			this.life = 1f;
-			this.lifeTime = Mathf.Lerp(600f, 1200f, UnityEngine.Random.value);
-			this.col = new Color(0.690f / 2f, 0.525f / 2f, 0.478f / 2f);
-			if (UnityEngine.Random.value < 0.8f)
-			{
-				this.depth = 0f;
-			}
-			else if (UnityEngine.Random.value < 0.3f)
-			{
-				this.depth = -0.5f * UnityEngine.Random.value;
-			}
-			else
-			{
-				this.depth = Mathf.Pow(UnityEngine.Random.value, 1.5f) * 3f;
-			}
-		}
-		public bool InPlayLayer
-		{
-			get
-			{
-				return this.depth == 0f;
-			}
-		}
-
-		public override void Update(bool eu)
-		{
-			this.vel *= 0.99f;
-			this.vel += new Vector2(0.11f, Custom.LerpMap(this.life, 0f, 0.5f, -0.1f, 0.05f));
-			this.vel += this.dir * 0.8f;
-			this.dir = (this.dir + Custom.RNV() * 0.6f).normalized;
-			this.life -= 1f / this.lifeTime;
-			this.lastLastPos = this.lastPos;
-			this.lastPos = this.pos;
-			this.pos += this.vel / (this.depth + 1f);
-			if (this.InPlayLayer)
-			{
-				if (this.room.GetTile(this.pos).Solid)
-				{
-					this.life -= 0.025f;
-					if (!this.room.GetTile(this.lastPos).Solid)
-					{
-						IntVector2? intVector = SharedPhysics.RayTraceTilesForTerrainReturnFirstSolid(this.room, this.room.GetTilePosition(this.lastPos), this.room.GetTilePosition(this.pos));
-						FloatRect floatRect = Custom.RectCollision(this.pos, this.lastPos, this.room.TileRect(intVector ?? this.pos.ToIntVector2()).Grow(2f));
-						this.pos = floatRect.GetCorner(FloatRect.CornerLabel.D);
-						float num = 0.3f;
-						if (floatRect.GetCorner(FloatRect.CornerLabel.B).x < 0f)
-						{
-							this.vel.x = Mathf.Abs(this.vel.x) * num;
-						}
-						else if (floatRect.GetCorner(FloatRect.CornerLabel.B).x > 0f)
-						{
-							this.vel.x = -Mathf.Abs(this.vel.x) * num;
-						}
-						else if (floatRect.GetCorner(FloatRect.CornerLabel.B).y < 0f)
-						{
-							this.vel.y = Mathf.Abs(this.vel.y) * num;
-						}
-						else if (floatRect.GetCorner(FloatRect.CornerLabel.B).y > 0f)
-						{
-							this.vel.y = -Mathf.Abs(this.vel.y) * num;
-						}
-					}
-					else
-					{
-						this.pos.y = this.room.MiddleOfTile(this.pos).y + 10f;
-					}
-				}
-				if (this.room.PointSubmerged(this.pos))
-				{
-					this.pos.y = this.room.FloatWaterLevel(this.pos.x);
-					this.life -= 0.025f;
-				}
-			}
-			if (this.life < 0f || (Custom.VectorRectDistance(this.pos, this.room.RoomRect) > 100f && !this.room.ViewedByAnyCamera(this.pos, 400f)))
-			{
-				this.Destroy();
-			}
-			if (!this.room.BeingViewed)
-			{
-				this.Destroy();
-			}
-		}
-
-		public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
-		{
-			sLeaser.sprites = new FSprite[1];
-			sLeaser.sprites[0] = new FSprite("pixel", true);
-			if (this.depth < 0f)
-			{
-				sLeaser.sprites[0].scaleX = Custom.LerpMap(this.depth, 0f, -0.5f, 1.5f, 2f);
-			}
-			else if (this.depth > 0f)
-			{
-				sLeaser.sprites[0].scaleX = Custom.LerpMap(this.depth, 0f, 5f, 1.5f, 0.1f);
-			}
-			else
-			{
-				sLeaser.sprites[0].scaleX = 1.5f;
-			}
-			sLeaser.sprites[0].anchorY = 0f;
-			if (this.depth > 0f)
-			{
-				sLeaser.sprites[0].shader = rCam.room.game.rainWorld.Shaders["CustomDepth"];
-				sLeaser.sprites[0].alpha = 0f;
-			}
-			this.AddToContainer(sLeaser, rCam, null!);
-		}
-
-		public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
-		{
-			sLeaser.sprites[0].x = Mathf.Lerp(this.lastPos.x, this.pos.x, timeStacker) - camPos.x;
-			sLeaser.sprites[0].y = Mathf.Lerp(this.lastPos.y, this.pos.y, timeStacker) - camPos.y;
-			sLeaser.sprites[0].rotation = Custom.AimFromOneVectorToAnother(Vector2.Lerp(this.lastLastPos, this.lastPos, timeStacker), Vector2.Lerp(this.lastPos, this.pos, timeStacker));
-			sLeaser.sprites[0].scaleY = Mathf.Max(2f, 2f + 1.1f * Vector2.Distance(Vector2.Lerp(this.lastLastPos, this.lastPos, timeStacker), Vector2.Lerp(this.lastPos, this.pos, timeStacker)));
-			base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
-		}
-
-		public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
-		{
-			//this.col = palette.blackColor;
-			if (this.depth <= 0f)
-			{
-				sLeaser.sprites[0].color = this.col;
-			}
-			else
-			{
-				sLeaser.sprites[0].color = Color.Lerp(palette.skyColor, this.col, Mathf.InverseLerp(0f, 5f, this.depth));
-			}
-		}
-
-		public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
-		{
-			newContatiner = rCam.ReturnFContainer((!this.InPlayLayer) ? "Foreground" : "Items");
-			sLeaser.sprites[0].RemoveFromContainer();
-			newContatiner.AddChild(sLeaser.sprites[0]);
-		}
-
-		private Vector2 dir;
-
-		private Vector2 lastLastPos;
-
-		public Color col;
-
-		public float life;
-
-		public float lifeTime;
-
-		public float depth;
 	}
 }
 

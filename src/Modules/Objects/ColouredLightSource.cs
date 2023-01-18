@@ -4,12 +4,12 @@ namespace RegionKit.Modules.Objects;
 
 public class ColouredLightSource : UpdatableAndDeletable
 {
-	public PlacedObject LocalPlacedObject;
-	public LightSource LightSource;
-	public ManagedData? Data;
-	public bool flickering;
+	private PlacedObject _localPlacedObject;
+	private LightSource _lightSource;
+	private ManagedData? _data;
+	private bool _flickering;
 
-	private static readonly ManagedField[] Fields = {
+	private static readonly ManagedField[] __fields = {
 		new ColorField("lightCol", Color.white, ManagedFieldWithPanel.ControlType.slider, "Light Colour"),
 		new Vector2Field("radius", Vector2.up, Vector2Field.VectorReprType.circle),
 		new FloatField("alphaChannel", 0f, 1f, 1f, displayName: "Alpha"),
@@ -23,42 +23,42 @@ public class ColouredLightSource : UpdatableAndDeletable
 	{
 		//Data = new(pObj, null);
 		this.room = room;
-		LocalPlacedObject = pObj;
-		Data = (pObj.data as ManagedData)!;
+		_localPlacedObject = pObj;
+		_data = (pObj.data as ManagedData)!;
 
-		LightSource = new LightSource(LocalPlacedObject.pos, false, Data?.GetValue<Color>("lightCol") ?? Color.white, this);
-		LightSource.affectedByPaletteDarkness = Data?.GetValue<float>("paletteDarkness") ?? 0.5f;
-		room.AddObject(LightSource);
+		_lightSource = new LightSource(_localPlacedObject.pos, false, _data?.GetValue<Color>("lightCol") ?? Color.white, this);
+		_lightSource.affectedByPaletteDarkness = _data?.GetValue<float>("paletteDarkness") ?? 0.5f;
+		room.AddObject(_lightSource);
 	}
 
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
 
-		float rad = Data!.GetValue<Vector2>("radius").magnitude;
-		float alpha = Data.GetValue<float>("alphaChannel");
-		bool flat = Data.GetValue<bool>("flatLight");
-		Color col = Data.GetValue<Color>("lightCol");
-		float darknessEffect = Data.GetValue<float>("paletteDarkness");
+		float rad = _data!.GetValue<Vector2>("radius").magnitude;
+		float alpha = _data.GetValue<float>("alphaChannel");
+		bool flat = _data.GetValue<bool>("flatLight");
+		Color col = _data.GetValue<Color>("lightCol");
+		float darknessEffect = _data.GetValue<float>("paletteDarkness");
 
-		if (!flickering) LightSource.setAlpha = alpha;
-		LightSource.color = col;
-		LightSource.setRad = rad;
-		LightSource.setPos = LocalPlacedObject.pos;
-		LightSource.flat = flat;
-		LightSource.affectedByPaletteDarkness = darknessEffect;
+		if (!_flickering) _lightSource.setAlpha = alpha;
+		_lightSource.color = col;
+		_lightSource.setRad = rad;
+		_lightSource.setPos = _localPlacedObject.pos;
+		_lightSource.flat = flat;
+		_lightSource.affectedByPaletteDarkness = darknessEffect;
 
 		if (room.game.clock % 2 != 0) return;
-		float noiseIntensity = Data.GetValue<float>("flickIntensity") * OneDimensionalPerlinNoise();
-		if (noiseIntensity > Data.GetValue<float>("threshold"))
+		float noiseIntensity = _data.GetValue<float>("flickIntensity") * OneDimensionalPerlinNoise();
+		if (noiseIntensity > _data.GetValue<float>("threshold"))
 		{
-			LightSource.setAlpha = 0f;
-			flickering = true;
+			_lightSource.setAlpha = 0f;
+			_flickering = true;
 		}
 		else
 		{
-			LightSource.setAlpha = alpha;
-			flickering = false;
+			_lightSource.setAlpha = alpha;
+			_flickering = false;
 		}
 	}
 
@@ -73,5 +73,5 @@ public class ColouredLightSource : UpdatableAndDeletable
 		return noiseValue;
 	}
 
-	public static void RegisterAsFullyManagedObject() => RegisterFullyManagedObjectType(Fields, typeof(ColouredLightSource));
+	public static void RegisterAsFullyManagedObject() => RegisterFullyManagedObjectType(__fields, typeof(ColouredLightSource));
 }

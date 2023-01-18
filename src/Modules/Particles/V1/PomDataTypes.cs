@@ -37,9 +37,9 @@ public abstract class ParticleSystemData : ManagedData
 	public List<IntVector2> ReturnSuitableTiles(Room rm)
 	{
 		//this right here is to update your changes live as you edit in devtools without recalculating tile set every request.
-		if (AreaNeedsRefresh || c_ST == null) { c_ST = GetSuitableTiles(rm); }
+		if (AreaNeedsRefresh || _c_suitableTiles == null) { _c_suitableTiles = GetSuitableTiles(rm); }
 		UpdateTilesetCacheValidity();
-		return c_ST;
+		return _c_suitableTiles;
 	}
 	/// <summary>
 	/// Gets a list of tiles particles should be able to spawn on.
@@ -55,15 +55,15 @@ public abstract class ParticleSystemData : ManagedData
 	/// </summary>
 	protected virtual void UpdateTilesetCacheValidity()
 	{
-		c_ownerpos = owner.pos;
+		_c_ownerpos = owner.pos;
 	}
 	//cached tileset
-	protected List<IntVector2>? c_ST;
+	protected List<IntVector2>? _c_suitableTiles;
 	/// <summary>
 	/// Returns true when settings have been changed and tile set needs re-generating again. See code: <see cref="ReturnSuitableTiles(Room)"/>
 	/// </summary>
-	protected virtual bool AreaNeedsRefresh => c_ownerpos != owner.pos;
-	protected Vector2 c_ownerpos;
+	protected virtual bool AreaNeedsRefresh => _c_ownerpos != owner.pos;
+	protected Vector2 _c_ownerpos;
 
 	public ParticleSystemData(PlacedObject owner, List<ManagedField>? additionalFields)
 		: base(owner, null)
@@ -104,12 +104,12 @@ public class RectParticleSpawnerData : ParticleSystemData
 
 	}
 	//cached second point for areaNeedsRefresh
-	private Vector2 c_RB;
-	protected override bool AreaNeedsRefresh => base.AreaNeedsRefresh && c_RB == RectBounds;
+	private Vector2 _c_rectBounds;
+	protected override bool AreaNeedsRefresh => base.AreaNeedsRefresh && _c_rectBounds == RectBounds;
 	protected override void UpdateTilesetCacheValidity()
 	{
 		base.UpdateTilesetCacheValidity();
-		c_RB = RectBounds;
+		_c_rectBounds = RectBounds;
 	}
 	protected override List<IntVector2> GetSuitableTiles(Room rm)
 	{
@@ -136,19 +136,17 @@ public class OffscreenSpawnerData : ParticleSystemData
 	public int margin;
 	[BooleanField("nosolid", true, displayName: "Skip solid tiles")]
 	public bool AirOnly;
-
 	public OffscreenSpawnerData(PlacedObject owner) : base(owner, new List<ManagedField>())
 	{
-
 	}
 
-	Vector2 c_dir;
+	private Vector2 _c_dir;
 	protected override void UpdateTilesetCacheValidity()
 	{
 		base.UpdateTilesetCacheValidity();
-		c_dir = base.GetValue<Vector2>("sdBase");
+		_c_dir = base.GetValue<Vector2>("sdBase");
 	}
-	protected override bool AreaNeedsRefresh => base.AreaNeedsRefresh && c_dir == base.GetValue<Vector2>("sdBase");
+	protected override bool AreaNeedsRefresh => base.AreaNeedsRefresh && _c_dir == base.GetValue<Vector2>("sdBase");
 	protected override List<IntVector2> GetSuitableTiles(Room rm)
 	{
 		var res = new List<IntVector2>();
@@ -230,7 +228,7 @@ public class ParticleVisualCustomizer : ManagedData
 	[Vector2Field("p2", 40f, 0f)]
 	public Vector2 p2;
 	[EnumField<ContainerCodes>("cc", ContainerCodes.Foreground)]
-	public ContainerCodes cc;
+	public ContainerCodes containerCode;
 	[FloatField("z_scalemin", 0.1f, 2f, 1f, 0.05f, ManagedFieldWithPanel.ControlType.slider, displayName: "scale min")]
 	public float scalemin = 1f;
 	[FloatField("z_scalemax", 0.1f, 2f, 1f, 0.05f, ManagedFieldWithPanel.ControlType.slider, displayName: "scale max")]
@@ -246,7 +244,7 @@ public class ParticleVisualCustomizer : ManagedData
 		var res = new PVisualState(
 			elmName,
 			shader,
-			cc,
+			containerCode,
 			spriteColor.Deviation(spriteColorFluke),
 			lightColor.Deviation(lightColorFluke),
 			ClampedFloatDeviation(LightIntensity, LightIntensityFluke, minRes: 0f),

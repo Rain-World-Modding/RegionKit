@@ -32,21 +32,21 @@ public static class _Module
 		}
 		else
 		{
-			foreach (var hk in MachineryHooks) hk.Apply();
+			foreach (var hk in __machineryHooks) hk.Apply();
 		}
 		__appliedOnce = true;
 
 
 	}
 
-	internal static List<Hook> MachineryHooks = null!;
+	private static List<Hook> __machineryHooks = null!;
 
 	/// <summary>
 	/// Undoes hooks.
 	/// </summary>
 	public static void Disable()
 	{
-		foreach (var hk in MachineryHooks) hk.Undo();
+		foreach (var hk in __machineryHooks) hk.Undo();
 	}
 
 	//internal static RainWorld rw;
@@ -76,7 +76,7 @@ public static class _Module
 	}
 	private static void GenerateHooks()
 	{
-		MachineryHooks = new List<Hook>
+		__machineryHooks = new List<Hook>
 			{
 				new Hook(
 					typeof(RainWorld).GetMethodAllContexts(nameof(RainWorld.Start)),

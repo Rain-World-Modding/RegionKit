@@ -8,10 +8,10 @@ internal class CGFourthLayerFix
 	internal static void Apply()
 	{
 		On.PersistentData.ctor += PersistentData_ctor;
-		On.RoomCamera.MoveCamera_Room_int += RoomCamera_MoveCamera_1;
+		On.RoomCamera.MoveCamera_Room_int += RoomCamera_MoveCamera_Room_Int;
 	}
 
-	static private void RoomCamera_MoveCamera_1(On.RoomCamera.orig_MoveCamera_Room_int orig, RoomCamera self, Room newRoom, int camPos)
+	static private void RoomCamera_MoveCamera_Room_Int(On.RoomCamera.orig_MoveCamera_Room_int orig, RoomCamera self, Room newRoom, int camPos)
 	{
 		orig(self, newRoom, camPos);
 

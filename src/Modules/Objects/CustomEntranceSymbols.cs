@@ -2,8 +2,8 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 using DevInterface;
-using RWCustom;
 using UnityEngine;
+using RWCustom;
 using static System.Reflection.BindingFlags;
 using Random = UnityEngine.Random;
 
@@ -32,7 +32,7 @@ namespace RegionKit.Modules.Objects
 						{
 							if (self.entranceSprites[l, 0] is null)
 							{
-								self.entranceSprites[l, 0] = new(data.imageName) { rotation = data.rotation * 360 };
+								self.entranceSprites[l, 0] = new(data._imageName) { rotation = data._rotation * 360 };
 								self.entranceSpriteLocations[l] = self.room.MiddleOfTile(self.room.shortcuts[l].StartTile) + IntVector2.ToVector2(self.room.ShorcutEntranceHoleDirection(self.room.shortcuts[l].StartTile)) * 15f;
 								if (self.room.water && self.room.waterInFrontOfTerrain && self.room.PointSubmerged(self.entranceSpriteLocations[l] + new Vector2(0f, 5f)))
 								{
@@ -44,8 +44,8 @@ namespace RegionKit.Modules.Objects
 							}
 							else
 							{
-								self.entranceSprites[l, 0].element = Futile.atlasManager.GetElementWithName(data.imageName);
-								self.entranceSprites[l, 0].rotation = data.rotation * 360;
+								self.entranceSprites[l, 0].element = Futile.atlasManager.GetElementWithName(data._imageName);
+								self.entranceSprites[l, 0].rotation = data._rotation * 360;
 							}
 							break;
 						}
@@ -81,22 +81,22 @@ namespace RegionKit.Modules.Objects
 
 	public class CESData : PlacedObject.Data
 	{
-		public Vector2 panelPos;
-		public string imageName = "ShortcutDots";
-		public float rotation;
+		internal Vector2 _panelPos;
+		internal string _imageName = "ShortcutDots";
+		internal float _rotation;
 
-		public CESData(PlacedObject owner) : base(owner) => panelPos = Custom.DegToVec(120f) * 20f;
+		public CESData(PlacedObject owner) : base(owner) => _panelPos = Custom.DegToVec(120f) * 20f;
 
 		public override void FromString(string s)
 		{
 			var array = Regex.Split(s, "~");
-			panelPos.x = float.Parse(array[0]);
-			panelPos.y = float.Parse(array[1]);
-			imageName = array[2];
-			rotation = float.Parse(array[3]);
+			_panelPos.x = float.Parse(array[0]);
+			_panelPos.y = float.Parse(array[1]);
+			_imageName = array[2];
+			_rotation = float.Parse(array[3]);
 		}
 
-		public override string ToString() => $"{panelPos.x}~{panelPos.y}~{imageName}~{rotation}";
+		public override string ToString() => $"{_panelPos.x}~{_panelPos.y}~{_imageName}~{_rotation}";
 	}
 
 	public class CESRepresentation : TileObjectRepresentation
@@ -152,14 +152,14 @@ namespace RegionKit.Modules.Objects
 				}
 			}
 
-			SelectSpritePanel? spriteSelectPanel;
+			private SelectSpritePanel? _spriteSelectPanel;
 
 			internal CESControlPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new(250f, 45f), "Custom Entrance Symbol")
 			{
 
 				var data = ((parentNode as CESRepresentation)!.pObj.data as CESData)!;
-				subNodes.Add(new Button(owner, "Sprite_Button", this, new(5f, 5f), 240f, "Sprite: " + data.imageName));
-				subNodes.Add(new Button(owner, "Rotation_Button", this, new(5f, 25f), 240f, "Rotation: " + data.rotation * 360 + "�"));
+				subNodes.Add(new Button(owner, "Sprite_Button", this, new(5f, 5f), 240f, "Sprite: " + data._imageName));
+				subNodes.Add(new Button(owner, "Rotation_Button", this, new(5f, 25f), 240f, "Rotation: " + data._rotation * 360 + "�"));
 			}
 
 			public void Signal(DevUISignalType type, DevUINode sender, string message)
@@ -168,103 +168,103 @@ namespace RegionKit.Modules.Objects
 				if (data is null) return;
 				if (sender.IDstring is "Rotation_Button")
 				{
-					switch (data.rotation)
+					switch (data._rotation)
 					{
 					case 0f:
-						data.rotation = .25f;
+						data._rotation = .25f;
 						break;
 					case .25f:
-						data.rotation = .5f;
+						data._rotation = .5f;
 						break;
 					case .5f:
-						data.rotation = .75f;
+						data._rotation = .75f;
 						break;
 					case .75f:
-						data.rotation = 0f;
+						data._rotation = 0f;
 						break;
 					}
-					(sender as Button)!.Text = "Rotation: " + data.rotation * 360 + "�";
+					(sender as Button)!.Text = "Rotation: " + data._rotation * 360 + "�";
 					return;
 				}
 				CESRepresentation rep = (parentNode as CESRepresentation)!;
-				if (sender.IDstring.StartsWith("Button_Sprites_Next") && spriteSelectPanel is not null)
+				if (sender.IDstring.StartsWith("Button_Sprites_Next") && _spriteSelectPanel is not null)
 				{
 					var num = int.Parse(sender.IDstring.Substring(19));
-					var nP = rep!.files.Length / 10f - 1f;
+					var nP = rep!._files.Length / 10f - 1f;
 					if (num < nP)
 					{
 						num++;
-						SelectSpritePanel.OrganizeSprites(num, spriteSelectPanel);
+						SelectSpritePanel.OrganizeSprites(num, _spriteSelectPanel);
 					}
 				}
-				else if (sender.IDstring.StartsWith("Button_Sprites_Previous") && spriteSelectPanel is not null)
+				else if (sender.IDstring.StartsWith("Button_Sprites_Previous") && _spriteSelectPanel is not null)
 				{
 					var num = int.Parse(sender.IDstring.Substring(23));
 					if (num > 0)
 					{
 						num--;
-						SelectSpritePanel.OrganizeSprites(num, spriteSelectPanel);
+						SelectSpritePanel.OrganizeSprites(num, _spriteSelectPanel);
 					}
 				}
 				else
 				{
 					if (sender.IDstring is "Sprite_Button")
 					{
-						if (spriteSelectPanel is not null)
+						if (_spriteSelectPanel is not null)
 						{
-							subNodes.Remove(spriteSelectPanel);
-							spriteSelectPanel.ClearSprites();
-							spriteSelectPanel = null;
+							subNodes.Remove(_spriteSelectPanel);
+							_spriteSelectPanel.ClearSprites();
+							_spriteSelectPanel = null;
 						}
 						else
 						{
-							spriteSelectPanel = new(owner, this, new Vector2(190f, 225f) - absPos, rep.files);
-							subNodes.Add(spriteSelectPanel);
+							_spriteSelectPanel = new(owner, this, new Vector2(190f, 225f) - absPos, rep._files);
+							subNodes.Add(_spriteSelectPanel);
 						}
 						return;
 					}
-					data.imageName = sender.IDstring;
+					data._imageName = sender.IDstring;
 					for (int i = 0; i < subNodes.Count; i++)
 					{
-						if (subNodes[i].IDstring is "Sprite_Button") (subNodes[i] as Button)!.Text = "Sprite: " + data.imageName;
+						if (subNodes[i].IDstring is "Sprite_Button") (subNodes[i] as Button)!.Text = "Sprite: " + data._imageName;
 					}
-					if (spriteSelectPanel is not null)
+					if (_spriteSelectPanel is not null)
 					{
-						subNodes.Remove(spriteSelectPanel);
-						spriteSelectPanel.ClearSprites();
-						spriteSelectPanel = null;
+						subNodes.Remove(_spriteSelectPanel);
+						_spriteSelectPanel.ClearSprites();
+						_spriteSelectPanel = null;
 					}
 				}
 			}
 		}
 
-		readonly string[] files;
-		readonly int pixelIndex;
-		readonly CESControlPanel panel;
+		private readonly string[] _files;
+		private readonly int _pixelIndex;
+		readonly CESControlPanel _panel;
 
 		public CESRepresentation(DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj) : base(owner, IDstring, parentNode, pObj, pObj.type.ToString())
 		{
-			panel = new(owner, "CustomEntranceSymbolPanel", this, new(0f, 100f));
-			subNodes.Add(panel);
-			panel.pos = (pObj.data as CESData)!.panelPos;
+			_panel = new(owner, "CustomEntranceSymbolPanel", this, new(0f, 100f));
+			subNodes.Add(_panel);
+			_panel.pos = (pObj.data as CESData)!._panelPos;
 			fSprites.Add(new("pixel"));
-			pixelIndex = fSprites.Count - 1;
-			owner.placedObjectsContainer.AddChild(fSprites[pixelIndex]);
-			fSprites[pixelIndex].anchorY = 0f;
-			files = new string[Futile.atlasManager._allElementsByName.Count];
+			_pixelIndex = fSprites.Count - 1;
+			owner.placedObjectsContainer.AddChild(fSprites[_pixelIndex]);
+			fSprites[_pixelIndex].anchorY = 0f;
+			_files = new string[Futile.atlasManager._allElementsByName.Count];
 			var i = 0;
 			foreach (var item in Futile.atlasManager._allElementsByName)
 			{
 				if (item.Value.name.Contains("Symbol", "Shortcut", "Kill"))
 					i++;
 			}
-			files = new string[i];
+			_files = new string[i];
 			i = 0;
 			foreach (var item in Futile.atlasManager._allElementsByName)
 			{
 				if (item.Value.name.Contains("Symbol", "Shortcut", "Kill"))
 				{
-					files[i] = item.Value.name;
+					_files[i] = item.Value.name;
 					i++;
 				}
 			}
@@ -273,10 +273,10 @@ namespace RegionKit.Modules.Objects
 		public override void Refresh()
 		{
 			base.Refresh();
-			(pObj.data as CESData)!.panelPos = panel.pos;
-			MoveSprite(pixelIndex, absPos);
-			fSprites[pixelIndex].scaleY = panel.pos.magnitude;
-			fSprites[pixelIndex].rotation = Custom.AimFromOneVectorToAnother(absPos, panel.absPos);
+			(pObj.data as CESData)!._panelPos = _panel.pos;
+			MoveSprite(_pixelIndex, absPos);
+			fSprites[_pixelIndex].scaleY = _panel.pos.magnitude;
+			fSprites[_pixelIndex].rotation = Custom.AimFromOneVectorToAnother(absPos, _panel.absPos);
 		}
 	}
 

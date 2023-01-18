@@ -9,7 +9,7 @@ using UnityEngine;
 using DevInterface;
 
 
-namespace RegionKit
+namespace RegionKit.Modules.Objects
 {
     //Made By LeeMoriya
     public class Enums_RainbowNoFade
@@ -41,11 +41,11 @@ namespace RegionKit
             base.Update(eu);
             if (this.alwaysShow)
             {
-                this.fade = 1f;
+                this._fade = 1f;
             }
             else
             {
-                this.fade = Mathf.Pow(Mathf.Clamp01(Mathf.Sin(Mathf.Pow(this.room.world.rainCycle.CycleStartUp, 0.75f) * 3.14159274f)), 0.6f);
+                this._fade = Mathf.Pow(Mathf.Clamp01(Mathf.Sin(Mathf.Pow(this.room.world.rainCycle.CycleStartUp, 0.75f) * 3.14159274f)), 0.6f);
                 if (this.room.world.rainCycle.CycleStartUp >= 1f)
                 {
                     this.Destroy();
@@ -56,7 +56,7 @@ namespace RegionKit
         public void Refresh()
         {
             this.pos = this.placedObject.pos - this.RBData.handlePos;
-            this.rad = this.RBData.handlePos.magnitude * 2f;
+            this._rad = this.RBData.handlePos.magnitude * 2f;
         }
 
         public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
@@ -69,10 +69,10 @@ namespace RegionKit
 
         public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
         {
-            float num = this.fade * Mathf.InverseLerp(0.2f, 0f, rCam.ghostMode);
+            float num = this._fade * Mathf.InverseLerp(0.2f, 0f, rCam.ghostMode);
             for (int i = 0; i < 4; i++)
             {
-                (sLeaser.sprites[0] as CustomFSprite).MoveVertice(i, this.pos + Custom.eightDirections[1 + i * 2].ToVector2() * this.rad - camPos);
+                (sLeaser.sprites[0] as CustomFSprite).MoveVertice(i, this.pos + Custom.eightDirections[1 + i * 2].ToVector2() * this._rad - camPos);
                 (sLeaser.sprites[0] as CustomFSprite).verticeColors[i] = new Color(this.RBData.fades[4], 0f, 0f, num * this.RBData.fades[i]);
             }
             base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
@@ -92,8 +92,8 @@ namespace RegionKit
         }
 
         public PlacedObject placedObject;
-        private float rad;
-        private float fade;
+        private float _rad;
+        private float _fade;
         public bool alwaysShow;
 
         public class RainbowNoFadeData : PlacedObject.ResizableObjectData
@@ -165,37 +165,37 @@ namespace RegionKit
             this.subNodes.Add(new RainbowNoFadeRepresentation.RainbowNoFadeControlPanel(owner, "RainbowNoFade_Panel", this, new Vector2(0f, 100f)));
             (this.subNodes[this.subNodes.Count - 1] as RainbowNoFadeRepresentation.RainbowNoFadeControlPanel).pos = (pObj.data as RainbowNoFade.RainbowNoFadeData).panelPos;
             this.fSprites.Add(new FSprite("pixel", true));
-            this.lineSprite = this.fSprites.Count - 1;
-            owner.placedObjectsContainer.AddChild(this.fSprites[this.lineSprite]);
-            this.fSprites[this.lineSprite].anchorY = 0f;
+            this._lineSprite = this.fSprites.Count - 1;
+            owner.placedObjectsContainer.AddChild(this.fSprites[this._lineSprite]);
+            this.fSprites[this._lineSprite].anchorY = 0f;
             for (int i = 0; i < owner.room.updateList.Count; i++)
             {
                 if (owner.room.updateList[i] is RainbowNoFade && (owner.room.updateList[i] as RainbowNoFade).placedObject == pObj)
                 {
-                    this.RainbowNoFade = (owner.room.updateList[i] as RainbowNoFade);
+                    this._RainbowNoFade = (owner.room.updateList[i] as RainbowNoFade);
                     break;
                 }
             }
-            if (this.RainbowNoFade == null)
+            if (this._RainbowNoFade == null)
             {
-                this.RainbowNoFade = new RainbowNoFade(owner.room, pObj);
-                owner.room.AddObject(this.RainbowNoFade);
+                this._RainbowNoFade = new RainbowNoFade(owner.room, pObj);
+                owner.room.AddObject(this._RainbowNoFade);
             }
-            this.RainbowNoFade.alwaysShow = true;
+            this._RainbowNoFade.alwaysShow = true;
         }
 
         public override void Refresh()
         {
             base.Refresh();
-            base.MoveSprite(this.lineSprite, this.absPos);
-            this.fSprites[this.lineSprite].scaleY = (this.subNodes[1] as RainbowNoFadeRepresentation.RainbowNoFadeControlPanel).pos.magnitude;
-            this.fSprites[this.lineSprite].rotation = Custom.AimFromOneVectorToAnother(this.absPos, (this.subNodes[1] as RainbowNoFadeRepresentation.RainbowNoFadeControlPanel).absPos);
-            this.RainbowNoFade.Refresh();
+            base.MoveSprite(this._lineSprite, this.absPos);
+            this.fSprites[this._lineSprite].scaleY = (this.subNodes[1] as RainbowNoFadeRepresentation.RainbowNoFadeControlPanel).pos.magnitude;
+            this.fSprites[this._lineSprite].rotation = Custom.AimFromOneVectorToAnother(this.absPos, (this.subNodes[1] as RainbowNoFadeRepresentation.RainbowNoFadeControlPanel).absPos);
+            this._RainbowNoFade.Refresh();
             (this.pObj.data as RainbowNoFade.RainbowNoFadeData).panelPos = (this.subNodes[1] as Panel).pos;
         }
 
-        private int lineSprite;
-        private RainbowNoFade RainbowNoFade;
+        private int _lineSprite;
+        private RainbowNoFade _RainbowNoFade;
 
         public class RainbowNoFadeControlPanel : Panel
         {
@@ -219,7 +219,7 @@ namespace RegionKit
             {
                 public FadeSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title, int index) : base(owner, IDstring, parentNode, pos, title, false, 110f)
                 {
-                    this.index = index;
+                    this._index = index;
                 }
                 public RainbowNoFade.RainbowNoFadeData RainbowNoFadeData
                 {
@@ -231,16 +231,16 @@ namespace RegionKit
                 public override void Refresh()
                 {
                     base.Refresh();
-                    base.NumberText = Mathf.RoundToInt(this.RainbowNoFadeData.fades[this.index] * 100f).ToString() + "%";
-                    base.RefreshNubPos(this.RainbowNoFadeData.fades[this.index]);
+                    base.NumberText = Mathf.RoundToInt(this.RainbowNoFadeData.fades[this._index] * 100f).ToString() + "%";
+                    base.RefreshNubPos(this.RainbowNoFadeData.fades[this._index]);
                 }
                 public override void NubDragged(float nubPos)
                 {
-                    this.RainbowNoFadeData.fades[this.index] = nubPos;
+                    this.RainbowNoFadeData.fades[this._index] = nubPos;
                     this.parentNode.parentNode.Refresh();
                     this.Refresh();
                 }
-                private int index;
+                private int _index;
             }
         }
     }

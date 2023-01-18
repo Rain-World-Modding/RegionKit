@@ -11,7 +11,7 @@ internal static class _Module
 			ArenaBackgrounds.Apply();
 			BetterClouds.Apply();
 			DeerFix.Apply();
-			ElectricGates.Apply();
+			//ElectricGates.Apply();
 			PearlChains.Apply();
 			RainThreatFix.Apply();
 			SkyDandelionBgFix.Apply();

@@ -10,15 +10,15 @@ namespace RegionKit.Modules.Particles;
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Particles")]
 internal static class _Module
 {
+	internal static bool __appliedOnce = false;
 	internal static void Enable()
 	{
-		if (!AppliedOnce)
+		if (!__appliedOnce)
 		{
 			RegisterMPO();
 		}
-		AppliedOnce = true;
+		__appliedOnce = true;
 	}
-	internal static bool AppliedOnce = false;
 	internal static void RegisterMPO()
 	{
 		//v1

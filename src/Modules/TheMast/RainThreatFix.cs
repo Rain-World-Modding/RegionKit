@@ -9,7 +9,7 @@ namespace RegionKit.Modules.TheMast
 {
 	internal static class RainThreatFix
 	{
-		public static float[]? rainThreats;
+		private static float[]? __rainThreats;
 
 		public static void Apply()
 		{
@@ -48,9 +48,9 @@ namespace RegionKit.Modules.TheMast
 		{
 			Region lastRegion = self.regions[self.regions.Length - 1];
 			int totalRooms = lastRegion.firstRoomIndex + lastRegion.numberOfRooms;
-			rainThreats = new float[totalRooms];
+			__rainThreats = new float[totalRooms];
 			for (int i = 0; i < totalRooms; i++)
-				rainThreats[i] = -1f;
+				__rainThreats[i] = -1f;
 			orig(self);
 		}
 
@@ -58,15 +58,15 @@ namespace RegionKit.Modules.TheMast
 		private static void WorldLoader_LoadAbstractRoom(On.WorldLoader.orig_LoadAbstractRoom orig, World world, string roomName, AbstractRoom room, RainWorldGame.SetupValues setupValues)
 		{
 			orig(world, roomName, room, setupValues);
-			if (rainThreats == null) return;
+			if (__rainThreats == null) return;
 			int roomInd = room.index;
-			if (roomInd >= 0 && roomInd < rainThreats.Length && (world.name == "TM") && rainThreats[roomInd] == -1f)
+			if (roomInd >= 0 && roomInd < __rainThreats.Length && (world.name == "TM") && __rainThreats[roomInd] == -1f)
 			{
 				RoomSettings settings = new RoomSettings(roomName, world.region, false, false, world.game.StoryCharacter);
 				if (settings.DangerType == RoomRain.DangerType.None)
-					rainThreats[roomInd] = 0f;
+					__rainThreats[roomInd] = 0f;
 				else
-					rainThreats[roomInd] = Mathf.InverseLerp(0f, 0.3f, settings.RainIntensity + Mathf.Clamp01(settings.RumbleIntensity - 0.2f));
+					__rainThreats[roomInd] = Mathf.InverseLerp(0f, 0.3f, settings.RainIntensity + Mathf.Clamp01(settings.RumbleIntensity - 0.2f));
 			}
 		}
 
@@ -76,11 +76,11 @@ namespace RegionKit.Modules.TheMast
 		public static float GetRainThreat(int room, out bool hasThreat)
 		{
 			hasThreat = false;
-			if (rainThreats == null) return -1;
-			if (room < 0 || room >= rainThreats.Length) return 1f;
-			if (rainThreats[room] == -1) return 1f;
+			if (__rainThreats == null) return -1;
+			if (room < 0 || room >= __rainThreats.Length) return 1f;
+			if (__rainThreats[room] == -1) return 1f;
 			hasThreat = true;
-			return rainThreats[room];
+			return __rainThreats[room];
 		}
 
 		private static float RainTracker_Utility(On.RainTracker.orig_Utility orig, RainTracker self)

@@ -90,13 +90,13 @@ public class Mod : BIE.BaseUnityPlugin
 		foreach (RegionKitModuleAttribute moduleAttr in t.GetCustomAttributes(typeof(RegionKitModuleAttribute), false))
 		{
 			RFL.MethodInfo
-				enable = t.GetMethod(moduleAttr.enableMethod, BF_ALL_CONTEXTS_STATIC),
-				disable = t.GetMethod(moduleAttr.disableMethod, BF_ALL_CONTEXTS_STATIC);
-			RFL.MethodInfo? tick = moduleAttr.tickMethod is string tic ? t.GetMethod(tic, BF_ALL_CONTEXTS_STATIC) : null;
-			string moduleName = moduleAttr.moduleName ?? t.FullName;
+				enable = t.GetMethod(moduleAttr._enableMethod, BF_ALL_CONTEXTS_STATIC),
+				disable = t.GetMethod(moduleAttr._disableMethod, BF_ALL_CONTEXTS_STATIC);
+			RFL.MethodInfo? tick = moduleAttr._tickMethod is string tic ? t.GetMethod(tic, BF_ALL_CONTEXTS_STATIC) : null;
+			string moduleName = moduleAttr._moduleName ?? t.FullName;
 			if (enable is null || disable is null)
 			{
-				Logger.LogError($"Cannot register RegionKit module {t.FullName}: method contract incomplete ({moduleAttr.enableMethod} -> {enable}, {moduleAttr.disableMethod} -> {disable})");
+				Logger.LogError($"Cannot register RegionKit module {t.FullName}: method contract incomplete ({moduleAttr._enableMethod} -> {enable}, {moduleAttr._disableMethod} -> {disable})");
 				break;
 			}
 			Logger.LogMessage($"Registering module {moduleName}");
@@ -106,7 +106,7 @@ public class Mod : BIE.BaseUnityPlugin
 				disableDel = (Action)Delegate.CreateDelegate(typeof(Action), disable);
 			Action? tickDel = tick is RFL.MethodInfo ntick ? (Action)Delegate.CreateDelegate(typeof(Action), ntick) : null;
 
-			_modules.Add(new(moduleAttr.moduleName ?? t.FullName, enableDel, disableDel, tickDel, moduleAttr.tickPeriod)
+			_modules.Add(new(moduleAttr._moduleName ?? t.FullName, enableDel, disableDel, tickDel, moduleAttr._tickPeriod)
 			{
 				counter = 0,
 				errored = false

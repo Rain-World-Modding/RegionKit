@@ -6,12 +6,12 @@ using UnityEngine;
 namespace RegionKit.Modules.Objects
 {
 
-	internal class PlacedWaterfallData : ManagedData
+	public class PlacedWaterfallData : ManagedData
 	{
 		[FloatField("flow", 0f, 20f, 4f)]
-		internal float flow;
+		public float flow;
 		[IntegerField("width", 1, 10, 1)]
-		internal int width;
+		public int width;
 
 		public PlacedWaterfallData(PlacedObject po) : base(po, new ManagedField[] { })
 		{
@@ -19,14 +19,14 @@ namespace RegionKit.Modules.Objects
 		}
 	}
 
-	internal class PlacedHaloData : ManagedData
+	public class PlacedHaloData : ManagedData
 	{
 		[Vector2Field("rad", 15f, 15f, Vector2Field.VectorReprType.circle, label: "radius")]
-		internal Vector2 rad;
+		public Vector2 rad;
 		[Vector2Field("headpos", 0f, 30f, Vector2Field.VectorReprType.line, label: "head pos")]
-		internal Vector2 headpos;
+		public Vector2 headpos;
 		[Vector2Field("headdir", 20f, 0f, Vector2Field.VectorReprType.line, label: "head dir")]
-		internal Vector2 headdir;
+		public Vector2 headdir;
 
 		public PlacedHaloData(PlacedObject owner) : base(owner, new ManagedField[] { })
 		{
@@ -34,9 +34,9 @@ namespace RegionKit.Modules.Objects
 		}
 	}
 
-	internal class WormgrassRectData : ManagedData
+	public class WormgrassRectData : ManagedData
 	{
-		internal IntVector2 p2 => GetValue<IntVector2>("p2");
+		public IntVector2 p2 => GetValue<IntVector2>("p2");
 
 		public WormgrassRectData(PlacedObject po) : base(po, new ManagedField[]
 		{
@@ -47,7 +47,7 @@ namespace RegionKit.Modules.Objects
 		}
 	}
 
-	internal class BorderTpData : ManagedData
+	public class BorderTpData : ManagedData
 	{
 		[IntegerField("buffer", 1, 30, 0, ManagedFieldWithPanel.ControlType.arrows, "buffer tiles")]
 		public int buff;

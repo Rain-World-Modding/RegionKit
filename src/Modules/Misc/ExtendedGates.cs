@@ -44,21 +44,21 @@ public static class ExtendedGates
 	{
 		return req?.ToString().EndsWith(ALT_POSTFIX) ?? false;
 	}
-	internal static class Enums_EG
+	public static class Enums_EG
 	{
 
-		internal static Req uwu = new(nameof(uwu), true);
-		internal static Req Open = new(nameof(Open), true);
-		internal static Req Forbidden = new(nameof(Forbidden), true);
-		internal static Req Glow = new(nameof(Glow));
-		internal static Req CommsMark = new(nameof(CommsMark), true);
-		internal static Req TenReinforced = new(nameof(TenReinforced), true);
-		internal static Req SixKarma = new("6", true);
-		internal static Req SevenKarma = new("7", true);
-		internal static Req EightKarma = new("8", true);
-		internal static Req NineKarma = new("9", true);
-		internal static Req TenKarma = new("10", true);
-		internal static Req[] alt = new Req[10];
+		public static Req uwu = new(nameof(uwu), true);
+		public static Req Open = new(nameof(Open), true);
+		public static Req Forbidden = new(nameof(Forbidden), true);
+		public static Req Glow = new(nameof(Glow));
+		public static Req CommsMark = new(nameof(CommsMark), true);
+		public static Req TenReinforced = new(nameof(TenReinforced), true);
+		public static Req SixKarma = new("6", true);
+		public static Req SevenKarma = new("7", true);
+		public static Req EightKarma = new("8", true);
+		public static Req NineKarma = new("9", true);
+		public static Req TenKarma = new("10", true);
+		public static Req[] alt = new Req[10];
 		public static void Register()
 		{
 			foreach (int i in Range(10))

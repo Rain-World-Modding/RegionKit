@@ -16,17 +16,17 @@ namespace RegionKit.Modules.Objects
 
 		}
 
-		private bool regAlreadyAttempted = false;
+		private bool _regAlreadyAttempted = false;
 		public override void Update(bool eu)
 		{
 			base.Update(eu);
-			if (room?.game == null || regAlreadyAttempted) return;
-			regAlreadyAttempted = true;
+			if (room?.game == null || _regAlreadyAttempted) return;
+			_regAlreadyAttempted = true;
 			foreach (var po in room.roomSettings.placedObjects)
 			{
 				TryRegisterArea(po);
 			}
-			room.AddObject(new WormGrass(room, tarTiles));
+			room.AddObject(new WormGrass(room, _tarTiles));
 		}
 		private bool TryRegisterArea(PlacedObject po)
 		{
@@ -47,8 +47,8 @@ namespace RegionKit.Modules.Objects
 		}
 		private void TryRegisterTile(IntVector2 tile)
 		{
-			tarTiles.Add(tile);
+			_tarTiles.Add(tile);
 		}
-		private readonly List<IntVector2> tarTiles = new List<IntVector2>();
+		private readonly List<IntVector2> _tarTiles = new List<IntVector2>();
 	}
 }

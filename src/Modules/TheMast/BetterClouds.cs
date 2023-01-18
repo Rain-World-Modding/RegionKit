@@ -18,12 +18,12 @@ namespace RegionKit.Modules.TheMast
 			On.AboveCloudsView.Update += AboveCloudsView_Update;
 		}
 
-		private static FieldInfo _BackgroundScene_elementsAddedToRoom = typeof(BackgroundScene).GetField("elementsAddedToRoom", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+		private static FieldInfo __BackgroundScene_elementsAddedToRoom = typeof(BackgroundScene).GetField("elementsAddedToRoom", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 		private static void AboveCloudsView_Update(On.AboveCloudsView.orig_Update orig, AboveCloudsView self, bool eu)
 		{
 			// Temporarily change element depth to place clouds behind other objects
 			const float depthOffset = 10000f;
-			bool addedToRoom = (bool)_BackgroundScene_elementsAddedToRoom.GetValue(self);
+			bool addedToRoom = (bool)__BackgroundScene_elementsAddedToRoom.GetValue(self);
 			if (!addedToRoom)
 			{
 				for (int i = 0; i < self.elements.Count; i++)
@@ -47,7 +47,7 @@ namespace RegionKit.Modules.TheMast
 		}
 
 		// Double the number of clouds if the room is above map height 5000
-		private static FieldInfo _DistantCloud_distantCloudDepth = typeof(AboveCloudsView.DistantCloud).GetField("distantCloudDepth", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+		private static FieldInfo __DistantCloud_distantCloudDepth = typeof(AboveCloudsView.DistantCloud).GetField("distantCloudDepth", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 		private static void AboveCloudsView_ctor(On.AboveCloudsView.orig_ctor orig, AboveCloudsView self, Room room, RoomSettings.RoomEffect effect)
 		{
 			orig(self, room, effect);
@@ -106,7 +106,7 @@ namespace RegionKit.Modules.TheMast
 				if (self.clouds[i] is AboveCloudsView.DistantCloud dc)
 				{
 					float t = self.clouds[i].index / (cloudCount * 2 + addedCloudCount - 1f);
-					_DistantCloud_distantCloudDepth.SetValue(dc, Mathf.Clamp((float)_DistantCloud_distantCloudDepth.GetValue(dc) - 0.3f, 0f, 1f));
+					__DistantCloud_distantCloudDepth.SetValue(dc, Mathf.Clamp((float)__DistantCloud_distantCloudDepth.GetValue(dc) - 0.3f, 0f, 1f));
 				}
 			}
 		}

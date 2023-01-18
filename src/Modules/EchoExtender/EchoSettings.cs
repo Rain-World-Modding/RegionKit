@@ -162,7 +162,7 @@ public struct EchoSettings
 					break;
 				case "echosong":
 					string trimmed = split[1].Trim();
-					string result = EchoParser.EchoSongs.TryGetValue(trimmed, out string song) ? song : trimmed;
+					string result = EchoParser.__echoSongs.TryGetValue(trimmed, out string song) ? song : trimmed;
 					settings.EchoSong.AddMultiple(result, difficulties);
 					break;
 				case "defaultflip":

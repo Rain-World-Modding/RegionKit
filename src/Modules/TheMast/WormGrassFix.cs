@@ -27,41 +27,41 @@ namespace RegionKit.Modules.TheMast
 			return orig(self);
 		}
 
-		private static bool _clipScavBody;
-		private static Vector2 _clipPos;
-		private static Vector2 _lastClipPos;
-		private static Vector2 _lastLastClipPos;
+		private static bool __clipScavBody;
+		private static Vector2 __clipPos;
+		private static Vector2 __lastClipPos;
+		private static Vector2 __lastLastClipPos;
 		private static void Scavenger_Update(On.Scavenger.orig_Update orig, Scavenger self, bool eu)
 		{
 			orig(self, eu);
-			if (_clipScavBody)
+			if (__clipScavBody)
 			{
 				BodyChunk mbc = (self as Creature).mainBodyChunk;
-				mbc.lastLastPos = _lastLastClipPos;
-				mbc.lastPos = _lastClipPos;
-				mbc.pos = _clipPos;
-				_clipScavBody = false;
+				mbc.lastLastPos = __lastLastClipPos;
+				mbc.lastPos = __lastClipPos;
+				mbc.pos = __clipPos;
+				__clipScavBody = false;
 			}
 		}
 
 		private static void PhysicalObject_Update(On.PhysicalObject.orig_Update orig, PhysicalObject self, bool eu)
 		{
-			_clipScavBody = false;
+			__clipScavBody = false;
 			if (self is Scavenger scav && (self.room?.world?.name == "TM"))
 			{
 				if (!self.bodyChunks[0].collideWithTerrain)
 				{
 					self.bodyChunks[2].collideWithTerrain = false;
-					_clipScavBody = true;
+					__clipScavBody = true;
 				}
 			}
 			orig(self, eu);
-			if (_clipScavBody)
+			if (__clipScavBody)
 			{
 				BodyChunk mbc = (self as Creature)!.mainBodyChunk;
-				_lastLastClipPos = mbc.lastLastPos;
-				_lastClipPos = mbc.lastPos;
-				_clipPos = mbc.pos;
+				__lastLastClipPos = mbc.lastLastPos;
+				__lastClipPos = mbc.lastPos;
+				__clipPos = mbc.pos;
 			}
 		}
 	}

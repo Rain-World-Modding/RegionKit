@@ -65,7 +65,7 @@ public static class _Module
 	private static float GhostWorldPresenceOnGhostMode(On.GhostWorldPresence.orig_GhostMode_AbstractRoom_Vector2 orig, GhostWorldPresence self, AbstractRoom testRoom, Vector2 worldPos)
 	{
 		var result = orig(self, testRoom, worldPos);
-		if (!EchoParser.EchoSettings.TryGetValue(self.ghostID, out var settings)) return result;
+		if (!EchoParser.__echoSettings.TryGetValue(self.ghostID, out var settings)) return result;
 		if (testRoom.index == self.ghostRoom.index) return 1f;
 		var echoEffectLimit = settings.GetRadius(SlugcatNumber) * 1000f; //I think 1 screen is like a 1000 so I'm going with that
 		Vector2 globalDistance = Custom.RestrictInRect(worldPos, FloatRect.MakeFromVector2(self.world.RoomToWorldPos(new Vector2(), self.ghostRoom.index), self.world.RoomToWorldPos(self.ghostRoom.size.ToVector2() * 20f, self.ghostRoom.index)));
@@ -100,8 +100,8 @@ public static class _Module
 	private static bool GhostWorldPresenceOnSpawnGhost(On.GhostWorldPresence.orig_SpawnGhost orig, GhostWorldPresence.GhostID ghostid, int karma, int karmacap, int ghostpreviouslyencountered, bool playingasred)
 	{
 		var result = orig(ghostid, karma, karmacap, ghostpreviouslyencountered, playingasred);
-		if (!EchoParser.ExtendedEchoIDs.Contains(ghostid)) return result;
-		EchoSettings settings = EchoParser.EchoSettings[ghostid];
+		if (!EchoParser.__extendedEchoIDs.Contains(ghostid)) return result;
+		EchoSettings settings = EchoParser.__echoSettings[ghostid];
 		bool SODcondition = settings.SpawnOnThisDifficulty(SlugcatNumber);
 		bool karmaCondition = settings.KarmaCondition(karma, karmacap, SlugcatNumber);
 		bool karmaCapCondition = settings.GetMinimumKarmaCap(SlugcatNumber) <= karmacap;
@@ -124,9 +124,9 @@ public static class _Module
 	private static void GhostConversationOnAddEvents(On.GhostConversation.orig_AddEvents orig, GhostConversation self)
 	{
 		orig(self);
-		if (EchoParser.EchoConversations.ContainsKey(self.id))
+		if (EchoParser.__echoConversations.ContainsKey(self.id))
 		{
-			foreach (string line in Regex.Split(EchoParser.EchoConversations[self.id], "(\r|\n)+"))
+			foreach (string line in Regex.Split(EchoParser.__echoConversations[self.id], "(\r|\n)+"))
 			{
 				if (line.All(c => char.IsSeparator(c) || c == '\n' || c == '\r')) continue;
 				if (line.StartsWith("("))
@@ -150,7 +150,7 @@ public static class _Module
 	private static void GhostOnStartConversation(On.Ghost.orig_StartConversation orig, Ghost self)
 	{
 		orig(self);
-		if (!EchoParser.ExtendedEchoIDs.Contains(self.worldGhost.ghostID)) return;
+		if (!EchoParser.__extendedEchoIDs.Contains(self.worldGhost.ghostID)) return;
 		string echoRegionString = self.worldGhost.ghostID.ToString();
 		self.currentConversation = new GhostConversation(EchoParser.GetConversationID(echoRegionString), self, self.room.game.cameras[0].hud.dialogBox);
 	}
@@ -164,10 +164,10 @@ public static class _Module
 	private static void GhostWorldPresenceOnCtor(On.GhostWorldPresence.orig_ctor orig, GhostWorldPresence self, World world, GhostWorldPresence.GhostID ghostid)
 	{
 		orig(self, world, ghostid);
-		if (self.ghostRoom is null && EchoParser.ExtendedEchoIDs.Contains(self.ghostID))
+		if (self.ghostRoom is null && EchoParser.__extendedEchoIDs.Contains(self.ghostID))
 		{
-			self.ghostRoom = world.GetAbstractRoom(EchoParser.EchoSettings[ghostid].GetEchoRoom(SlugcatNumber));
-			self.songName = EchoParser.EchoSettings[ghostid].GetEchoSong(SlugcatNumber);
+			self.ghostRoom = world.GetAbstractRoom(EchoParser.__echoSettings[ghostid].GetEchoRoom(SlugcatNumber));
+			self.songName = EchoParser.__echoSettings[ghostid].GetEchoSong(SlugcatNumber);
 			__logger.LogInfo($"[Echo Extender] Set Song: {self.songName}");
 			__logger.LogInfo($"[Echo Extender] Set Room {self.ghostRoom?.name}");
 		}
@@ -176,8 +176,8 @@ public static class _Module
 	private static void GhostOnCtor(On.Ghost.orig_ctor orig, Ghost self, Room room, PlacedObject placedobject, GhostWorldPresence worldghost)
 	{
 		orig(self, room, placedobject, worldghost);
-		if (!EchoParser.ExtendedEchoIDs.Contains(self.worldGhost.ghostID)) return;
-		var settings = EchoParser.EchoSettings[self.worldGhost.ghostID];
+		if (!EchoParser.__extendedEchoIDs.Contains(self.worldGhost.ghostID)) return;
+		var settings = EchoParser.__echoSettings[self.worldGhost.ghostID];
 		self.scale = settings.GetSizeMultiplier(SlugcatNumber) * 0.75f;
 		self.defaultFlip = settings.GetDefaultFlip(SlugcatNumber);
 	}

@@ -39,11 +39,11 @@ namespace RegionKit.Modules.TheMast
 			return atlas;
 		}
 		// Fixes a bug from FAtlas.LoadAtlasData
-		private static FieldInfo _FAtlas_elementsByName = typeof(FAtlas).GetField("_elementsByName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-		private static MethodInfo _FAtlasManager_AddAtlas = typeof(FAtlasManager).GetMethod("AddAtlas", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+		private static FieldInfo __FAtlas_elementsByName = typeof(FAtlas).GetField("_elementsByName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+		private static MethodInfo __FAtlasManager_AddAtlas = typeof(FAtlasManager).GetMethod("AddAtlas", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 		private static void LoadAtlasData(FAtlas atlas, string data)
 		{
-			Dictionary<string, FAtlasElement> elementsByName = (Dictionary<string, FAtlasElement>)_FAtlas_elementsByName.GetValue(atlas);
+			Dictionary<string, FAtlasElement> elementsByName = (Dictionary<string, FAtlasElement>)__FAtlas_elementsByName.GetValue(atlas);
 			atlas.elements.Clear();
 			elementsByName.Clear();
 
@@ -90,7 +90,7 @@ namespace RegionKit.Modules.TheMast
 				elementsByName.Add(fatlasElement.name, fatlasElement);
 			}
 
-			_FAtlasManager_AddAtlas.Invoke(Futile.atlasManager, new object[] { atlas });
+			__FAtlasManager_AddAtlas.Invoke(Futile.atlasManager, new object[] { atlas });
 		}
 	}
 }

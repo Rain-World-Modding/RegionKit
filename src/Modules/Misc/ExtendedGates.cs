@@ -50,7 +50,7 @@ public static class ExtendedGates
 		public static Req uwu = new(nameof(uwu), true);
 		public static Req Open = new(nameof(Open), true);
 		public static Req Forbidden = new(nameof(Forbidden), true);
-		public static Req Glow = new(nameof(Glow));
+		public static Req Glow = new(nameof(Glow), true);
 		public static Req CommsMark = new(nameof(CommsMark), true);
 		public static Req TenReinforced = new(nameof(TenReinforced), true);
 		public static Req SixKarma = new("6", true);

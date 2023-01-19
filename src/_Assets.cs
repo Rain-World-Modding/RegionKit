@@ -26,6 +26,7 @@ internal static class _Assets
 					using IO.Stream?
 						slicerstream = slicerfile.Exists ? slicerfile.OpenRead() : null,
 						metastream = metafile.Exists ? metafile.OpenRead() : null;
+						
 					__logger.LogDebug($"Assets module loading png {pngstream.Length}, slicer {slicerstream?.Length ?? -1}, meta {metastream?.Length ?? -1}");
 					LoadCustomAtlas(atlasname, pngstream, slicerstream, metastream);
 					//fi.AppendText();

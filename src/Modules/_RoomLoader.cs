@@ -6,7 +6,7 @@ namespace RegionKit.Modules;
 
 public static class Enums_Objects
 {
-	public static PlacedObject.Type PWLightrod = new(nameof(PWLightrod));
+	public static PlacedObject.Type PWLightrod = new(nameof(PWLightrod), true);
 }
 
 internal static class Enums_Effects

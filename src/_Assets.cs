@@ -7,8 +7,13 @@ internal static class _Assets
 	//internal static __Log
 	public static void Enable()
 	{
+		On.RainWorld.OnModsInit += LoadResources;
+	}
+
+	private static void LoadResources(On.RainWorld.orig_OnModsInit orig, RainWorld self)
+	{
+		orig(self);
 		__logger.LogMessage($"Assets module loading atlases from assetpath assets/regionkit");
-		//todo: document behaviour
 		foreach (string f in AssetManager.ListDirectory("assets/regionkit", false, true))
 		{
 			string? atlasname = null;
@@ -26,7 +31,7 @@ internal static class _Assets
 					using IO.Stream?
 						slicerstream = slicerfile.Exists ? slicerfile.OpenRead() : null,
 						metastream = metafile.Exists ? metafile.OpenRead() : null;
-						
+
 					__logger.LogDebug($"Assets module loading png {pngstream.Length}, slicer {slicerstream?.Length ?? -1}, meta {metastream?.Length ?? -1}");
 					LoadCustomAtlas(atlasname, pngstream, slicerstream, metastream);
 					//fi.AppendText();
@@ -264,10 +269,8 @@ internal static class _Assets
 		return fatlas;
 	}
 	#endregion ATLASES
-
-
 	public static void Disable()
 	{
-
+		On.RainWorld.OnModsInit -= LoadResources;
 	}
 }

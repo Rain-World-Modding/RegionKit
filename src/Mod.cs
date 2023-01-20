@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 namespace RegionKit;
 
-[BIE.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "2.0")]
+[BIE.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "2.1")]
 public class Mod : BIE.BaseUnityPlugin
 {
 	internal const string RK_POM_CATEGORY = "RegionKit";

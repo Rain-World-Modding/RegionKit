@@ -8,7 +8,7 @@ internal static class _Module
 	{
 		if (!__appliedOnce)
 		{
-			CloudAdjustment.Apply();
+			//CloudAdjustment.Apply();
 			SunBlockerFix.Apply();
 		}
 		ExtendedGates.Enable();

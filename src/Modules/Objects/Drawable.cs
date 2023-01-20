@@ -130,5 +130,5 @@ public class Drawable : CosmeticSprite
 		sLeaser.sprites[0].color = _Data.GetValue<bool>("useColour") ? col : new Color(Color.white.r, Color.white.g, Color.white.b, _Data.GetValue<int>("alpha") / 255f);
 	}
 
-	public static void Register() => RegisterFullyManagedObjectType(__fields, typeof(Drawable), "FreeformDecalOrSprite");
+	public static void Register() => RegisterFullyManagedObjectType(__fields, typeof(Drawable), "FreeformDecalOrSprite", RK_POM_CATEGORY);
 }

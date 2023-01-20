@@ -28,9 +28,9 @@ public static class _Module
 			NoWallSlideZones.Apply();
 			RKProjectedCircle.ApplyHooks();
 
-			RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>("RoomBorderTP");
-			RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect");
-			RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>("PlacedWaterfall");
+			RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>("RoomBorderTP", RK_POM_CATEGORY);
+			RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect", RK_POM_CATEGORY);
+			RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>("PlacedWaterfall", RK_POM_CATEGORY);
 
 			__objectHooks = new List<Hook>
 			{

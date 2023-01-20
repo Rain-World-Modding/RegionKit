@@ -11,7 +11,7 @@ public static class SteamObjRep
 			new FloatField("f3", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Lifetime"),
 			new Vector2Field("v1", new Vector2(0f,45f), Vector2Field.VectorReprType.line)
 		};
-		RegisterFullyManagedObjectType(fields.ToArray(), typeof(SteamHazard));
+		RegisterFullyManagedObjectType(fields.ToArray(), typeof(SteamHazard), nameof(SteamHazard), RK_POM_CATEGORY);
 	}
 }
 

@@ -96,11 +96,11 @@ public static class _Module
 
 	private static void RegisterMPO()
 	{
-		RegisterManagedObject<V1.SimplePiston, V1.PistonData, ManagedRepresentation>("SimplePiston");
-		RegisterManagedObject<V1.PistonArray, V1.PistonArrayData, ManagedRepresentation>("PistonArray");
-		RegisterEmptyObjectType<V1.MachineryCustomizer, ManagedRepresentation>("MachineryCustomizer");
-		RegisterManagedObject<V1.SimpleCog, V1.SimpleCogData, ManagedRepresentation>("SimpleCog");
-		RegisterManagedObject<V1.RoomPowerManager, V1.PowerManagerData, ManagedRepresentation>("PowerManager", true);
+		RegisterManagedObject<V1.SimplePiston, V1.PistonData, ManagedRepresentation>("SimplePiston", RK_POM_CATEGORY);
+		RegisterManagedObject<V1.PistonArray, V1.PistonArrayData, ManagedRepresentation>("PistonArray", RK_POM_CATEGORY);
+		RegisterEmptyObjectType<V1.MachineryCustomizer, ManagedRepresentation>("MachineryCustomizer", RK_POM_CATEGORY);
+		RegisterManagedObject<V1.SimpleCog, V1.SimpleCogData, ManagedRepresentation>("SimpleCog", RK_POM_CATEGORY);
+		RegisterManagedObject<V1.RoomPowerManager, V1.PowerManagerData, ManagedRepresentation>("PowerManager", RK_POM_CATEGORY, true);
 	}
 	public static readonly Dictionary<int, V1.RoomPowerManager> ManagersByRoom = new Dictionary<int, V1.RoomPowerManager>();
 }

@@ -172,7 +172,7 @@ public static class ExtendedGates
 			return;
 		}
 		int karma = 0;
-		__logger.LogInfo($"Constructing custom gate marker image...");
+		__logger.LogInfo($"Constructing custom gate marker image for {req}...");
 		string reqstr = req.ToString();
 		switch (reqstr)
 		{

@@ -57,7 +57,7 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 				new BooleanField("noright", false, displayName:"No Right Door"),
 				new BooleanField("nowater", false, displayName:"No Water"),
 				new BooleanField("zdontstop", false, displayName:"Dont cut song"),
-		}, typeof(CGGateCustomization), "CGGateCustomization");
+		}, typeof(CGGateCustomization), "CGGateCustomization", RK_POM_CATEGORY);
 	}
 
 	public override void Update(bool eu)

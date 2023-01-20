@@ -4,6 +4,8 @@ namespace RegionKit;
 [BIE.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "2.0")]
 public class Mod : BIE.BaseUnityPlugin
 {
+	internal const string RK_POM_CATEGORY = "RegionKit";
+
 	private static Mod __inst = null!;
 	//private readonly List<ActionWithData> _enableDels = new();
 	private readonly List<ModuleInfo> _modules = new();
@@ -30,7 +32,7 @@ public class Mod : BIE.BaseUnityPlugin
 		}
 		catch (Exception ex)
 		{
-			Logger.LogError($"Could not enable {name}: {ex}");
+			Logger.LogError($"Could not enable {mod.name}: {ex}");
 		}
 	}
 	public void OnDisable()
@@ -50,7 +52,7 @@ public class Mod : BIE.BaseUnityPlugin
 		}
 		catch (Exception ex)
 		{
-			Logger.LogError($"Error disabling {name}: {ex}");
+			Logger.LogError($"Error disabling {mod.name}: {ex}");
 		}
 	}
 

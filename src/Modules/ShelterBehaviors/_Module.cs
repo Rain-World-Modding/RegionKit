@@ -44,20 +44,20 @@ public static class _Module
 				new IntegerField("ouf", 0, 400, 120, ManagedFieldWithPanel.ControlType.slider, displayName:"Open up anim"),
 				new BooleanField("ani", false, displayName:"Animate Water"),
 
-				}, typeof(ShelterBehaviorManager), EnumNames.Manager);
+				}, typeof(ShelterBehaviorManager), EnumNames.Manager, RK_POM_CATEGORY);
 			RegisterFullyManagedObjectType(new ManagedField[]{
                 //new BooleanField("httt", false, displayName: "HTT Tutorial"),
                 new IntegerField("htttcd", -1, 12, 6, displayName: "HTT Tut. Cooldown"), }
-				, typeof(ShelterBehaviorManager.HoldToTriggerTutorialObject), EnumNames.HTTTutorial);
+				, typeof(ShelterBehaviorManager.HoldToTriggerTutorialObject), EnumNames.HTTTutorial, RK_POM_CATEGORY);
 
 			//RegisterEmptyObjectType("ShelterBhvrPlacedDoor", typeof()) TODO directional data and rep;
 			RegisterFullyManagedObjectType(new ManagedField[]{
 				new IntVector2Field("dir", new RWCustom.IntVector2(0,1), IntVector2Field.IntVectorReprType.fourdir), }
-			, null!, EnumNames.PlacedDoor);
+			, null!, EnumNames.PlacedDoor, RK_POM_CATEGORY);
 
-			RegisterEmptyObjectType(EnumNames.TriggerZone, typeof(PlacedObject.GridRectObjectData), typeof(DevInterface.GridRectObjectRepresentation));
-			RegisterEmptyObjectType(EnumNames.NoTriggerZone, typeof(PlacedObject.GridRectObjectData), typeof(DevInterface.GridRectObjectRepresentation));
-			RegisterEmptyObjectType(EnumNames.SpawnPosition, null!, null!); // No data required :)
+			RegisterEmptyObjectType(EnumNames.TriggerZone, RK_POM_CATEGORY, typeof(PlacedObject.GridRectObjectData), typeof(DevInterface.GridRectObjectRepresentation));
+			RegisterEmptyObjectType(EnumNames.NoTriggerZone, RK_POM_CATEGORY, typeof(PlacedObject.GridRectObjectData), typeof(DevInterface.GridRectObjectRepresentation));
+			RegisterEmptyObjectType(EnumNames.SpawnPosition, RK_POM_CATEGORY, null!, null!); // No data required :)
 		}
 		else
 		{

@@ -58,7 +58,6 @@ internal class CloudAdjustment
 		__endAltitude = 31400f;
 		if (self.game != null && self.game.IsStorySession)
 		{
-
 			string? Cloudy = CloudSearch(self.region.name);
 			if (Cloudy != null)
 			{
@@ -162,8 +161,6 @@ internal class CloudAdjustment
 	{
 		if (region == null)
 		{ return null; }
-
-
 		// if (CRS)
 		// {
 		// 	foreach (KeyValuePair<string, string> keyValuePair in CustomRegions.Mod.API.ActivatedPacks)
@@ -180,7 +177,7 @@ internal class CloudAdjustment
 		
 		string? path = null;
 		path = AssetManager.ResolveFilePath($"world/{region}/properties.txt");
-		return File.Exists(null) ? null : null;
+		return File.Exists(path) ? null : null;
 	}
 
 	/// <summary>

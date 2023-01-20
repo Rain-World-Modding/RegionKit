@@ -73,5 +73,5 @@ public class ColouredLightSource : UpdatableAndDeletable
 		return noiseValue;
 	}
 
-	public static void RegisterAsFullyManagedObject() => RegisterFullyManagedObjectType(__fields, typeof(ColouredLightSource));
+	public static void RegisterAsFullyManagedObject() => RegisterFullyManagedObjectType(__fields, typeof(ColouredLightSource), null, RK_POM_CATEGORY);
 }

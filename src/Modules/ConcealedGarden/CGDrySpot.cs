@@ -15,7 +15,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 
 	internal static void Register()
 	{
-		RegisterManagedObject(new ManagedObjectType("CGDrySpot",
+		RegisterManagedObject(new ManagedObjectType("CGDrySpot", RK_POM_CATEGORY,
 			typeof(CGDrySpot), typeof(CGDrySpotData), typeof(ManagedRepresentation)));
 	}
 

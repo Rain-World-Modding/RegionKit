@@ -86,7 +86,7 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 - DryCryCrystal 
 	- Manager and Dev Team Lead
 	- Old repo maintenance
-	- Porting
+	- Legacy Component Porting
 
 - Thalber
 	- BepInEx migration

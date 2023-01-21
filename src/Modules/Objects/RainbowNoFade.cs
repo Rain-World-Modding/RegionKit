@@ -28,11 +28,11 @@ namespace RegionKit.Modules.Objects
             this.alwaysShow = true;
         }
 
-        private RainbowNoFade.RainbowNoFadeData RBData
+        private RainbowNoFade.RainbowNoFadeData _RBData
         {
             get
             {
-                return this.placedObject.data as RainbowNoFade.RainbowNoFadeData;
+                return (this.placedObject.data as RainbowNoFade.RainbowNoFadeData)!;
             }
         }
 
@@ -55,8 +55,8 @@ namespace RegionKit.Modules.Objects
 
         public void Refresh()
         {
-            this.pos = this.placedObject.pos - this.RBData.handlePos;
-            this._rad = this.RBData.handlePos.magnitude * 2f;
+            this.pos = this.placedObject.pos - this._RBData.handlePos;
+            this._rad = this._RBData.handlePos.magnitude * 2f;
         }
 
         public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
@@ -72,8 +72,8 @@ namespace RegionKit.Modules.Objects
             float num = this._fade * Mathf.InverseLerp(0.2f, 0f, rCam.ghostMode);
             for (int i = 0; i < 4; i++)
             {
-                (sLeaser.sprites[0] as CustomFSprite).MoveVertice(i, this.pos + Custom.eightDirections[1 + i * 2].ToVector2() * this._rad - camPos);
-                (sLeaser.sprites[0] as CustomFSprite).verticeColors[i] = new Color(this.RBData.fades[4], 0f, 0f, num * this.RBData.fades[i]);
+                (sLeaser.sprites[0] as CustomFSprite)!.MoveVertice(i, this.pos + Custom.eightDirections[1 + i * 2].ToVector2() * this._rad - camPos);
+                (sLeaser.sprites[0] as CustomFSprite)!.verticeColors[i] = new Color(this._RBData.fades[4], 0f, 0f, num * this._RBData.fades[i]);
             }
             base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
         }
@@ -82,7 +82,7 @@ namespace RegionKit.Modules.Objects
         {
         }
 
-        public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+        public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner)
         {
             if (newContatiner == null)
             {
@@ -163,16 +163,16 @@ namespace RegionKit.Modules.Objects
         public RainbowNoFadeRepresentation(DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj) : base(owner, IDstring, parentNode, pObj, "RainbowNoFade", false)
         {
             this.subNodes.Add(new RainbowNoFadeRepresentation.RainbowNoFadeControlPanel(owner, "RainbowNoFade_Panel", this, new Vector2(0f, 100f)));
-            (this.subNodes[this.subNodes.Count - 1] as RainbowNoFadeRepresentation.RainbowNoFadeControlPanel).pos = (pObj.data as RainbowNoFade.RainbowNoFadeData).panelPos;
+            (this.subNodes[this.subNodes.Count - 1] as RainbowNoFadeRepresentation.RainbowNoFadeControlPanel)!.pos = (pObj.data as RainbowNoFade.RainbowNoFadeData)!.panelPos;
             this.fSprites.Add(new FSprite("pixel", true));
             this._lineSprite = this.fSprites.Count - 1;
             owner.placedObjectsContainer.AddChild(this.fSprites[this._lineSprite]);
             this.fSprites[this._lineSprite].anchorY = 0f;
             for (int i = 0; i < owner.room.updateList.Count; i++)
             {
-                if (owner.room.updateList[i] is RainbowNoFade && (owner.room.updateList[i] as RainbowNoFade).placedObject == pObj)
+                if (owner.room.updateList[i] is RainbowNoFade && (owner.room.updateList[i] as RainbowNoFade)!.placedObject == pObj)
                 {
-                    this._RainbowNoFade = (owner.room.updateList[i] as RainbowNoFade);
+                    this._RainbowNoFade = (owner.room.updateList[i] as RainbowNoFade)!;
                     break;
                 }
             }
@@ -188,10 +188,10 @@ namespace RegionKit.Modules.Objects
         {
             base.Refresh();
             base.MoveSprite(this._lineSprite, this.absPos);
-            this.fSprites[this._lineSprite].scaleY = (this.subNodes[1] as RainbowNoFadeRepresentation.RainbowNoFadeControlPanel).pos.magnitude;
-            this.fSprites[this._lineSprite].rotation = Custom.AimFromOneVectorToAnother(this.absPos, (this.subNodes[1] as RainbowNoFadeRepresentation.RainbowNoFadeControlPanel).absPos);
+            this.fSprites[this._lineSprite].scaleY = (this.subNodes[1] as RainbowNoFadeRepresentation.RainbowNoFadeControlPanel)!.pos.magnitude;
+            this.fSprites[this._lineSprite].rotation = Custom.AimFromOneVectorToAnother(this.absPos, (this.subNodes[1] as RainbowNoFadeRepresentation.RainbowNoFadeControlPanel)!.absPos);
             this._RainbowNoFade.Refresh();
-            (this.pObj.data as RainbowNoFade.RainbowNoFadeData).panelPos = (this.subNodes[1] as Panel).pos;
+            (this.pObj.data as RainbowNoFade.RainbowNoFadeData)!.panelPos = (this.subNodes[1] as Panel)!.pos;
         }
 
         private int _lineSprite;
@@ -212,7 +212,7 @@ namespace RegionKit.Modules.Objects
             {
                 get
                 {
-                    return (this.parentNode as RainbowNoFadeRepresentation).pObj.data as RainbowNoFade.RainbowNoFadeData;
+                    return ((this.parentNode as RainbowNoFadeRepresentation)!.pObj.data as RainbowNoFade.RainbowNoFadeData)!;
                 }
             }
             public class FadeSlider : Slider
@@ -225,7 +225,7 @@ namespace RegionKit.Modules.Objects
                 {
                     get
                     {
-                        return (this.parentNode.parentNode as RainbowNoFadeRepresentation).pObj.data as RainbowNoFade.RainbowNoFadeData;
+                        return ((this.parentNode.parentNode as RainbowNoFadeRepresentation)!.pObj.data as RainbowNoFade.RainbowNoFadeData)!;
                     }
                 }
                 public override void Refresh()

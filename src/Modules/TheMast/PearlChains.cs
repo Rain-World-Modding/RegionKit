@@ -264,9 +264,8 @@ namespace RegionKit.Modules.TheMast
 			{
 				// TODO: Allow both chunks of the chain to be grabbed
 				// TODO: Define scavenger interactions
-				int seed = Random.seed;
-				Random.seed = apc.ID.RandomSeed;
-
+				var state = RNG.state;
+				RNG.InitState(apc.ID.RandomSeed);
 				pearlCount = Random.Range(2, 5);
 				if (apc.length > 0) pearlCount = apc.length;
 				_pearlColors = new int[pearlCount];
@@ -307,7 +306,7 @@ namespace RegionKit.Modules.TheMast
 				for (int i = 0; i < bodyChunks.Length; i++)
 					bodyChunks[i].loudness = 3f;
 
-				Random.seed = seed;
+				Random.state = state;
 			}
 
 			public override void Update(bool eu)

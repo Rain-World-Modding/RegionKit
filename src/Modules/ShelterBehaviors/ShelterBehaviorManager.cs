@@ -600,24 +600,24 @@ namespace RegionKit.Modules.ShelterBehaviors
 		/// <returns></returns>
 		internal IntVector2 GetSpawnPosition(int salt)
 		{
-			int oldseed = RNG.seed;
+			RNG.State oldstate = RNG.state;
 			try
 			{
 				if (room.game.IsStorySession)
-					RNG.seed = salt + _incrementalsalt++ + room.game.clock + room.game.GetStorySession.saveState.seed + room.game.GetStorySession.saveState.cycleNumber + room.game.GetStorySession.saveState.deathPersistentSaveData.deaths + room.game.GetStorySession.saveState.deathPersistentSaveData.survives + Mathf.FloorToInt(room.game.GetStorySession.difficulty * 100) + Mathf.FloorToInt(room.game.GetStorySession.saveState.deathPersistentSaveData.howWellIsPlayerDoing * 100);
+					RNG.InitState(salt + _incrementalsalt++ + room.game.clock + room.game.GetStorySession.saveState.seed + room.game.GetStorySession.saveState.cycleNumber + room.game.GetStorySession.saveState.deathPersistentSaveData.deaths + room.game.GetStorySession.saveState.deathPersistentSaveData.survives + Mathf.FloorToInt(room.game.GetStorySession.difficulty * 100) + Mathf.FloorToInt(room.game.GetStorySession.saveState.deathPersistentSaveData.howWellIsPlayerDoing * 100));
 				if (_noVanillaDoors)
 				{
-					if (_spawnPositions.Count > 0) return _spawnPositions[UnityEngine.Random.Range(0, _spawnPositions.Count)];
+					if (_spawnPositions.Count > 0) return _spawnPositions[RNG.Range(0, _spawnPositions.Count)];
 					return _vanillaSpawnPosition;
 				}
 
-				int roll = UnityEngine.Random.Range(0, _spawnPositions.Count + 1);
+				int roll = RNG.Range(0, _spawnPositions.Count + 1);
 				if (_spawnPositions.Count < roll) return _spawnPositions[roll];
 				return _vanillaSpawnPosition;
 			}
 			finally
 			{
-				RNG.seed = oldseed;
+				RNG.state = oldstate;
 			}
 		}
 		/// <summary>

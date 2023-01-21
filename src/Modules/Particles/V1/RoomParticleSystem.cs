@@ -134,7 +134,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 			if (PossibleBirths != null && PossibleBirths.Length > 0)
 			{
 				p = (GenericParticle)
-					PossibleBirths.RandomOrDefault().DynamicInvoke(
+					PossibleBirths.RandomOrDefault()!.DynamicInvoke(
 						PSD.DataForNew(),
 						Visuals.RandomOrDefault()?.DataForNew() ?? default);
 				p.pos = PickSpawnPos();

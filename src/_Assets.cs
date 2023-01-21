@@ -45,8 +45,6 @@ internal static class _Assets
 		}
 	}
 
-	internal static string FogOfWar => GetUTF8("FogOfWar.txt")!;
-
 	internal static string? GetUTF8(params string[] assetpath)
 	{
 		//Func<string, string, string>? aggregator = (x, y) => $"{x}.{y}";

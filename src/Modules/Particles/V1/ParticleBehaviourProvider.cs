@@ -12,7 +12,7 @@ public abstract class ParticleBehaviourProvider : ManagedData
 {
 	public abstract PBehaviourModule? GetNewForParticle(GenericParticle p);
 	/// <summary>
-	/// Affects sorting of providers in <see cref="RoomParticleSystem.Modifiers"/>. Higher value -> applied later.
+	/// Affects sorting of providers in <see cref="RoomParticleSystem._modifiers"/>. Higher value -> applied later.
 	/// </summary>
 	[IntegerField("order", 1, 100, 1, ManagedFieldWithPanel.ControlType.arrows, displayName: "Load order")]
 	public int applyOrder;

@@ -7,12 +7,13 @@ internal static class _Assets
 	//internal static __Log
 	public static void Enable()
 	{
-		On.RainWorld.OnModsInit += LoadResources;
+		//On.RainWorld.OnModsInit += LoadResources;
+		LoadResources();
 	}
 
-	private static void LoadResources(On.RainWorld.orig_OnModsInit orig, RainWorld self)
+	private static void LoadResources(/* On.RainWorld.orig_OnModsInit orig, RainWorld self */)
 	{
-		orig(self);
+		// orig(self);
 		__logger.LogMessage($"Assets module loading atlases from assetpath assets/regionkit");
 		foreach (string f in AssetManager.ListDirectory("assets/regionkit", false, true))
 		{
@@ -269,6 +270,6 @@ internal static class _Assets
 	#endregion ATLASES
 	public static void Disable()
 	{
-		On.RainWorld.OnModsInit -= LoadResources;
+		// On.RainWorld.OnModsInit -= LoadResources;
 	}
 }

@@ -25,7 +25,7 @@ public class GenericParticle : CosmeticSprite
 	public GenericParticle(PMoveState bSt, PVisualState vSt) : base()
 	{
 		//throw null;
-		vSt.aElm ??= "SkyDandelion";
+		vSt.atlasElement ??= "SkyDandelion";
 		start = bSt;
 		visuals = vSt;
 		vel = DegToVec(bSt.dir).normalized * bSt.speed;
@@ -40,14 +40,14 @@ public class GenericParticle : CosmeticSprite
 		//every frame, velocity is set to initial. Make sure to treat it accordingly in your custom behaviour modules
 		var cpw = CurrentPower;
 		var crd = cRad(cpw);
-		var cLInt = (visuals.lInt > 0f) ? Lerp(0f, visuals.lInt, cpw) : 0f;
+		var cLInt = (visuals.lightIntensity > 0f) ? Lerp(0f, visuals.lightIntensity, cpw) : 0f;
 		if (!SetUpRan)
 		{
 			foreach (var m in Modules) m.Enable();
 			OnCreate?.Invoke();
-			if (visuals.lInt > 0f && visuals.lRadMax > 0f)
+			if (visuals.lightIntensity > 0f && visuals.lightRadiusMax > 0f)
 			{
-				myLight = new(pos, false, visuals.lCol, this)
+				myLight = new(pos, false, visuals.lightColor, this)
 				{
 					requireUpKeep = true
 				};
@@ -65,7 +65,7 @@ public class GenericParticle : CosmeticSprite
 			myLight.setRad = crd;
 			myLight.setPos = this.pos;
 			myLight.stayAlive = true;
-			myLight.color = visuals.lCol;
+			myLight.color = visuals.lightColor;
 			myLight.flat = this.visuals.flat;
 		}
 		vel = DegToVec(start.dir) * start.speed;
@@ -107,7 +107,7 @@ public class GenericParticle : CosmeticSprite
 
 	#region lifecycle
 
-	protected virtual float cRad(float power) => Lerp(visuals.lRadMin, visuals.lRadMax, power);
+	protected virtual float cRad(float power) => Lerp(visuals.lightRadiusMin, visuals.lightRadiusMax, power);
 	/// <summary>
 	/// 0 to 1; represents how thick/transparent a particle is at the moment
 	/// </summary>
@@ -190,16 +190,16 @@ public class GenericParticle : CosmeticSprite
 		sLeaser.sprites = new FSprite[1];
 		try
 		{
-			sLeaser.sprites[0] = new FSprite(visuals.aElm);
+			sLeaser.sprites[0] = new FSprite(visuals.atlasElement);
 		}
 		catch (Exception fue)
 		{
-			__logger.LogError($"Invalid atlas element {visuals.aElm}!");
+			__logger.LogError($"Invalid atlas element {visuals.atlasElement}!");
 			__logger.LogError(fue);
 			sLeaser.sprites[0] = new FSprite("SkyDandelion", true);// .element = Futile.atlasManager.GetElementWithName("SkyDandelion");
 		}
 		room.game.rainWorld.Shaders.TryGetValue("Basic", out var sh);
-		sLeaser.sprites[0].color = visuals.sCol;
+		sLeaser.sprites[0].color = visuals.spriteColor;
 		sLeaser.sprites[0].shader = sh;
 		sLeaser.sprites[0].scale = visuals.scale;
 		AddToContainer(sLeaser, rCam, rCam.ReturnFContainer(visuals.container.ToString()));

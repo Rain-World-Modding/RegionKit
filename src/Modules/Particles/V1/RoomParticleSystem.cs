@@ -70,7 +70,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 	{
 		var TotalModCost = 1f;
 		var dummy = new GenericParticle(default, default);
-		foreach (var mod in Modifiers)
+		foreach (var mod in _modifiers)
 		{
 			TotalModCost += Max(0f, mod.GetNewForParticle(dummy)?.ComputationalCost ?? 0f);
 		}
@@ -117,7 +117,6 @@ public class RoomParticleSystem : UpdatableAndDeletable
 		{
 			ProgressCreationCycle();
 		}
-
 		base.Update(eu);
 	}
 	/// <summary>
@@ -136,9 +135,9 @@ public class RoomParticleSystem : UpdatableAndDeletable
 				p = (GenericParticle)
 					PossibleBirths.RandomOrDefault()!.DynamicInvoke(
 						PSD.DataForNew(),
-						Visuals.RandomOrDefault()?.DataForNew() ?? default);
+						_visuals.RandomOrDefault()?.DataForNew() ?? default);
 				p.pos = PickSpawnPos();
-				foreach (var provider in Modifiers)
+				foreach (var provider in _modifiers)
 				{
 					var newmodule = provider.GetNewForParticle(p);
 					if (newmodule == null) continue;
@@ -169,19 +168,23 @@ public class RoomParticleSystem : UpdatableAndDeletable
 	/// <param name="room"></param>
 	protected virtual void FetchVisualsAndBM(Room room)
 	{
-		Visuals.Clear();
-		Modifiers.Clear();
+		_visuals.Clear();
+		_modifiers.Clear();
 		for (int i = 0; i < room.roomSettings.placedObjects.Count; i++)
 		{
-			if (room.roomSettings.placedObjects[i].data is ParticleVisualCustomizer f_PVC
-				&& (_MyPos - f_PVC.owner.pos).sqrMagnitude < f_PVC.p2.sqrMagnitude)
-			{ Visuals.Add(f_PVC); }
+			if (room.roomSettings.placedObjects[i].data is IParticleVisualProv visualcus
+				&& (_MyPos - visualcus.Owner.pos).sqrMagnitude < visualcus.P2.sqrMagnitude)
+			{
+				_visuals.Add(visualcus);
+			}
 			if (room.roomSettings.placedObjects[i].data is ParticleBehaviourProvider f_BMD
 				&& (_MyPos - f_BMD.owner.pos).sqrMagnitude < f_BMD.p2.sqrMagnitude)
-			{ Modifiers.Add(f_BMD); }
+			{
+				_modifiers.Add(f_BMD);
+			}
 		}
 		//sorted for apply order to work
-		Modifiers.Sort(new Comparison<ParticleBehaviourProvider>(
+		_modifiers.Sort(new Comparison<ParticleBehaviourProvider>(
 			(x, y) =>
 			{
 				if (x.applyOrder > y.applyOrder) return 1;
@@ -189,8 +192,8 @@ public class RoomParticleSystem : UpdatableAndDeletable
 				else return -1;
 			}));
 	}
-	protected readonly List<ParticleVisualCustomizer> Visuals = new();
-	protected readonly List<ParticleBehaviourProvider> Modifiers = new();
+	internal readonly List<IParticleVisualProv> _visuals = new();
+	internal readonly List<ParticleBehaviourProvider> _modifiers = new();
 	/// <summary>
 	/// 
 	/// </summary>

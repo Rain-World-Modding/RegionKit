@@ -11,7 +11,6 @@ namespace RegionKit.Modules.Particles;
 /// </summary>
 public struct PMoveState
 {
-	//TODO(thalber): finalize what goes here
 	public float dir;
 	public float speed;
 	public int fadeIn;

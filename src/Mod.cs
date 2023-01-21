@@ -16,14 +16,22 @@ public class Mod : BIE.BaseUnityPlugin
 	public void OnEnable()
 	{
 		__inst = this;
+		On.RainWorld.OnModsInit += Init;
+		//Init();
+		TheRitual.Commence();
+	}
+
+	private void Init(On.RainWorld.orig_OnModsInit orig, RainWorld self)
+	{
+		orig(self);
 		if (!_modulesSetUp) ScanAssemblyForModules(typeof(Mod).Assembly);
 		_modulesSetUp = true;
 		foreach (var mod in _modules)
 		{
 			RunEnableOn(mod);
 		}
-		TheRitual.Commence();
 	}
+
 	private void RunEnableOn(ModuleInfo mod)
 	{
 		try
@@ -37,6 +45,7 @@ public class Mod : BIE.BaseUnityPlugin
 	}
 	public void OnDisable()
 	{
+		On.RainWorld.OnModsInit -= Init;
 		foreach (var mod in _modules)
 		{
 			RunDisableOn(mod);
@@ -79,16 +88,16 @@ public class Mod : BIE.BaseUnityPlugin
 	#region module shenanigans
 	public void ScanAssemblyForModules(RFL.Assembly asm)
 	{
-		foreach (var t in asm.DefinedTypes)
+		foreach (Type t in asm.DefinedTypes)
 		{
 			if (t.IsGenericTypeDefinition) continue;
 			TryRegisterModule(t);
 		}
 	}
 
-	public bool TryRegisterModule(TypeInfo? t)
+	public void TryRegisterModule(Type? t)
 	{
-		if (t is null) return false;
+		if (t is null) return;
 		foreach (RegionKitModuleAttribute moduleAttr in t.GetCustomAttributes(typeof(RegionKitModuleAttribute), false))
 		{
 			RFL.MethodInfo
@@ -117,10 +126,12 @@ public class Mod : BIE.BaseUnityPlugin
 			{
 				RunEnableOn(_modules.Last());
 			}
-
-			return true;
+			break;
 		}
-		return false;
+		foreach (Type nested in t.GetNestedTypes())
+		{
+			TryRegisterModule(nested);
+		}
 	}
 
 

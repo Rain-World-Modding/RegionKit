@@ -94,12 +94,10 @@ public abstract class ParticleSystemData : ManagedData
 /// </summary>
 public class RectParticleSpawnerData : ParticleSystemData
 {
-	Vector2 RectBounds => GetValue<Vector2>("effRect");
+	[Vector2Field("effRect", 40f, 40f, Vector2Field.VectorReprType.rect)]
+	Vector2 RectBounds;
 
-	public RectParticleSpawnerData(PlacedObject owner) : base(owner, new List<ManagedField>
-	{
-		new Vector2Field("effRect", new Vector2(40f, 40f), Vector2Field.VectorReprType.rect)
-	})
+	public RectParticleSpawnerData(PlacedObject owner) : base(owner, null)
 	{
 
 	}
@@ -197,7 +195,7 @@ public class WholeScreenSpawnerData : ParticleSystemData
 }
 #endregion
 
-public class ParticleVisualCustomizer : ManagedData
+public class ParticleVisualCustomizer : ManagedData, IParticleVisualProv
 {
 	[ColorField("sColBase", 1f, 1f, 1f, 1f, DisplayName: "Sprite color base")]
 	public Color spriteColor;
@@ -225,7 +223,7 @@ public class ParticleVisualCustomizer : ManagedData
 	public string elmName = "SkyDandelion";
 	[StringField("shader", "Basic", displayName: "Shader")]
 	public string shader = "Basic";
-	[Vector2Field("p2", 40f, 0f)]
+	[Vector2Field("p2", 40f, 0f, Vector2Field.VectorReprType.circle)]
 	public Vector2 p2;
 	[EnumField<ContainerCodes>("cc", ContainerCodes.Foreground)]
 	public ContainerCodes containerCode;
@@ -238,6 +236,10 @@ public class ParticleVisualCustomizer : ManagedData
 	{
 
 	}
+
+	public Vector2 P2 => p2;
+
+	public PlacedObject Owner => owner;
 
 	public PVisualState DataForNew()
 	{
@@ -265,8 +267,40 @@ public class ParticleVisualCustomizer : ManagedData
 			//flat = flatLight,
 			//scale = Lerp(scalemin, scalemax, UnityEngine.Random.value),
 		};
-		res.sCol.ClampToNormal();
-		res.lCol.ClampToNormal();
+		res.spriteColor.ClampToNormal();
+		res.lightColor.ClampToNormal();
 		return res;
 	}
+}
+
+public class PresetParticleVisualCustomizer : ManagedData, IParticleVisualProv
+{
+	[StringField("tags", "default", "Preset tags")]
+	public string tags = "default";
+	[Vector2Field("p2", 40f, 0f, Vector2Field.VectorReprType.circle)]
+	public Vector2 p2;
+
+	public PresetParticleVisualCustomizer(PlacedObject owner) : base(owner, null)
+	{
+
+	}
+
+	public Vector2 P2 => p2;
+
+	public PlacedObject Owner => owner;
+
+	public PVisualState DataForNew()
+	{
+		if (_Module.__namedPresets.TryGetValue(REG.Regex.Split(tags, "\\s*,\\s*").RandomOrDefault() ?? "default", out PVisualState state)) return state;
+		return PVisualState.Blank;
+	}
+}
+
+internal interface IParticleVisualProv
+{
+	//PVisualState GetNewForParticle(GenericParticle)
+	PVisualState DataForNew();
+	Vector2 P2 { get; }
+	PlacedObject Owner { get; }
+	//int ApplyOrder{get;}
 }

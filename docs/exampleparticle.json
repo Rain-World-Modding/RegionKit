@@ -1,0 +1,23 @@
+{
+  "atlasElement": "SkyDandelion",
+  "shader": "Basic",
+  "container": 12,
+  "spriteColor": {
+    "r": 1.0,
+    "g": 1.0,
+    "b": 1.0,
+    "a": 1.0
+  },
+  "lightColor": {
+    "r": 1.0,
+    "g": 1.0,
+    "b": 1.0,
+    "a": 1.0
+  },
+  "lightIntensity": 1.0,
+  "lightRadiusMax": 35.0,
+  "lightRadiusMin": 25.0,
+  "affectedByDark": 0.0,
+  "flat": false,
+  "scale": 1.0
+}

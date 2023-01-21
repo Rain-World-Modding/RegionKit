@@ -11,30 +11,44 @@ namespace RegionKit.Modules.Particles;
 /// </summary>
 public struct PVisualState
 {
-	public string aElm;
+	public string atlasElement;
 	public string shader;
 	public ContainerCodes container;
-	public Color sCol;
-	public Color lCol;
-	public float lInt;
-	public float lRadMax;
-	public float lRadMin;
-	public float affByDark;
+	public Color spriteColor;
+	public Color lightColor;
+	public float lightIntensity;
+	public float lightRadiusMax;
+	public float lightRadiusMin;
+	public float affectedByDark;
 	public bool flat;
 	public float scale;
 
-	public PVisualState(string aElm, string shader, ContainerCodes container, Color sCol, Color lCol, float lInt, float lRadMax, float lRadMin, float affByDark, bool flat, float scale)
+	public PVisualState(
+		string aElm,
+		string shader,
+		ContainerCodes container,
+		Color sCol,
+		Color lCol,
+		float lInt,
+		float lRadMax,
+		float lRadMin,
+		float affByDark,
+		bool flat,
+		float scale)
 	{
 		this.scale = scale;
-		this.aElm = aElm;
+		this.atlasElement = aElm;
 		this.shader = shader;
 		this.container = container;
-		this.sCol = sCol;
-		this.lCol = lCol;
-		this.lInt = lInt;
-		this.lRadMax = lRadMax;
-		this.lRadMin = lRadMin;
-		this.affByDark = affByDark;
+		this.spriteColor = sCol;
+		this.lightColor = lCol;
+		this.lightIntensity = lInt;
+		this.lightRadiusMax = lRadMax;
+		this.lightRadiusMin = lRadMin;
+		this.affectedByDark = affByDark;
 		this.flat = flat;
 	}
+
+	public static PVisualState Blank { get; private set; }
+		= new("SkyDandelion", "Basic", ContainerCodes.Items, new(1f, 1f, 1f), new(1f, 1f, 1f), 1f, 35f, 25f, 0f, false, 1f);
 }

@@ -7,7 +7,7 @@ public static class _Module
 	public const string ModID = "ShelterBehaviors";
 	public const string breakVer = "1.0";
 
-	internal static bool EnabledOnce = false;
+	internal static bool __enabledOnce = false;
 
 	/// <summary>
 	/// Makes creatures <see cref="ShelterBehaviorManager.CycleSpawnPosition"/> on <see cref="AbstractCreature.RealizeInRoom"/>
@@ -27,7 +27,7 @@ public static class _Module
 		On.AbstractCreature.RealizeInRoom += CreatureShuffleHook;
 
 		//ApplyHooks();
-		if (!EnabledOnce)
+		if (!__enabledOnce)
 		{
 			RegisterFullyManagedObjectType(new ManagedField[]{
 				new BooleanField("nvd", true, displayName:"No Vanilla Door"),
@@ -63,6 +63,7 @@ public static class _Module
 		{
 
 		}
+		__enabledOnce = true;
 	}
 
 	public static void Disable()

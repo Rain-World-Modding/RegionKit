@@ -45,105 +45,15 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 
 	internal static void Apply()
 	{
-		On.RoomSettings.RoomEffect.ctor += (orig, self, type, amount, inherited) =>
-	{
-		orig(self, type, amount, inherited);
-		colorSettings[self] = new();
-		for (var i = 0; i < coloredEffects.Count; i++)
-		{
-			if (coloredEffects[i] == type && colorSettings[self] is ColorSettings settings)
-			{
-				settings.colored = true;
-				break;
-			}
-		}
-	};
-		On.RoomSettings.RoomEffect.ToString += (orig, self) =>
-	{
-		var reg = GRKString(self);
-		var res = orig(self);
-		if (colorSettings.TryGet(self, out var cs) && (cs?.colored ?? false))
-			res = $"{self.type}-{self.amount}-{self.panelPosition.x}-{self.panelPosition.y}{reg}-Color-{colorSettings[self]?.colorR ?? 0f}-{colorSettings[self]?.colorG ?? 0f}-{colorSettings[self]?.colorB ?? 0f}";
-		return res;
-	};
-		On.RoomSettings.RoomEffect.FromString += (orig, self, s) =>
-	{
-		orig(self, s);
-		try
-		{
-			for (var i = 0; i < s.Length; i++)
-			{
-				if (s[i] is "Color" && colorSettings.TryGetNoVar(self))
-				{
-					self.amount = float.Parse(s[1]); //--> amount doesn't work if I don't add it again
-					ColorSettings? settings = colorSettings[self];
-					if (settings is null) continue;
-					//if ()
-					settings.colored = true;
-					settings.colorR = float.Parse(s[i + 1]);
-					settings.colorG = float.Parse(s[i + 2]);
-					settings.colorB = float.Parse(s[i + 3]);
-					break;
-				}
-			}
-		}
-		catch { __logger.LogError("Wrong syntax effect loaded: " + s[0]); }
-	};
-		On.DevInterface.EffectPanel.ctor += (orig, self, owner, parentNode, pos, effect) =>
-	{
-		orig(self, owner, parentNode, pos, effect);
-		if (colorSettings.TryGet(effect, out var cs) && (cs?.colored ?? false))
-		{
-			self.size.y += 60f;
-			var indSn = -1;
-			var ftSn = -1;
-			for (var i = 0; i < self.subNodes.Count; i++)
-			{
-				if (self.subNodes[i].IDstring is "Amount_Slider")
-					indSn = i;
-				if (self.subNodes[i].IDstring is "Filter_Toggles")
-					ftSn = i;
-			}
-			if (indSn != -1 && self.subNodes[indSn] is EffectPanel.EffectPanelSlider slider)
-			{
-				slider.pos.y += 60f;
-				self.subNodes.Add(new EffectPanel.EffectPanelSlider(owner, "ColorR_Slider", self, new(slider.pos.x, slider.pos.y - 20f), "Red: "));
-				self.subNodes.Add(new EffectPanel.EffectPanelSlider(owner, "ColorG_Slider", self, new(slider.pos.x, slider.pos.y - 40f), "Green: "));
-				self.subNodes.Add(new EffectPanel.EffectPanelSlider(owner, "ColorB_Slider", self, new(slider.pos.x, slider.pos.y - 60f), "Blue: "));
-			}
-			if (ftSn != -1 && self.subNodes[ftSn] is PositionedDevUINode posNode)
-				posNode.pos.y += 60f;
-		}
-	};
-		On.DevInterface.EffectPanel.EffectPanelSlider.Refresh += (orig, self) =>
-	{
-		orig(self);
-		if (colorSettings.TryGet(self.effect, out var cs) && (cs?.colored ?? false))
-		{
-			var num = 0f;
-			ColorSettings? settings = colorSettings[self.effect];
-			switch (self.IDstring)
-			{
-			case "Amount_Slider":
-				num = self.effect.amount;
-				self.NumberText = (int)(num * 100f) + "%"; //--> amount slider doesn't work if I don't add it again
-				break;
-			case "ColorR_Slider":
-				num = settings?.colorR ?? 0f;
-				break;
-			case "ColorG_Slider":
-				num = settings?.colorG ?? 0f;
-				break;
-			case "ColorB_Slider":
-				num = settings?.colorB ?? 0f;
-				break;
-			}
-			if (self.IDstring is "ColorR_Slider" or "ColorG_Slider" or "ColorB_Slider")
-				self.NumberText = ((int)(num * 255f)).ToString();
-			self.RefreshNubPos(num);
-		}
-	};
-		On.DevInterface.EffectPanel.EffectPanelSlider.NubDragged += (orig, self, nubPos) =>
+		On.RoomSettings.RoomEffect.ctor += RoomEffectCtor;
+		On.RoomSettings.RoomEffect.ToString += RoomEffectToString;
+		On.RoomSettings.RoomEffect.FromString += RoomEffectFromString;
+		On.DevInterface.EffectPanel.ctor += EffectPanelCtor;
+		On.DevInterface.EffectPanel.EffectPanelSlider.Refresh += EffectPanelSliderRefresh;
+		On.DevInterface.EffectPanel.EffectPanelSlider.NubDragged += EffectPanelSliderDragged;
+	}
+
+	private static void EffectPanelSliderDragged(On.DevInterface.EffectPanel.EffectPanelSlider.orig_NubDragged orig, EffectPanel.EffectPanelSlider self, float nubPos)
 	{
 		if (!self.effect.inherited && colorSettings.TryGet(self.effect, out var cs) && (cs?.colored ?? false))
 		{
@@ -174,7 +84,109 @@ public static class ColoredRoomEffect /// By M4rbleL1ne/LB Gamer
 		}
 		else
 			orig(self, nubPos);
-	};
+	}
+
+	private static void EffectPanelSliderRefresh(On.DevInterface.EffectPanel.EffectPanelSlider.orig_Refresh orig, EffectPanel.EffectPanelSlider self)
+	{
+		orig(self);
+		if (colorSettings.TryGet(self.effect, out var cs) && (cs?.colored ?? false))
+		{
+			var num = 0f;
+			ColorSettings? settings = colorSettings[self.effect];
+			switch (self.IDstring)
+			{
+			case "Amount_Slider":
+				num = self.effect.amount;
+				self.NumberText = (int)(num * 100f) + "%"; //--> amount slider doesn't work if I don't add it again
+				break;
+			case "ColorR_Slider":
+				num = settings?.colorR ?? 0f;
+				break;
+			case "ColorG_Slider":
+				num = settings?.colorG ?? 0f;
+				break;
+			case "ColorB_Slider":
+				num = settings?.colorB ?? 0f;
+				break;
+			}
+			if (self.IDstring is "ColorR_Slider" or "ColorG_Slider" or "ColorB_Slider")
+				self.NumberText = ((int)(num * 255f)).ToString();
+			self.RefreshNubPos(num);
+		}
+	}
+
+	private static void EffectPanelCtor(On.DevInterface.EffectPanel.orig_ctor orig, EffectPanel self, DevUI owner, DevUINode parentNode, Vector2 pos, RoomSettings.RoomEffect effect)
+	{
+		orig(self, owner, parentNode, pos, effect);
+		if (colorSettings.TryGet(effect, out var cs) && (cs?.colored ?? false))
+		{
+			self.size.y += 60f;
+			var indSn = -1;
+			var ftSn = -1;
+			for (var i = 0; i < self.subNodes.Count; i++)
+			{
+				if (self.subNodes[i].IDstring is "Amount_Slider")
+					indSn = i;
+				if (self.subNodes[i].IDstring is "Filter_Toggles")
+					ftSn = i;
+			}
+			if (indSn != -1 && self.subNodes[indSn] is EffectPanel.EffectPanelSlider slider)
+			{
+				slider.pos.y += 60f;
+				self.subNodes.Add(new EffectPanel.EffectPanelSlider(owner, "ColorR_Slider", self, new(slider.pos.x, slider.pos.y - 20f), "Red: "));
+				self.subNodes.Add(new EffectPanel.EffectPanelSlider(owner, "ColorG_Slider", self, new(slider.pos.x, slider.pos.y - 40f), "Green: "));
+				self.subNodes.Add(new EffectPanel.EffectPanelSlider(owner, "ColorB_Slider", self, new(slider.pos.x, slider.pos.y - 60f), "Blue: "));
+			}
+			if (ftSn != -1 && self.subNodes[ftSn] is PositionedDevUINode posNode)
+				posNode.pos.y += 60f;
+		}
+	}
+
+	private static void RoomEffectFromString(On.RoomSettings.RoomEffect.orig_FromString orig, RoomSettings.RoomEffect self, string[] s)
+	{
+		orig(self, s);
+		try
+		{
+			for (var i = 0; i < s.Length; i++)
+			{
+				if (s[i] is "Color" && colorSettings.TryGetNoVar(self))
+				{
+					self.amount = float.Parse(s[1]); //--> amount doesn't work if I don't add it again
+					ColorSettings? settings = colorSettings[self];
+					if (settings is null) continue;
+					//if ()
+					settings.colored = true;
+					settings.colorR = float.Parse(s[i + 1]);
+					settings.colorG = float.Parse(s[i + 2]);
+					settings.colorB = float.Parse(s[i + 3]);
+					break;
+				}
+			}
+		}
+		catch { __logger.LogError("Wrong syntax effect loaded: " + s[0]); }
+	}
+
+	private static string RoomEffectToString(On.RoomSettings.RoomEffect.orig_ToString orig, RoomSettings.RoomEffect self)
+	{
+		var reg = GRKString(self);
+		var res = orig(self);
+		if (colorSettings.TryGet(self, out var cs) && (cs?.colored ?? false))
+			res = $"{self.type}-{self.amount}-{self.panelPosition.x}-{self.panelPosition.y}{reg}-Color-{colorSettings[self]?.colorR ?? 0f}-{colorSettings[self]?.colorG ?? 0f}-{colorSettings[self]?.colorB ?? 0f}";
+		return res;
+	}
+
+	private static void RoomEffectCtor(On.RoomSettings.RoomEffect.orig_ctor orig, RoomSettings.RoomEffect self, RoomSettings.RoomEffect.Type type, float amount, bool inherited)
+	{
+		orig(self, type, amount, inherited);
+		colorSettings[self] = new();
+		for (var i = 0; i < coloredEffects.Count; i++)
+		{
+			if (coloredEffects[i] == type && colorSettings[self] is ColorSettings settings)
+			{
+				settings.colored = true;
+				break;
+			}
+		}
 	}
 
 	#region Extensions

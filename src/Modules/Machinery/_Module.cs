@@ -35,8 +35,6 @@ public static class _Module
 			foreach (var hk in __machineryHooks) hk.Apply();
 		}
 		__appliedOnce = true;
-
-
 	}
 
 	private static List<Hook> __machineryHooks = null!;

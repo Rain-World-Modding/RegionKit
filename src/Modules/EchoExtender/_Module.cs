@@ -6,11 +6,11 @@ using RWCustom;
 using UnityEngine;
 
 namespace RegionKit.Modules.EchoExtender;
-[RegionKitModule(nameof(ApplyHooks), nameof(RemoveHooks), moduleName: "Echo Extender")]
+[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Echo Extender")]
 public static class _Module
 {
 	public static SlugcatStats.Name SlugcatNumber { get; private set; } = SlugcatStats.Name.White;
-	public static void ApplyHooks()
+	public static void Enable()
 	{
 
 		// Tests for spawn
@@ -31,7 +31,7 @@ public static class _Module
 		On.StoryGameSession.ctor += StoryGameSessionOnCtor;
 	}
 
-	public static void RemoveHooks()
+	public static void Disable()
 	{
 		On.GhostWorldPresence.ctor -= GhostWorldPresenceOnCtor;
 		On.GhostWorldPresence.GetGhostID -= GhostWorldPresenceOnGetGhostID;

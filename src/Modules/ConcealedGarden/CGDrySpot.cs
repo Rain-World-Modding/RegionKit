@@ -13,12 +13,6 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 	private bool _swappedDrawOrder;
 	private RoomCamera.SpriteLeaser? _waterLeaser;
 
-	internal static void Register()
-	{
-		RegisterManagedObject(new ManagedObjectType("CGDrySpot", RK_POM_CATEGORY,
-			typeof(CGDrySpot), typeof(CGDrySpotData), typeof(ManagedRepresentation)));
-	}
-
 	private CGDrySpotData _Data => (_pObj.data as CGDrySpotData)!;
 
 	public CGDrySpot(Room room, PlacedObject pObj)
@@ -154,7 +148,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner) { }
 
 
-	class CGDrySpotData : ManagedData
+	public class CGDrySpotData : ManagedData
 	{
 		public FloatRect Rect
 		{

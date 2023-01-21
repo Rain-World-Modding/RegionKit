@@ -1,20 +1,5 @@
 ﻿namespace RegionKit.Modules.Objects;
 
-public static class SteamObjRep
-{
-	internal static void SteamRep()
-	{
-		List<ManagedField> fields = new List<ManagedField>
-		{
-			new FloatField("f1", 0f, 1f, 0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Duration"),
-			new FloatField("f2", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Frequency"),
-			new FloatField("f3", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Lifetime"),
-			new Vector2Field("v1", new Vector2(0f,45f), Vector2Field.VectorReprType.line)
-		};
-		RegisterFullyManagedObjectType(fields.ToArray(), typeof(SteamHazard), nameof(SteamHazard), RK_POM_CATEGORY);
-	}
-}
-
 
 public class SteamHazard : UpdatableAndDeletable
 {

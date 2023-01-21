@@ -9,7 +9,7 @@ public class ColouredLightSource : UpdatableAndDeletable
 	private ManagedData? _data;
 	private bool _flickering;
 
-	private static readonly ManagedField[] __fields = {
+	internal static readonly ManagedField[] __fields = {
 		new ColorField("lightCol", Color.white, ManagedFieldWithPanel.ControlType.slider, "Light Colour"),
 		new Vector2Field("radius", Vector2.up, Vector2Field.VectorReprType.circle),
 		new FloatField("alphaChannel", 0f, 1f, 1f, displayName: "Alpha"),
@@ -72,6 +72,4 @@ public class ColouredLightSource : UpdatableAndDeletable
 		float noiseValue = Mathf.Clamp01(Mathf.PerlinNoise(vectorX * Time.time, vectorY * Time.time));
 		return noiseValue;
 	}
-
-	public static void RegisterAsFullyManagedObject() => RegisterFullyManagedObjectType(__fields, typeof(ColouredLightSource), null, RK_POM_CATEGORY);
 }

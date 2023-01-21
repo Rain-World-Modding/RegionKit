@@ -16,102 +16,225 @@ public static class _Module
 		if (!__appliedOnce)
 		{
 			//NewEffects/
-			NewObjects.Hook();
-			ColouredLightSource.RegisterAsFullyManagedObject();
-			Drawable.Register();
-			//RegisterManagedObject<PWLightRod, PWLightRodData, PWLightRodRepresentation>("PWLightRod", false);
-			//TODO: apply pwlr
-			ShroudObjRep.ShroudRep();
-			SpinningFanObjRep.SpinningFanRep();
-			SteamObjRep.SteamRep();
-			LittlePlanet.ApplyHooks();
-			NoWallSlideZones.Apply();
-			RKProjectedCircle.ApplyHooks();
+			//NewObjects.Hook();
+			RegisterFullyManagedObjectType(ColouredLightSource.__fields, typeof(ColouredLightSource), null, RK_POM_CATEGORY);
+			RegisterFullyManagedObjectType(Drawable.__fields, typeof(Drawable), "FreeformDecalOrSprite", RK_POM_CATEGORY);
+			List<ManagedField> shroudFields = new()
+			{
+				new Vector2ArrayField("quad", 4, true, Vector2ArrayField.Vector2ArrayRepresentationType.Polygon, Vector2.zero, Vector2.right * 20f, (Vector2.right + Vector2.up) * 20f, Vector2.up * 20f)
+			};
+			RegisterFullyManagedObjectType(shroudFields.ToArray(), typeof(Shroud), nameof(Shroud), RK_POM_CATEGORY);
 
+			List<ManagedField> fanFields = new()
+			{
+				new FloatField("speed", 0f, 1f, 0.6f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Speed"),
+				new FloatField("scale", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Scale"),
+				new FloatField("depth", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Depth")
+			};
+			RegisterFullyManagedObjectType(fanFields.ToArray(), typeof(SpinningFan), nameof(SpinningFan), RK_POM_CATEGORY);
+
+			List<ManagedField> steamFields = new()
+			{
+				new FloatField("f1", 0f, 1f, 0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Duration"),
+				new FloatField("f2", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Frequency"),
+				new FloatField("f3", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Lifetime"),
+				new Vector2Field("v1", new Vector2(0f,45f), Vector2Field.VectorReprType.line)
+			};
+			RegisterFullyManagedObjectType(steamFields.ToArray(), typeof(SteamHazard), nameof(SteamHazard), RK_POM_CATEGORY);
+
+
+			NoWallSlideZones.Apply();
 			RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>("RoomBorderTP", RK_POM_CATEGORY);
 			RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect", RK_POM_CATEGORY);
 			RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>("PlacedWaterfall", RK_POM_CATEGORY);
 
 			__objectHooks = new List<Hook>
 			{
-				new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.Loaded)), typeof(_Module).GetMethodAllContexts(nameof(Room_Loaded))),
-				new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.NowViewed)), typeof(_Module).GetMethodAllContexts(nameof(Room_Viewed))),
-				new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.NoLongerViewed)), typeof(_Module).GetMethodAllContexts(nameof(Room_NotViewed))),
-                //new Hook(typeof(GHalo).GetMethodAllContexts("get_Speed"), _mt.GetMethodAllContexts(nameof(halo_speed)))
-            };
+				//new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.Loaded)), typeof(_Module).GetMethodAllContexts(nameof(Room_Loaded))),
+				//new Hook(typeof(GHalo).GetMethodAllContexts("get_Speed"), _mt.GetMethodAllContexts(nameof(halo_speed)))
+			};
 		}
 		else
 		{
 			foreach (var hk in __objectHooks) if (!hk.IsApplied) hk.Apply();
 		}
 		__appliedOnce = true;
-
-
+		On.PlacedObject.GenerateEmptyData += MakeEmptyData;
+		On.DevInterface.ObjectsPage.CreateObjRep += CreateObjectReps;
+		On.Room.NowViewed += Room_Viewed;
+		On.Room.NoLongerViewed += Room_NotViewed;
+		//todo: check if it's okay to have like this
+		_CommonHooks.PostRoomLoad += RoomPostLoad;
+		On.RainWorld.LoadResources += LoadLittlePlanetResources;
 	}
+
+	private static void LoadLittlePlanetResources(On.RainWorld.orig_LoadResources orig, RainWorld self)
+	{
+		orig(self);
+		try
+		{
+			EmbeddedResourceLoader.LoadEmbeddedResource("LittlePlanet");
+			EmbeddedResourceLoader.LoadEmbeddedResource("LittlePlanetRing");
+		}
+		catch (Exception ex)
+		{
+			__logger.LogError($"Problem loading LittlePlanet atlases {ex}");
+		}
+	}
+
 	public static void Disable()
 	{
+		On.RainWorld.LoadResources -= LoadLittlePlanetResources;
+		On.Room.NowViewed -= Room_Viewed;
+		On.Room.NoLongerViewed -= Room_NotViewed;
+		On.PlacedObject.GenerateEmptyData -= MakeEmptyData;
+		On.DevInterface.ObjectsPage.CreateObjRep -= CreateObjectReps;
+		_CommonHooks.PostRoomLoad -= RoomPostLoad;
 		foreach (var hk in __objectHooks) if (hk.IsApplied) hk.Undo();
 	}
 
-	internal static AttachedField<Room, TempleGuardGraphics>? __cachedGuards;
-	private static void guardcache(On.Room.orig_Loaded orig, Room self)
+	private static void RoomPostLoad(Room self)
 	{
-		//slightly evil (and nonfunct) abstr hack
-		if (self.game == null) { orig(self); return; }
-		var phfound = false;
-		foreach (var po in self.roomSettings.placedObjects) phfound |= po.data is PlacedHaloData;
-		if (phfound)
+		bool wormgrassDataFound = false;
+		if (self.game == null)
 		{
-			AbstractCreature ac = new AbstractCreature(self.world, StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.TempleGuard), null, self.GetWorldCoordinate(new Vector2(-50000f, -50000f)), new EntityID(-1, (self.abstractRoom.index)));
-			ac.realizedCreature = new TempleGuard(ac, self.world);
-			ac.realizedCreature.graphicsModule = new TempleGuardGraphics(ac.realizedCreature);
-			__cachedGuards?.Set(self, (ac.realizedCreature.graphicsModule as TempleGuardGraphics)!);
+			return;
 		}
-		orig(self);
+		for (int m = 0; m < self.roomSettings.placedObjects.Count; m++)
+		{
+			if (!self.roomSettings.placedObjects[m].active)
+			{
+				continue;
+			}
+			PlacedObject pObj = self.roomSettings.placedObjects[m];
+			switch (pObj.type.value)
+			{
+			case nameof(Enums_ARKillRect.ARKillRect):
+				self.AddObject(new ARKillRect(self, pObj));
+				break;
+			case nameof(Enums_RainbowNoFade.RainbowNoFade):
+				self.AddObject(new RainbowNoFade(self, pObj));
+				break;
+			case nameof(Enums_LittlePlanet.LittlePlanet):
+				self.AddObject(new LittlePlanet(self, pObj));
+				break;
+			case nameof(NoWallSlideZones.Enums_NoWallSlideZones.NoWallSlideZone):
+				self.AddObject(new NoWallSlideZone(self, pObj));
+				break;
+			case nameof(RKProjectedCircle.Enums_ProjectedCircle.ProjectedCircle):
+				self.AddObject(new ProjectedCircleObject(self, pObj));
+				break;
+			}
+			if (pObj.data is WormgrassRectData && !wormgrassDataFound)
+			{
+				self.AddObject(new WormgrassManager(self));
+				wormgrassDataFound = true;
+			}
+		}
 	}
-	internal static AttachedField<GHalo, PlacedHalo> __reghalos = new AttachedField<GHalo, PlacedHalo>();
-	internal static PlacedHalo? __chal;
+
+	private static void CreateObjectReps(On.DevInterface.ObjectsPage.orig_CreateObjRep orig, DevInterface.ObjectsPage self, PlacedObject.Type tp, PlacedObject pObj)
+	{
+		if (tp == Enums_ARKillRect.ARKillRect)
+		{
+			if (pObj == null)
+			{
+				pObj = new PlacedObject(tp, null);
+				pObj.pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(RNG.value * 360f) * 0.2f;
+				self.RoomSettings.placedObjects.Add(pObj);
+			}
+			DevInterface.PlacedObjectRepresentation placedObjectRepresentation;
+			placedObjectRepresentation = new DevInterface.GridRectObjectRepresentation(self.owner, "ARKillRect" + "_Rep", self, pObj, tp.ToString());
+			if (placedObjectRepresentation != null)
+			{
+				self.tempNodes.Add(placedObjectRepresentation);
+				self.subNodes.Add(placedObjectRepresentation);
+			}
+			return;
+		}
+		else if (tp == Enums_RainbowNoFade.RainbowNoFade)
+		{
+			if (pObj == null)
+			{
+				pObj = new PlacedObject(tp, null);
+				pObj.pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(RNG.value * 360f) * 0.2f;
+				self.RoomSettings.placedObjects.Add(pObj);
+			}
+			DevInterface.PlacedObjectRepresentation placedObjectRepresentation;
+			placedObjectRepresentation = new RainbowNoFadeRepresentation(self.owner, "RainbowNoFade" + "_Rep", self, pObj);
+			if (placedObjectRepresentation != null)
+			{
+				self.tempNodes.Add(placedObjectRepresentation);
+				self.subNodes.Add(placedObjectRepresentation);
+			}
+			return;
+		}
+		else if (tp == Enums_LittlePlanet.LittlePlanet)
+		{
+			if (pObj is null)
+			{
+				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
+				{
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + Custom.DegToVec(RNG.value * 360f) * .2f
+				});
+			}
+			var pObjRep = new LittlePlanetRepresentation(self.owner, "LittlePlanet_Rep", self, pObj, tp.ToString());
+			self.tempNodes.Add(pObjRep);
+			self.subNodes.Add(pObjRep);
+		}
+		else if (tp == NoWallSlideZones.Enums_NoWallSlideZones.NoWallSlideZone)
+		{
+			if (pObj is null)
+			{
+				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
+				{
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(RNG.value * 360f) * .2f
+				});
+			}
+			var pObjRep = new FloatRectRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString());
+			self.tempNodes.Add(pObjRep);
+			self.subNodes.Add(pObjRep);
+		}
+		// else
+		// 	orig(self, tp, pObj);
+		orig.Invoke(self, tp, pObj);
+	}
+
+	private static void MakeEmptyData(On.PlacedObject.orig_GenerateEmptyData orig, PlacedObject self)
+	{
+		if (self.type == Enums_ARKillRect.ARKillRect)
+		{
+			self.data = new PlacedObject.GridRectObjectData(self);
+		}
+		else if (self.type == Enums_RainbowNoFade.RainbowNoFade)
+		{
+			self.data = new RainbowNoFade.RainbowNoFadeData(self);
+		}
+		else if (self.type == Enums_LittlePlanet.LittlePlanet)
+		{
+			self.data = new LittlePlanet.LittlePlanetData(self);
+		}
+		else if (self.type == NoWallSlideZones.Enums_NoWallSlideZones.NoWallSlideZone)
+		{
+			self.data = new FloatRectData(self);
+		}
+		orig.Invoke(self);
+	}
 
 	internal delegate void Room_Void_None(Room instance);
-	internal static void Room_Loaded(Room_Void_None orig, Room instance)
-	{
-		orig(instance);
-		if (instance.game == null) return;
-		instance.AddObject(new WormgrassManager(instance));
-	}
-	internal static void Room_NotViewed(Room_Void_None orig, Room instance)
+	// internal static void Room_Loaded(Room_Void_None orig, Room instance)
+	// {
+	// 	orig(instance);
+	// }
+	internal static void Room_NotViewed(On.Room.orig_NoLongerViewed orig, Room instance)
 	{
 		orig(instance);
 		foreach (var uad in instance.updateList) if (uad is INotifyWhenRoomIsViewed tar) tar.RoomNoLongerViewed();
 	}
-	internal static void Room_Viewed(Room_Void_None orig, Room instance)
+	internal static void Room_Viewed(On.Room.orig_NowViewed orig, Room instance)
 	{
 		orig(instance);
 		foreach (var uad in instance.updateList) if (uad is INotifyWhenRoomIsViewed tar) tar.RoomViewed();
 	}
-
-#if false
-	internal static float halo_speed(
-		Func<GHalo, float> orig,
-		GHalo self)
-	{
-		if (reghalos.TryGet(self, out var ph))
-		{
-			return ph.speed;
-		}
-		return orig(self);
-		//if (reghalos)
-	}
-	private static float halo_racc(On.TempleGuardGraphics.Halo.orig_RadAtCircle orig, GHalo self, float c, float ts, float dis)
-	{
-		if (reghalos.TryGet(self, out var ph) || chal != null)
-		{
-			ph = ph ?? chal;
-			//UDe.LogWarning("scrom");
-			return ph?.RadAtCircle(c, ts, dis) ?? 0f;
-		}
-		return orig(self, c, ts, dis);
-	}
-#endif
 
 }

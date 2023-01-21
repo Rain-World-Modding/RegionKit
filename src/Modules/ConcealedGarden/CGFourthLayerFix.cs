@@ -23,7 +23,9 @@ internal class CGFourthLayerFix
 			if (uri.IsFile && System.IO.File.Exists(uri.LocalPath))
 			{
 				Debug.Log("RoomCamera_MoveCamera loading bkg img from: " + text);
+				#pragma warning disable CS0618 //WWW is obsolete
 				self.bkgwww = new WWW(text);
+				#pragma warning restore CS0618 //WWW is obsolete
 			}
 			//Debug.Log("RoomCamera_MoveCamera_1 would load from:" + text);
 			//Debug.Log("RoomCamera_MoveCamera_1 would load :" + System.IO.File.Exists(text));

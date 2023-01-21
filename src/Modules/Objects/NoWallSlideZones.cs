@@ -21,40 +21,7 @@ namespace RegionKit.Modules.Objects
 
 		public static void Apply()
 		{
-			On.Room.Loaded += (orig, self) =>
-			{
-				orig(self);
-				for (var i = 0; i < self.roomSettings.placedObjects.Count; i++)
-				{
-					var pObj = self.roomSettings.placedObjects[i];
-					if (pObj.active && pObj.type == Enums_NoWallSlideZones.NoWallSlideZone)
-						self.AddObject(new NoWallSlideZone(self, pObj));
-				}
-			};
-			On.DevInterface.ObjectsPage.CreateObjRep += (orig, self, tp, pObj) =>
-			{
-				if (tp == Enums_NoWallSlideZones.NoWallSlideZone)
-				{
-					if (pObj is null)
-					{
-						self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
-						{
-							pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(Random.value * 360f) * .2f
-						});
-					}
-					var pObjRep = new FloatRectRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString());
-					self.tempNodes.Add(pObjRep);
-					self.subNodes.Add(pObjRep);
-				}
-				else
-					orig(self, tp, pObj);
-			};
-			On.PlacedObject.GenerateEmptyData += (orig, self) =>
-			{
-				orig(self);
-				if (self.type == Enums_NoWallSlideZones.NoWallSlideZone)
-					self.data = new FloatRectData(self);
-			};
+			//todo: check if it fucks with movement
 			On.Player.WallJump += (orig, self, direction) =>
 			{
 				if (self.InsideNWSRects())

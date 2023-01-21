@@ -7,7 +7,6 @@ using RWCustom;
 
 namespace RegionKit.Modules.Objects
 {
-	//todo: apply
 	//Made By LeeMoriya
 	public class Enums_ARKillRect
 	{

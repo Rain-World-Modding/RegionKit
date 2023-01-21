@@ -9,19 +9,6 @@ namespace RegionKit.Modules.Objects
 		{
 			public static PlacedObject.Type ProjectedCircle = new("ProjectedCircle", true);
 		}
-
-		public static void ApplyHooks()
-		{
-			_CommonHooks.PostRoomLoad += (self) =>
-			{
-				for (var i = 0; i < self.roomSettings.placedObjects.Count; i++)
-				{
-					var pObj = self.roomSettings.placedObjects[i];
-					if (pObj.active && pObj.type == Enums_ProjectedCircle.ProjectedCircle)
-						self.AddObject(new ProjectedCircleObject(self, pObj));
-				}
-			};
-		}
 	}
 
 	public class ProjectedCircleObject : UpdatableAndDeletable, IOwnProjectedCircles

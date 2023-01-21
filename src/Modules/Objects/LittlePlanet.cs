@@ -10,48 +10,6 @@ namespace RegionKit.Modules.Objects
 {
 	public class LittlePlanet : CosmeticSprite
 	{
-		public static void ApplyHooks()
-		{
-			On.RainWorld.LoadResources += (orig, self) =>
-			{
-				orig(self);
-				EmbeddedResourceLoader.LoadEmbeddedResource("LittlePlanet");
-				EmbeddedResourceLoader.LoadEmbeddedResource("LittlePlanetRing");
-			};
-			_CommonHooks.PostRoomLoad += (self) =>
-			{
-				for (var i = 0; i < self.roomSettings.placedObjects.Count; i++)
-				{
-					var pObj = self.roomSettings.placedObjects[i];
-					if (pObj.type == Enums_LittlePlanet.LittlePlanet)
-						self.AddObject(new LittlePlanet(self, pObj));
-				}
-			};
-			On.PlacedObject.GenerateEmptyData += (orig, self) =>
-			{
-				orig(self);
-				if (self.type == Enums_LittlePlanet.LittlePlanet)
-					self.data = new LittlePlanetData(self);
-			};
-			On.DevInterface.ObjectsPage.CreateObjRep += (orig, self, tp, pObj) =>
-			{
-				if (tp == Enums_LittlePlanet.LittlePlanet)
-				{
-					if (pObj is null)
-					{
-						self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
-						{
-							pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + Custom.DegToVec(RNG.value * 360f) * .2f
-						});
-					}
-					var pObjRep = new LittlePlanetRepresentation(self.owner, "LittlePlanet_Rep", self, pObj, tp.ToString());
-					self.tempNodes.Add(pObjRep);
-					self.subNodes.Add(pObjRep);
-				}
-				else
-					orig(self, tp, pObj);
-			};
-		}
 
 		public class LittlePlanetData : PlacedObject.ResizableObjectData
 		{
@@ -352,11 +310,11 @@ namespace RegionKit.Modules.Objects
 	{
 		public static void LoadEmbeddedResource(string name)
 		{
-			//todo: update ER
+			
 			var thisAssembly = Assembly.GetExecutingAssembly();
 			//var resourceName = thisAssembly.GetManifestResourceNames().First(r => r.Contains(name));
 			
-			var resource = _Assets.GetStream("LittlePlanet", name, "png");
+			using Stream resource = _Assets.GetStream("LittlePlanet", name, "png");
 			using MemoryStream memoryStream = new();
 			var buffer = new byte[16384];
 			int count;

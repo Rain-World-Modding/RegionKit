@@ -1,19 +1,5 @@
 ﻿namespace RegionKit.Modules.Objects;
 
-public static class SpinningFanObjRep
-{
-	internal static void SpinningFanRep()
-	{
-		List<ManagedField> fields = new List<ManagedField>
-		{
-			new FloatField("speed", 0f, 1f, 0.6f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Speed"),
-			new FloatField("scale", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Scale"),
-			new FloatField("depth", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Depth")
-		};
-		RegisterFullyManagedObjectType(fields.ToArray(), typeof(SpinningFan), nameof(SpinningFan), RK_POM_CATEGORY);
-	}
-}
-
 public class SpinningFan : UpdatableAndDeletable, IDrawable
 {
 	private readonly PlacedObject _pObj;

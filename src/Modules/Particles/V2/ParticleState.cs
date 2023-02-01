@@ -4,13 +4,17 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace RegionKit.Modules.Particles;
+namespace RegionKit.Modules.Particles.V2;
 
 /// <summary>
 /// carries a couple movement parameters for a particle
 /// </summary>
-public struct PMoveState
+public struct ParticleState
 {
+	//>0 for toggle on,
+	//<0 for toggle off
+	public int stateChangeSlated;
+	public int index;
 	public float dir;
 	public float speed;
 	public int fadeIn;
@@ -18,8 +22,16 @@ public struct PMoveState
 	public int fadeOut;
 	public Vector2 pos;
 
-	public PMoveState(float dir, float speed, int fadeIn, int lifetime, int fadeOut, Vector2 pos)
+	public ParticleState(
+		int index,
+		float dir,
+		float speed,
+		int fadeIn,
+		int lifetime,
+		int fadeOut,
+		Vector2 pos)
 	{
+		this.index = index;
 		this.dir = dir;
 		this.speed = speed;
 		this.fadeIn = fadeIn;

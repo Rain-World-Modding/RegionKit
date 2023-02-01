@@ -13,7 +13,7 @@ namespace RegionKit.Modules.Particles.V1;
 /// </summary>
 public class GenericParticle : CosmeticSprite
 {
-	public static GenericParticle MakeNew(PMoveState start, PVisualState visuals)
+	public static GenericParticle MakeNew(PMoveState start, ParticleVisualState visuals)
 	{
 		return new GenericParticle(start, visuals);
 	}
@@ -22,7 +22,7 @@ public class GenericParticle : CosmeticSprite
 	/// </summary>
 	/// <param name="bSt">instantiation movement and fade in/out data</param>
 	/// <param name="vSt">visuals package</param>
-	public GenericParticle(PMoveState bSt, PVisualState vSt) : base()
+	public GenericParticle(PMoveState bSt, ParticleVisualState vSt) : base()
 	{
 		//throw null;
 		vSt.atlasElement ??= "SkyDandelion";
@@ -168,7 +168,7 @@ public class GenericParticle : CosmeticSprite
 	/// <summary>
 	/// visual package - atlas element, container, etc
 	/// </summary>
-	public PVisualState visuals;
+	public ParticleVisualState visuals;
 	/// <summary>
 	/// attached light source
 	/// </summary>

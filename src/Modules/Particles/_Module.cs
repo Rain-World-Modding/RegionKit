@@ -13,7 +13,7 @@ namespace RegionKit.Modules.Particles;
 internal static class _Module
 {
 	internal static bool __appliedOnce = false;
-	internal static readonly Dictionary<string, PVisualState> __namedPresets = new();
+	internal static readonly Dictionary<string, ParticleVisualState> __namedPresets = new();
 
 	internal static void Enable()
 	{
@@ -27,6 +27,9 @@ internal static class _Module
 			RegisterManagedObject<V1.RoomParticleSystem, V1.RectParticleSpawnerData, ManagedRepresentation>("RectParticleSpawner", RK_POM_CATEGORY);
 			RegisterManagedObject<V1.RoomParticleSystem, V1.OffscreenSpawnerData, ManagedRepresentation>("OffscreenParticleSpawner", RK_POM_CATEGORY);
 			RegisterManagedObject<V1.RoomParticleSystem, V1.WholeScreenSpawnerData, ManagedRepresentation>("WholeScreenSpawner", RK_POM_CATEGORY);
+			RegisterManagedObject<V2.ParticleSystem, V2.ParticleSystemData, ManagedRepresentation>("V2ParticleSystem", RK_POM_CATEGORY, true);
+			RegisterEmptyObjectType<V2.ParticleRectZone, ManagedRepresentation>("V2ParticleRectZone", RK_POM_CATEGORY);
+			//RegisterEmptyObjectType
 		}
 		__appliedOnce = true;
 
@@ -41,7 +44,7 @@ internal static class _Module
 				try
 				{
 					__logger.LogMessage($"Deserializing particle preset {fi.Name}...");
-					var PVS = Newtonsoft.Json.JsonConvert.DeserializeObject<PVisualState>(IO.File.ReadAllText(file));
+					var PVS = Newtonsoft.Json.JsonConvert.DeserializeObject<ParticleVisualState>(IO.File.ReadAllText(file));
 					__namedPresets.Add(fi.Name[..^5], PVS);
 					foundany = true;
 				}
@@ -61,7 +64,10 @@ internal static class _Module
 	{
 
 	}
-
+	internal static bool TryFindPreset(string tags, out ParticleVisualState state)
+	{
+		return _Module.__namedPresets.TryGetValue(REG.Regex.Split(tags, "\\s*,\\s*").RandomOrDefault() ?? "default", out state);
+	}
 	private class IgnoreShit : Newtonsoft.Json.Serialization.DefaultContractResolver
 	{
 		protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)

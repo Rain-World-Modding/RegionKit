@@ -9,7 +9,7 @@ namespace RegionKit.Modules.Particles;
 /// <summary>
 /// carries sprite settings
 /// </summary>
-public struct PVisualState
+public struct ParticleVisualState
 {
 	public string atlasElement;
 	public string shader;
@@ -21,9 +21,11 @@ public struct PVisualState
 	public float lightRadiusMin;
 	public float affectedByDark;
 	public bool flat;
+	//todo: document in example json
+	public bool submersible;
 	public float scale;
 
-	public PVisualState(
+	public ParticleVisualState(
 		string aElm,
 		string shader,
 		ContainerCodes container,
@@ -49,6 +51,6 @@ public struct PVisualState
 		this.flat = flat;
 	}
 
-	public static PVisualState Blank { get; private set; }
+	public static ParticleVisualState Blank { get; private set; }
 		= new("SkyDandelion", "Basic", ContainerCodes.Items, new(1f, 1f, 1f), new(1f, 1f, 1f), 1f, 35f, 25f, 0f, false, 1f);
 }

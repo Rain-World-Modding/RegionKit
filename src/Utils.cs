@@ -128,7 +128,14 @@ internal static partial class Utils
 		//var R = new System.Random(l.GetHashCode());
 		return l[RNG.Range(0, l.Count)];
 	}
-
+	public static IEnumerable<T> Loop<T>(this IEnumerable<T> collection)
+	{
+		IEnumerator<T> en;
+	START_:;
+		en = collection.GetEnumerator();
+		while (en.MoveNext()) yield return en.Current;
+		goto START_;
+	}
 	public static void AddMultiple<TKey, TValue>(this Dictionary<TKey, TValue> dict, TValue value, params TKey[] keys)
 	{
 		dict.AddMultiple(value, ieKeys: keys);
@@ -506,7 +513,7 @@ internal static partial class Utils
 		int resindex = -1;
 		ExtEnumType extEnumType = ExtEnumBase.GetExtEnumType(enumType);
 		StringComparer comp = ignoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture;
-		
+
 		for (int i = 0; i < extEnumType.entries.Count; i++)
 		{
 			if (comp.Compare(extEnumType.entries[i], value) == 0)

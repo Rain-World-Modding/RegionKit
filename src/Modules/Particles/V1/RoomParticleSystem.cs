@@ -82,7 +82,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 			float sum = 0f;
 			for (int i = 0; i < birthcosts.Length; i++)
 			{
-				float ccost = ((GenericParticle)pBirths[i].DynamicInvoke(default(PMoveState), default(PVisualState))).ComputationalCost;
+				float ccost = ((GenericParticle)pBirths[i].DynamicInvoke(default(PMoveState), default(ParticleVisualState))).ComputationalCost;
 				sum += Max(1f, ccost);
 			}
 			sum /= birthcosts.Length;
@@ -172,7 +172,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 		_modifiers.Clear();
 		for (int i = 0; i < room.roomSettings.placedObjects.Count; i++)
 		{
-			if (room.roomSettings.placedObjects[i].data is IParticleVisualProv visualcus
+			if (room.roomSettings.placedObjects[i].data is IParticleVisualProvider visualcus
 				&& (_MyPos - visualcus.Owner.pos).sqrMagnitude < visualcus.P2.sqrMagnitude)
 			{
 				_visuals.Add(visualcus);
@@ -192,7 +192,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 				else return -1;
 			}));
 	}
-	internal readonly List<IParticleVisualProv> _visuals = new();
+	internal readonly List<IParticleVisualProvider> _visuals = new();
 	internal readonly List<ParticleBehaviourProvider> _modifiers = new();
 	/// <summary>
 	/// 
@@ -200,7 +200,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 	/// <param name="suggestedStart">suggested starting move params</param>
 	/// <param name="suggestedVis">suggested visuals </param>
 	/// <returns></returns>
-	public delegate GenericParticle ParticleCreate(PMoveState suggestedStart, PVisualState suggestedVis);
+	public delegate GenericParticle ParticleCreate(PMoveState suggestedStart, ParticleVisualState suggestedVis);
 	/// <summary>
 	/// A random subscriber is invoked whenever a particle needs to be created
 	/// </summary>

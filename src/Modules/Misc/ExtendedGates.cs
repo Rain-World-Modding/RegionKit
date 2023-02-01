@@ -63,7 +63,7 @@ public static class ExtendedGates
 		{
 			foreach (int i in Range(10))
 			{
-				alt[i] = new(i + ALT_POSTFIX, true);
+				alt[i] = new((i + 1) + ALT_POSTFIX, true);
 			}
 		}
 	}
@@ -454,7 +454,7 @@ public static class ExtendedGates
 		default: // default karma gate handled by the game
 			var player = (self.room.game.Players.FirstOrDefault().realizedCreature as Player);
 			return player?.Karma >= self.karmaRequirements[0].GetKarmaLevel();
-			
+
 		}
 
 		return false;
@@ -558,5 +558,5 @@ public static class ExtendedGates
 
 	#endregion GATEHOOKS
 
-	
+
 }

@@ -31,8 +31,8 @@ internal static class EchoParser
 	{
 		try
 		{
-			GetEchoID(regionShort);
-			return true;
+			return GetEchoID(regionShort).Index > 0;
+			//return true;
 		}
 		catch (Exception)
 		{

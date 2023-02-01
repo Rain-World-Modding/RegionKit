@@ -185,8 +185,11 @@ public struct EchoSettings
 
 	public bool KarmaCondition(int karma, int karmaCap, SlugcatStats.Name diff)
 	{
+		MinimumKarma.TryGetValue(diff, out var mymin);
+		Default.MinimumKarma.TryGetValue(diff, out var defmin);
 		if (GetMinimumKarma(diff) == -2)
 		{
+			__logger.LogMessage($"[Echo Extender] checking dynamic karma: {mymin}, {defmin}, {karma}, {karmaCap}");
 			switch (karmaCap)
 			{
 			case 4:

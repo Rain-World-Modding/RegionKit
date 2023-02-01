@@ -5,13 +5,20 @@ using System.Text;
 
 namespace RegionKit.Modules.AridBarrens;
 
+///<inheritdoc/>
 [RegionKitModule(nameof(Register), nameof(Disable), moduleName: "AridBarrens")]
-internal static class _Module
+public static class _Module
 {
+	/// <summary>
+	/// Applies hooks.
+	/// </summary>
 	public static void Register()
 	{
 		_CommonHooks.PostRoomLoad += RoomPostLoad;
 	}
+	/// <summary>
+	/// Undoes hooks.
+	/// </summary>
 	public static void Disable()
 	{
 		_CommonHooks.PostRoomLoad -= RoomPostLoad;

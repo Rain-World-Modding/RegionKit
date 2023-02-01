@@ -23,10 +23,13 @@ public class Mod : BIE.BaseUnityPlugin
 	private void Init(On.RainWorld.orig_OnModsInit orig, RainWorld self)
 	{
 		orig(self);
-		if (!_modulesSetUp) ScanAssemblyForModules(typeof(Mod).Assembly);
-		foreach (var mod in _modules)
+		if (!_modulesSetUp)
 		{
-			if (!_modulesSetUp) RunEnableOn(mod);
+			ScanAssemblyForModules(typeof(Mod).Assembly);
+			foreach (var mod in _modules)
+			{
+				RunEnableOn(mod);
+			}
 		}
 		_modulesSetUp = true;
 	}
@@ -126,7 +129,7 @@ public class Mod : BIE.BaseUnityPlugin
 				RunEnableOn(_modules.Last());
 			}
 			break;
-			
+
 		}
 		foreach (Type nested in t.GetNestedTypes())
 		{

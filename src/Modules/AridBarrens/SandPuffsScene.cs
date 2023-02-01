@@ -5,12 +5,17 @@ using UnityEngine;
 
 namespace RegionKit.Modules.AridBarrens;
 
-public partial class SandPuffs : BackgroundScene, INotifyWhenRoomIsReady
+/// <summary>
+/// Passively spawns sand puffs in room at all times
+/// </summary>
+public partial class SandPuffsScene : BackgroundScene, INotifyWhenRoomIsReady
 {
-	public SandPuffs(RoomSettings.RoomEffect effect, Room room) : base(room)
+	///<inheritdoc/>
+	public SandPuffsScene(RoomSettings.RoomEffect effect, Room room) : base(room)
 	{
 		this._effect = effect;
 	}
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
@@ -35,11 +40,13 @@ public partial class SandPuffs : BackgroundScene, INotifyWhenRoomIsReady
 			}
 		}
 	}
-
+	///<inheritdoc/>
 	public void ShortcutsReady()
 	{
 	}
-
+	/// <summary>
+	/// Populates <see cref="_closeToWallTiles"/>
+	/// </summary>
 	public void AIMapReady()
 	{
 		this._closeToWallTiles = new List<IntVector2>();

@@ -6,7 +6,7 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-		<GenerateDocumentationFile>False</GenerateDocumentationFile>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 		<Authors>RegionKit team</Authors>
 		<Description>All-in-one custom region dependency library.</Description>
@@ -47,9 +47,12 @@
 		<EditorConfigFiles Remove="./.editorconfig" />
 	</ItemGroup>
 
-	<!-- ER -->
+	<!-- Assets -->	
+	  
 	<ItemGroup>
+		<None Update="Assets/**" CopyToOutputDirectory="PreserveNewest" />
 		<Compile Remove="Assets/**"/>
+		<None Include="Assets/**"/>
 		<EmbeddedResource Include="Assets/**"/>
 	</ItemGroup>
 
@@ -65,6 +68,7 @@
 		</Reference>
 		<Reference Include="Assembly-CSharp-firstpass">
 			<HintPath>lib/Assembly-CSharp-firstpass.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="BepInEx.Harmony">
 			<HintPath>lib/BepInEx.Harmony.dll</HintPath>
@@ -152,6 +156,7 @@
 		</Reference>
 		<Reference Include="com.rlabrecque.steamworks.net"> 
 			<HintPath>lib/com.rlabrecque.steamworks.net.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
 	<ItemGroup>
@@ -163,10 +168,7 @@
 
 	<!-- Build event -->
 	<Target Name="CopyOutput" AfterTargets="Build" Condition="'$(RWMods_RK)'!=''">
-		<Message Text="RK: Buildcopy from [ $(TargetPath) ] to [ $(RWMods_RK) ]" Importance="high">
-		</Message>
-		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(RWMods_RK)">
-		</Copy>
+		<Message Text="RK: Buildcopy from [ $(TargetPath) ] to [ $(RWMods_RK)/plugins ] - @(AssetFiles)" Importance="high"/>
+		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(RWMods_RK)/plugins"/>
 	</Target>
-
 </Project>

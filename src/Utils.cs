@@ -119,8 +119,6 @@ internal static partial class Utils
 		var res = default(T);
 		if (arr.Length > 0) return arr[RNG.Range(0, arr.Length)];
 		return res;
-
-		///var x = new int?[] { 1, null }.RandomOrDefault();
 	}
 	public static T? RandomOrDefault<T>(this List<T> l)
 	{
@@ -128,6 +126,23 @@ internal static partial class Utils
 		//var R = new System.Random(l.GetHashCode());
 		return l[RNG.Range(0, l.Count)];
 	}
+
+	public static IEnumerable<int> Indices(this IList list)
+	{
+		int ct = list.Count;
+		for (int i = 0; i < ct; i++)
+		{
+			yield return i;
+			//if (ct != list.Count) throw new InvalidOperationException("List was modified");
+		}
+	}
+
+	/// <summary>
+	/// Creates a looped version of a selected enumerator.
+	/// </summary>
+	/// <param name="collection">Subject enumerator</param>
+	/// <typeparam name="T">Type of item</typeparam>
+	/// <returns>A yielder that wraps a collection and returns all its elements, repeating endlessly</returns>
 	public static IEnumerable<T> Loop<T>(this IEnumerable<T> collection)
 	{
 		IEnumerator<T> en;

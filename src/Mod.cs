@@ -5,7 +5,6 @@ namespace RegionKit;
 public class Mod : BIE.BaseUnityPlugin
 {
 	internal const string RK_POM_CATEGORY = "RegionKit";
-
 	private static Mod __inst = null!;
 	//private readonly List<ActionWithData> _enableDels = new();
 	private readonly List<ModuleInfo> _modules = new();
@@ -25,11 +24,11 @@ public class Mod : BIE.BaseUnityPlugin
 	{
 		orig(self);
 		if (!_modulesSetUp) ScanAssemblyForModules(typeof(Mod).Assembly);
-		_modulesSetUp = true;
 		foreach (var mod in _modules)
 		{
-			RunEnableOn(mod);
+			if (!_modulesSetUp) RunEnableOn(mod);
 		}
+		_modulesSetUp = true;
 	}
 
 	private void RunEnableOn(ModuleInfo mod)
@@ -127,6 +126,7 @@ public class Mod : BIE.BaseUnityPlugin
 				RunEnableOn(_modules.Last());
 			}
 			break;
+			
 		}
 		foreach (Type nested in t.GetNestedTypes())
 		{

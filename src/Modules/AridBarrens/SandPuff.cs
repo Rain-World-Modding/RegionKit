@@ -1,7 +1,11 @@
 namespace RegionKit.Modules.AridBarrens;
 
+/// <summary>
+///  A puff of sand
+/// </summary>
 public class SandPuff : CosmeticSprite
 {
+	///<inheritdoc/>
 	public SandPuff(Vector2 pos, float size)
 	{
 		this.pos = pos;
@@ -11,6 +15,7 @@ public class SandPuff : CosmeticSprite
 		this._life = 1f;
 		this._lifeTime = Mathf.Lerp(40f, 120f, UnityEngine.Random.value) * Mathf.Lerp(0.5f, 1.5f, size);
 	}
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
@@ -23,7 +28,7 @@ public class SandPuff : CosmeticSprite
 			this.Destroy();
 		}
 	}
-
+	///<inheritdoc/>
 	public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 		sLeaser.sprites = new FSprite[1];
@@ -32,7 +37,7 @@ public class SandPuff : CosmeticSprite
 		this.AddToContainer(sLeaser, rCam, rCam.ReturnFContainer("Background"));
 		base.InitiateSprites(sLeaser, rCam);
 	}
-
+	///<inheritdoc/>
 	public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		sLeaser.sprites[0].x = Mathf.Lerp(this.lastPos.x, this.pos.x, timeStacker) - camPos.x;
@@ -41,7 +46,7 @@ public class SandPuff : CosmeticSprite
 		sLeaser.sprites[0].alpha = Mathf.Lerp(this._lastLife, this._life, timeStacker);
 		base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
 	}
-
+	///<inheritdoc/>
 	public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 	{
 		sLeaser.sprites[0].color = palette.texture.GetPixel(9, 5);

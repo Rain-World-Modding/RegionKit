@@ -6,6 +6,7 @@ public class ParticleSystem : UpdatableAndDeletable, IDrawable
 	private int _capacity;
 	private (ParticleState, ParticleVisualState)[] _particlePool;
 	private readonly List<int> _activeParticles = new();
+	private IEnumerable<int> _incomingIndex;
 	private IEnumerable<IntVector2>? _tilesShuffledLoop;
 	private readonly List<IntVector2> _suitableTiles = new();
 	private readonly List<IParticleZone> _zones = new();
@@ -14,6 +15,7 @@ public class ParticleSystem : UpdatableAndDeletable, IDrawable
 	public ParticleSystem(PlacedObject owner, Room rm)
 	{
 		_particlePool = new (ParticleState, ParticleVisualState)[0];
+		_incomingIndex = new int[0];
 		_owner = owner;
 		this.room = rm;
 		CollectZones();
@@ -39,6 +41,7 @@ public class ParticleSystem : UpdatableAndDeletable, IDrawable
 	}
 	private void CalculateCapacity()
 	{
+		//uhhb so ok like
 		//todo: see if math is correct
 		float expectancy = _Data.lifeTime + _Data.lifeTimeFluke + _Data.fadeIn + _Data.fadeInFluke + _Data.fadeOut + _Data.fadeOutFluke;
 		float birthsPerFrame = (float)(_Data.maxAmount) / _Data.minCooldown;

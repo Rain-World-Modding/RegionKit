@@ -1,6 +1,6 @@
 ﻿namespace RegionKit.Modules.Objects;
 
-public class Shroud : CosmeticSprite
+internal class Shroud : CosmeticSprite
 {
 	private readonly PlacedObject _pObj;
 	private readonly FloatRect _rect;

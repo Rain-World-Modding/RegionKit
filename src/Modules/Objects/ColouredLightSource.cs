@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 
 namespace RegionKit.Modules.Objects;
-
+/// <summary>
+/// A light source that can be assigned any rgb value
+/// </summary>
 public class ColouredLightSource : UpdatableAndDeletable
 {
 	private PlacedObject _localPlacedObject;
@@ -18,7 +20,9 @@ public class ColouredLightSource : UpdatableAndDeletable
 		new FloatField("flickIntensity", 0f, 1f, 0f, displayName: "Flicker Intensity"),
 		new FloatField("threshold", 0f, 1f, 0.5f, displayName: "Flicker Threshold")
 	};
-
+	/// <summary>
+	/// POM ctor
+	/// </summary>
 	public ColouredLightSource(PlacedObject pObj, Room room)
 	{
 		//Data = new(pObj, null);
@@ -30,7 +34,7 @@ public class ColouredLightSource : UpdatableAndDeletable
 		_lightSource.affectedByPaletteDarkness = _data?.GetValue<float>("paletteDarkness") ?? 0.5f;
 		room.AddObject(_lightSource);
 	}
-
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);

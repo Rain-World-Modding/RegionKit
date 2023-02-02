@@ -9,7 +9,7 @@ namespace RegionKit.Modules.Misc;
 public static class ArenaFixes
 {
 
-	private static On.ScavengerTreasury.hook_ctor scavTreasuryHook = static (orig, self, room, placedObj) =>
+	private static On.ScavengerTreasury.hook_ctor __scavTreasuryHook = static (orig, self, room, placedObj) =>
 	{
 		try
 		{
@@ -30,7 +30,7 @@ public static class ArenaFixes
 		}
 	};
 
-	private static On.DaddyCorruption.hook_ctor daddyCorruptionHook = static (orig, self, room) =>
+	private static On.DaddyCorruption.hook_ctor __daddyCorruptionHook = static (orig, self, room) =>
 	{
 		try
 		{
@@ -45,13 +45,13 @@ public static class ArenaFixes
 	};
 	internal static void ApplyHooks()
 	{
-		On.ScavengerTreasury.ctor += scavTreasuryHook;
-		On.DaddyCorruption.ctor += daddyCorruptionHook;
+		On.ScavengerTreasury.ctor += __scavTreasuryHook;
+		On.DaddyCorruption.ctor += __daddyCorruptionHook;
 	}
 
 	internal static void UndoHooks()
 	{
-		On.ScavengerTreasury.ctor -= scavTreasuryHook;
-		On.DaddyCorruption.ctor -= daddyCorruptionHook;
+		On.ScavengerTreasury.ctor -= __scavTreasuryHook;
+		On.DaddyCorruption.ctor -= __daddyCorruptionHook;
 	}
 }

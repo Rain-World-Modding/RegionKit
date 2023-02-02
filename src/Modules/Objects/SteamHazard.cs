@@ -1,6 +1,8 @@
 ﻿namespace RegionKit.Modules.Objects;
 
-
+/// <summary>
+/// Damaging steam
+/// </summary>
 public class SteamHazard : UpdatableAndDeletable
 {
 	private readonly PlacedObject _placedObject;
@@ -15,6 +17,9 @@ public class SteamHazard : UpdatableAndDeletable
 	private Vector2[]? _steamZone;
 	private Smoke.SteamSmoke _steam;
 	private RectangularDynamicSoundLoop _soundLoop;
+	/// <summary>
+	/// POM ctor
+	/// </summary>
 	public SteamHazard(PlacedObject pObj, Room room)
 	{
 		_placedObject = pObj;
@@ -31,7 +36,7 @@ public class SteamHazard : UpdatableAndDeletable
 		_soundLoop = new RectangularDynamicSoundLoop(this, new FloatRect(_fromPos.x - 20f, _fromPos.y - 20f, _fromPos.x + 20f, _fromPos.y + 20f), this.room);
 		_soundLoop.sound = SoundID.Gate_Water_Steam_LOOP;
 	}
-
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);

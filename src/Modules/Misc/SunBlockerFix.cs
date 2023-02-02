@@ -4,7 +4,7 @@
 /// </summary>
 public class SunBlockerFix
 {
-	private static On.SunBlocker.hook_InitiateSprites hook_sb = (orig, self, sLeaser, rCam) =>
+	private static On.SunBlocker.hook_InitiateSprites __hook_sb = (orig, self, sLeaser, rCam) =>
 	{
 		orig(self, sLeaser, rCam);
 		sLeaser.sprites[0].scaleX = 1500f;
@@ -14,11 +14,11 @@ public class SunBlockerFix
 
 	internal static void Apply()
 	{
-		On.SunBlocker.InitiateSprites += hook_sb;
+		On.SunBlocker.InitiateSprites += __hook_sb;
 	}
 	internal static void Undo()
 	{
-		On.SunBlocker.InitiateSprites -= hook_sb;
+		On.SunBlocker.InitiateSprites -= __hook_sb;
 	}
 
 }

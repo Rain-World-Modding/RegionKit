@@ -1,5 +1,5 @@
 namespace RegionKit.Modules.EchoExtender;
-
+///<inheritdoc/>
 public static class _Enums
 {
 	/// <summary>

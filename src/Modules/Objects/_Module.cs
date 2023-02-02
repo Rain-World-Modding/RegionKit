@@ -1,16 +1,14 @@
 ﻿using MonoMod.RuntimeDetour;
 
-using GHalo = global::TempleGuardGraphics.Halo;
-
 namespace RegionKit.Modules.Objects;
-
+///<inheritdoc/>
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "MiscObjects")]
 public static class _Module
 {
 	private static bool __appliedOnce = false;
 
 	private static List<Hook> __objectHooks = new();
-	public static void Enable()
+	internal static void Enable()
 	{
 		//TODO: make unapplies?
 		if (!__appliedOnce)
@@ -81,8 +79,7 @@ public static class _Module
 			__logger.LogError($"Problem loading LittlePlanet atlases {ex}");
 		}
 	}
-
-	public static void Disable()
+	internal static void Disable()
 	{
 		On.RainWorld.LoadResources -= LoadLittlePlanetResources;
 		On.Room.NowViewed -= Room_Viewed;
@@ -109,19 +106,19 @@ public static class _Module
 			PlacedObject pObj = self.roomSettings.placedObjects[m];
 			switch (pObj.type.value)
 			{
-			case nameof(Enums_ARKillRect.ARKillRect):
+			case nameof(_Enums.ARKillRect):
 				self.AddObject(new ARKillRect(self, pObj));
 				break;
-			case nameof(Enums_RainbowNoFade.RainbowNoFade):
+			case nameof(_Enums.RainbowNoFade):
 				self.AddObject(new RainbowNoFade(self, pObj));
 				break;
-			case nameof(Enums_LittlePlanet.LittlePlanet):
+			case nameof(_Enums.LittlePlanet):
 				self.AddObject(new LittlePlanet(self, pObj));
 				break;
-			case nameof(NoWallSlideZones.Enums_NoWallSlideZones.NoWallSlideZone):
+			case nameof(_Enums.NoWallSlideZone):
 				self.AddObject(new NoWallSlideZone(self, pObj));
 				break;
-			case nameof(RKProjectedCircle.Enums_ProjectedCircle.ProjectedCircle):
+			case nameof(_Enums.ProjectedCircle):
 				self.AddObject(new ProjectedCircleObject(self, pObj));
 				break;
 			}
@@ -135,7 +132,7 @@ public static class _Module
 
 	private static void CreateObjectReps(On.DevInterface.ObjectsPage.orig_CreateObjRep orig, DevInterface.ObjectsPage self, PlacedObject.Type tp, PlacedObject pObj)
 	{
-		if (tp == Enums_ARKillRect.ARKillRect)
+		if (tp == _Enums.ARKillRect)
 		{
 			if (pObj == null)
 			{
@@ -152,7 +149,7 @@ public static class _Module
 			}
 			return;
 		}
-		else if (tp == Enums_RainbowNoFade.RainbowNoFade)
+		else if (tp == _Enums.RainbowNoFade)
 		{
 			if (pObj == null)
 			{
@@ -169,7 +166,7 @@ public static class _Module
 			}
 			return;
 		}
-		else if (tp == Enums_LittlePlanet.LittlePlanet)
+		else if (tp == _Enums.LittlePlanet)
 		{
 			if (pObj is null)
 			{
@@ -182,7 +179,7 @@ public static class _Module
 			self.tempNodes.Add(pObjRep);
 			self.subNodes.Add(pObjRep);
 		}
-		else if (tp == NoWallSlideZones.Enums_NoWallSlideZones.NoWallSlideZone)
+		else if (tp == _Enums.NoWallSlideZone)
 		{
 			if (pObj is null)
 			{
@@ -202,19 +199,19 @@ public static class _Module
 
 	private static void MakeEmptyData(On.PlacedObject.orig_GenerateEmptyData orig, PlacedObject self)
 	{
-		if (self.type == Enums_ARKillRect.ARKillRect)
+		if (self.type == _Enums.ARKillRect)
 		{
 			self.data = new PlacedObject.GridRectObjectData(self);
 		}
-		else if (self.type == Enums_RainbowNoFade.RainbowNoFade)
+		else if (self.type == _Enums.RainbowNoFade)
 		{
 			self.data = new RainbowNoFade.RainbowNoFadeData(self);
 		}
-		else if (self.type == Enums_LittlePlanet.LittlePlanet)
+		else if (self.type == _Enums.LittlePlanet)
 		{
 			self.data = new LittlePlanet.LittlePlanetData(self);
 		}
-		else if (self.type == NoWallSlideZones.Enums_NoWallSlideZones.NoWallSlideZone)
+		else if (self.type == _Enums.NoWallSlideZone)
 		{
 			self.data = new FloatRectData(self);
 		}

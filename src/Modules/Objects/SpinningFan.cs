@@ -1,6 +1,8 @@
 ﻿namespace RegionKit.Modules.Objects;
-
-public class SpinningFan : UpdatableAndDeletable, IDrawable
+/// <summary>
+/// A fan that turns on and off depending on room power level
+/// </summary>
+internal class SpinningFan : UpdatableAndDeletable, IDrawable
 {
 	private readonly PlacedObject _pObj;
 	private float _getToSpeed;
@@ -17,7 +19,7 @@ public class SpinningFan : UpdatableAndDeletable, IDrawable
 		_scale = managedData.GetValue<float>("scale");
 		_depth = managedData.GetValue<float>("depth");
 	}
-
+	
 	public override void Update(bool eu)
 	{
 		_pos = _pObj.pos;

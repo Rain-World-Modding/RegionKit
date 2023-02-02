@@ -1,7 +1,9 @@
 ﻿using System;
 
 namespace RegionKit.Modules.Objects;
-
+/// <summary>
+/// A customizeable freeform sprite
+/// </summary>
 public class Drawable : CosmeticSprite
 {
 	internal static ManagedField[] __fields = {
@@ -14,15 +16,20 @@ public class Drawable : CosmeticSprite
 		new BooleanField("useColour", false, displayName: "Use Colour"),
 		new ColorField("colour", Color.white, ManagedFieldWithPanel.ControlType.slider, "Colour")
 	};
-
+	/// <summary>
+	/// POM ctor
+	/// </summary>
 	public Drawable(PlacedObject pObj, Room room)
 	{
 		this.room = room;
 		_LocalPlacedObject = pObj;
 	}
-
+	/// <summary>
+	/// Enum for container codes
+	/// </summary>
 	public enum FContainer
 	{
+		#pragma warning disable 1591
 		Shadows,
 		BackgroundShortcuts,
 		Background,
@@ -36,12 +43,13 @@ public class Drawable : CosmeticSprite
 		Bloom,
 		HUD,
 		HUD2
+		#pragma warning restore 1591
 	}
 
 	private ManagedData _Data => (_LocalPlacedObject.data as ManagedData)!;
 	private Vector2 _PlacedObjectTile => _LocalPlacedObject.pos;
 	private PlacedObject _LocalPlacedObject { get; }
-
+	///<inheritdoc/>
 	public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 		base.InitiateSprites(sLeaser, rCam);
@@ -74,7 +82,7 @@ public class Drawable : CosmeticSprite
 			};
 		}
 	}
-
+	///<inheritdoc/>
 	public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		base.DrawSprites(sLeaser, rCam, timeStacker, camPos);

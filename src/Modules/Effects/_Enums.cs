@@ -1,5 +1,5 @@
 namespace RegionKit.Modules.Effects;
-
+///<inheritdoc/>
 public static class _Enums
 {
 	/// <summary>

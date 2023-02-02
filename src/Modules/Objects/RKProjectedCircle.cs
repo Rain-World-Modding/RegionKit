@@ -1,31 +1,23 @@
 ﻿using CoralBrain;
 using UnityEngine;
 
-namespace RegionKit.Modules.Objects
+namespace RegionKit.Modules.Objects;
+
+
+internal class ProjectedCircleObject : UpdatableAndDeletable, IOwnProjectedCircles
 {
-	public class RKProjectedCircle
+	private readonly PlacedObject _pObj;
+
+	public ProjectedCircleObject(Room room, PlacedObject pObj)
 	{
-		public static class Enums_ProjectedCircle
-		{
-			public static PlacedObject.Type ProjectedCircle = new("ProjectedCircle", true);
-		}
+		this.room = room;
+		this._pObj = pObj;
+		room.AddObject(new ProjectedCircle(room, this, 0, 180f));
 	}
 
-	public class ProjectedCircleObject : UpdatableAndDeletable, IOwnProjectedCircles
-	{
-		private readonly PlacedObject _pObj;
+	public bool CanHostCircle() => true;
 
-		public ProjectedCircleObject(Room room, PlacedObject pObj)
-		{
-			this.room = room;
-			this._pObj = pObj;
-			room.AddObject(new ProjectedCircle(room, this, 0, 180f));
-		}
+	public Vector2 CircleCenter(int index, float timeStacker) => _pObj.pos;
 
-		public bool CanHostCircle() => true;
-
-		public Vector2 CircleCenter(int index, float timeStacker) => _pObj.pos;
-
-		public Room HostingCircleFromRoom() => this.room;
-	}
+	public Room HostingCircleFromRoom() => this.room;
 }

@@ -1,10 +1,11 @@
 ﻿namespace RegionKit.Modules.Effects;
 
+///<inheritdoc/>
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Effects")]
-internal static class _Module
+public static class _Module
 {
 	private static bool __appliedOnce = false;
-	public static void Enable()
+	internal static void Enable()
 	{
 		if (!__appliedOnce)
 		{
@@ -15,7 +16,7 @@ internal static class _Module
 		__appliedOnce = true;
 		ColoredRoomEffect.Apply();
 	}
-	public static void Disable()
+	internal static void Disable()
 	{
 		ColoredRoomEffect.Undo();
 	}

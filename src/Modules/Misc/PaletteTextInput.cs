@@ -1,21 +1,33 @@
 ﻿namespace RegionKit
 {
-	#if false
 	internal class PaletteTextInput
 	{
 		internal static void Apply()
 		{
 			On.DevInterface.PaletteController.ctor += PaletteController_ctor;
 		}
+		internal static void Undo()
+		{
+			On.DevInterface.PaletteController.ctor -= PaletteController_ctor;
+		}
 
-		private static void PaletteController_ctor(On.DevInterface.PaletteController.orig_ctor orig, DevInterface.PaletteController self, DevInterface.DevUI owner, string IDstring, DevInterface.DevUINode parentNode, UnityEngine.Vector2 pos, string title, int controlPoint)
+		private static void PaletteController_ctor(
+			On.DevInterface.PaletteController.orig_ctor orig,
+			DevInterface.PaletteController self,
+			DevInterface.DevUI owner,
+			string IDstring,
+			DevInterface.DevUINode parentNode,
+			UnityEngine.Vector2 pos,
+			string title,
+			int controlPoint)
 		{
 			orig(self, owner, IDstring, parentNode, pos, title, controlPoint);
 
 			if (controlPoint >= 0 && controlPoint <= 3) // one that we know how to process
 			{
+				//todo: probably breaks
 				var paletteField = new PaletteField(self);
-				var strfield = new ManagedStringControl(paletteField, new ManagedData(null, new ManagedField[] { paletteField }), self, 0f);
+				var strfield = new ManagedStringControl(paletteField, new ManagedData(null!, new ManagedField[] { paletteField }), null, 0f);
 				strfield.ClearSprites();
 				strfield.subNodes[1] = self.subNodes.Find(e => e.IDstring == "Number");
 				self.subNodes.Add(strfield);
@@ -32,7 +44,7 @@
 				this.ctroller = ctroller;
 			}
 
-			public override string DisplayValueForNode(DevInterface.PositionedDevUINode node, PlacedObjectsManager.ManagedData data)
+			public override string DisplayValueForNode(DevInterface.PositionedDevUINode node, ManagedData data)
 			{
 				string arg = string.Empty;
 				switch (ctroller.controlPoint)
@@ -92,7 +104,7 @@
 				return "";
 			}
 
-			public override void ParseFromText(DevInterface.PositionedDevUINode node, PlacedObjectsManager.ManagedData data, string newValue)
+			public override void ParseFromText(DevInterface.PositionedDevUINode node, ManagedData data, string newValue)
 			{
 				base.ParseFromText(node, data, newValue);
 
@@ -123,5 +135,4 @@
 			}
 		}
 	}
-	#endif
 }

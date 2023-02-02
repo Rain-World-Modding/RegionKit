@@ -14,5 +14,7 @@
 ### todo
 
 - reenable arena cloudadjustment
+- Restore ColoredRoomEffects
+- Restore FogOfWar (requires assetbundles -> requires unity editor)
 
 ### done

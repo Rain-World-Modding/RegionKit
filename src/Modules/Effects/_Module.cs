@@ -10,15 +10,16 @@ public static class _Module
 		if (!__appliedOnce)
 		{
 			GlowingSwimmersCI.Apply();
-			ReplaceEffectColor.Apply();
 			PWMalfunction.Patch();
 		}
 		__appliedOnce = true;
-		ColoredRoomEffect.Apply();
+		ColorRoomEffect.Apply();
+		ReplaceEffectColor.Apply();
 	}
 	internal static void Disable()
 	{
-		ColoredRoomEffect.Undo();
+		ColorRoomEffect.Undo();
+		ReplaceEffectColor.Undo();
 	}
 
 	

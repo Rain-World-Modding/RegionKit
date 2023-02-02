@@ -311,10 +311,6 @@ public static class LittlePlanetExtensions
 	}
 }
 
-public static class Enums_LittlePlanet
-{
-	public static PlacedObject.Type LittlePlanet = new(nameof(LittlePlanet), true);
-}
 
 public static class EmbeddedResourceLoader
 {

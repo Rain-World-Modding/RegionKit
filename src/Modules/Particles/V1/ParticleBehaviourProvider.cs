@@ -10,6 +10,9 @@ namespace RegionKit.Modules.Particles.V1;
 /// </summary>
 public abstract class ParticleBehaviourProvider : ManagedData
 {
+	/// <summary>
+	/// Create new module for given new particle
+	/// </summary>
 	public abstract PBehaviourModule? GetNewForParticle(GenericParticle p);
 	/// <summary>
 	/// Affects sorting of providers in <see cref="RoomParticleSystem._modifiers"/>. Higher value -> applied later.
@@ -42,9 +45,10 @@ public abstract class ParticleBehaviourProvider : ManagedData
 			RegisterPModType<PBehaviourModule.AFFLICTION>("affliction");
 			RegisterPModType<PBehaviourModule.ANTIBODY>("antibody");
 			RegisterPModType<PBehaviourModule.AvoidWater>("avoidwater");
-			RegisterPModType<PBehaviourModule.wallCollision>("wallcollision");
-			RegisterPModType<PBehaviourModule.stickToSurface>("sticktowalls");
+			RegisterPModType<PBehaviourModule.WallCollision>("wallcollision");
+			RegisterPModType<PBehaviourModule.StickToSurface>("sticktowalls");
 		}
+		///<inheritdoc/>
 		public PlainModuleRegister(PlacedObject owner) : base(owner, null) { }
 		private static readonly Dictionary<string, Func<GenericParticle, PBehaviourModule>> RegisteredDelegates;
 		/// <summary>
@@ -94,8 +98,9 @@ public abstract class ParticleBehaviourProvider : ManagedData
 		/// </summary>
 		[StringField("sk", "affliction", displayName: "Addon key")]
 		public string SelectedKey = "";
+		///<inheritdoc/>
 		public PlainModuleRegister(PlacedObject owner, List<ManagedField> addFields) : base(owner, addFields) { }
-
+		///<inheritdoc/>
 		public override PBehaviourModule? GetNewForParticle(GenericParticle p)
 		{
 			if (RegisteredDelegates.TryGetValue(SelectedKey, out var del)) { return del(p); }
@@ -107,6 +112,7 @@ public abstract class ParticleBehaviourProvider : ManagedData
 	/// </summary>
 	public class WavinessProvider : ParticleBehaviourProvider
 	{
+		#pragma warning disable 1591
 		[FloatField("amp", 0.1f, 40f, 15f, displayName: "Amplitude")]
 		public float amp;
 		[FloatField("ampFluke", 0.1f, 40f, 0f, displayName: "Ampfluke")]
@@ -119,35 +125,51 @@ public abstract class ParticleBehaviourProvider : ManagedData
 		public float phase;
 		[FloatField("phsFluke", -5f, 5f, 0f, displayName: "Phase fluke")]
 		public float phaseFluke;
-
-		protected Modules.Machinery.OscillationParams default_op => new(amp, frq, phase, Mathf.Sin);
-		protected Modules.Machinery.OscillationParams dev_op => new(ampFluke, frqFluke, phaseFluke, Mathf.Cos);
-
+		#pragma warning restore 1591
+		/// <summary>
+		/// Default oscillation params
+		/// </summary>
+		protected Modules.Machinery.OscillationParams _osParamsDefault => new(amp, frq, phase, Mathf.Sin);
+		/// <summary>
+		/// Max deviation from default
+		/// </summary>
+		protected Modules.Machinery.OscillationParams _osParamsDeviate => new(ampFluke, frqFluke, phaseFluke, Mathf.Cos);
+		/// <summary>
+		/// Returns waviness params for new module
+		/// </summary>
+		/// <returns></returns>
 		public Modules.Machinery.OscillationParams GetOscParams()
 		{
-			return default_op.Deviate(dev_op);
+			return _osParamsDefault.Deviate(_osParamsDeviate);
 		}
+		///<inheritdoc/>
 		public WavinessProvider(PlacedObject owner) : base(owner, null) { }
-
+		///<inheritdoc/>
 		public override PBehaviourModule GetNewForParticle(GenericParticle p)
 		{
 			//PetrifiedWood.WriteLine("Creating a new module");
 			return new PBehaviourModule.Wavy(p, GetOscParams());//throw new NotImplementedException();
 		}
 	}
+	/// <summary>
+	/// Makes particles spin
+	/// </summary>
 	public class SpinProvider : WavinessProvider
 	{
+		/// <summary>
+		/// Angular velocity of spinning
+		/// </summary>
 		[FloatField("avB", -60f, 60f, 0f, displayName: "base angular velocity")]
-		public float angVec;
+		public float angVel;
 
-
+		///<inheritdoc/>
 		public SpinProvider(PlacedObject owner) : base(owner)
 		{
 		}
-
+		///<inheritdoc/>
 		public override PBehaviourModule GetNewForParticle(GenericParticle p)
 		{
-			return new PBehaviourModule.Spin(p, angVec, GetOscParams());
+			return new PBehaviourModule.Spin(p, angVel, GetOscParams());
 		}
 	}
 }

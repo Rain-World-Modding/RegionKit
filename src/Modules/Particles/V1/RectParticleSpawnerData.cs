@@ -6,19 +6,22 @@ public class RectParticleSpawnerData : ParticleSystemData
 {
 	[Vector2Field("effRect", 40f, 40f, Vector2Field.VectorReprType.rect)]
 	Vector2 RectBounds;
-
+	///<inheritdoc/>
 	public RectParticleSpawnerData(PlacedObject owner) : base(owner, null)
 	{
 
 	}
 	//cached second point for areaNeedsRefresh
 	private Vector2 _c_rectBounds;
+	///<inheritdoc/>
 	protected override bool AreaNeedsRefresh => base.AreaNeedsRefresh && _c_rectBounds == RectBounds;
+	///<inheritdoc/>
 	protected override void UpdateTilesetCacheValidity()
 	{
 		base.UpdateTilesetCacheValidity();
 		_c_rectBounds = RectBounds;
 	}
+	///<inheritdoc/>
 	protected override List<IntVector2> GetSuitableTiles(Room rm)
 	{
 		//c_RB = RectBounds;

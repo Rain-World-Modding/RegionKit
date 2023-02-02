@@ -9,6 +9,7 @@ namespace RegionKit.Modules.ShelterBehaviors
 	/// </summary>
 	public static class ExtensionsForThingsIHateTypingOut
 	{
+		#pragma warning disable 1591
 		public static float Abs(this float f)
 		{
 			return Mathf.Abs(f);
@@ -32,6 +33,7 @@ namespace RegionKit.Modules.ShelterBehaviors
 		{
 			return new Vector2(Vector2.Dot(Vector2.right, dir).Abs() > 0.707 ? Vector2.Dot(Vector2.right, dir).Sign() : 0, Vector2.Dot(Vector2.up, dir).Abs() > 0.707 ? Vector2.Dot(Vector2.up, dir).Sign() : 0f);
 		}
+		#pragma warning restore 1591
 	}
 
 	/// <summary>
@@ -143,7 +145,9 @@ namespace RegionKit.Modules.ShelterBehaviors
 				Debug.Log("Shelterbehaviormanager " + str);
 			}
 		}
-
+		/// <summary>
+		/// POM ctor
+		/// </summary>
 		public ShelterBehaviorManager(Room instance, PlacedObject pObj)
 		{
 			this.room = instance;
@@ -181,18 +185,19 @@ namespace RegionKit.Modules.ShelterBehaviors
 			{
 				if (instance.roomSettings.placedObjects[i].active)
 				{
+
 					switch (instance.roomSettings.placedObjects[i].type.ToString())
 					{
-					case _Module.EnumNames.PlacedDoor:
+					case nameof(_Enums.ShelterBhvrPlacedDoor):
 						this.AddPlacedDoor(instance.roomSettings.placedObjects[i]);
 						break;
-					case _Module.EnumNames.TriggerZone:
+					case nameof(_Enums.ShelterBhvrTriggerZone):
 						this.AddTriggerZone(instance.roomSettings.placedObjects[i]);
 						break;
-					case _Module.EnumNames.NoTriggerZone:
+					case nameof(_Enums.ShelterBhvrNoTriggerZone):
 						this.AddNoTriggerZone(instance.roomSettings.placedObjects[i]);
 						break;
-					case _Module.EnumNames.SpawnPosition:
+					case nameof(_Enums.ShelterBhvrSpawnPosition):
 						this.AddSpawnPosition(instance.roomSettings.placedObjects[i]);
 						break;
 					default:
@@ -269,7 +274,7 @@ namespace RegionKit.Modules.ShelterBehaviors
 			_deleteHackDoorNextFrame = true;
 		}
 
-
+		///<inheritdoc/>
 		public override void Update(bool eu)
 		{
 			if (_deleteHackDoorNextFrame)
@@ -685,6 +690,7 @@ namespace RegionKit.Modules.ShelterBehaviors
 		/// </summary>
 		public class HoldToTriggerTutorialObject : UpdatableAndDeletable
 		{
+			///<inheritdoc/>
 			public HoldToTriggerTutorialObject(Room room, PlacedObject pObj)
 			{
 				this.room = room;
@@ -710,7 +716,7 @@ namespace RegionKit.Modules.ShelterBehaviors
 				}
 
 			}
-
+			///<inheritdoc/>
 			public override void Update(bool eu)
 			{
 				base.Update(eu);
@@ -738,7 +744,9 @@ namespace RegionKit.Modules.ShelterBehaviors
 			private int _message;
 			private PlacedObject _placedObject;
 			private int _placedObjectIndex;
-
+			/// <summary>
+			/// Consumes the shelter, making it broken for the next few cycles
+			/// </summary>
 			public void Consume()
 			{
 				Debug.Log("CONSUMED: HoldToTriggerTutorialObject ;)");

@@ -1,8 +1,12 @@
 using static UnityEngine.Mathf;
 
 namespace RegionKit.Modules.Particles.V1;
+/// <summary>
+/// base POM data for particle systems
+/// </summary>
 public abstract class ParticleSystemData : ManagedData
 {
+	#pragma warning disable 1591
 	[BooleanField("warmup", false, displayName: "Warmup on room load")]
 	public bool doWarmup;
 	[IntegerField("fadeIn", 0, 400, 80, ManagedFieldWithPanel.ControlType.text, displayName: "Fade-in frames")]
@@ -18,7 +22,7 @@ public abstract class ParticleSystemData : ManagedData
 	[IntegerField("ltFluke", 0, 15000, 0, ManagedFieldWithPanel.ControlType.text, displayName: "Lifetime fluke")]
 	public int lifeTimeFluke;
 	[Vector2Field("sdBase", 30f, 30f, label: "Direction")]
-	public Vector2 sdBase;
+	public Vector2 startDirBase;
 	[FloatField("sdFluke", 0f, 180f, 0f, displayName: "Direction fluke (deg)")]
 	public float startDirFluke;
 	[FloatField("speed", 0f, 100f, 5f, control: ManagedFieldWithPanel.ControlType.text, displayName: "Speed")]
@@ -30,7 +34,10 @@ public abstract class ParticleSystemData : ManagedData
 	public int minCooldown;
 	[IntegerField("cdMax", 1, int.MaxValue, 50, ManagedFieldWithPanel.ControlType.text, displayName: "Max cooldown")]
 	public int maxCooldown;
-
+	#pragma warning restore 1591
+	/// <summary>
+	/// Recaches tile set if needed and returns it
+	/// </summary>
 	public List<IntVector2> ReturnSuitableTiles(Room rm)
 	{
 		//this right here is to update your changes live as you edit in devtools without recalculating tile set every request.
@@ -54,14 +61,19 @@ public abstract class ParticleSystemData : ManagedData
 	{
 		_c_ownerpos = owner.pos;
 	}
-	//cached tileset
+	/// <summary>
+	/// Cached suitable tiles
+	/// </summary>
 	protected List<IntVector2>? _c_suitableTiles;
 	/// <summary>
 	/// Returns true when settings have been changed and tile set needs re-generating again. See code: <see cref="ReturnSuitableTiles(Room)"/>
 	/// </summary>
 	protected virtual bool AreaNeedsRefresh => _c_ownerpos != owner.pos;
+	/// <summary>
+	/// cached position of placedobject
+	/// </summary>
 	protected Vector2 _c_ownerpos;
-
+	///<inheritdoc/>
 	public ParticleSystemData(PlacedObject owner, List<ManagedField>? additionalFields)
 		: base(owner, null)
 	{
@@ -76,7 +88,7 @@ public abstract class ParticleSystemData : ManagedData
 	{
 		var res = new PMoveState
 		{
-			dir = LerpAngle(VecToDeg(sdBase) - startDirFluke, VecToDeg(sdBase) + startDirFluke, UnityEngine.Random.value),
+			dir = LerpAngle(VecToDeg(startDirBase) - startDirFluke, VecToDeg(startDirBase) + startDirFluke, UnityEngine.Random.value),
 			speed = Clamp(Lerp(startSpeed - startSpeedFluke, startSpeed + startSpeedFluke, UnityEngine.Random.value), 0f, float.MaxValue),
 			fadeIn = ClampedIntDeviation(fadeIn, fadeInFluke, minRes: 0),
 			fadeOut = ClampedIntDeviation(fadeOut, fadeOutFluke, minRes: 0),

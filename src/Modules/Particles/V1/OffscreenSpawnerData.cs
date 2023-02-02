@@ -1,21 +1,30 @@
 namespace RegionKit.Modules.Particles.V1;
+/// <summary>
+/// Spawns particles outside screen borders
+/// </summary>
 public class OffscreenSpawnerData : ParticleSystemData
 {
+	#pragma warning disable 1591
 	[IntegerField("margin", 0, 30, 1)]
 	public int margin;
 	[BooleanField("nosolid", true, displayName: "Skip solid tiles")]
 	public bool AirOnly;
+	#pragma warning restore 1591
+	///<inheritdoc/>
 	public OffscreenSpawnerData(PlacedObject owner) : base(owner, new List<ManagedField>())
 	{
 	}
 
 	private Vector2 _c_dir;
+	///<inheritdoc/>
 	protected override void UpdateTilesetCacheValidity()
 	{
 		base.UpdateTilesetCacheValidity();
 		_c_dir = base.GetValue<Vector2>("sdBase");
 	}
+	///<inheritdoc/>
 	protected override bool AreaNeedsRefresh => base.AreaNeedsRefresh && _c_dir == base.GetValue<Vector2>("sdBase");
+	///<inheritdoc/>
 	protected override List<IntVector2> GetSuitableTiles(Room rm)
 	{
 		var res = new List<IntVector2>();

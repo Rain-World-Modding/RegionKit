@@ -13,7 +13,7 @@ namespace RegionKit.Modules.Particles.V1;
 /// </summary>
 public class GenericParticle : CosmeticSprite
 {
-	public static GenericParticle MakeNew(PMoveState start, ParticleVisualState visuals)
+	internal static GenericParticle MakeNew(PMoveState start, ParticleVisualState visuals)
 	{
 		return new GenericParticle(start, visuals);
 	}
@@ -32,14 +32,14 @@ public class GenericParticle : CosmeticSprite
 		pos = bSt.pos;
 		lastPos = pos;
 	}
-
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		//lastRot = rot;
 		lifetime += 1f;
 		//every frame, velocity is set to initial. Make sure to treat it accordingly in your custom behaviour modules
 		var cpw = CurrentPower;
-		var crd = cRad(cpw);
+		var crd = currentRadius(cpw);
 		var cLInt = (visuals.lightIntensity > 0f) ? Lerp(0f, visuals.lightIntensity, cpw) : 0f;
 		if (!SetUpRan)
 		{
@@ -74,7 +74,7 @@ public class GenericParticle : CosmeticSprite
 		base.Update(eu);
 		OnUpdatePostMove?.Invoke();
 	}
-
+	///<inheritdoc/>
 	public override void Destroy()
 	{
 		OnDestroy?.Invoke();
@@ -83,31 +83,41 @@ public class GenericParticle : CosmeticSprite
 	}
 
 	#region modules
-	public void addModule(PBehaviourModule m) { Modules.Add(m); }
+	/// <summary>
+	/// Adds a new behaviour module to the particle
+	/// </summary>
+	public void AddModule(PBehaviourModule m)
+	{
+		Modules.Add(m);
+	}
+	/// <summary>
+	/// Behaviour modules of this instance
+	/// </summary>
+	/// <returns></returns>
 	public readonly List<PBehaviourModule> Modules = new();
-
-	public delegate void lcStages();
 	/// <summary>
 	/// invoked near the end of every frame
 	/// </summary>
-	public event lcStages? OnUpdatePreMove;
+	public event LifecycleFunction? OnUpdatePreMove;
 	/// <summary>
 	/// Invoked after base update call. Can be used to undo position changes.
 	/// </summary>
-	public event lcStages? OnUpdatePostMove;
+	public event LifecycleFunction? OnUpdatePostMove;
 	/// <summary>
 	/// invoked on first frame
 	/// </summary>
-	public event lcStages? OnCreate;
+	public event LifecycleFunction? OnCreate;
 	/// <summary>
 	/// invoked when particle is about to be destroyed
 	/// </summary>
-	public event lcStages? OnDestroy;
+	public event LifecycleFunction? OnDestroy;
 	#endregion
 
 	#region lifecycle
-
-	protected virtual float cRad(float power) => Lerp(visuals.lightRadiusMin, visuals.lightRadiusMax, power);
+	/// <summary>
+	/// Radius depending on current power
+	/// </summary>
+	protected virtual float currentRadius(float power) => Lerp(visuals.lightRadiusMin, visuals.lightRadiusMax, power);
 	/// <summary>
 	/// 0 to 1; represents how thick/transparent a particle is at the moment
 	/// </summary>
@@ -117,9 +127,9 @@ public class GenericParticle : CosmeticSprite
 		{
 			return phase switch
 			{
-				0 => Lerp(0f, 1f, (float)progress / (float)GetPhaseLimit(0)),
+				0 => Lerp(0f, 1f, (float)Progress / (float)GetPhaseLimit(0)),
 				1 => 1f,
-				2 => Lerp(1f, 0f, (float)progress / (float)GetPhaseLimit(2)),
+				2 => Lerp(1f, 0f, (float)Progress / (float)GetPhaseLimit(2)),
 				_ => 0f,
 			};
 		}
@@ -129,15 +139,19 @@ public class GenericParticle : CosmeticSprite
 	/// </summary>
 	internal void ProgressLifecycle()
 	{
-		progress++;
-		if (progress > GetPhaseLimit(phase))
+		Progress++;
+		if (Progress > GetPhaseLimit(phase))
 		{
-			progress = 0;
+			Progress = 0;
 			phase++;
 		}
 		if (phase > 2) this.Destroy();
 	}
-	public int progress
+	/// <summary>
+	/// The number of frames passed since beginning of current phase
+	/// </summary>
+	/// <value></value>
+	public int Progress
 	{
 		get => _pr;
 		private set { _pr = value; }
@@ -158,6 +172,9 @@ public class GenericParticle : CosmeticSprite
 			_ => 0,
 		};
 	}
+	/// <summary>
+	/// What part of lifecycle particle is currently at. 0 - fadein, 1 - main lifetime, 2 - fadeout
+	/// </summary>
 	public byte phase = 0;
 	#endregion
 
@@ -173,7 +190,14 @@ public class GenericParticle : CosmeticSprite
 	/// attached light source
 	/// </summary>
 	protected LightSource? myLight;
+	/// <summary>
+	/// Whether the first update has been executed
+	/// </summary>
 	protected bool SetUpRan = false;
+	/// <summary>
+	/// How much time the particle has left
+	/// </summary>
+	/// <value></value>
 	public float lifetime { get; protected set; } = 0f;
 	private float lastRot;
 	/// <summary>
@@ -183,6 +207,7 @@ public class GenericParticle : CosmeticSprite
 	//protected Vector2 VEL;
 
 	#region IDrawable things
+	///<inheritdoc/>
 	public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 
@@ -204,14 +229,17 @@ public class GenericParticle : CosmeticSprite
 		sLeaser.sprites[0].scale = visuals.scale;
 		AddToContainer(sLeaser, rCam, rCam.ReturnFContainer(visuals.container.ToString()));
 	}
+	///<inheritdoc/>
 	public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
 	{
 		base.AddToContainer(sLeaser, rCam, newContatiner);
 	}
+	///<inheritdoc/>
 	public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 	{
 		base.ApplyPalette(sLeaser, rCam, palette);
 	}
+	///<inheritdoc/>
 	public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		var cpos = Vector2.Lerp(lastPos, pos, timeStacker);
@@ -226,5 +254,9 @@ public class GenericParticle : CosmeticSprite
 	/// Use this to indicate how computationally heavy is your <see cref="GenericParticle"/> derivative. Used to smoothen loading process.
 	/// </summary>
 	public virtual float ComputationalCost => 1f;
+	/// <summary>
+	/// Delegate for lifecycle update for behaviour modules
+	/// </summary>
+	public delegate void LifecycleFunction();
 }
 

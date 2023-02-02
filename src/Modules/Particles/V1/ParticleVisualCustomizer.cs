@@ -3,9 +3,12 @@ using static UnityEngine.Mathf;
 namespace RegionKit.Modules.Particles.V1;
 #region spawners
 #endregion
-
+/// <summary>
+/// POM data for particle visuals
+/// </summary>
 public class ParticleVisualCustomizer : ManagedData, IParticleVisualProvider
 {
+	#pragma warning disable 1591
 	[ColorField("sColBase", 1f, 1f, 1f, 1f, DisplayName: "Sprite color base")]
 	public Color spriteColor;
 	[ColorField("sColFluke", 0f, 0f, 0f, 0f, DisplayName: "Sprite color fluke")]
@@ -40,16 +43,17 @@ public class ParticleVisualCustomizer : ManagedData, IParticleVisualProvider
 	public float scalemin = 1f;
 	[FloatField("z_scalemax", 0.1f, 2f, 1f, 0.05f, ManagedFieldWithPanel.ControlType.slider, displayName: "scale max")]
 	public float scalemax = 1f;
-
+	#pragma warning restore 1591
+	///<inheritdoc/>
 	public ParticleVisualCustomizer(PlacedObject owner) : base(owner, null)
 	{
 
 	}
-
+	///<inheritdoc/>
 	public Vector2 P2 => p2;
-
+	///<inheritdoc/>
 	public PlacedObject Owner => owner;
-
+	///<inheritdoc/>
 	public ParticleVisualState DataForNew()
 	{
 		var res = new ParticleVisualState(

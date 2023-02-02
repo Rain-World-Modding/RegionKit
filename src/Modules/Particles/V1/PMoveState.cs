@@ -11,13 +11,31 @@ namespace RegionKit.Modules.Particles.V1;
 /// </summary>
 public struct PMoveState
 {
+	/// <summary>
+	/// Direction in degrees
+	/// </summary>
 	public float dir;
+	/// <summary>
+	/// Speed in pixels/frame
+	/// </summary>
 	public float speed;
+	/// <summary>
+	/// Fade in in frames
+	/// </summary>
 	public int fadeIn;
+	/// <summary>
+	/// Lifetime in frames
+	/// </summary>
 	public int lifetime;
+	/// <summary>
+	/// Fade out in frames
+	/// </summary>
 	public int fadeOut;
+	/// <summary>
+	/// Current position
+	/// </summary>
 	public Vector2 pos;
-
+	///<inheritdoc/>
 	public PMoveState(
 		float dir,
 		float speed,
@@ -32,10 +50,5 @@ public struct PMoveState
 		this.lifetime = lifetime;
 		this.fadeOut = fadeOut;
 		this.pos = pos;
-	}
-
-	public void Slice(float ltF)
-	{
-
 	}
 }

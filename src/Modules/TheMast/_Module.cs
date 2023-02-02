@@ -8,20 +8,23 @@ internal static class _Module
 	{
 		if (!__appliedOnce)
 		{
-			ArenaBackgrounds.Apply();
-			BetterClouds.Apply();
 			DeerFix.Apply();
 			//ElectricGates.Apply();
 			PearlChains.Apply();
-			RainThreatFix.Apply();
-			SkyDandelionBgFix.Apply();
 			WindSystem.Apply();
 			WormGrassFix.Apply();
 		}
 		__appliedOnce = true;
+		ArenaBackgrounds.Apply();
+		BetterClouds.Apply();
+		RainThreatFix.Apply();
+		SkyDandelionBgFix.Apply();
 	}
 	public static void Disable()
 	{
-
+		ArenaBackgrounds.Undo();
+		BetterClouds.Undo();
+		RainThreatFix.Undo();
+		SkyDandelionBgFix.Undo();
 	}
 }

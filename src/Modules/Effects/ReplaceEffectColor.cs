@@ -1,78 +1,97 @@
-﻿using UnityEngine;
+﻿using System.Diagnostics.CodeAnalysis;
 using static RegionKit.Modules.Effects.ReplaceEffectColor.Enums_ReplaceEffectColor;
 
 namespace RegionKit.Modules.Effects;
 
-public class ReplaceEffectColor : UpdatableAndDeletable /// By M4rbleL1ne/LB Gamer
+/// <summary>
+/// Replaces the effect colors of the current room with custom colors.
+/// By LB/M4rbleL1ne
+/// </summary>
+public class ReplaceEffectColor : UpdatableAndDeletable
 {
+	/// <summary>
+	/// ReplaceEffectColotA and B enums
+	/// </summary>
 	public static class Enums_ReplaceEffectColor
 	{
-		public static RoomSettings.RoomEffect.Type ReplaceEffectColorA = new(nameof(ReplaceEffectColorA), true);
-		public static RoomSettings.RoomEffect.Type ReplaceEffectColorB = new(nameof(ReplaceEffectColorB), true);
+		/// <summary>
+		/// ReplaceEffectColorA
+		/// </summary>
+		[AllowNull] public static RoomSettings.RoomEffect.Type ReplaceEffectColorA = new(nameof(ReplaceEffectColorA), true);
+		/// <summary>
+		/// ReplaceEffectColorB
+		/// </summary>
+		[AllowNull] public static RoomSettings.RoomEffect.Type ReplaceEffectColorB = new(nameof(ReplaceEffectColorB), true);
 	}
 
+	/// <summary>
+	/// Replaces the effect colors of the current room with custom colors.
+	/// By LB/M4rbleL1ne
+	/// </summary>
 	public ReplaceEffectColor(Room room) => this.room = room;
 
 	internal static void Apply()
 	{
-		On.RainWorld.Start += (orig, self) =>
-		{
-			orig(self);
-			ColoredRoomEffect.coloredEffects.Add(ReplaceEffectColorA);
-			ColoredRoomEffect.coloredEffects.Add(ReplaceEffectColorB);
-		};
-		_CommonHooks.PostRoomLoad += (self) =>
-		{
-			for (var k = 0; k < self.roomSettings.effects.Count; k++)
-			{
-				var effect = self.roomSettings.effects[k];
-				if (effect.type == ReplaceEffectColorA || effect.type == ReplaceEffectColorB)
-					{
-						__logger.LogDebug($"ReplaceEffectColor in room {self.abstractRoom.name}");
-						self.AddObject(new ReplaceEffectColor(self));
-						}
-			}
-		};
+		ColorRoomEffect.colorEffectTypes.Add(ReplaceEffectColorA);
+		ColorRoomEffect.colorEffectTypes.Add(ReplaceEffectColorB);
+		_CommonHooks.PostRoomLoad += PostRoomLoad;
 	}
 
+	internal static void Undo()
+	{
+		ColorRoomEffect.colorEffectTypes.Remove(ReplaceEffectColorA);
+		ColorRoomEffect.colorEffectTypes.Remove(ReplaceEffectColorB);
+		_CommonHooks.PostRoomLoad -= PostRoomLoad;
+	}
+
+	private static void PostRoomLoad(Room self)
+	{
+		for (var k = 0; k < self.roomSettings.effects.Count; k++)
+		{
+			RoomSettings.RoomEffect effect = self.roomSettings.effects[k];
+			if (effect.type == ReplaceEffectColorA || effect.type == ReplaceEffectColorB)
+			{
+				__logger.LogDebug($"ReplaceEffectColor in room {self.abstractRoom.name}");
+				self.AddObject(new ReplaceEffectColor(self));
+			}
+		}
+	}
+
+	/// <summary>
+	/// ReplaceEffectColor Update method.
+	/// </summary>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		if (room?.game is not null)
+		if (room?.game is RainWorldGame game)
 		{
-			foreach (var cam in room.game.cameras)
+			foreach (RoomCamera cam in game.cameras)
 			{
-				if (cam.room?.roomSettings is not null)
+				if (cam.room?.roomSettings is RoomSettings rs)
 				{
-					var a = cam.room.roomSettings.GetEffectAmount(ReplaceEffectColorA);
-					var b = cam.room.roomSettings.GetEffectAmount(ReplaceEffectColorB);
-					var clrar = cam.room.roomSettings.GetColoredEffectRed(ReplaceEffectColorA);
-					var clrbr = cam.room.roomSettings.GetColoredEffectRed(ReplaceEffectColorB);
-					var clrag = cam.room.roomSettings.GetColoredEffectGreen(ReplaceEffectColorA);
-					var clrbg = cam.room.roomSettings.GetColoredEffectGreen(ReplaceEffectColorB);
-					var clrab = cam.room.roomSettings.GetColoredEffectBlue(ReplaceEffectColorA);
-					var clrbb = cam.room.roomSettings.GetColoredEffectBlue(ReplaceEffectColorB);
-					if (cam.room.roomSettings.IsEffectInRoom(ReplaceEffectColorA))
+					var flag = cam.paletteB > -1;
+					if (rs.IsEffectInRoom(ReplaceEffectColorA))
 					{
-						cam.fadeTexA.SetPixels(30, 4, 2, 2, new Color[] { new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a), new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a) }, 0);
-						cam.fadeTexA.SetPixels(30, 12, 2, 2, new Color[] { new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a), new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a) }, 0);
-					}
-					if (cam.room.roomSettings.IsEffectInRoom(ReplaceEffectColorB))
-					{
-						cam.fadeTexA.SetPixels(30, 2, 2, 2, new Color[] { new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b), new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b) }, 0);
-						cam.fadeTexA.SetPixels(30, 10, 2, 2, new Color[] { new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b), new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b) }, 0);
-					}
-					if (cam.paletteB > -1)
-					{
-						if (cam.room.roomSettings.IsEffectInRoom(ReplaceEffectColorA))
+						float a = rs.GetEffectAmount(ReplaceEffectColorA), clrar = rs.GetRedAmount(ReplaceEffectColorA), clrag = rs.GetGreenAmount(ReplaceEffectColorA), clrab = rs.GetBlueAmount(ReplaceEffectColorA);
+						var clrArA = new Color[] { new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a), new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a) };
+						cam.fadeTexA.SetPixels(30, 4, 2, 2, clrArA, 0);
+						cam.fadeTexA.SetPixels(30, 12, 2, 2, clrArA, 0);
+						if (flag)
 						{
-							cam.fadeTexB.SetPixels(30, 4, 2, 2, new Color[] { new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a), new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a) }, 0);
-							cam.fadeTexB.SetPixels(30, 12, 2, 2, new Color[] { new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a), new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a) }, 0);
+							cam.fadeTexB.SetPixels(30, 4, 2, 2, clrArA, 0);
+							cam.fadeTexB.SetPixels(30, 12, 2, 2, clrArA, 0);
 						}
-						if (cam.room.roomSettings.IsEffectInRoom(ReplaceEffectColorB))
+					}
+					if (rs.IsEffectInRoom(ReplaceEffectColorB))
+					{
+						float b = rs.GetEffectAmount(ReplaceEffectColorB), clrbr = rs.GetRedAmount(ReplaceEffectColorB), clrbg = rs.GetGreenAmount(ReplaceEffectColorB), clrbb = rs.GetBlueAmount(ReplaceEffectColorB);
+						var clrArB = new Color[] { new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b), new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b) };
+						cam.fadeTexA.SetPixels(30, 2, 2, 2, clrArB, 0);
+						cam.fadeTexA.SetPixels(30, 10, 2, 2, clrArB, 0);
+						if (flag)
 						{
-							cam.fadeTexB.SetPixels(30, 2, 2, 2, new Color[] { new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b), new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b) }, 0);
-							cam.fadeTexB.SetPixels(30, 10, 2, 2, new Color[] { new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b), new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b) }, 0);
+							cam.fadeTexB.SetPixels(30, 2, 2, 2, clrArB, 0);
+							cam.fadeTexB.SetPixels(30, 10, 2, 2, clrArB, 0);
 						}
 					}
 				}

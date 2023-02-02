@@ -6,8 +6,16 @@ using UnityEngine;
 using static RWCustom.Custom;
 
 namespace RegionKit.Modules.Machinery.V1;
+/// <summary>
+/// A linear set of pistons
+/// </summary>
 public class PistonArray : UpdatableAndDeletable
 {
+	/// <summary>
+	/// Constructor for POM
+	/// </summary>
+	/// <param name="rm"></param>
+	/// <param name="obj"></param>
 	public PistonArray(Room rm, PlacedObject obj)
 	{
 		this._PO = obj;
@@ -15,6 +23,7 @@ public class PistonArray : UpdatableAndDeletable
 		__logger.LogDebug($"({rm.abstractRoom.name}): Creating piston array...");
 		_GeneratePistons();
 	}
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
@@ -94,7 +103,7 @@ public class PistonArray : UpdatableAndDeletable
 
 		}
 	}
-
+	///<inheritdoc/>
 	public override void Destroy()
 	{
 		base.Destroy();

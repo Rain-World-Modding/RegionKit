@@ -87,13 +87,13 @@ public static class _Module
 		PlacedObject? EEGhostSpot = null;
 		if (self.game != null)
 		{ // Actual ingame loading
-			EEGhostSpot = self.roomSettings.placedObjects.FirstOrDefault((v) => v.type == Enums.EEGhostSpot && v.active);
+			EEGhostSpot = self.roomSettings.placedObjects.FirstOrDefault((v) => v.type == _Enums.EEGhostSpot && v.active);
 			if (EEGhostSpot != null) EEGhostSpot.type = PlacedObject.Type.GhostSpot; // Temporary switcheroo to trigger vanilla code that handles ghosts
 		}
 
 		orig(self);
 		// Unswitcheroo
-		if (self.game != null && EEGhostSpot != null) EEGhostSpot.type = Enums.EEGhostSpot;
+		if (self.game != null && EEGhostSpot != null) EEGhostSpot.type = _Enums.EEGhostSpot;
 	}
 
 	private static void DeathPersistentSaveDataOnCtor(On.DeathPersistentSaveData.orig_ctor orig, DeathPersistentSaveData self, SlugcatStats.Name slugcat)

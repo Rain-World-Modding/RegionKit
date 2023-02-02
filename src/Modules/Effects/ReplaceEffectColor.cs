@@ -27,7 +27,10 @@ public class ReplaceEffectColor : UpdatableAndDeletable /// By M4rbleL1ne/LB Gam
 			{
 				var effect = self.roomSettings.effects[k];
 				if (effect.type == ReplaceEffectColorA || effect.type == ReplaceEffectColorB)
-					self.AddObject(new ReplaceEffectColor(self));
+					{
+						__logger.LogDebug($"ReplaceEffectColor in room {self.abstractRoom.name}");
+						self.AddObject(new ReplaceEffectColor(self));
+						}
 			}
 		};
 	}

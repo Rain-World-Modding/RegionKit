@@ -82,7 +82,7 @@ internal class CloudAdjustment
 
 		for (int k = 0; k < self.room.roomSettings.effects.Count; k++)
 		{
-			if (self.room.roomSettings.effects[k].type == Modules.Effects.Enums_Effects.CloudAdjustment)
+			if (self.room.roomSettings.effects[k].type == Modules.Effects._Enums.CloudAdjustment)
 			{
 
 				if (self.room.game.IsArenaSession)

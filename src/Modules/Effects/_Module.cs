@@ -6,20 +6,18 @@ internal static class _Module
 	private static bool __appliedOnce = false;
 	public static void Enable()
 	{
-		
 		if (!__appliedOnce)
 		{
-			ColoredRoomEffect.Apply();
-			//FogOfWar.Patch();
 			GlowingSwimmersCI.Apply();
 			ReplaceEffectColor.Apply();
 			PWMalfunction.Patch();
 		}
 		__appliedOnce = true;
+		ColoredRoomEffect.Apply();
 	}
 	public static void Disable()
 	{
-
+		ColoredRoomEffect.Undo();
 	}
 
 	

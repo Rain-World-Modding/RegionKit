@@ -1,8 +1,6 @@
-namespace RegionKit;
-/// <summary>
-/// Contains extended enum entries for the mod.
-/// </summary>
-public static class Enums
+namespace RegionKit.Modules.AridBarrens;
+
+public static class _Enums
 {
 	/// <summary>
 	/// SandStorm effect from Arid Barrens.
@@ -14,9 +12,5 @@ public static class Enums
 	/// </summary>
 	/// <returns></returns>
 	public static RoomSettings.RoomEffect.Type SandPuffs = new(nameof(SandPuffs), true);
-	/// <summary>
-	/// EchoExtender's variant of GhostSpot
-	/// </summary>
-	/// <returns></returns>
-	public static PlacedObject.Type EEGhostSpot = new("EEGhostSpot", true);
+
 }

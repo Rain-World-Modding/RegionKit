@@ -58,18 +58,18 @@ public static class _Module
 	private static void Room_AddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
 	{
 		orig(self, obj);
-		if (ManagersByRoom.TryGetValue(self.GetHashCode(), out var manager) && obj is V1.RoomPowerManager.IRoomPowerModifier rpm) manager.RegisterPowerDevice(rpm);
+		if (__managersByRoomHash.TryGetValue(self.GetHashCode(), out var manager) && obj is V1.RoomPowerManager.IRoomPowerModifier rpm) manager.RegisterPowerDevice(rpm);
 	}
 	private delegate float orig_Room_GetPower(Room self);
 	private static void RWG_new(RWG_Ctor orig, RainWorldGame self, ProcessManager manager)
 	{
-		ManagersByRoom.Clear();
+		__managersByRoomHash.Clear();
 		orig(self, manager);
 	}
 	private delegate void RWG_Ctor(RainWorldGame self, ProcessManager manager);
 	private static float Room_GetPower(orig_Room_GetPower orig, Room self)
 	{
-		if (ManagersByRoom.TryGetValue(self.GetHashCode(), out var rpm)) return rpm.GetGlobalPower();
+		if (__managersByRoomHash.TryGetValue(self.GetHashCode(), out var rpm)) return rpm.GetGlobalPower();
 		return orig(self);
 	}
 	private static void GenerateHooks()
@@ -100,13 +100,7 @@ public static class _Module
 		RegisterManagedObject<V1.SimpleCog, V1.SimpleCogData, ManagedRepresentation>("SimpleCog", RK_POM_CATEGORY);
 		RegisterManagedObject<V1.RoomPowerManager, V1.PowerManagerData, ManagedRepresentation>("PowerManager", RK_POM_CATEGORY, true);
 	}
-	public static readonly Dictionary<int, V1.RoomPowerManager> ManagersByRoom = new Dictionary<int, V1.RoomPowerManager>();
-}
-
-
-public static class Enums_RKMachinery
-{
-	//public static AbstractPhysicalObject.AbstractObjectType abstractPiston;
+	internal static readonly Dictionary<int, V1.RoomPowerManager> __managersByRoomHash = new Dictionary<int, V1.RoomPowerManager>();
 }
 
 /// <summary>
@@ -114,15 +108,19 @@ public static class Enums_RKMachinery
 /// </summary>
 public enum OperationMode
 {
+	///<inheritdoc/>
 	Sinal = 2,
+	///<inheritdoc/>
 	Cosinal = 4,
 }
 /// <summary>
-/// Used as filter for <see cref="MachineryCustomizer"/>
+/// Used as filter for <see cref="V1.MachineryCustomizer"/>
 /// </summary>
 public enum MachineryID
 {
+	///<inheritdoc/>
 	Piston,
+	///<inheritdoc/>
 	Cog
 }
 

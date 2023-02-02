@@ -53,7 +53,7 @@ public class PistonArray : UpdatableAndDeletable
 			rotation = _BaseDir + _PistonArrData.relativeRotation,
 			//sharpFac = pArrData.sharpFac,
 			align = _PistonArrData.align,
-			phase = _PistonArrData.phaseInc * index,
+			phase = _PistonArrData.phaseIncrement * index,
 			amplitude = _PistonArrData.amplitude,
 			frequency = _PistonArrData.frequency,
 			opmode = _OperModeByIndex(index),

@@ -28,11 +28,11 @@ public static class _Module
 	{
 		for (int k = 0; k < self.roomSettings.effects.Count; k++)
 		{
-			if (self.roomSettings.effects[k].type == Enums.SandStorm)
+			if (self.roomSettings.effects[k].type == _Enums.SandStorm)
 			{
 				self.AddObject(new SandStorm(self.roomSettings.effects[k], self));
 			}
-			else if (self.roomSettings.effects[k].type == Enums.SandPuffs)
+			else if (self.roomSettings.effects[k].type == _Enums.SandPuffs)
 			{
 				self.AddObject(new SandPuffsScene(self.roomSettings.effects[k], self));
 			}

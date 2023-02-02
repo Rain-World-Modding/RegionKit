@@ -11,6 +11,7 @@ namespace RegionKit.Modules.Particles;
 /// </summary>
 public struct ParticleVisualState
 {
+	#pragma warning disable 1591
 	public string atlasElement;
 	public string shader;
 	public ContainerCodes container;
@@ -24,7 +25,8 @@ public struct ParticleVisualState
 	//todo: document in example json
 	public bool submersible;
 	public float scale;
-
+	#pragma warning restore 1591
+	///<inheritdoc/>
 	public ParticleVisualState(
 		string aElm,
 		string shader,
@@ -50,7 +52,10 @@ public struct ParticleVisualState
 		this.affectedByDark = affByDark;
 		this.flat = flat;
 	}
-
+	/// <summary>
+	/// Returns blank settings
+	/// </summary>
+	/// <value></value>
 	public static ParticleVisualState Blank { get; private set; }
 		= new("SkyDandelion", "Basic", ContainerCodes.Items, new(1f, 1f, 1f), new(1f, 1f, 1f), 1f, 35f, 25f, 0f, false, 1f);
 }

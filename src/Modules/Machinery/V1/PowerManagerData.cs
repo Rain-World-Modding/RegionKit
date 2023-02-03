@@ -15,7 +15,7 @@ public class PowerManagerData : ManagedData
 	[EnumField<PowerMode>("mode", PowerMode.Overwrite)]
 	internal PowerMode pm = PowerMode.Overwrite;
 
-	internal PowerManagerData(PlacedObject? owner) : base(owner!, new ManagedField[] { })
+	public PowerManagerData(PlacedObject? owner) : base(owner!, new ManagedField[] { })
 	{
 
 	}
@@ -25,13 +25,11 @@ public class PowerManagerData : ManagedData
 	/// </summary>
 	public enum PowerMode
 	{
-		
 		///
 		Add,
 		///
 		Multiply,
 		///
 		Overwrite
-
 	}
 }

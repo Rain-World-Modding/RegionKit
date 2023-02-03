@@ -19,7 +19,7 @@ public class PistonData : BaseMachineryData
 	public float frequency = 1f;
 	public Vector2 forcePos;
 	#pragma warning restore 1591
-	internal PistonData(PlacedObject? owner) : base(owner!, null)
+	public PistonData(PlacedObject? owner) : base(owner!, null)
 	{
 
 	}

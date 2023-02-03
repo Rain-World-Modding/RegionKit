@@ -47,13 +47,13 @@
 		<EditorConfigFiles Remove="./.editorconfig" />
 	</ItemGroup>
 
-	<!-- Assets -->	
-	  
+	<!-- Assets -->
+
 	<ItemGroup>
 		<None Update="Assets/**" CopyToOutputDirectory="PreserveNewest" />
-		<Compile Remove="Assets/**"/>
-		<None Include="Assets/**"/>
-		<EmbeddedResource Include="Assets/**"/>
+		<Compile Remove="Assets/**" />
+		<None Include="Assets/**" />
+		<EmbeddedResource Include="Assets/**" />
 	</ItemGroup>
 
 	<!-- Lib includes. -->
@@ -154,21 +154,39 @@
 			<HintPath>lib/netstandard.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="com.rlabrecque.steamworks.net"> 
+		<Reference Include="com.rlabrecque.steamworks.net">
 			<HintPath>lib/com.rlabrecque.steamworks.net.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="PolySharp" Version="1.8.3">
-	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	    <PrivateAssets>all</PrivateAssets>
-	  </PackageReference>
+		<PackageReference Include="PolySharp" Version="1.8.3">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
 	</ItemGroup>
-
 	<!-- Build event -->
+	<ItemGroup>
+		<_CopyItems Include="Assets/**" />
+	</ItemGroup>
 	<Target Name="CopyOutput" AfterTargets="Build" Condition="'$(RWMods_RK)'!=''">
-		<Message Text="RK: Buildcopy from [ $(TargetPath) ] to [ $(RWMods_RK)/plugins ] - @(AssetFiles)" Importance="high"/>
-		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(RWMods_RK)/plugins"/>
+		<Message
+			Text="RK: Buildcopy from [ $(TargetPath) ] to [ $(RWMods_RK)/plugins ] - @(AssetFiles)"
+			Importance="high" />
+		<Copy 
+			SourceFiles="$(TargetPath)" 
+			DestinationFolder="$(RWMods_RK)/plugins"
+			Retries="3"
+			RetryDelayMilliseconds="300" />
+		<Copy
+			SourceFiles="@(_CopyItems)"
+			DestinationFolder="$(RWMods_RK)/assets/regionkit/%(RecursiveDir)"
+			Retries="3"
+			RetryDelayMilliseconds="300" />
+		<Copy 
+			SourceFiles="modinfo.json"
+			DestinationFolder="$(RWMods_RK)"
+			Retries="3"
+			RetryDelayMilliseconds="300"/>
 	</Target>
 </Project>

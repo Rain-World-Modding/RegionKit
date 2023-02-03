@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 
 namespace RegionKit.Modules.Objects;
-
+/// <summary>
+/// A light source that can be assigned any rgb value
+/// </summary>
 public class ColouredLightSource : UpdatableAndDeletable
 {
 	private PlacedObject _localPlacedObject;
@@ -9,7 +11,7 @@ public class ColouredLightSource : UpdatableAndDeletable
 	private ManagedData? _data;
 	private bool _flickering;
 
-	private static readonly ManagedField[] __fields = {
+	internal static readonly ManagedField[] __fields = {
 		new ColorField("lightCol", Color.white, ManagedFieldWithPanel.ControlType.slider, "Light Colour"),
 		new Vector2Field("radius", Vector2.up, Vector2Field.VectorReprType.circle),
 		new FloatField("alphaChannel", 0f, 1f, 1f, displayName: "Alpha"),
@@ -18,7 +20,9 @@ public class ColouredLightSource : UpdatableAndDeletable
 		new FloatField("flickIntensity", 0f, 1f, 0f, displayName: "Flicker Intensity"),
 		new FloatField("threshold", 0f, 1f, 0.5f, displayName: "Flicker Threshold")
 	};
-
+	/// <summary>
+	/// POM ctor
+	/// </summary>
 	public ColouredLightSource(PlacedObject pObj, Room room)
 	{
 		//Data = new(pObj, null);
@@ -30,7 +34,7 @@ public class ColouredLightSource : UpdatableAndDeletable
 		_lightSource.affectedByPaletteDarkness = _data?.GetValue<float>("paletteDarkness") ?? 0.5f;
 		room.AddObject(_lightSource);
 	}
-
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
@@ -72,6 +76,4 @@ public class ColouredLightSource : UpdatableAndDeletable
 		float noiseValue = Mathf.Clamp01(Mathf.PerlinNoise(vectorX * Time.time, vectorY * Time.time));
 		return noiseValue;
 	}
-
-	public static void RegisterAsFullyManagedObject() => RegisterFullyManagedObjectType(__fields, typeof(ColouredLightSource), null, RK_POM_CATEGORY);
 }

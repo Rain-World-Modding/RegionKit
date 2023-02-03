@@ -1,10 +1,12 @@
 ﻿using System;
 
 namespace RegionKit.Modules.Objects;
-
+/// <summary>
+/// A customizeable freeform sprite
+/// </summary>
 public class Drawable : CosmeticSprite
 {
-	private static ManagedField[] __fields = {
+	internal static ManagedField[] __fields = {
 		new Vector2ArrayField("quad", 4, true, Vector2ArrayField.Vector2ArrayRepresentationType.Polygon, Vector2.zero, Vector2.right * 20f, (Vector2.right + Vector2.up) * 20f, Vector2.up * 20f),
 		new StringField("spriteName", "Futile_White", "Decal Name"),
 		new FloatField("depth", 0f, 1f, 1f, displayName: "Depth"),
@@ -14,15 +16,20 @@ public class Drawable : CosmeticSprite
 		new BooleanField("useColour", false, displayName: "Use Colour"),
 		new ColorField("colour", Color.white, ManagedFieldWithPanel.ControlType.slider, "Colour")
 	};
-
+	/// <summary>
+	/// POM ctor
+	/// </summary>
 	public Drawable(PlacedObject pObj, Room room)
 	{
 		this.room = room;
 		_LocalPlacedObject = pObj;
 	}
-
+	/// <summary>
+	/// Enum for container codes
+	/// </summary>
 	public enum FContainer
 	{
+		#pragma warning disable 1591
 		Shadows,
 		BackgroundShortcuts,
 		Background,
@@ -36,12 +43,13 @@ public class Drawable : CosmeticSprite
 		Bloom,
 		HUD,
 		HUD2
+		#pragma warning restore 1591
 	}
 
 	private ManagedData _Data => (_LocalPlacedObject.data as ManagedData)!;
 	private Vector2 _PlacedObjectTile => _LocalPlacedObject.pos;
 	private PlacedObject _LocalPlacedObject { get; }
-
+	///<inheritdoc/>
 	public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 		base.InitiateSprites(sLeaser, rCam);
@@ -74,7 +82,7 @@ public class Drawable : CosmeticSprite
 			};
 		}
 	}
-
+	///<inheritdoc/>
 	public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
@@ -93,7 +101,7 @@ public class Drawable : CosmeticSprite
 		{
 			try
 			{
-				//TODO: test if changed io works
+				#pragma warning disable CS0618 //WWW is obsolete
 				WWW www = new WWW(AssetManager.ResolveFilePath($"decals/{_Data.GetValue<string>("SpriteName")}"));
 				Texture2D tex = new Texture2D(1, 1, TextureFormat.ARGB32, false)
 				{
@@ -104,6 +112,7 @@ public class Drawable : CosmeticSprite
 				www.LoadImageIntoTexture(tex);
 				HeavyTexturesCache.LoadAndCacheAtlasFromTexture(_Data.GetValue<string>("spriteName"), tex, false);
 				sLeaser.sprites[0].SetElementByName(_Data.GetValue<string>("spriteName"));
+				#pragma warning restore CS0618
 			}
 			catch (Exception e) when (e is FutileException)
 			{
@@ -129,6 +138,4 @@ public class Drawable : CosmeticSprite
 		col.a = _Data.GetValue<int>("alpha") / 255f;
 		sLeaser.sprites[0].color = _Data.GetValue<bool>("useColour") ? col : new Color(Color.white.r, Color.white.g, Color.white.b, _Data.GetValue<int>("alpha") / 255f);
 	}
-
-	public static void Register() => RegisterFullyManagedObjectType(__fields, typeof(Drawable), "FreeformDecalOrSprite", RK_POM_CATEGORY);
 }

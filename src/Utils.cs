@@ -119,8 +119,6 @@ internal static partial class Utils
 		var res = default(T);
 		if (arr.Length > 0) return arr[RNG.Range(0, arr.Length)];
 		return res;
-
-		///var x = new int?[] { 1, null }.RandomOrDefault();
 	}
 	public static T? RandomOrDefault<T>(this List<T> l)
 	{
@@ -129,6 +127,30 @@ internal static partial class Utils
 		return l[RNG.Range(0, l.Count)];
 	}
 
+	public static IEnumerable<int> Indices(this IList list)
+	{
+		int ct = list.Count;
+		for (int i = 0; i < ct; i++)
+		{
+			yield return i;
+			//if (ct != list.Count) throw new InvalidOperationException("List was modified");
+		}
+	}
+
+	/// <summary>
+	/// Creates a looped version of a selected enumerator.
+	/// </summary>
+	/// <param name="collection">Subject enumerator</param>
+	/// <typeparam name="T">Type of item</typeparam>
+	/// <returns>A yielder that wraps a collection and returns all its elements, repeating endlessly</returns>
+	public static IEnumerable<T> Loop<T>(this IEnumerable<T> collection)
+	{
+		IEnumerator<T> en;
+	START_:;
+		en = collection.GetEnumerator();
+		while (en.MoveNext()) yield return en.Current;
+		goto START_;
+	}
 	public static void AddMultiple<TKey, TValue>(this Dictionary<TKey, TValue> dict, TValue value, params TKey[] keys)
 	{
 		dict.AddMultiple(value, ieKeys: keys);
@@ -480,6 +502,16 @@ internal static partial class Utils
 	}
 	#endregion
 	#region misc bs
+	public static FAtlas LoadAtlasOrImage(this FAtlasManager man, string path)
+	{
+		if (IO.File.Exists(AssetManager.ResolveFilePath(path + ".txt")))
+		{
+			__logger.LogDebug(path + " loading as atlas");
+			return man.LoadAtlas(path);
+		}
+		__logger.LogDebug(path + "loading as single image");
+		return man.LoadImage(path);
+	}
 	public static IEnumerable<int> Range(int bound)
 	{
 		for (int i = 0; i < bound; i++) yield return i;
@@ -506,7 +538,7 @@ internal static partial class Utils
 		int resindex = -1;
 		ExtEnumType extEnumType = ExtEnumBase.GetExtEnumType(enumType);
 		StringComparer comp = ignoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture;
-		
+
 		for (int i = 0; i < extEnumType.entries.Count; i++)
 		{
 			if (comp.Compare(extEnumType.entries[i], value) == 0)

@@ -38,7 +38,13 @@ internal class CloudAdjustment
 		// 		}
 		// 	}
 		// }
+	}
 
+	internal static void Undo()
+	{
+		On.World.LoadMapConfig -= World_LoadMapConfig;
+		On.AboveCloudsView.ctor -= AboveCloudsView_ctor;
+		On.BackgroundScene.RoomToWorldPos -= BackgroundScene_RoomToWorldPos;
 	}
 
 	//private static bool CRS;
@@ -82,7 +88,7 @@ internal class CloudAdjustment
 
 		for (int k = 0; k < self.room.roomSettings.effects.Count; k++)
 		{
-			if (self.room.roomSettings.effects[k].type == Modules.Effects.Enums_Effects.CloudAdjustment)
+			if (self.room.roomSettings.effects[k].type == Modules.Effects._Enums.CloudAdjustment)
 			{
 
 				if (self.room.game.IsArenaSession)
@@ -153,7 +159,6 @@ internal class CloudAdjustment
 		}
 	}
 
-
 	/// <summary>
 	/// returns the path to the Properties.txt file if it exists, otherwise returns null
 	/// </summary>
@@ -174,7 +179,7 @@ internal class CloudAdjustment
 		// 	}
 
 		// }
-		
+
 		string? path = null;
 		path = AssetManager.ResolveFilePath($"world/{region}/properties.txt");
 		return File.Exists(path) ? null : null;
@@ -212,14 +217,7 @@ internal class CloudAdjustment
 					float.TryParse(array[1], out __endAltitude);
 					break;
 				}
-
-
 			}
-
 		}
-
 	}
-
-
-
 }

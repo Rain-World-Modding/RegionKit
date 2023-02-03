@@ -8,15 +8,24 @@ internal static class _Module
 	{
 		if (!__appliedOnce)
 		{
-			//CloudAdjustment.Apply();
 			SunBlockerFix.Apply();
+			_Enums.Register();
+			//CustomArenaDivisions.Patch
+			//CustomArenaDivisions.
 		}
+		__appliedOnce = true;
+		//PaletteTextInput.Apply();
+		CloudAdjustment.Apply();
+		ArenaFixes.ApplyHooks();
 		ExtendedGates.Enable();
 		SuperstructureFusesFix.Patch();
 		
 	}
 	public static void Disable()
 	{
+		//PaletteTextInput.Undo();
+		CloudAdjustment.Undo();
+		ArenaFixes.UndoHooks();
 		ExtendedGates.Disable();
 		SuperstructureFusesFix.Disable();
 	}

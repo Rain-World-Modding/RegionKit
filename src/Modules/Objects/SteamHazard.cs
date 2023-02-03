@@ -1,21 +1,8 @@
 ﻿namespace RegionKit.Modules.Objects;
 
-public static class SteamObjRep
-{
-	internal static void SteamRep()
-	{
-		List<ManagedField> fields = new List<ManagedField>
-		{
-			new FloatField("f1", 0f, 1f, 0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Duration"),
-			new FloatField("f2", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Frequency"),
-			new FloatField("f3", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Lifetime"),
-			new Vector2Field("v1", new Vector2(0f,45f), Vector2Field.VectorReprType.line)
-		};
-		RegisterFullyManagedObjectType(fields.ToArray(), typeof(SteamHazard), nameof(SteamHazard), RK_POM_CATEGORY);
-	}
-}
-
-
+/// <summary>
+/// Damaging steam
+/// </summary>
 public class SteamHazard : UpdatableAndDeletable
 {
 	private readonly PlacedObject _placedObject;
@@ -30,6 +17,9 @@ public class SteamHazard : UpdatableAndDeletable
 	private Vector2[]? _steamZone;
 	private Smoke.SteamSmoke _steam;
 	private RectangularDynamicSoundLoop _soundLoop;
+	/// <summary>
+	/// POM ctor
+	/// </summary>
 	public SteamHazard(PlacedObject pObj, Room room)
 	{
 		_placedObject = pObj;
@@ -46,7 +36,7 @@ public class SteamHazard : UpdatableAndDeletable
 		_soundLoop = new RectangularDynamicSoundLoop(this, new FloatRect(_fromPos.x - 20f, _fromPos.y - 20f, _fromPos.x + 20f, _fromPos.y + 20f), this.room);
 		_soundLoop.sound = SoundID.Gate_Water_Steam_LOOP;
 	}
-
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);

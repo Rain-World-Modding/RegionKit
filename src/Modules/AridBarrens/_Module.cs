@@ -5,13 +5,20 @@ using System.Text;
 
 namespace RegionKit.Modules.AridBarrens;
 
+///<inheritdoc/>
 [RegionKitModule(nameof(Register), nameof(Disable), moduleName: "AridBarrens")]
-static class _Module
+public static class _Module
 {
+	/// <summary>
+	/// Applies hooks.
+	/// </summary>
 	public static void Register()
 	{
 		_CommonHooks.PostRoomLoad += RoomPostLoad;
 	}
+	/// <summary>
+	/// Undoes hooks.
+	/// </summary>
 	public static void Disable()
 	{
 		_CommonHooks.PostRoomLoad -= RoomPostLoad;
@@ -21,13 +28,13 @@ static class _Module
 	{
 		for (int k = 0; k < self.roomSettings.effects.Count; k++)
 		{
-			if (self.roomSettings.effects[k].type == Enums_AridBarrens.SandStorm)
+			if (self.roomSettings.effects[k].type == _Enums.SandStorm)
 			{
 				self.AddObject(new SandStorm(self.roomSettings.effects[k], self));
 			}
-			else if (self.roomSettings.effects[k].type == Enums_AridBarrens.SandPuffs)
+			else if (self.roomSettings.effects[k].type == _Enums.SandPuffs)
 			{
-				self.AddObject(new SandPuffs(self.roomSettings.effects[k], self));
+				self.AddObject(new SandPuffsScene(self.roomSettings.effects[k], self));
 			}
 		}
 	}

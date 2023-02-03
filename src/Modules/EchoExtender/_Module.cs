@@ -4,13 +4,16 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using RWCustom;
 using UnityEngine;
-
 namespace RegionKit.Modules.EchoExtender;
-[RegionKitModule(nameof(ApplyHooks), nameof(RemoveHooks), moduleName: "Echo Extender")]
+///<inheritdoc/>
+[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Echo Extender")]
 public static class _Module
 {
-	public static SlugcatStats.Name SlugcatNumber { get; private set; } = SlugcatStats.Name.White;
-	public static void ApplyHooks()
+	private static SlugcatStats.Name __slugcatNumber { get; set; } = SlugcatStats.Name.White;
+	/// <summary>
+	/// Applies hooks
+	/// </summary>
+	public static void Enable()
 	{
 
 		// Tests for spawn
@@ -30,8 +33,10 @@ public static class _Module
 		On.DeathPersistentSaveData.ctor += DeathPersistentSaveDataOnCtor;
 		On.StoryGameSession.ctor += StoryGameSessionOnCtor;
 	}
-
-	public static void RemoveHooks()
+	/// <summary>
+	/// Undoes hooks
+	/// </summary>
+	public static void Disable()
 	{
 		On.GhostWorldPresence.ctor -= GhostWorldPresenceOnCtor;
 		On.GhostWorldPresence.GetGhostID -= GhostWorldPresenceOnGetGhostID;
@@ -59,7 +64,7 @@ public static class _Module
 
 	private static void WorldOnLoadWorld(On.World.orig_LoadWorld orig, World self, SlugcatStats.Name slugcatnumber, List<AbstractRoom> abstractroomslist, int[] swarmrooms, int[] shelters, int[] gates)
 	{
-		SlugcatNumber = slugcatnumber;
+		__slugcatNumber = slugcatnumber;
 		orig(self, slugcatnumber, abstractroomslist, swarmrooms, shelters, gates);
 	}
 	private static float GhostWorldPresenceOnGhostMode(On.GhostWorldPresence.orig_GhostMode_AbstractRoom_Vector2 orig, GhostWorldPresence self, AbstractRoom testRoom, Vector2 worldPos)
@@ -67,7 +72,7 @@ public static class _Module
 		var result = orig(self, testRoom, worldPos);
 		if (!EchoParser.__echoSettings.TryGetValue(self.ghostID, out var settings)) return result;
 		if (testRoom.index == self.ghostRoom.index) return 1f;
-		var echoEffectLimit = settings.GetRadius(SlugcatNumber) * 1000f; //I think 1 screen is like a 1000 so I'm going with that
+		var echoEffectLimit = settings.GetRadius(__slugcatNumber) * 1000f; //I think 1 screen is like a 1000 so I'm going with that
 		Vector2 globalDistance = Custom.RestrictInRect(worldPos, FloatRect.MakeFromVector2(self.world.RoomToWorldPos(new Vector2(), self.ghostRoom.index), self.world.RoomToWorldPos(self.ghostRoom.size.ToVector2() * 20f, self.ghostRoom.index)));
 		if (!Custom.DistLess(worldPos, globalDistance, echoEffectLimit)) return 0;
 		var someValue = self.DegreesOfSeparation(testRoom); //No clue what this number does
@@ -82,13 +87,13 @@ public static class _Module
 		PlacedObject? EEGhostSpot = null;
 		if (self.game != null)
 		{ // Actual ingame loading
-			EEGhostSpot = self.roomSettings.placedObjects.FirstOrDefault((v) => v.type == Enums_EchoExtender.EEGhostSpot && v.active);
+			EEGhostSpot = self.roomSettings.placedObjects.FirstOrDefault((v) => v.type == _Enums.EEGhostSpot && v.active);
 			if (EEGhostSpot != null) EEGhostSpot.type = PlacedObject.Type.GhostSpot; // Temporary switcheroo to trigger vanilla code that handles ghosts
 		}
 
 		orig(self);
 		// Unswitcheroo
-		if (self.game != null && EEGhostSpot != null) EEGhostSpot.type = Enums_EchoExtender.EEGhostSpot;
+		if (self.game != null && EEGhostSpot != null) EEGhostSpot.type = _Enums.EEGhostSpot;
 	}
 
 	private static void DeathPersistentSaveDataOnCtor(On.DeathPersistentSaveData.orig_ctor orig, DeathPersistentSaveData self, SlugcatStats.Name slugcat)
@@ -102,17 +107,20 @@ public static class _Module
 		var result = orig(ghostid, karma, karmacap, ghostpreviouslyencountered, playingasred);
 		if (!EchoParser.__extendedEchoIDs.Contains(ghostid)) return result;
 		EchoSettings settings = EchoParser.__echoSettings[ghostid];
-		bool SODcondition = settings.SpawnOnThisDifficulty(SlugcatNumber);
-		bool karmaCondition = settings.KarmaCondition(karma, karmacap, SlugcatNumber);
-		bool karmaCapCondition = settings.GetMinimumKarmaCap(SlugcatNumber) <= karmacap;
+		bool SODcondition = settings.SpawnOnThisDifficulty(__slugcatNumber);
+		bool karmaCondition = settings.KarmaCondition(karma, karmacap, __slugcatNumber);
+		bool karmaCapCondition = settings.GetMinimumKarmaCap(__slugcatNumber) <= karmacap;
 		__logger.LogInfo($"[Echo Extender] Getting echo conditions for {ghostid}");
-		__logger.LogInfo($"[Echo Extender] Using difficulty {SlugcatNumber}");
+		__logger.LogInfo($"[Echo Extender] Using difficulty {__slugcatNumber}");
 		__logger.LogInfo($"[Echo Extender] Spawn On Difficulty : {(SODcondition ? "Met" : "Not Met")} [Required: <{string.Join(", ", (settings.SpawnOnDifficulty.Length > 0 ? settings.SpawnOnDifficulty : EchoSettings.Default.SpawnOnDifficulty).Select(i => i.ToString()).ToArray())}>]");
-		__logger.LogInfo($"[Echo Extender] Minimum Karma : {(karmaCondition ? "Met" : "Not Met")} [Required: {(settings.GetMinimumKarma(SlugcatNumber) == -2 ? "Dynamic" : settings.GetMinimumKarma(SlugcatNumber).ToString())}, Having: {karma}]");
-		__logger.LogInfo($"[Echo Extender] Minimum Karma Cap : {(karmaCapCondition ? "Met" : "Not Met")} [Required: {settings.GetMinimumKarmaCap(SlugcatNumber)}, Having: {karmacap}]");
-		bool prime = settings.GetPriming(SlugcatNumber);
-		bool primedCond = prime ? ghostpreviouslyencountered == 1 : ghostpreviouslyencountered != 2;
-		__logger.LogInfo($"[Echo Extender] Primed : {(primedCond ? "Met" : "Not Met")} [Required: {(prime ? 1 : 0)}, Having {ghostpreviouslyencountered}]");
+		__logger.LogInfo($"[Echo Extender] Minimum Karma : {(karmaCondition ? "Met" : "Not Met")} [Required: {(settings.GetMinimumKarma(__slugcatNumber) == -2 ? "Dynamic" : settings.GetMinimumKarma(__slugcatNumber).ToString())}, Having: {karma}]");
+		__logger.LogInfo($"[Echo Extender] Minimum Karma Cap : {(karmaCapCondition ? "Met" : "Not Met")} [Required: {settings.GetMinimumKarmaCap(__slugcatNumber)}, Having: {karmacap}]");
+		EchoSettings.PrimingKind prime = settings.GetPriming(__slugcatNumber);
+		bool primedCond = prime switch{
+			EchoSettings.PrimingKind.Yes => ghostpreviouslyencountered == 1, 
+			_ => ghostpreviouslyencountered != 2
+		};
+		__logger.LogInfo($"[Echo Extender] Primed : {(primedCond ? "Met" : "Not Met")} [Required: {(prime)}, Having {ghostpreviouslyencountered}]");
 		__logger.LogInfo($"[Echo Extender] Spawning Echo : {primedCond && SODcondition && karmaCondition && karmaCapCondition}");
 		return
 			primedCond &&
@@ -134,7 +142,7 @@ public static class _Module
 					var difficulties = line.Substring(1, line.IndexOf(")", StringComparison.Ordinal) - 1);
 					foreach (string s in difficulties.Split(','))
 					{
-						if (ParseExtEnum<SlugcatStats.Name>(s, false) == SlugcatNumber)
+						if (ParseExtEnum<SlugcatStats.Name>(s, false) == __slugcatNumber)
 						{
 							self.events.Add(new Conversation.TextEvent(self, 0, Regex.Replace(line, @"^\((\d|(\d+,)+\d)\)", ""), 0));
 							break;
@@ -166,8 +174,8 @@ public static class _Module
 		orig(self, world, ghostid);
 		if (self.ghostRoom is null && EchoParser.__extendedEchoIDs.Contains(self.ghostID))
 		{
-			self.ghostRoom = world.GetAbstractRoom(EchoParser.__echoSettings[ghostid].GetEchoRoom(SlugcatNumber));
-			self.songName = EchoParser.__echoSettings[ghostid].GetEchoSong(SlugcatNumber);
+			self.ghostRoom = world.GetAbstractRoom(EchoParser.__echoSettings[ghostid].GetEchoRoom(__slugcatNumber));
+			self.songName = EchoParser.__echoSettings[ghostid].GetEchoSong(__slugcatNumber);
 			__logger.LogInfo($"[Echo Extender] Set Song: {self.songName}");
 			__logger.LogInfo($"[Echo Extender] Set Room {self.ghostRoom?.name}");
 		}
@@ -178,7 +186,7 @@ public static class _Module
 		orig(self, room, placedobject, worldghost);
 		if (!EchoParser.__extendedEchoIDs.Contains(self.worldGhost.ghostID)) return;
 		var settings = EchoParser.__echoSettings[self.worldGhost.ghostID];
-		self.scale = settings.GetSizeMultiplier(SlugcatNumber) * 0.75f;
-		self.defaultFlip = settings.GetDefaultFlip(SlugcatNumber);
+		self.scale = settings.GetSizeMultiplier(__slugcatNumber) * 0.75f;
+		self.defaultFlip = settings.GetDefaultFlip(__slugcatNumber);
 	}
 }

@@ -26,17 +26,14 @@ public class RoomParticleSystem : UpdatableAndDeletable
 	/// <summary>
 	/// Constructor that can be used for manual instantiation with a custom set of birth delegates
 	/// </summary>
-	/// <param name="owner"></param>
-	/// <param name="room"></param>
-	/// <param name="births"></param>
 	public RoomParticleSystem(PlacedObject owner, Room room, Vector2 oPos, ParticleSystemData npsd, params ParticleCreate[] births)
 	{
-		backupPSD = npsd;
+		backupParticleSystemData = npsd;
 		overridePos = oPos;
 		_Owner = owner;
 		FetchVisualsAndBM(room);
 		if (births != null) foreach (var d in births) BirthEvent += d;
-		if (!PSD.doWarmup) return;
+		if (!_ParticleSystemData.doWarmup) return;
 		int IdealTotalBootUpFrames = (int)(AverageLifetime() * 1.5f);
 		_delayRequestedByMe = Min(Min(IdealTotalBootUpFrames, TotalForceFrameLimit));
 		room.waitToEnterAfterFullyLoaded = Max(room.waitToEnterAfterFullyLoaded, _delayRequestedByMe);
@@ -48,29 +45,47 @@ public class RoomParticleSystem : UpdatableAndDeletable
 	//this is somewhat janky and causes noticeable load time delays
 	//there are probably better ways to go about this, but i can't be bothered with them right now
 
-	//max particle density before force rate starts decreasing
+	/// <summary>
+	/// max particle density before force rate starts decreasing
+	/// </summary>
 	public static int ComfortableParticleDensity = 35;
-	//comfortable rate "force frames per frame" for self and particles created on warmup
+	/// <summary>
+	/// comfortable rate "force frames per frame" for self and particles created on warmup
+	/// </summary>
 	public static int BaseComfortableFpF = 200;
-	//add load frames upper border
+	/// <summary>
+	/// add load frames upper border
+	/// </summary>
 	public static int TotalForceFrameLimit = 25;
 	#endregion
 	//how many force updates should be ran per warmup frame
 	private readonly int _forceFramesMultiplier;
 	private int _delayRequestedByMe;
+	/// <summary>
+	/// Average particle density
+	/// </summary>
+	/// <returns></returns>
 	public int AverageDensity()
 	{
-		return AverageLifetime() / ((PSD.minCooldown + PSD.maxCooldown) / 2);
+		return AverageLifetime() / ((_ParticleSystemData.minCooldown + _ParticleSystemData.maxCooldown) / 2);
 	}
+	/// <summary>
+	/// Average particle lifetime
+	/// </summary>
+	/// <returns></returns>
 	public int AverageLifetime()
 	{
-		return PSD.fadeIn + PSD.lifeTime + PSD.fadeOut;
+		return _ParticleSystemData.fadeIn + _ParticleSystemData.lifeTime + _ParticleSystemData.fadeOut;
 	}
+	/// <summary>
+	/// Average compute cost value per particle
+	/// </summary>
+	/// <returns></returns>
 	public float AverageComputeCost()
 	{
 		var TotalModCost = 1f;
 		var dummy = new GenericParticle(default, default);
-		foreach (var mod in Modifiers)
+		foreach (var mod in _modifiers)
 		{
 			TotalModCost += Max(0f, mod.GetNewForParticle(dummy)?.ComputationalCost ?? 0f);
 		}
@@ -82,7 +97,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 			float sum = 0f;
 			for (int i = 0; i < birthcosts.Length; i++)
 			{
-				float ccost = ((GenericParticle)pBirths[i].DynamicInvoke(default(PMoveState), default(PVisualState))).ComputationalCost;
+				float ccost = ((GenericParticle)pBirths[i].DynamicInvoke(default(PMoveState), default(ParticleVisualState))).ComputationalCost;
 				sum += Max(1f, ccost);
 			}
 			sum /= birthcosts.Length;
@@ -96,6 +111,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 	}
 
 	readonly List<GenericParticle> forceupdatelist = new();
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		if (room.waitToEnterAfterFullyLoaded > 0 && _delayRequestedByMe > 0)
@@ -117,7 +133,6 @@ public class RoomParticleSystem : UpdatableAndDeletable
 		{
 			ProgressCreationCycle();
 		}
-
 		base.Update(eu);
 	}
 	/// <summary>
@@ -127,61 +142,79 @@ public class RoomParticleSystem : UpdatableAndDeletable
 	protected virtual GenericParticle? ProgressCreationCycle()
 	{
 		GenericParticle? p = null;
-		_cooldown--;
-		if (_cooldown <= 0)
+		_counter--;
+		if (_counter <= 0)
 		{
 			var PossibleBirths = BirthEvent?.GetInvocationList();
 			if (PossibleBirths != null && PossibleBirths.Length > 0)
 			{
 				p = (GenericParticle)
 					PossibleBirths.RandomOrDefault()!.DynamicInvoke(
-						PSD.DataForNew(),
-						Visuals.RandomOrDefault()?.DataForNew() ?? default);
+						_ParticleSystemData.DataForNew(),
+						_visuals.RandomOrDefault()?.DataForNew() ?? default);
 				p.pos = PickSpawnPos();
-				foreach (var provider in Modifiers)
+				foreach (var provider in _modifiers)
 				{
 					var newmodule = provider.GetNewForParticle(p);
 					if (newmodule == null) continue;
-					p.addModule(newmodule);
+					p.AddModule(newmodule);
 				}
 				room.AddObject(p);
 
 			}
-			_cooldown = UnityEngine.Random.Range(PSD.minCooldown, PSD.maxCooldown);
+			_counter = UnityEngine.Random.Range(_ParticleSystemData.minCooldown, _ParticleSystemData.maxCooldown);
 		}
 		return p;
 	}
 
-	protected ParticleSystemData PSD => _Owner.data as ParticleSystemData ?? backupPSD;
-	//use this if you want to have PSD without having an owner
-	public ParticleSystemData backupPSD;
-
+	/// <summary>
+	/// Returns ParticleSystemData
+	/// </summary>
+	protected ParticleSystemData _ParticleSystemData => _Owner.data as ParticleSystemData ?? backupParticleSystemData;
+	/// <summary>
+	/// use this if you want to have PSD without having an owner
+	/// </summary>
+	public ParticleSystemData backupParticleSystemData;
+	/// <summary>
+	/// PlacedObject this particle system is created from
+	/// </summary>
 	protected PlacedObject _Owner;
 
-	//same as aboove
+	/// <summary>
+	/// Used if _Owner is missing
+	/// </summary>
 	public Vector2 overridePos;
+	/// <summary>
+	/// Returns this particle system's base position
+	/// </summary>
 	protected Vector2 _MyPos => _Owner?.pos ?? overridePos;
-
-	protected int _cooldown;
+	/// <summary>
+	/// Cooldown counter
+	/// </summary>
+	protected int _counter;
 	/// <summary>
 	/// Acquires references to all relevant <see cref="ParticleVisualCustomizer"/>s and <see cref="ParticleBehaviourProvider"/>s
 	/// </summary>
 	/// <param name="room"></param>
 	protected virtual void FetchVisualsAndBM(Room room)
 	{
-		Visuals.Clear();
-		Modifiers.Clear();
+		_visuals.Clear();
+		_modifiers.Clear();
 		for (int i = 0; i < room.roomSettings.placedObjects.Count; i++)
 		{
-			if (room.roomSettings.placedObjects[i].data is ParticleVisualCustomizer f_PVC
-				&& (_MyPos - f_PVC.owner.pos).sqrMagnitude < f_PVC.p2.sqrMagnitude)
-			{ Visuals.Add(f_PVC); }
+			if (room.roomSettings.placedObjects[i].data is IParticleVisualProvider visualcus
+				&& (_MyPos - visualcus.Owner.pos).sqrMagnitude < visualcus.P2.sqrMagnitude)
+			{
+				_visuals.Add(visualcus);
+			}
 			if (room.roomSettings.placedObjects[i].data is ParticleBehaviourProvider f_BMD
 				&& (_MyPos - f_BMD.owner.pos).sqrMagnitude < f_BMD.p2.sqrMagnitude)
-			{ Modifiers.Add(f_BMD); }
+			{
+				_modifiers.Add(f_BMD);
+			}
 		}
 		//sorted for apply order to work
-		Modifiers.Sort(new Comparison<ParticleBehaviourProvider>(
+		_modifiers.Sort(new Comparison<ParticleBehaviourProvider>(
 			(x, y) =>
 			{
 				if (x.applyOrder > y.applyOrder) return 1;
@@ -189,15 +222,15 @@ public class RoomParticleSystem : UpdatableAndDeletable
 				else return -1;
 			}));
 	}
-	protected readonly List<ParticleVisualCustomizer> Visuals = new();
-	protected readonly List<ParticleBehaviourProvider> Modifiers = new();
+	internal readonly List<IParticleVisualProvider> _visuals = new();
+	internal readonly List<ParticleBehaviourProvider> _modifiers = new();
 	/// <summary>
 	/// 
 	/// </summary>
 	/// <param name="suggestedStart">suggested starting move params</param>
 	/// <param name="suggestedVis">suggested visuals </param>
 	/// <returns></returns>
-	public delegate GenericParticle ParticleCreate(PMoveState suggestedStart, PVisualState suggestedVis);
+	public delegate GenericParticle ParticleCreate(PMoveState suggestedStart, ParticleVisualState suggestedVis);
 	/// <summary>
 	/// A random subscriber is invoked whenever a particle needs to be created
 	/// </summary>
@@ -209,7 +242,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 	/// <returns></returns>
 	protected virtual Vector2 PickSpawnPos()
 	{
-		var tiles = PSD.ReturnSuitableTiles(room);
+		var tiles = _ParticleSystemData.ReturnSuitableTiles(room);
 		if (tiles.Count == 0) { tiles.Add((_MyPos / 20).ToIntVector2()); }
 		var tile = tiles[UnityEngine.Random.Range(0, tiles.Count)];
 		return new Vector2()

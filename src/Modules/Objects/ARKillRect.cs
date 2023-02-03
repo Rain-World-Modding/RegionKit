@@ -7,25 +7,23 @@ using RWCustom;
 
 namespace RegionKit.Modules.Objects
 {
-	//todo: apply
-	//Made By LeeMoriya
-	public class Enums_ARKillRect
-	{
-		public static PlacedObject.Type ARKillRect = new(nameof(ARKillRect), true);
-	}
-
+	/// <summary>
+	/// Kills everything inside designated zone
+	/// </summary>
 	public class ARKillRect : UpdatableAndDeletable
 	{
-		public PlacedObject _PO;
-		public IntRect _rect;
-
+		private PlacedObject _PO;
+		private IntRect _rect;
+		/// <summary>
+		/// POM ctor
+		/// </summary>
 		public ARKillRect(Room room, PlacedObject pObj)
 		{
 			this.room = room;
 			_PO = pObj;
 			_rect = (_PO.data as PlacedObject.GridRectObjectData)!.Rect;
 		}
-
+		///<inheritdoc/>
 		public override void Update(bool eu)
 		{
 			base.Update(eu);

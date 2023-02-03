@@ -4,15 +4,18 @@ using RWCustom;
 using UnityEngine;
 
 namespace RegionKit.Modules.AridBarrens;
-
+/// <summary>
+/// SandStorm scene. Add for sandstorm GO
+/// </summary>
 public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 {
+	///<inheritdoc/>
 	public SandStorm(RoomSettings.RoomEffect effect, Room room) : base(room)
 	{
 		_deathtimer = 0;
 		this._effect = effect;
-		this.sceneOrigo = new Vector2(2514f, 26000);
-		this._generalFog = new Fog(this);
+		this.sceneOrigo = new(2514f, 26000);
+		this._generalFog = new(this);
 		this.AddElement(this._generalFog);
 		this._rainReach = new int[room.TileWidth];
 		for (int i = 0; i < room.TileWidth; i++)
@@ -38,25 +41,23 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 			return this.room.game.world.rainCycle;
 		}
 	}
-	public float Intensity
+	private float _Intensity
 	{
 		get
 		{
 			return this._effect.amount * Mathf.Pow(Mathf.InverseLerp((float)(this._Cycle.cycleLength - 400), (float)(this._Cycle.cycleLength + 2400), (float)this._Cycle.timer), 2.2f);
 		}
 	}
+	///<inheritdoc/>
 	public override void AddElement(BackgroundScene.BackgroundSceneElement element)
 	{
 		base.AddElement(element);
 	}
-	public override void Destroy()
-	{
-		base.Destroy();
-	}
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		if (this.Intensity == 0f)
+		if (this._Intensity == 0f)
 		{
 			return;
 		}
@@ -71,7 +72,7 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 				this._particles[i].vel += this._wind * 0.2f;
 			}
 		}
-		if (this._particles.Count < this._totParticles * Mathf.Pow(this.Intensity, 0.2f))
+		if (this._particles.Count < this._totParticles * Mathf.Pow(this._Intensity, 0.2f))
 		{
 			this.AddSpark();
 		}
@@ -87,7 +88,7 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 		else
 		{
 			this._soundLoop.Update();
-			this._soundLoop.Volume = Mathf.Pow(this.Intensity, 0.5f);
+			this._soundLoop.Volume = Mathf.Pow(this._Intensity, 0.5f);
 		}
 		if (this._soundLoop2 == null)
 		{
@@ -98,26 +99,26 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 		else
 		{
 			this._soundLoop2.Update();
-			this._soundLoop2.Volume = Mathf.Pow(this.Intensity, 0.1f) * Mathf.Lerp(0.5f + 0.5f * Mathf.Sin(this._sin * 3.14159274f * 2f), 0f, Mathf.Pow(this.Intensity, 8f));
+			this._soundLoop2.Volume = Mathf.Pow(this._Intensity, 0.1f) * Mathf.Lerp(0.5f + 0.5f * Mathf.Sin(this._sin * 3.14159274f * 2f), 0f, Mathf.Pow(this._Intensity, 8f));
 		}
 
 		this._sin += 0.002f;
-		if (this._closeToWallTiles != null && this.room.BeingViewed && UnityEngine.Random.value < Mathf.InverseLerp(1000f, 9120f, (float)(this.room.TileWidth * this.room.TileHeight)) * 2f * Mathf.Pow(this.Intensity, 0.3f))
+		if (this._closeToWallTiles != null && this.room.BeingViewed && UnityEngine.Random.value < Mathf.InverseLerp(1000f, 9120f, (float)(this.room.TileWidth * this.room.TileHeight)) * 2f * Mathf.Pow(this._Intensity, 0.3f))
 		{
 			IntVector2 pos = this._closeToWallTiles[UnityEngine.Random.Range(0, this._closeToWallTiles.Count)];
 			Vector2 pos2 = this.room.MiddleOfTile(pos) + new Vector2(Mathf.Lerp(-10f, 10f, UnityEngine.Random.value), Mathf.Lerp(-10f, 10f, UnityEngine.Random.value));
-			float num = UnityEngine.Random.value * this.Intensity;
+			float num = UnityEngine.Random.value * this._Intensity;
 			if (this.room.ViewedByAnyCamera(pos2, 50f))
 			{
 				this.room.AddObject(new SandPuff(pos2, num));
 			}
 		}
-		if (this.Intensity > 0.1)
+		if (this._Intensity > 0.1)
 		{
 			ThrowAroundObjects();
 		}
 
-		if (this.Intensity > 0.99f && _killedCreatures == false)
+		if (this._Intensity > 0.99f && _killedCreatures == false)
 		{
 			_deathtimer++;
 			if (_deathtimer > 500)
@@ -174,17 +175,17 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 		}
 	}
 
-	public float InsidePushAround
+	private float InsidePushAround
 	{
 		get
 		{
-			return this._effect.amount * Intensity;
+			return this._effect.amount * _Intensity;
 		}
 	}
 
 	private void ThrowAroundObjects()
 	{
-		if (this.Intensity == 0f)
+		if (this._Intensity == 0f)
 		{
 			return;
 		}
@@ -201,7 +202,7 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 					if (this._rainReach[Custom.IntClamp(tilePosition.x, 0, this.room.TileWidth - 1)] < tilePosition.y)
 					{
 						//flag = true;
-						num = Mathf.Max(Intensity, this.InsidePushAround);
+						num = Mathf.Max(_Intensity, this.InsidePushAround);
 					}
 					if (this.room.water)
 					{
@@ -215,12 +216,14 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 			}
 		}
 	}
-
+	///<inheritdoc/>
 	public void ShortcutsReady()
 	{
 		_killedCreatures = false;
 	}
-
+	/// <summary>
+	/// Populates _closeToWallTiles
+	/// </summary>
 	public void AIMapReady()
 	{
 		this._closeToWallTiles = new List<IntVector2>();
@@ -258,8 +261,7 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 
 	private DisembodiedDynamicSoundLoop? _soundLoop2;
 	private SandStorm.Fog _generalFog;
-
-	public class Fog : BackgroundScene.FullScreenSingleColor
+	private class Fog : BackgroundScene.FullScreenSingleColor
 	{
 		public Fog(SandStorm sandStormScene) : base(sandStormScene, default(Color), 1f, true, float.MaxValue)
 		{
@@ -269,7 +271,7 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 		{
 			get
 			{
-				return (this.scene as SandStorm)!.Intensity;
+				return (this.scene as SandStorm)!._Intensity;
 			}
 		}
 		private SandStorm _SandStormScene
@@ -279,6 +281,7 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 				return (this.scene as SandStorm)!;
 			}
 		}
+		///<inheritdoc/>
 		public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 		{
 			sLeaser.sprites = new FSprite[1];
@@ -292,11 +295,13 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 			sLeaser.sprites[0].alpha = this.alpha;
 			this.AddToContainer(sLeaser, rCam, null);
 		}
+		///<inheritdoc/>
 		public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
 			this.alpha = _Intensity / 1.1f;
 			base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
 		}
+		///<inheritdoc/>
 		public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 		{
 			this.color = palette.skyColor;

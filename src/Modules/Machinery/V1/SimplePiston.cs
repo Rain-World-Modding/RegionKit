@@ -8,15 +8,26 @@ using static RWCustom.Custom;
 using static UnityEngine.Mathf;
 
 namespace RegionKit.Modules.Machinery.V1;
+
+/// <summary>
+/// A sprite moving in waves
+/// </summary>
 public class SimplePiston : UpdatableAndDeletable, IDrawable
 {
+	/// <summary>
+	/// POM ctor
+	/// </summary>
 	public SimplePiston(Room rm, PlacedObject pobj) : this(rm, pobj, null) { }
-	public SimplePiston(Room rm, PlacedObject? pobj, PistonData? mdt = null)
+	/// <summary>
+	/// Primary ctor
+	/// </summary>
+	public SimplePiston(Room rm, PlacedObject? pobj, PistonData? assignedData = null)
 	{
 		_PO = pobj;
-		this._assignedMData = mdt;
-		__logger.LogDebug($"({rm.abstractRoom.name}): Created simplePiston" + mdt == null ? "." : "as a part of an array.");
+		this._assignedMData = assignedData;
+		__logger.LogDebug($"({rm.abstractRoom.name}): Created simplePiston" + assignedData == null ? "." : "as a part of an array.");
 	}
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
@@ -76,6 +87,7 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 	}
 
 	#region irawable things
+	///<inheritdoc/>
 	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 		_GrabMC();
@@ -83,25 +95,25 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 		sLeaser.sprites[0] = new FSprite("pixel");
 		this.AddToContainer(sLeaser, rCam, null);
 	}
-
+	///<inheritdoc/>
 	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		var pos = Vector2.Lerp(_oldPos, _currentPos, timeStacker);
 		_mc?.BringToKin(sLeaser.sprites[0]);
-		sLeaser.sprites[0].rotation = _EffRot + _mc?.addRot ?? 0f;
+		sLeaser.sprites[0].rotation = _EffRot + _mc?.addedRotation ?? 0f;
 		sLeaser.sprites[0].x = pos.x - camPos.x;
 		sLeaser.sprites[0].y = pos.y - camPos.y;
 	}
-
+	///<inheritdoc/>
 	public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 	{
 
 	}
-
+	///<inheritdoc/>
 	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner)
 	{
 		foreach (var fs in sLeaser.sprites) fs.RemoveFromContainer();
-		try { (newContatiner ?? rCam.ReturnFContainer(_mc?.ContainerName ?? ContainerCodes.Items)).AddChild(sLeaser.sprites[0]); }
+		try { (newContatiner ?? rCam.ReturnFContainer(_mc?.containerName ?? ContainerCodes.Items)).AddChild(sLeaser.sprites[0]); }
 		catch { rCam.ReturnFContainer("Items").AddChild(sLeaser.sprites[0]); }
 
 	}

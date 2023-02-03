@@ -1,18 +1,6 @@
 ﻿namespace RegionKit.Modules.Objects;
 
-public static class ShroudObjRep
-{
-	internal static void ShroudRep()
-	{
-		List<ManagedField> fields = new List<ManagedField>
-	{
-		new Vector2ArrayField("quad", 4, true, Vector2ArrayField.Vector2ArrayRepresentationType.Polygon, Vector2.zero, Vector2.right * 20f, (Vector2.right + Vector2.up) * 20f, Vector2.up * 20f)
-	};
-		RegisterFullyManagedObjectType(fields.ToArray(), typeof(Shroud), nameof(Shroud), RK_POM_CATEGORY);
-	}
-}
-
-public class Shroud : CosmeticSprite
+internal class Shroud : CosmeticSprite
 {
 	private readonly PlacedObject _pObj;
 	private readonly FloatRect _rect;

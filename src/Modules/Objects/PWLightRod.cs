@@ -2,16 +2,21 @@
 using DevInterface;
 
 namespace RegionKit.Modules.Objects;
-
+/// <summary>
+/// A recolorable light rod
+/// </summary>
 public class PWLightRod : SSLightRod
 {
+	/// <summary>
+	/// 
+	/// </summary>
 	public PWLightRod(PlacedObject placedObject, Room room) : base(placedObject, room)
 	{
 		this.color = (this.rodData as PWLightRodData)!.color;
 		this.lights.Clear();
 		this.UpdateLightAmount();
 	}
-	//Changes the light color if the color of the rod changes
+	///Changes the light color if the color of the rod changes
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
@@ -27,7 +32,7 @@ public class PWLightRod : SSLightRod
 		}
 	}
 }
-public class PWLightRodData : PlacedObject.SSLightRodData
+internal class PWLightRodData : PlacedObject.SSLightRodData
 {
 	public PWLightRodData(PlacedObject owner) : base(owner)
 	{

@@ -14,9 +14,9 @@ using URAnd = UnityEngine.Random;
 
 namespace RegionKit.Modules.Objects
 {
+#if false
 	public class PlacedHalo : UpdatableAndDeletable//, IDrawable
 	{
-#if false
         public PlacedHalo(PlacedObject owner, Room rm)
         {
             _ow = owner;
@@ -75,7 +75,7 @@ namespace RegionKit.Modules.Objects
             }
         }
 		#endregion idrawable
-#endif
 	}
+#endif
 
 }

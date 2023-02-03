@@ -13,14 +13,18 @@ namespace RegionKit.Modules.Machinery.V1;
 /// </summary>
 public class RoomPowerManager : UpdatableAndDeletable
 {
+	/// <summary>
+	/// POM ctor
+	/// </summary>
 	public RoomPowerManager(Room rm, PlacedObject pobj)
 	{
 		var h = rm.GetHashCode();
-		if (ManagersByRoom.ContainsKey(h)) ManagersByRoom[h] = this;
-		else ManagersByRoom.Add(h, this);
+		if (__managersByRoomHash.ContainsKey(h)) __managersByRoomHash[h] = this;
+		else __managersByRoomHash.Add(h, this);
 		_PO = pobj;
 		__logger.LogDebug($"({rm.abstractRoom.name}): created a RoomPowerManager.");
 	}
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
@@ -55,7 +59,10 @@ public class RoomPowerManager : UpdatableAndDeletable
 		res = Clamp01(res);
 		return res;
 	}
-
+	/// <summary>
+	/// Adds a powerModifier to current instance's sources
+	/// </summary>
+	/// <param name="obj"></param>
 	public void RegisterPowerDevice(IRoomPowerModifier obj)
 	{
 		_subs.Add(obj);

@@ -8,9 +8,15 @@ internal static class _Module
 	{
 		if (!__appliedOnce)
 		{
-			CGDrySpot.Register();
-			CGFourthLayerFix.Apply();
-			CGGateCustomization.Register();
+			RegisterManagedObject(new ManagedObjectType("CGDrySpot", RK_POM_CATEGORY,
+			typeof(CGDrySpot), typeof(CGDrySpot.CGDrySpotData), typeof(ManagedRepresentation)));
+			RegisterFullyManagedObjectType(new ManagedField[]
+			{
+				new BooleanField("noleft", false, displayName:"No Left Door"),
+				new BooleanField("noright", false, displayName:"No Right Door"),
+				new BooleanField("nowater", false, displayName:"No Water"),
+				new BooleanField("zdontstop", false, displayName:"Dont cut song"),
+			}, typeof(CGGateCustomization), "CGGateCustomization", RK_POM_CATEGORY);
 		}
 		__appliedOnce = true;
 	}

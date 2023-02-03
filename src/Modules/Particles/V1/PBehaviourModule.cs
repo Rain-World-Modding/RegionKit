@@ -20,7 +20,7 @@ public abstract class PBehaviourModule
 	/// Use this to indicate how computationally heavy is your <see cref="PBehaviourModule"/> derivative. Used to smoothen loading process.
 	/// </summary>
 	public virtual float ComputationalCost => 0.15f;
-
+	///<inheritdoc/>
 	public PBehaviourModule(GenericParticle gp)
 	{
 		owner = gp;
@@ -39,23 +39,27 @@ public abstract class PBehaviourModule
 	/// </summary>
 	public class Wavy : PBehaviourModule
 	{
+		///<inheritdoc/>
 		public Wavy(GenericParticle gp, Modules.Machinery.OscillationParams osp) : base(gp)
 		{
 			wave = osp;
 		}
 		Modules.Machinery.OscillationParams wave;
-		public void owner_update()
+		private void OwnerUdate()
 		{
-			owner.vel = RotateAroundOrigo(owner.vel, wave.oscm((owner.lifetime + wave.phase) * wave.frq) * wave.amp);//+= PerpendicularVector(owner.vel).normalized * wave.oscm((owner.lifetime + wave.phase) * wave.frq) * wave.amp;//
+			owner.vel = RotateAroundOrigo(owner.vel, wave.oscillationMode((owner.lifetime + wave.phase) * wave.frequency) * wave.amplitude);//+= PerpendicularVector(owner.vel).normalized * wave.oscm((owner.lifetime + wave.phase) * wave.frq) * wave.amp;//
 		}
+		///<inheritdoc/>
 		public override void Disable()
 		{
-			owner.OnUpdatePreMove -= owner_update;
+			owner.OnUpdatePreMove -= OwnerUdate;
 		}
+		///<inheritdoc/>
 		public override void Enable()
 		{
-			owner.OnUpdatePreMove += owner_update;
+			owner.OnUpdatePreMove += OwnerUdate;
 		}
+		///<inheritdoc/>
 		public override float ComputationalCost => base.ComputationalCost + 0.06f;
 	}
 	/// <summary>
@@ -64,10 +68,11 @@ public abstract class PBehaviourModule
 	public class AFFLICTION : PBehaviourModule
 	{
 		//public static AFFLICTION makeNew(GenericParticle gp) => new AFFLICTION(gp);
+		///<inheritdoc/>
 		public AFFLICTION(GenericParticle gp) : base(gp) { }
-
+		///<inheritdoc/>
 		public override void Disable() { }
-
+		///<inheritdoc/>
 		public override void Enable() { }
 	}
 	/// <summary>
@@ -75,12 +80,18 @@ public abstract class PBehaviourModule
 	/// </summary>
 	public class ANTIBODY : PBehaviourModule
 	{
+		///<inheritdoc/>
 		public ANTIBODY(GenericParticle gp) : base(gp) { }
-
+		///<inheritdoc/>
 		public override void Disable()
-		{ owner.OnUpdatePreMove -= owner_update; }
+		{
+			owner.OnUpdatePreMove -= owner_update;
+		}
+		///<inheritdoc/>
 		public override void Enable()
-		{ owner.OnUpdatePreMove += owner_update; }
+		{
+			owner.OnUpdatePreMove += owner_update;
+		}
 
 		private void owner_update()
 		{
@@ -102,48 +113,57 @@ public abstract class PBehaviourModule
 					}
 			}
 		}
+		///<inheritdoc/>
 		public override float ComputationalCost => 0.09f;
 	}
-
+	/// <summary>
+	/// Makes the particle stay on surface
+	/// </summary>
 	public class AvoidWater : PBehaviourModule
 	{
+		///<inheritdoc/>
 		public AvoidWater(GenericParticle gp) : base(gp)
 		{
 		}
-
+		///<inheritdoc/>
 		public override void Disable()
 		{
 			owner.OnUpdatePostMove -= actionCycle;
 		}
-
+		///<inheritdoc/>
 		public override void Enable()
 		{
 			owner.OnUpdatePostMove += actionCycle;
 		}
-
+		///<inheritdoc/>
 		internal void actionCycle()
 		{
 			var y = owner.room.FloatWaterLevel(owner.pos.x);
 			if (owner.pos.y < y) owner.pos.y = y;
 		}
 	}
-	public class wallCollision : PBehaviourModule
-	{
-		public wallCollision(GenericParticle gp) : base(gp)
+	/// <summary>
+	/// Makes the particles avoid going through walls
+	/// </summary>
+	public class WallCollision : PBehaviourModule
+	{	
+		///<inheritdoc/>
+		public WallCollision(GenericParticle gp) : base(gp)
 		{
 
 		}
-
+		///<inheritdoc/>
 		public override void Disable()
 		{
-			owner.OnUpdatePostMove -= postMoveAct;
+			owner.OnUpdatePostMove -= PostMoveAct;
 		}
+		///<inheritdoc/>
 		public override void Enable()
 		{
-			owner.OnUpdatePostMove += postMoveAct;
+			owner.OnUpdatePostMove += PostMoveAct;
 		}
-
-		protected virtual void postMoveAct()
+		///<inheritdoc/>
+		protected virtual void PostMoveAct()
 		{
 			var cd = new TerrainCollisionData(owner.pos, owner.lastPos, owner.vel, 1f, default, false);
 			cd = VerticalCollision(owner.room, cd);
@@ -151,22 +171,28 @@ public abstract class PBehaviourModule
 			owner.pos = cd.pos;
 			owner.vel = cd.vel;
 		}
+		///<inheritdoc/>
 		public override float ComputationalCost => base.ComputationalCost + 0.06f;
 	}
-	public class stickToSurface : wallCollision
+	/// <summary>
+	/// Makes particles stick to surfaces
+	/// </summary>
+	public class StickToSurface : WallCollision
 	{
 		private Vector2 _cpos;
 		private bool _stuck;
-		public stickToSurface(GenericParticle gp) : base(gp)
+		///<inheritdoc/>
+		public StickToSurface(GenericParticle gp) : base(gp)
 		{
 
 		}
-
+		///<inheritdoc/>
 		public override void Disable()
 		{
 			base.Disable();
 			owner.OnUpdatePreMove -= preMoveAct;
 		}
+		///<inheritdoc/>
 		public override void Enable()
 		{
 			base.Enable();
@@ -178,8 +204,8 @@ public abstract class PBehaviourModule
 			if (_stuck) owner.vel = default;
 			_cpos = owner.pos;
 		}
-
-		protected override void postMoveAct()
+		///<inheritdoc/>
+		protected override void PostMoveAct()
 		{
 			if (_stuck)
 			{
@@ -187,14 +213,18 @@ public abstract class PBehaviourModule
 				owner.lastPos = _cpos;
 			}
 			var op = owner.pos;
-			base.postMoveAct();
+			base.PostMoveAct();
 			if (op != owner.pos) _stuck = true;
 		}
-
+		///<inheritdoc/>
 		public override float ComputationalCost => base.ComputationalCost + 0.07f;
 	}
+	/// <summary>
+	/// Makes particles spin.
+	/// </summary>
 	public class Spin : PBehaviourModule
 	{
+		///<inheritdoc/>
 		public Spin(GenericParticle gp, float angVb, Modules.Machinery.OscillationParams osp) : base(gp)
 		{
 			_myosp = osp;
@@ -203,11 +233,12 @@ public abstract class PBehaviourModule
 
 		private readonly float _angVelBase;
 		private Modules.Machinery.OscillationParams _myosp;
+		///<inheritdoc/>
 		public override void Disable()
 		{
 			owner.OnUpdatePreMove -= actionCycle;
 		}
-
+		///<inheritdoc/>
 		public override void Enable()
 		{
 			owner.OnUpdatePreMove += actionCycle;
@@ -215,8 +246,9 @@ public abstract class PBehaviourModule
 
 		private void actionCycle()
 		{
-			owner.rot += _angVelBase + _myosp.oscm(owner.lifetime * _myosp.frq) * _myosp.amp;
+			owner.rot += _angVelBase + _myosp.oscillationMode(owner.lifetime * _myosp.frequency) * _myosp.amplitude;
 		}
+		///<inheritdoc/>
 		public override float ComputationalCost => base.ComputationalCost + 0.06f;
 	}
 }

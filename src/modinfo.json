@@ -1,0 +1,10 @@
+{
+	"id": "regionkit",
+	"name": "RegionKit",
+	"version": "3.2",
+	"authors": "RegionKit team",
+	"description": "All-in-one custom region dependency pack.\nSource code and detailed instructions are hosted here: https://github.com/Rain-World-Modding/RegionKit",
+	"requirements": ["pom"],
+	"requirements_names": ["Pom"],
+	"checksum_override_version": false
+}

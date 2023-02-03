@@ -1,23 +1,27 @@
 ﻿namespace RegionKit.Modules.Effects;
 
+///<inheritdoc/>
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Effects")]
-internal static class _Module
+public static class _Module
 {
 	private static bool __appliedOnce = false;
-	public static void Enable()
+	internal static void Enable()
 	{
 		if (!__appliedOnce)
 		{
-			ColoredRoomEffect.Apply();
-			FogOfWar.Patch();
 			GlowingSwimmersCI.Apply();
-			ReplaceEffectColor.Apply();
+			PWMalfunction.Patch();
 		}
 		__appliedOnce = true;
+		ColorRoomEffect.Apply();
+		ReplaceEffectColor.Apply();
 	}
-	public static void Disable()
+	internal static void Disable()
 	{
-
+		ColorRoomEffect.Undo();
+		ReplaceEffectColor.Undo();
 	}
+
+	
 
 }

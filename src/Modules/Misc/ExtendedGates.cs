@@ -1,29 +1,33 @@
 ﻿//extended gates by Henpemaz
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security;
-using System.Security.Permissions;
-using System.Text;
-using System.Text.RegularExpressions;
-using UnityEngine;
+//using System.IO;
+//using System.Reflection;
+//using System.Text.RegularExpressions;
 
 using Gate = RegionGate;
 using Req = RegionGate.GateRequirement;
 
 namespace RegionKit.Modules.Misc;
-
+/// <summary>
+/// Adds more options for gate requirements
+/// </summary>
 public static class ExtendedGates
 {
-	public static bool IsVanilla(Req req)
+	internal const string Version = "1.3";
+	internal const string author = "Henpemaz";
+	static Type? uwu;
+	// 1.0 initial release
+	// 1.1 13/06/2021 bugfix 6 karma at 5 cap; fix showing open side over karma for inregion minimap
+	/// <summary>
+	/// Checks whether a gate requirement is vanilla or not
+	/// </summary>
+	internal static bool IsVanilla(Req req)
 	{
 		return req?.ToString() is "1" or "2" or "3" or "4" or "5" or "L" or "R";
 	}
+	/// <summary>
+	/// Returns a karma requirement for given gate, -1 by 
+	/// </summary>
 	public static int GetKarmaLevel(this Req req)
 	{
 		int result = -1;
@@ -38,45 +42,19 @@ public static class ExtendedGates
 		}
 		return result - 1;
 	}
-	private const string ALT_POSTFIX = "alt";
-
+	internal const string ALT_POSTFIX = "alt";
+	/// <summary>
+	/// Returns whether a gate requirement has alt art
+	/// </summary>
 	public static bool IsAlt(Req req)
 	{
 		return req?.ToString().EndsWith(ALT_POSTFIX) ?? false;
 	}
-	public static class Enums_EG
+
+	internal static void Enable()
 	{
 
-		public static Req uwu = new(nameof(uwu), true);
-		public static Req Open = new(nameof(Open), true);
-		public static Req Forbidden = new(nameof(Forbidden), true);
-		public static Req Glow = new(nameof(Glow), true);
-		public static Req CommsMark = new(nameof(CommsMark), true);
-		public static Req TenReinforced = new(nameof(TenReinforced), true);
-		public static Req SixKarma = new("6", true);
-		public static Req SevenKarma = new("7", true);
-		public static Req EightKarma = new("8", true);
-		public static Req NineKarma = new("9", true);
-		public static Req TenKarma = new("10", true);
-		public static Req[] alt = new Req[10];
-		public static void Register()
-		{
-			foreach (int i in Range(10))
-			{
-				alt[i] = new(i + ALT_POSTFIX, true);
-			}
-		}
-	}
-	public const string ModID = "ExtendedGates";
-	public const string Version = "1.3";
-	public const string author = "Henpemaz";
-	// 1.0 initial release
-	// 1.1 13/06/2021 bugfix 6 karma at 5 cap; fix showing open side over karma for inregion minimap
 
-	static Type? uwu;
-
-	public static void Enable()
-	{
 		On.RainWorld.LoadResources += RainWorld_LoadResources;
 
 		On.GateKarmaGlyph.DrawSprites += GateKarmaGlyph_DrawSprites;
@@ -91,17 +69,16 @@ public static class ExtendedGates
 		On.HUD.Map.GateMarker.ctor += GateMarker_ctor;
 		On.HUD.Map.MapData.KarmaOfGate += MapData_KarmaOfGate;
 		uwu = null;
-		foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
+		foreach (RFL.Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
 		{
 			if (asm.GetName().Name == "UwUMod")
 			{
 				uwu = asm.GetType("UwUMod.UwUMod");
 			}
 		}
-
 		On.VirtualMicrophone.NewRoom += VirtualMicrophone_NewRoom;
 	}
-	public static void Disable()
+	internal static void Disable()
 	{
 		On.RainWorld.LoadResources -= RainWorld_LoadResources;
 
@@ -177,22 +154,22 @@ public static class ExtendedGates
 		switch (reqstr)
 		{
 		//todo: did you convert it right?
-		case nameof(Enums_EG.Open): // open
+		case nameof(_Enums.Open): // open
 			self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaOpen"); // Custom
 			break;
-		case nameof(Enums_EG.TenReinforced): // 10reinforced
+		case nameof(_Enums.TenReinforced): // 10reinforced
 			self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarma10reinforced"); // Custom
 			break;
-		case nameof(Enums_EG.Forbidden): // forbidden
+		case nameof(_Enums.Forbidden): // forbidden
 			self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaForbidden"); // Custom
 			break;
-		case nameof(Enums_EG.CommsMark): // comsmark
+		case nameof(_Enums.CommsMark): // comsmark
 			self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaComsmark"); // Custom
 			break;
-		case nameof(Enums_EG.uwu): // uwu
+		case nameof(_Enums.uwu): // uwu
 			self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaUwu"); // Custom
 			break;
-		case nameof(Enums_EG.Glow): // glow
+		case nameof(_Enums.Glow): // glow
 			self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaGlow"); // Custom
 			break;
 		case "6":
@@ -220,8 +197,8 @@ public static class ExtendedGates
 	private static Req MapData_KarmaOfGate(On.HUD.Map.MapData.orig_KarmaOfGate orig, HUD.Map.MapData self, PlayerProgression progression, World initWorld, string roomName)
 	{
 		string path = AssetManager.ResolveFilePath("world/gates/extendedlocks.txt");
-		if (!File.Exists(path)) goto DEFAULT_;
-		string[] array = File.ReadAllLines(path);
+		if (!IO.File.Exists(path)) goto DEFAULT_;
+		string[] array = IO.File.ReadAllLines(path);
 		for (int i = 0; i < array.Length; i++)
 		{
 			if (string.IsNullOrEmpty(array[i]) || string.IsNullOrEmpty(array[i].Trim())) continue;
@@ -230,7 +207,7 @@ public static class ExtendedGates
 				array[i] = array[i].Substring(array[i].IndexOf("//"));
 			}
 			if (string.IsNullOrEmpty(array[i]) || string.IsNullOrEmpty(array[i].Trim())) continue;
-			string[] array2 = Regex.Split(array[i], " : ");
+			string[] array2 = REG.Regex.Split(array[i], " : ");
 			if (array2[0] == roomName)
 			{
 
@@ -247,7 +224,7 @@ public static class ExtendedGates
 					thisGateIsFlippedForWhateverReason = true;
 				}
 
-				string[] namearray = Regex.Split(roomName, "_");
+				string[] namearray = REG.Regex.Split(roomName, "_");
 				if (namearray.Length == 3)
 				{
 					for (int j = 0; j < namearray.Length; j++)
@@ -295,12 +272,12 @@ public static class ExtendedGates
 		orig(self, room);
 
 		string path2 = AssetManager.ResolveFilePath("world/gates/extendedlocks.txt");//path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "extendedLocks.txt";
-		if (!File.Exists(path2))
+		if (!IO.File.Exists(path2))
 		{
 			__logger.LogMessage("ExtendedLocks is not present; skipping");
 			return;
 		}
-		string[] lines = File.ReadAllLines(path2);
+		string[] lines = IO.File.ReadAllLines(path2);
 
 		for (int i = 0; i < lines.Length; i++)
 		{
@@ -312,7 +289,7 @@ public static class ExtendedGates
 			}
 			if (string.IsNullOrEmpty(lines[i]) || string.IsNullOrEmpty(lines[i].Trim())) continue;
 
-			string[] array2 = Regex.Split(lines[i], "\\s+:\\s+");
+			string[] array2 = REG.Regex.Split(lines[i], "\\s+:\\s+");
 			if (array2[0] != room.abstractRoom.name)
 			{
 				__logger.LogDebug($"{lines[i]} does not match {room.abstractRoom.name}");
@@ -362,7 +339,7 @@ public static class ExtendedGates
 		case nameof(RegionGate.Mode.MiddleClosed):
 			int num = self.PlayersInZone();
 			//if (RNG.value < 0.05f) __logger.LogDebug($"{num},{self.dontOpen},{self.PlayersStandingStill()},{self.EnergyEnoughToOpen},{PlayersMeetSpecialRequirements(self)}");
-			if (num > 0 && num < 3 && !self.dontOpen && self.PlayersStandingStill() && self.EnergyEnoughToOpen && PlayersMeetSpecialRequirements(self))
+			if (num > 0 && num < 3 && !self.dontOpen && self.PlayersStandingStill() && self.EnergyEnoughToOpen && (PlayersMeetSpecialRequirements(self) ?? self.MeetRequirement)) //todo: may need to assume null to true?
 			{
 				self.startCounter = preupdateCounter + 1;
 			}
@@ -390,7 +367,7 @@ public static class ExtendedGates
 				||
 				(
 					self.room.game.StoryCharacter != SlugcatStats.Name.Red
-					&& File.Exists(AssetManager.ResolveFilePath("nifflasmode.txt"))
+					&& IO.File.Exists(AssetManager.ResolveFilePath("nifflasmode.txt"))
 				);
 			}
 
@@ -407,7 +384,8 @@ public static class ExtendedGates
 
 	private static bool RegionGate_KarmaBlinkRed(On.RegionGate.orig_KarmaBlinkRed orig, RegionGate self)
 	{
-		return orig(self) && !PlayersMeetSpecialRequirements(self);
+		var ores = orig(self);
+		return PlayersMeetSpecialRequirements(self) ?? ores;
 		// return false;
 		// if (self.mode != RegionGate.Mode.MiddleClosed)
 		// {
@@ -424,39 +402,39 @@ public static class ExtendedGates
 		// Orig doesn't blink if "unlocked", but we know better, forbiden shall stay forbidden
 	}
 
-	private static bool PlayersMeetSpecialRequirements(RegionGate self)
+	private static bool? PlayersMeetSpecialRequirements(RegionGate self)
 	{
-		switch (self.karmaRequirements[(!self.letThroughDir) ? 1 : 0].ToString())
+		Req gateRequirement = self.karmaRequirements[self.letThroughDir ? 0 : 1];
+		if (IsVanilla(gateRequirement)) return null;
+		switch (gateRequirement.ToString())
 		{
-		case nameof(Enums_EG.Open): // open
+		case nameof(_Enums.Open): // open
 			return true;
-		case nameof(Enums_EG.TenReinforced): // 10reinforced
+		case nameof(_Enums.TenReinforced): // 10reinforced
 			if (((self.room.game.Players[0].realizedCreature is Player p) && p.Karma == 9 && p.KarmaIsReinforced) || self.unlocked)
 				return true;
 			break;
-		case nameof(Enums_EG.Forbidden): // forbidden
+		case nameof(_Enums.Forbidden): // forbidden
 			self.startCounter = 0;
 			// caused problems with karmablinkred
 			// self.dontOpen = true; // Hope this works against MONK players smh.
 			break;
-		case nameof(Enums_EG.CommsMark): // comsmark
+		case nameof(_Enums.CommsMark): // comsmark
 			if (self.room.game.GetStorySession.saveState.deathPersistentSaveData.theMark || self.unlocked)
 				return true;
 			break;
-		case nameof(Enums_EG.uwu): // uwu
+		case nameof(_Enums.uwu): // uwu
 			if (uwu != null || self.unlocked)
 				return true;
 			break;
-		case nameof(Enums_EG.Glow): // glow
+		case nameof(_Enums.Glow): // glow
 			if (self.room.game.GetStorySession.saveState.theGlow || self.unlocked)
 				return true;
 			break;
-		default: // default karma gate handled by the game
+		default: // custom karma level
 			var player = (self.room.game.Players.FirstOrDefault().realizedCreature as Player);
-			return player?.Karma >= self.karmaRequirements[0].GetKarmaLevel();
-			
+			return player?.Karma >= gateRequirement.GetKarmaLevel();
 		}
-
 		return false;
 	}
 
@@ -468,26 +446,26 @@ public static class ExtendedGates
 		if (self.symbolDirty) // redraw
 		{
 			bool altArt = DoesPlayerDeserveAltArt(self); // this was probably too costly to call every frame, moved
-			if ((!self.gate.unlocked || self.requirement == Enums_EG.Forbidden) && (!IsVanilla(self.requirement))) // Custom
+			if ((!self.gate.unlocked || self.requirement == _Enums.Forbidden) && (!IsVanilla(self.requirement))) // Custom
 			{
 				switch (self.requirement.ToString())
 				{
-				case nameof(Enums_EG.Open): // open
+				case nameof(_Enums.Open): // open
 					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol0"); // its vanilla
 					break;
-				case nameof(Enums_EG.TenReinforced): // 10reinforced
+				case nameof(_Enums.TenReinforced): // 10reinforced
 					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol10reinforced"); // Custom
 					break;
-				case nameof(Enums_EG.Forbidden): // forbidden
+				case nameof(_Enums.Forbidden): // forbidden
 					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbolForbidden"); // Custom
 					break;
-				case nameof(Enums_EG.CommsMark): // comsmark
+				case nameof(_Enums.CommsMark): // comsmark
 					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbolComsmark"); // Custom
 					break;
-				case nameof(Enums_EG.uwu): // uwu
+				case nameof(_Enums.uwu): // uwu
 					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbolUwu"); // Custom
 					break;
-				case nameof(Enums_EG.Glow): // glow
+				case nameof(_Enums.Glow): // glow
 					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbolGlow"); // Custom
 					break;
 				default:
@@ -497,16 +475,18 @@ public static class ExtendedGates
 						altArt = true;
 					}
 					var intreq = trueReq.GetKarmaLevel();
-					if (intreq > 5)
+					__logger.LogDebug($"{intreq}, {trueReq}");
+					if (intreq >= 5)
 					{
 						int cap = (self.room.game.session as StoryGameSession)!.saveState.deathPersistentSaveData.karmaCap;
 						if (cap < intreq) cap = Mathf.Max(6, intreq);
 						sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol" + (intreq + 1).ToString() + "-" + (cap + 1).ToString() + (altArt ? "alt" : "")); // Custom, 1-indexed
 					}
 					else
-					{
+					{	
 						sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol" + (intreq + 1).ToString() + (altArt ? "alt" : "")); // Alt art for vanilla gates
 					}
+					__logger.LogDebug(sLeaser.sprites[1].element.name);
 					break;
 				}
 				self.symbolDirty = false;
@@ -558,5 +538,5 @@ public static class ExtendedGates
 
 	#endregion GATEHOOKS
 
-	
+
 }

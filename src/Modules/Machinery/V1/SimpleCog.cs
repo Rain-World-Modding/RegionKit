@@ -7,17 +7,27 @@ using UnityEngine;
 using static UnityEngine.Mathf;
 
 namespace RegionKit.Modules.Machinery.V1;
+/// <summary>
+/// Spinning thing
+/// </summary>
 public class SimpleCog : UpdatableAndDeletable, IDrawable
 {
+	/// <summary>
+	/// POM ctor
+	/// </summary>
 	public SimpleCog(Room rm, PlacedObject pobj) : this(rm, pobj, null) { }
-	public SimpleCog(Room rm, PlacedObject? pobj, SimpleCogData? acd = null)
+	/// <summary>
+	/// Primary ctor
+	/// </summary>
+	public SimpleCog(Room rm, PlacedObject? pobj, SimpleCogData? assignedData = null)
 	{
 		_PO = pobj;
 		this.room = rm;
-		_assignedCD = acd;
+		_assignedCustomizerData = assignedData;
 		//PetrifiedWood.WriteLine($"Cog created in {rm.abstractRoom?.name}");
 		__logger.LogDebug($"({rm.abstractRoom.name}): Created a Cog.");
 	}
+	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
@@ -31,14 +41,14 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 	{
 		get
 		{
-			var r = _assignedCD ?? _PO?.data as SimpleCogData;
+			var r = _assignedCustomizerData ?? _PO?.data as SimpleCogData;
 			if (r == null) { _bcd = _bcd ?? new SimpleCogData(null); return _bcd; }
 			return r;
 		}
 	}
 
 	private SimpleCogData? _bcd;
-	private readonly SimpleCogData? _assignedCD;
+	private readonly SimpleCogData? _assignedCustomizerData;
 	private PlacedObject? _PO;
 
 	private MachineryCustomizer? _customizer;
@@ -51,7 +61,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 			?? new MachineryCustomizer(null);
 	}
 
-	private Vector2 _CPos => _PO?.pos ?? _assignedCD?.owner.pos ?? default;
+	private Vector2 _CPos => _PO?.pos ?? _assignedCustomizerData?.owner.pos ?? default;
 	private float _lt;
 	private float _lastRot;
 	private float _rot;
@@ -78,6 +88,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 	}
 
 	#region idrawable things
+	///<inheritdoc/>
 	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 		_GrabMC();
@@ -85,7 +96,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 		sLeaser.sprites[0] = new FSprite("ShelterGate_cog");
 		AddToContainer(sLeaser, rCam, null!);
 	}
-
+	///<inheritdoc/>
 	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		sLeaser.sprites[0].SetPosition(_CPos - camPos);
@@ -93,16 +104,16 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 		sLeaser.sprites[0].rotation = LerpAngle(_lastRot, _rot, timeStacker);
 
 	}
-
+	///<inheritdoc/>
 	public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 	{
 
 	}
-
+	///<inheritdoc/>
 	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
 	{
 		foreach (var fs in sLeaser.sprites) fs.RemoveFromContainer();
-		try { (newContatiner ?? rCam.ReturnFContainer(_customizer?.ContainerName ?? ContainerCodes.Items)).AddChild(sLeaser.sprites[0]); }
+		try { (newContatiner ?? rCam.ReturnFContainer(_customizer?.containerName ?? ContainerCodes.Items)).AddChild(sLeaser.sprites[0]); }
 		catch { rCam.ReturnFContainer("Items").AddChild(sLeaser.sprites[0]); }
 	}
 	#endregion

@@ -36,6 +36,9 @@ Preexisting placed objects include:
   - `Atlas element` - name of the sprite to use. Defaults to "SkyDandelion".
   - `Shader` - shader to be applied to the sprite.
   - `Container` - Room camera container code to place your sprite into.
+
+  You can also use `ParticleVisualPreset` placed object in the same way to reduce repetition. Particle presets are loaded from .json files in assetpath `assets/regionkit/particlepresets`. You can mix and match between normal particle visual customizers and preset ones. You can select multiple presets in the same preset object by separating entries with commas (entering `snow, rain` will select both `snow` and `rain` particle presets, and will choose one at random).
+  Json files should [look like this](./exampleparticle.json).
   
 ### Behaviour modifiers:
 

@@ -502,6 +502,16 @@ internal static partial class Utils
 	}
 	#endregion
 	#region misc bs
+	public static FAtlas LoadAtlasOrImage(this FAtlasManager man, string path)
+	{
+		if (IO.File.Exists(AssetManager.ResolveFilePath(path + ".txt")))
+		{
+			__logger.LogDebug(path + " loading as atlas");
+			return man.LoadAtlas(path);
+		}
+		__logger.LogDebug(path + "loading as single image");
+		return man.LoadImage(path);
+	}
 	public static IEnumerable<int> Range(int bound)
 	{
 		for (int i = 0; i < bound; i++) yield return i;

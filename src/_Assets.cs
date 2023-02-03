@@ -4,28 +4,34 @@ namespace RegionKit;
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Assets")]
 internal static class _Assets
 {
+	private static bool __appliedOnce = false;
 	public static void Enable()
 	{
 		LoadResources();
+		__appliedOnce = true;
 	}
 
 	private static void LoadResources(/* On.RainWorld.orig_OnModsInit orig, RainWorld self */)
 	{
 		// orig(self);
 		__logger.LogMessage($"Assets module loading atlases from assetpath assets/regionkit");
-		foreach (string f in AssetManager.ListDirectory("assets/regionkit", false, true))
+
+		foreach (string? dir in new[] { "", "themast", "littleplanet", "extendedgates" })
 		{
-			string? atlasname = null;
-			try
+			string fdir = $"assets/regionkit{(dir is not "" ? "/" + dir : dir)}";
+			foreach (string f in AssetManager.ListDirectory(fdir, false, true))
 			{
+				string? atlasname = null;
 				IO.FileInfo fi = new(f);
 				if (fi.Extension is ".png")
 				{
-					Futile.atlasManager.LoadAtlas(f);
+					//__logger.LogMessage($"Assets module Found an image: {f}");
 					//FAtlasManager..LoadImage("");
-					#if false
-					__logger.LogMessage($"Assets module Found an image: {f}");
-					atlasname = f[..^fi.Extension.Length];
+					atlasname = fi.Name[..^fi.Extension.Length];
+					Futile.atlasManager.LoadAtlasOrImage($"{fdir}/{atlasname}");
+					
+
+#if false
 					IO.FileInfo
 						slicerfile = new(atlasname + ".json"),
 						metafile = new(atlasname + ".meta");
@@ -36,15 +42,18 @@ internal static class _Assets
 						metastream = metafile.Exists ? metafile.OpenRead() : null;
 					__logger.LogDebug($"Assets module loading png {pngstream.Length}, slicer {slicerstream?.Length ?? -1}, meta {metastream?.Length ?? -1}");
 					LoadCustomAtlas(atlasname, pngstream, slicerstream, metastream);
-					#endif
+#endif
 					//fi.AppendText();
 				}
+				try
+				{
+				}
+				catch (Exception ex)
+				{
+					__logger.LogError($"Assets module Failed to load atlas {atlasname} : {ex}");
+				}
+				//if (fi.)
 			}
-			catch (Exception ex)
-			{
-				__logger.LogError($"Assets module Failed to load atlas {atlasname} : {ex}");
-			}
-			//if (fi.)
 		}
 	}
 
@@ -67,7 +76,7 @@ internal static class _Assets
 	/// </summary>
 	internal static IO.Stream? GetStream(params string[] assetpath)
 	{
-		Func<string, string, string> 
+		Func<string, string, string>
 			dotjoin = (x, y) => $"{x}.{y}",
 			slashjoin = (x, y) => $"{x}/{y}";
 		var file = AssetManager.ResolveFilePath($"assets/regionkit/{assetpath.Stitch(slashjoin)}");
@@ -79,12 +88,26 @@ internal static class _Assets
 
 	internal static void LoadAditionalResources()
 	{
+		if (__appliedOnce) return;
+		const string LittlePlanet = "LittlePlanet";
+		const string ExtendedGates = "ExtendedGates";
+		foreach (string[] path in new[] {
+			new[] { LittlePlanet, LittlePlanet},
+			new[] { LittlePlanet, "LittlePlanetRing"},
+			new[] { ExtendedGates, "ExtendedGateSymbols"}  }) try
+			{
+				using IO.Stream?
+					pngstream = _Assets.GetStream(path[0], $"{path[1]}.png")!,
+					jsonstream = _Assets.GetStream(path[0], $"{path[1]}.json")!;
+				LoadCustomAtlas(path[1], pngstream, jsonstream);
+			}
+			catch (Exception ex)
+			{
+				__logger.LogError($"Problem loading LittlePlanet atlases {ex}");
+			}
 		__logger.LogInfo("Loading additional EG resources");
 
-		using IO.Stream 
-			pngstream = _Assets.GetStream("ExtendedGates", "ExtendedGateSymbols.png")!,
-			jsonstream = _Assets.GetStream("ExtendedGates", "ExtendedGateSymbols.json")!;
-		LoadCustomAtlas("ExtendedGateSymbols", pngstream, jsonstream);
+
 	}
 
 	internal static KeyValuePair<string, string> MetaEntryToKeyVal(string input)

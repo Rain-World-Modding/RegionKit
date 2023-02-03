@@ -53,7 +53,7 @@
 		<None Update="Assets/**" CopyToOutputDirectory="PreserveNewest" />
 		<Compile Remove="Assets/**" />
 		<None Include="Assets/**" />
-		<EmbeddedResource Include="Assets/**" />
+		<!-- <EmbeddedResource Include="Assets/**" /> -->
 	</ItemGroup>
 
 	<!-- Lib includes. -->

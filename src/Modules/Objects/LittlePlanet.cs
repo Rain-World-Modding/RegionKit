@@ -107,6 +107,8 @@ public class LittlePlanet : CosmeticSprite
 	///<inheritdoc/>
 	public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
+		const string RING = "assets/regionkit/littleplanet/littleplanetring";
+		const string PLANET = "assets/regionkit/littleplanet/littleplanet";
 		sLeaser.sprites = new FSprite[6]
 		{
 			new("Futile_White")
@@ -114,10 +116,10 @@ public class LittlePlanet : CosmeticSprite
 				shader = rCam.game.rainWorld.Shaders[(!_underWaterMode) ? "FlatLight" : "UnderWaterLight"],
 				scale = _baseRad / 6f
 			},
-			new("LittlePlanet") { shader = rCam.game.rainWorld.Shaders["Hologram"] },
-			new("LittlePlanetRing") { shader = rCam.game.rainWorld.Shaders["Hologram"] },
-			new("LittlePlanetRing") { shader = rCam.game.rainWorld.Shaders["Hologram"] },
-			new("LittlePlanetRing") { shader = rCam.game.rainWorld.Shaders["Hologram"] },
+			new(PLANET) { shader = rCam.game.rainWorld.Shaders["Hologram"] },
+			new(RING) { shader = rCam.game.rainWorld.Shaders["Hologram"] },
+			new(RING) { shader = rCam.game.rainWorld.Shaders["Hologram"] },
+			new(RING) { shader = rCam.game.rainWorld.Shaders["Hologram"] },
 			new("Futile_White")
 			{
 				shader = rCam.game.rainWorld.Shaders[(!_underWaterMode) ? "FlatLight" : "UnderWaterLight"],
@@ -316,18 +318,17 @@ public static class EmbeddedResourceLoader
 {
 	public static void LoadEmbeddedResource(string name)
 	{
-
+		__logger.LogDebug($"Loading ER {name}");
 		var thisAssembly = Assembly.GetExecutingAssembly();
 		//var resourceName = thisAssembly.GetManifestResourceNames().First(r => r.Contains(name));
 
-		using Stream resource = _Assets.GetStream("LittlePlanet", name, "png")!;
+		using Stream resource = _Assets.GetStream("LittlePlanet", $"{name}.png")!;
 		using MemoryStream memoryStream = new();
 		var buffer = new byte[16384];
 		int count;
 		while ((count = resource!.Read(buffer, 0, buffer.Length)) > 0)
 			memoryStream.Write(buffer, 0, count);
 		Texture2D spriteTexture = new(0, 0, TextureFormat.ARGB32, false);
-
 		//TODO: check if loads correctly
 		spriteTexture.LoadImage(memoryStream.ToArray());
 		spriteTexture.anisoLevel = 1;

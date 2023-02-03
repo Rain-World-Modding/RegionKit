@@ -63,25 +63,11 @@ public static class _Module
 		On.Room.NoLongerViewed += Room_NotViewed;
 		//todo: check if it's okay to have like this
 		_CommonHooks.PostRoomLoad += RoomPostLoad;
-		On.RainWorld.LoadResources += LoadLittlePlanetResources;
-	}
-
-	private static void LoadLittlePlanetResources(On.RainWorld.orig_LoadResources orig, RainWorld self)
-	{
-		orig(self);
-		try
-		{
-			EmbeddedResourceLoader.LoadEmbeddedResource("LittlePlanet");
-			EmbeddedResourceLoader.LoadEmbeddedResource("LittlePlanetRing");
-		}
-		catch (Exception ex)
-		{
-			__logger.LogError($"Problem loading LittlePlanet atlases {ex}");
-		}
+		//On.RainWorld.LoadResources += LoadLittlePlanetResources;
 	}
 	internal static void Disable()
 	{
-		On.RainWorld.LoadResources -= LoadLittlePlanetResources;
+		//On.RainWorld.LoadResources -= LoadLittlePlanetResources;
 		On.Room.NowViewed -= Room_Viewed;
 		On.Room.NoLongerViewed -= Room_NotViewed;
 		On.PlacedObject.GenerateEmptyData -= MakeEmptyData;

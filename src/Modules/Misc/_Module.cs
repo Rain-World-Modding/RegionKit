@@ -14,7 +14,7 @@ internal static class _Module
 			//CustomArenaDivisions.
 		}
 		__appliedOnce = true;
-		PaletteTextInput.Apply();
+		//PaletteTextInput.Apply();
 		CloudAdjustment.Apply();
 		ArenaFixes.ApplyHooks();
 		ExtendedGates.Enable();
@@ -23,7 +23,7 @@ internal static class _Module
 	}
 	public static void Disable()
 	{
-		PaletteTextInput.Undo();
+		//PaletteTextInput.Undo();
 		CloudAdjustment.Undo();
 		ArenaFixes.UndoHooks();
 		ExtendedGates.Disable();

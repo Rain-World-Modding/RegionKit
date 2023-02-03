@@ -46,7 +46,7 @@ namespace RegionKit.Modules.TheMast
 		private static string ItemSymbol_SpriteNameForItem(On.ItemSymbol.orig_SpriteNameForItem orig, AbstractPhysicalObject.AbstractObjectType itemType, int intData)
 		{
 			if (itemType == _Enums.PearlChain)
-				return "Symbol_PearlChain";
+				return "assets/regionkit/themast/symbol_pearlchain";
 			else
 				return orig(itemType, intData);
 		}

@@ -21,18 +21,22 @@ internal static class _Assets
 				IO.FileInfo fi = new(f);
 				if (fi.Extension is ".png")
 				{
+					Futile.atlasManager.LoadAtlas(f);
+					//FAtlasManager..LoadImage("");
+					#if false
 					__logger.LogMessage($"Assets module Found an image: {f}");
 					atlasname = f[..^fi.Extension.Length];
 					IO.FileInfo
 						slicerfile = new(atlasname + ".json"),
 						metafile = new(atlasname + ".meta");
-					using IO.Stream pngstream = fi.OpenRead();
+					using IO.Stream 
+						pngstream = fi.OpenRead();
 					using IO.Stream?
 						slicerstream = slicerfile.Exists ? slicerfile.OpenRead() : null,
 						metastream = metafile.Exists ? metafile.OpenRead() : null;
-
 					__logger.LogDebug($"Assets module loading png {pngstream.Length}, slicer {slicerstream?.Length ?? -1}, meta {metastream?.Length ?? -1}");
 					LoadCustomAtlas(atlasname, pngstream, slicerstream, metastream);
+					#endif
 					//fi.AppendText();
 				}
 			}

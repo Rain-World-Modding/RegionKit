@@ -35,6 +35,7 @@ public class Mod : BIE.BaseUnityPlugin
 			}
 		}
 		_modulesSetUp = true;
+		_Assets.LoadAditionalResources();
 	}
 
 	private void RunEnableOn(ModuleInfo mod)

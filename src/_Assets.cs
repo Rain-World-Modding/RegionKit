@@ -81,7 +81,7 @@ internal static class _Assets
 			slashjoin = (x, y) => $"{x}/{y}";
 		var file = AssetManager.ResolveFilePath($"assets/regionkit/{assetpath.Stitch(slashjoin)}");
 		if (IO.File.Exists(file)) return IO.File.OpenRead(file);
-		return RFL.Assembly.GetExecutingAssembly().GetManifestResourceStream($"RegionKit.Assets.{assetpath.Stitch(dotjoin)}");
+		return RFL.Assembly.GetExecutingAssembly().GetManifestResourceStream($"RegionKit.Assets.Embedded.{assetpath.Stitch(dotjoin)}");
 	}
 
 	#region ATLASES

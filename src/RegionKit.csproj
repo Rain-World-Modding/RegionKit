@@ -53,7 +53,7 @@
 		<None Update="Assets/**" CopyToOutputDirectory="PreserveNewest" />
 		<Compile Remove="Assets/**" />
 		<None Include="Assets/**" />
-		<!-- <EmbeddedResource Include="Assets/**" /> -->
+		<EmbeddedResource Include="Assets/Embedded/**" />
 	</ItemGroup>
 
 	<!-- Lib includes. -->
@@ -167,7 +167,7 @@
 	</ItemGroup>
 	<!-- Build event -->
 	<ItemGroup>
-		<_CopyItems Include="Assets/**" />
+		<_CopyItems Include="Assets/Plain/**" />
 	</ItemGroup>
 	<Target Name="CopyOutput" AfterTargets="Build" Condition="'$(RWMods_RK)'!=''">
 		<Message

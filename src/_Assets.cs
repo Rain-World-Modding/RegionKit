@@ -4,10 +4,8 @@ namespace RegionKit;
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Assets")]
 internal static class _Assets
 {
-	//internal static __Log
 	public static void Enable()
 	{
-		//On.RainWorld.OnModsInit += LoadResources;
 		LoadResources();
 	}
 

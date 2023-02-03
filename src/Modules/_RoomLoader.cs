@@ -3,20 +3,6 @@ using RWCustom;
 using UnityEngine;
 
 namespace RegionKit.Modules;
-
-public static class Enums_Objects
-{
-	public static PlacedObject.Type PWLightrod = new(nameof(PWLightrod), true);
-}
-
-internal static class Enums_Effects
-{
-	public static RoomSettings.RoomEffect.Type PWMalfunction = new(nameof(PWMalfunction), true);
-	public static RoomSettings.RoomEffect.Type FogOfWarSolid = new(nameof(FogOfWarSolid), true);
-	public static RoomSettings.RoomEffect.Type FogOfWarDarkened = new(nameof(FogOfWarDarkened), true);
-	public static RoomSettings.RoomEffect.Type CloudAdjustment = new(nameof(CloudAdjustment), true);
-
-}
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "RoomLoader")]
 static class _RoomLoader
 {
@@ -46,7 +32,7 @@ static class _RoomLoader
 
 	public static void ObjectsPage_CreateObjRep(On.DevInterface.ObjectsPage.orig_CreateObjRep orig, ObjectsPage self, PlacedObject.Type tp, PlacedObject pObj)
 	{
-		if (tp == Enums_Objects.PWLightrod)
+		if (tp == Objects._Enums.PWLightrod)
 		{
 			bool isNewObject = false;
 			if (pObj == null)
@@ -72,7 +58,7 @@ static class _RoomLoader
 	private static void PlacedObject_GenerateEmptyData(On.PlacedObject.orig_GenerateEmptyData orig, PlacedObject self)
 	{
 		orig(self);
-		if (self.type == Enums_Objects.PWLightrod)
+		if (self.type == Objects._Enums.PWLightrod)
 		{
 			self.data = new Objects.PWLightRodData(self);
 		}
@@ -91,7 +77,7 @@ static class _RoomLoader
 		{
 			var effect = self.roomSettings.effects[k];
 
-			if (effect.type == Enums_Effects.PWMalfunction && self.world.rainCycle.brokenAntiGrav == null)
+			if (effect.type == Effects._Enums.PWMalfunction && self.world.rainCycle.brokenAntiGrav == null)
 			{
 				//Directly adds a brokenAntiGraivty to the world
 				self.world.rainCycle.brokenAntiGrav = new AntiGravity.BrokenAntiGravity(self.game.setupValues.gravityFlickerCycleMin, self.game.setupValues.gravityFlickerCycleMax, self.game);
@@ -104,7 +90,7 @@ static class _RoomLoader
 			var obj = self.roomSettings.placedObjects[l];
 			if (obj.active)
 			{
-				if (obj.type == Enums_Objects.PWLightrod)
+				if (obj.type == Objects._Enums.PWLightrod)
 				{
 					self.AddObject(new Objects.PWLightRod(obj, self));
 				}

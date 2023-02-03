@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 namespace RegionKit;
-
+/// <summary>
+/// Main plugin class
+/// </summary>
 [BIE.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "2.1")]
 public class Mod : BIE.BaseUnityPlugin
 {
@@ -12,6 +14,7 @@ public class Mod : BIE.BaseUnityPlugin
 	private RainWorld _rw = null!;
 	internal static LOG.ManualLogSource __logger => __inst.Logger;
 	internal static RainWorld __RW => __inst._rw;
+	///<inheritdoc/>
 	public void OnEnable()
 	{
 		__inst = this;
@@ -45,6 +48,7 @@ public class Mod : BIE.BaseUnityPlugin
 			Logger.LogError($"Could not enable {mod.name}: {ex}");
 		}
 	}
+	///<inheritdoc/>
 	public void OnDisable()
 	{
 		On.RainWorld.OnModsInit -= Init;
@@ -66,7 +70,7 @@ public class Mod : BIE.BaseUnityPlugin
 			Logger.LogError($"Error disabling {mod.name}: {ex}");
 		}
 	}
-
+	///<inheritdoc/>
 	public void FixedUpdate()
 	{
 		_rw ??= FindObjectOfType<RainWorld>();
@@ -88,6 +92,7 @@ public class Mod : BIE.BaseUnityPlugin
 		}
 	}
 	#region module shenanigans
+	///<inheritdoc/>
 	public void ScanAssemblyForModules(RFL.Assembly asm)
 	{
 		foreach (Type t in asm.DefinedTypes)
@@ -96,7 +101,7 @@ public class Mod : BIE.BaseUnityPlugin
 			TryRegisterModule(t);
 		}
 	}
-
+	///<inheritdoc/>
 	public void TryRegisterModule(Type? t)
 	{
 		if (t is null) return;
@@ -105,7 +110,8 @@ public class Mod : BIE.BaseUnityPlugin
 			RFL.MethodInfo
 				enable = t.GetMethod(moduleAttr._enableMethod, BF_ALL_CONTEXTS_STATIC),
 				disable = t.GetMethod(moduleAttr._disableMethod, BF_ALL_CONTEXTS_STATIC);
-			RFL.MethodInfo? tick = moduleAttr._tickMethod is string tic ? t.GetMethod(tic, BF_ALL_CONTEXTS_STATIC) : null;
+			RFL.MethodInfo? tick = moduleAttr._tickMethod is string ticm ? t.GetMethod(ticm, BF_ALL_CONTEXTS_STATIC) : null;
+			RFL.FieldInfo? loggerField = moduleAttr._loggerField is string logf ? t.GetField(logf, BF_ALL_CONTEXTS_STATIC) : null;
 			string moduleName = moduleAttr._moduleName ?? t.FullName;
 			if (enable is null || disable is null)
 			{
@@ -113,7 +119,13 @@ public class Mod : BIE.BaseUnityPlugin
 				break;
 			}
 			Logger.LogMessage($"Registering module {moduleName}");
-
+			if (loggerField is not null)
+				try
+				{
+					loggerField.SetValue(null, BepInEx.Logging.Logger.CreateLogSource($"RegionKit/{moduleName}"), BF_ALL_CONTEXTS_STATIC, null, System.Globalization.CultureInfo.InvariantCulture
+					);
+				}
+				catch (Exception ex) { Logger.LogWarning($"Invalid logger field name supplied! {ex}"); }
 			Action
 				enableDel = (Action)Delegate.CreateDelegate(typeof(Action), enable),
 				disableDel = (Action)Delegate.CreateDelegate(typeof(Action), disable);

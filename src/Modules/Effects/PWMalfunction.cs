@@ -35,7 +35,7 @@ class PWMalfunction
 	{
 		float origVal = orig(instance);
 		if (instance.room != null && instance.room.world != null && instance.room.world.rainCycle != null && instance.room.world.rainCycle.brokenAntiGrav != null
-				&& instance.room.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction) > 0f
+				&& instance.room.roomSettings.GetEffectAmount(_Enums.PWMalfunction) > 0f
 				&& (instance.room.roomSettings.DangerType == RoomRain.DangerType.Thunder || instance.room.roomSettings.DangerType == RoomRain.DangerType.None))
 		{
 			return Mathf.Max(origVal, 1f - instance.room.world.rainCycle.brokenAntiGrav.CurrentLightsOn);
@@ -46,7 +46,7 @@ class PWMalfunction
 	public static float hook_get_ElectricPower(orig_ElectricPower orig, Room instance)
 	{
 		if (instance.world != null && instance.world.rainCycle != null && instance.world.rainCycle.brokenAntiGrav != null
-				&& instance.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction) > 0f)
+				&& instance.roomSettings.GetEffectAmount(_Enums.PWMalfunction) > 0f)
 		{
 			return instance.world.rainCycle.brokenAntiGrav.CurrentLightsOn;
 		}
@@ -74,9 +74,9 @@ class PWMalfunction
 		{
 			for (int i = 0; i < instance.game.cameras.Length; i++)
 			{
-				if (instance.game.cameras[i].room != null && instance.game.cameras[i].room.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction) > 0f)
+				if (instance.game.cameras[i].room != null && instance.game.cameras[i].room.roomSettings.GetEffectAmount(_Enums.PWMalfunction) > 0f)
 				{
-					instance.game.cameras[i].room.PlaySound((!instance.on) ? SoundID.Broken_Anti_Gravity_Switch_Off : SoundID.Broken_Anti_Gravity_Switch_On, 0f, instance.game.cameras[i].room.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction), 1f);
+					instance.game.cameras[i].room.PlaySound((!instance.on) ? SoundID.Broken_Anti_Gravity_Switch_Off : SoundID.Broken_Anti_Gravity_Switch_On, 0f, instance.game.cameras[i].room.roomSettings.GetEffectAmount(_Enums.PWMalfunction), 1f);
 
 				}
 			}
@@ -85,9 +85,9 @@ class PWMalfunction
 		{
 			for (int j = 0; j < instance.game.cameras.Length; j++)
 			{
-				if (instance.game.cameras[j].room.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction) > 0f)
+				if (instance.game.cameras[j].room.roomSettings.GetEffectAmount(_Enums.PWMalfunction) > 0f)
 				{
-					instance.game.cameras[j].room.ScreenMovement(null, new Vector2(0f, 0f), instance.game.cameras[j].room.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction) * 0.5f * Mathf.Sin(instance.progress * 3.14159274f));
+					instance.game.cameras[j].room.ScreenMovement(null, new Vector2(0f, 0f), instance.game.cameras[j].room.roomSettings.GetEffectAmount(_Enums.PWMalfunction) * 0.5f * Mathf.Sin(instance.progress * 3.14159274f));
 				}
 			}
 		}
@@ -99,12 +99,12 @@ class PWMalfunction
 		orig.Invoke(instance, eu);
 		//makes the zapcoil sound
 		float val = 0f;
-		if (instance.room.fullyLoaded && (val = instance.room.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction)) > 0f)
+		if (instance.room.fullyLoaded && (val = instance.room.roomSettings.GetEffectAmount(_Enums.PWMalfunction)) > 0f)
 		{
 			instance.soundLoop.Volume = instance.turnedOn * val;
 		}
 		//makes the zapcoil switch on/off
-		if (instance.room.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction) > 0f && instance.room.world.rainCycle.brokenAntiGrav != null)
+		if (instance.room.roomSettings.GetEffectAmount(_Enums.PWMalfunction) > 0f && instance.room.world.rainCycle.brokenAntiGrav != null)
 		{
 			bool flag = instance.room.world.rainCycle.brokenAntiGrav.to == 1f && instance.room.world.rainCycle.brokenAntiGrav.progress == 1f;
 			if (!flag)
@@ -126,7 +126,7 @@ class PWMalfunction
 	public static void GravityDisruptor_Update(On.GravityDisruptor.orig_Update orig, GravityDisruptor instance, bool eu)
 	{
 		orig.Invoke(instance, eu);
-		if (instance.room.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction) > 0f && instance.room.world.rainCycle.brokenAntiGrav != null)
+		if (instance.room.roomSettings.GetEffectAmount(_Enums.PWMalfunction) > 0f && instance.room.world.rainCycle.brokenAntiGrav != null)
 		{
 			instance.power = instance.room.world.rainCycle.brokenAntiGrav.CurrentAntiGravity;
 		}
@@ -137,7 +137,7 @@ class PWMalfunction
 	{
 		orig.Invoke(instance, placedInRoom, placedObject, lightData);
 		float val = 0f;
-		if ((val = placedInRoom.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction)) > 0f)
+		if ((val = placedInRoom.roomSettings.GetEffectAmount(_Enums.PWMalfunction)) > 0f)
 		{
 			instance.gravityDependent = (val > 0f && (float)lightData.randomSeed > 0f);
 		}
@@ -150,7 +150,7 @@ class PWMalfunction
 		//if (room.world.region != null) { 
 		//    orig.Invoke(instance, placedObject, rect, room);
 		//}
-		bool val = (room.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction) > 0f);
+		bool val = (room.roomSettings.GetEffectAmount(_Enums.PWMalfunction) > 0f);
 		if (val)
 		{
 			instance.gravityDependent = val;
@@ -162,7 +162,7 @@ class PWMalfunction
 	public static void SuperStructureFuses_Update(On.SuperStructureFuses.orig_Update orig, SuperStructureFuses instance, bool eu)
 	{
 		float temp = instance.room.gravity;
-		if (instance.room.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction) > 0f)
+		if (instance.room.roomSettings.GetEffectAmount(_Enums.PWMalfunction) > 0f)
 		{
 			instance.room.gravity = 1 - instance.room.ElectricPower;
 		}
@@ -174,7 +174,7 @@ class PWMalfunction
 	public static void RegionGate_Update(On.RegionGate.orig_Update orig, RegionGate instance, bool eu)
 	{
 		if (instance.room.world is null) goto ORIG_;
-		if (instance.room.roomSettings.GetEffectAmount(Modules.Enums_Effects.PWMalfunction) > 0)
+		if (instance.room.roomSettings.GetEffectAmount(_Enums.PWMalfunction) > 0)
 		{
 			if (instance.startCounter > 0 && instance.rainCycle.brokenAntiGrav != null && (!instance.rainCycle.brokenAntiGrav.on))
 			{

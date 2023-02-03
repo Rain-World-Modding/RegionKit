@@ -1,7 +1,11 @@
 ﻿namespace RegionKit;
 
+/// <summary>
+/// Lists container codes for RoomCamera
+/// </summary>
 public enum ContainerCodes
 {
+#pragma warning disable 1591
 	Foreground = 0,
 	Background = 1,
 	Shadows = 2,
@@ -15,4 +19,5 @@ public enum ContainerCodes
 	HUD = 10,
 	HUD2 = 11,
 	Items = 12
+#pragma warning restore 1591
 }

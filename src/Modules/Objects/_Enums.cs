@@ -5,6 +5,10 @@ namespace RegionKit.Modules.Objects;
 public class _Enums
 {
 	/// <summary>
+	/// Colorable light rod
+	/// </summary>
+	public static PlacedObject.Type PWLightrod = new(nameof(PWLightrod), true);
+	/// <summary>
 	/// Kills creatures that enter the rect
 	/// </summary>
 	public static PlacedObject.Type ARKillRect = new(nameof(ARKillRect), true);

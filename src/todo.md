@@ -4,10 +4,10 @@
 ### known
 
 - echoes break with saint (crash when no echo present?)
-- robogates always open (sometimes)
 - extendedgates is generally a mess
 
 ### fixed
+- robogates always open (sometimes)
 
 ## features
 

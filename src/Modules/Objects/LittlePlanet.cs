@@ -320,7 +320,7 @@ public static class EmbeddedResourceLoader
 		var thisAssembly = Assembly.GetExecutingAssembly();
 		//var resourceName = thisAssembly.GetManifestResourceNames().First(r => r.Contains(name));
 
-		using Stream resource = _Assets.GetStream("LittlePlanet", name, "png");
+		using Stream resource = _Assets.GetStream("LittlePlanet", name, "png")!;
 		using MemoryStream memoryStream = new();
 		var buffer = new byte[16384];
 		int count;

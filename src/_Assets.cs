@@ -52,16 +52,23 @@ internal static class _Assets
 	}
 	internal static byte[]? GetBytes(params string[] assetpath)
 	{
-		IO.Stream? stream = GetStream(assetpath);
+		using IO.Stream? stream = GetStream(assetpath);
 		if (stream is null) return null;
 		byte[] buff = new byte[stream.Length];
 		stream.Read(buff, 0, (int)stream.Length);
 		return buff;
 	}
-	internal static IO.Stream GetStream(params string[] assetpath)
+	/// <summary>
+	/// Returns an asset stream, taking from merged assets or ER. Dispose of it properly!
+	/// </summary>
+	internal static IO.Stream? GetStream(params string[] assetpath)
 	{
-		Func<string, string, string>? aggregator = (x, y) => $"{x}.{y}";
-		return RFL.Assembly.GetExecutingAssembly().GetManifestResourceStream($"RegionKit.Assets.{assetpath.Stitch((Func<string, string, string>?)aggregator)}");
+		Func<string, string, string> 
+			dotjoin = (x, y) => $"{x}.{y}",
+			slashjoin = (x, y) => $"{x}/{y}";
+		var file = AssetManager.ResolveFilePath($"assets/regionkit/{assetpath.Stitch(slashjoin)}");
+		if (IO.File.Exists(file)) return IO.File.OpenRead(file);
+		return RFL.Assembly.GetExecutingAssembly().GetManifestResourceStream($"RegionKit.Assets.{assetpath.Stitch(dotjoin)}");
 	}
 
 	#region ATLASES
@@ -69,7 +76,11 @@ internal static class _Assets
 	internal static void LoadAditionalResources()
 	{
 		__logger.LogInfo("Loading additional EG resources");
-		LoadCustomAtlas("ExtendedGateSymbols", _Assets.GetStream("ExtendedGates", "ExtendedGateSymbols.png"), _Assets.GetStream("ExtendedGates", "ExtendedGateSymbols.json"));
+
+		using IO.Stream 
+			pngstream = _Assets.GetStream("ExtendedGates", "ExtendedGateSymbols.png")!,
+			jsonstream = _Assets.GetStream("ExtendedGates", "ExtendedGateSymbols.json")!;
+		LoadCustomAtlas("ExtendedGateSymbols", pngstream, jsonstream);
 	}
 
 	internal static KeyValuePair<string, string> MetaEntryToKeyVal(string input)

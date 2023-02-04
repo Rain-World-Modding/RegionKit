@@ -1,9 +1,9 @@
 {
 	"id": "regionkit",
 	"name": "RegionKit",
-	"version": "3.2",
+	"version": "3.3",
 	"authors": "RegionKit team",
-	"description": "All-in-one custom region dependency pack.\nSource code and detailed instructions are hosted here: https://github.com/Rain-World-Modding/RegionKit",
+	"description": "All-in-one custom region dependency pack.<LINE>Source code and detailed descriptions are hosted here: https://github.com/Rain-World-Modding/RegionKit<LINE>[b]Reporting bugs[/b]<LINE>If you have a problem to report, please do it via github issues, Rain World discord server, or leave a post on discussions under this workshop item. Try to first look if anyone has already reported similar problem, attach logs and other materials if relevant!",
 	"requirements": ["pom"],
 	"requirements_names": ["Pom"],
 	"checksum_override_version": false

@@ -147,9 +147,7 @@ class PWMalfunction
 	public static void SuperStructureFuses_Ctor(On.SuperStructureFuses.orig_ctor orig, SuperStructureFuses instance, PlacedObject placedObject, RWCustom.IntRect rect, Room room)
 	{
 		//Check to see whenever calling orig is a good idea for this...
-		//if (room.world.region != null) { 
-		//    orig.Invoke(instance, placedObject, rect, room);
-		//}
+		orig.Invoke(instance, placedObject, rect, room);
 		bool val = (room.roomSettings.GetEffectAmount(_Enums.PWMalfunction) > 0f);
 		if (val)
 		{

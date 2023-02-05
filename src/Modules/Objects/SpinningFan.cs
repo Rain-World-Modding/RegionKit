@@ -42,7 +42,7 @@ internal class SpinningFan : UpdatableAndDeletable, IDrawable
 	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 		sLeaser.sprites = new FSprite[1];
-		sLeaser.sprites[0] = new FSprite("spinningFan", true);
+		sLeaser.sprites[0] = new FSprite("assets/regionkit/sprites/fan", true);
 		sLeaser.sprites[0].shader = rCam.game.rainWorld.Shaders["ColoredSprite2"];
 		AddToContainer(sLeaser, rCam, null);
 	}

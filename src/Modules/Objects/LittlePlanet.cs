@@ -107,8 +107,8 @@ public class LittlePlanet : CosmeticSprite
 	///<inheritdoc/>
 	public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
-		const string RING = "assets/regionkit/littleplanet/littleplanetring";
-		const string PLANET = "assets/regionkit/littleplanet/littleplanet";
+		const string RING = "assets/regionkit/sprites/littleplanetring";
+		const string PLANET = "assets/regionkit/sprites/littleplanet";
 		sLeaser.sprites = new FSprite[6]
 		{
 			new("Futile_White")

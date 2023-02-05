@@ -12,24 +12,19 @@ namespace RegionKit.Modules.Effects;
 
 public class GlowingSwimmersCI
 {
-	public static class Enums_GlowingSwimmers
-	{
-		public static RoomSettings.RoomEffect.Type GlowingSwimmers = new(nameof(GlowingSwimmers), true);
-		public static CosmeticInsect.Type GlowingSwimmerInsect = new(nameof(GlowingSwimmerInsect), true);
-	}
 
 	public static void Apply()
 	{
 		_CommonHooks.PostRoomLoad += RoomPostLoad;
-		On.InsectCoordinator.SpeciesDensity_Type_1 += (orig, type) => type == Enums_GlowingSwimmers.GlowingSwimmerInsect ? .8f : orig(type);
-		On.InsectCoordinator.RoomEffectToInsectType += (orig, type) => type == Enums_GlowingSwimmers.GlowingSwimmers ? Enums_GlowingSwimmers.GlowingSwimmerInsect : orig(type);
-		On.InsectCoordinator.TileLegalForInsect += (orig, type, room, testPos) => type == Enums_GlowingSwimmers.GlowingSwimmerInsect ? room.GetTile(testPos).DeepWater : orig(type, room, testPos);
-		On.InsectCoordinator.EffectSpawnChanceForInsect += (orig, type, room, testPos, effectAmount) => type == Enums_GlowingSwimmers.GlowingSwimmerInsect || orig(type, room, testPos, effectAmount);
+		On.InsectCoordinator.SpeciesDensity_Type_1 += (orig, type) => type == _Enums.GlowingSwimmerInsect ? .8f : orig(type);
+		On.InsectCoordinator.RoomEffectToInsectType += (orig, type) => type == _Enums.GlowingSwimmers ? _Enums.GlowingSwimmerInsect : orig(type);
+		On.InsectCoordinator.TileLegalForInsect += (orig, type, room, testPos) => type == _Enums.GlowingSwimmerInsect ? room.GetTile(testPos).DeepWater : orig(type, room, testPos);
+		On.InsectCoordinator.EffectSpawnChanceForInsect += (orig, type, room, testPos, effectAmount) => type == _Enums.GlowingSwimmerInsect || orig(type, room, testPos, effectAmount);
 		On.InsectCoordinator.CreateInsect += (orig, self, type, pos, swarm) =>
 			{
 				if (!InsectCoordinator.TileLegalForInsect(type, self.room, pos) || self.room.world.rainCycle.TimeUntilRain < Random.Range(1200, 1600))
 					return;
-				if (type == Enums_GlowingSwimmers.GlowingSwimmerInsect)
+				if (type == _Enums.GlowingSwimmerInsect)
 				{
 					var cosmeticInsect = new GlowingSwimmer(self.room, pos);
 					self.allInsects.Add(cosmeticInsect);
@@ -50,7 +45,7 @@ public class GlowingSwimmersCI
 		for (var i = 0; i < self.roomSettings.effects.Count; i++)
 		{
 			var effect = self.roomSettings.effects[i];
-			if (effect.type == Enums_GlowingSwimmers.GlowingSwimmers)
+			if (effect.type == _Enums.GlowingSwimmers)
 			{
 				if (self.insectCoordinator is null)
 				{
@@ -74,7 +69,7 @@ public class GlowingSwimmer : CosmeticInsect
 	private Vector2[,] _segments;
 	private LightSource? _lightSource;
 
-	public GlowingSwimmer(Room room, Vector2 pos) : base(room, pos, GlowingSwimmersCI.Enums_GlowingSwimmers.GlowingSwimmerInsect)
+	public GlowingSwimmer(Room room, Vector2 pos) : base(room, pos, _Enums.GlowingSwimmerInsect)
 	{
 		creatureAvoider = new(this, 10, 300f, .3f);
 		_breath = Random.value;

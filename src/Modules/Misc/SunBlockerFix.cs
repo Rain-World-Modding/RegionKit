@@ -1,24 +1,19 @@
-﻿namespace RegionKit;
+﻿namespace RegionKit.Modules.Misc;
+
 /// <summary>
-/// By LB Gamer/M4rbleL1ne.
+/// By LB/M4rbleL1ne.
 /// </summary>
-public class SunBlockerFix
+internal static class SunBlockerFix
 {
-	private static On.SunBlocker.hook_InitiateSprites __hook_sb = (orig, self, sLeaser, rCam) =>
+	internal static void Apply() => On.SunBlocker.InitiateSprites += SunBlockerInitiateSprites;
+
+	internal static void Undo() => On.SunBlocker.InitiateSprites -= SunBlockerInitiateSprites;
+
+	private static void SunBlockerInitiateSprites(On.SunBlocker.orig_InitiateSprites orig, SunBlocker self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 		orig(self, sLeaser, rCam);
 		sLeaser.sprites[0].scaleX = 1500f;
 		sLeaser.sprites[0].scaleY = 900f;
 		self.AddToContainer(sLeaser, rCam, null);
-	};
-
-	internal static void Apply()
-	{
-		On.SunBlocker.InitiateSprites += __hook_sb;
 	}
-	internal static void Undo()
-	{
-		On.SunBlocker.InitiateSprites -= __hook_sb;
-	}
-
 }

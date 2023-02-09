@@ -45,6 +45,7 @@ public static class _Module
 			RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>("RoomBorderTP", RK_POM_CATEGORY);
 			RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect", RK_POM_CATEGORY);
 			RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>("PlacedWaterfall", RK_POM_CATEGORY);
+			RegisterManagedObject<ColorifierUAD, ShortcutColorifierData, ManagedRepresentation>("ShortcutColor", RK_POM_CATEGORY);
 
 			__objectHooks = new List<Hook>
 			{

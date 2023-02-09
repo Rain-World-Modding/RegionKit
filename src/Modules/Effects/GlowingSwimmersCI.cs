@@ -5,7 +5,6 @@
 /// </summary>
 internal static class GlowingSwimmersCI
 {
-
 	internal static void Apply()
 	{
 		_CommonHooks.PostRoomLoad += RoomPostLoad;
@@ -45,27 +44,27 @@ internal static class GlowingSwimmersCI
 
 	private static float InsectCoordinatorSpeciesDensityInsectType(On.InsectCoordinator.orig_SpeciesDensity_Type_1 orig, CosmeticInsect.Type type)
 	{
-		return type == Enums_GlowingSwimmers.GlowingSwimmerInsect ? .8f : orig(type);
+		return type == _Enums.GlowingSwimmerInsect ? .8f : orig(type);
 	}
 
 	private static CosmeticInsect.Type InsectCoordinatorRoomEffectToInsectType(On.InsectCoordinator.orig_RoomEffectToInsectType orig, RoomSettings.RoomEffect.Type type)
 	{
-		return type == Enums_GlowingSwimmers.GlowingSwimmers ? Enums_GlowingSwimmers.GlowingSwimmerInsect : orig(type);
+		return type == _Enums.GlowingSwimmers ? _Enums.GlowingSwimmerInsect : orig(type);
 	}
 
 	private static bool InsectCoordinatorTileLegalForInsect(On.InsectCoordinator.orig_TileLegalForInsect orig, CosmeticInsect.Type type, Room room, Vector2 testPos)
 	{
-		return type == Enums_GlowingSwimmers.GlowingSwimmerInsect ? room.GetTile(testPos).DeepWater : orig(type, room, testPos);
+		return type == _Enums.GlowingSwimmerInsect ? room.GetTile(testPos).DeepWater : orig(type, room, testPos);
 	}
 
 	private static bool InsectCoordinatorEffectSpawnChanceForInsect(On.InsectCoordinator.orig_EffectSpawnChanceForInsect orig, CosmeticInsect.Type type, Room room, Vector2 testPos, float effectAmount)
 	{
-		return type == Enums_GlowingSwimmers.GlowingSwimmerInsect || orig(type, room, testPos, effectAmount);
+		return type == _Enums.GlowingSwimmerInsect || orig(type, room, testPos, effectAmount);
 	}
 
 	private static void InsectCoordinatorCreateInsect(On.InsectCoordinator.orig_CreateInsect orig, InsectCoordinator self, CosmeticInsect.Type type, Vector2 pos, InsectCoordinator.Swarm swarm)
 	{
-		if (type == Enums_GlowingSwimmers.GlowingSwimmerInsect)
+		if (type == _Enums.GlowingSwimmerInsect)
 		{
 			if (!InsectCoordinator.TileLegalForInsect(type, self.room, pos) || self.room.world.rainCycle.TimeUntilRain < RNG.Range(1200, 1600))
 				return;

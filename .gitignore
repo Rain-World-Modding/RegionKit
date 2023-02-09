@@ -351,3 +351,6 @@ MigrationBackup/
 
 # user
 src/lib/**
+
+# .sln file
+src/RegionKit.sln

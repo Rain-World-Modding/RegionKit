@@ -1,4 +1,6 @@
 ﻿namespace RegionKit
+﻿using DevInterface;
+
 {
 	internal class PaletteTextInput
 	{
@@ -27,7 +29,7 @@
 			{
 				//todo: probably breaks
 				var paletteField = new PaletteField(self);
-				var strfield = new ManagedStringControl(paletteField, new ManagedData(null!, new ManagedField[] { paletteField }), null, 0f);
+				var strfield = new ManagedStringControl(paletteField, new ManagedData(null!, new ManagedField[] { paletteField }), self, 0f);
 				strfield.ClearSprites();
 				strfield.subNodes[1] = self.subNodes.Find(e => e.IDstring == "Number");
 				self.subNodes.Add(strfield);

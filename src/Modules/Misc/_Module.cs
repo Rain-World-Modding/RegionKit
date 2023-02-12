@@ -19,6 +19,8 @@ internal static class _Module
 		ArenaFixes.ApplyHooks();
 		ExtendedGates.Enable();
 		SuperstructureFusesFix.Patch();
+		PaletteTextInput.Apply();
+		SettingsPathDisplay.Apply();
 		
 	}
 	public static void Disable()
@@ -28,5 +30,7 @@ internal static class _Module
 		ArenaFixes.UndoHooks();
 		ExtendedGates.Disable();
 		SuperstructureFusesFix.Disable();
+		PaletteTextInput.Undo();
+		SettingsPathDisplay.Undo();
 	}
 }

@@ -11,12 +11,12 @@ internal static class _Assets
 		__appliedOnce = true;
 	}
 
-	private static void LoadResources(/* On.RainWorld.orig_OnModsInit orig, RainWorld self */)
+	internal static void LoadResources(/* On.RainWorld.orig_OnModsInit orig, RainWorld self */)
 	{
 		// orig(self);
 		__logger.LogMessage($"Assets module loading atlases from assetpath assets/regionkit");
 
-		foreach (string? dir in new[] { "", "themast", "littleplanet", "extendedgates" })
+		foreach (string? dir in new[] { "", "sprites", /* "littleplanet", "extendedgates" */ })
 		{
 			string fdir = $"assets/regionkit{(dir is not "" ? "/" + dir : dir)}";
 			foreach (string f in AssetManager.ListDirectory(fdir, false, true))
@@ -86,29 +86,29 @@ internal static class _Assets
 
 	#region ATLASES
 
-	internal static void LoadAditionalResources()
-	{
-		if (__appliedOnce) return;
-		const string LittlePlanet = "LittlePlanet";
-		const string ExtendedGates = "ExtendedGates";
-		foreach (string[] path in new[] {
-			new[] { LittlePlanet, LittlePlanet},
-			new[] { LittlePlanet, "LittlePlanetRing"},
-			new[] { ExtendedGates, "ExtendedGateSymbols"}  }) try
-			{
-				using IO.Stream?
-					pngstream = _Assets.GetStream(path[0], $"{path[1]}.png")!,
-					jsonstream = _Assets.GetStream(path[0], $"{path[1]}.json")!;
-				LoadCustomAtlas(path[1], pngstream, jsonstream);
-			}
-			catch (Exception ex)
-			{
-				__logger.LogError($"Problem loading LittlePlanet atlases {ex}");
-			}
-		__logger.LogInfo("Loading additional EG resources");
+	// internal static void LoadAditionalResources()
+	// {
+	// 	if (__appliedOnce) return;
+	// 	const string LittlePlanet = "LittlePlanet";
+	// 	const string ExtendedGates = "ExtendedGates";
+	// 	foreach (string[] path in new[] {
+	// 		new[] { LittlePlanet, LittlePlanet},
+	// 		new[] { LittlePlanet, "LittlePlanetRing"},
+	// 		new[] { ExtendedGates, "ExtendedGateSymbols"}  }) try
+	// 		{
+	// 			using IO.Stream?
+	// 				pngstream = _Assets.GetStream(path[0], $"{path[1]}.png")!,
+	// 				jsonstream = _Assets.GetStream(path[0], $"{path[1]}.json")!;
+	// 			LoadCustomAtlas(path[1], pngstream, jsonstream);
+	// 		}
+	// 		catch (Exception ex)
+	// 		{
+	// 			__logger.LogError($"Problem loading LittlePlanet atlases {ex}");
+	// 		}
+	// 	__logger.LogInfo("Loading additional EG resources");
 
 
-	}
+	// }
 
 	internal static KeyValuePair<string, string> MetaEntryToKeyVal(string input)
 	{

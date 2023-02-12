@@ -53,10 +53,6 @@ public static class ExtendedGates
 
 	internal static void Enable()
 	{
-
-
-		On.RainWorld.LoadResources += RainWorld_LoadResources;
-
 		On.GateKarmaGlyph.DrawSprites += GateKarmaGlyph_DrawSprites;
 
 		On.RegionGate.ctor += RegionGate_ctor;
@@ -80,8 +76,6 @@ public static class ExtendedGates
 	}
 	internal static void Disable()
 	{
-		On.RainWorld.LoadResources -= RainWorld_LoadResources;
-
 		On.GateKarmaGlyph.DrawSprites -= GateKarmaGlyph_DrawSprites;
 
 		On.RegionGate.ctor -= RegionGate_ctor;
@@ -131,12 +125,6 @@ public static class ExtendedGates
 				self.soundObjects.RemoveAt(i);
 			}
 		}
-	}
-
-	private static void RainWorld_LoadResources(On.RainWorld.orig_LoadResources orig, RainWorld self)
-	{
-		_Assets.LoadAditionalResources(); // Don't want to overwrite, wants to be overwritable, load first :)
-		orig(self);
 	}
 
 	#region MAPHOOKS

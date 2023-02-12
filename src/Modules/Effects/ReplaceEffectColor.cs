@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using static RegionKit.Modules.Effects.ReplaceEffectColor.Enums_ReplaceEffectColor;
+using static RegionKit.Modules.Effects._Enums;
 
 namespace RegionKit.Modules.Effects;
 
@@ -10,21 +10,6 @@ namespace RegionKit.Modules.Effects;
 public class ReplaceEffectColor : UpdatableAndDeletable
 {
 	/// <summary>
-	/// ReplaceEffectColotA and B enums
-	/// </summary>
-	public static class Enums_ReplaceEffectColor
-	{
-		/// <summary>
-		/// ReplaceEffectColorA
-		/// </summary>
-		[AllowNull] public static RoomSettings.RoomEffect.Type ReplaceEffectColorA = new(nameof(ReplaceEffectColorA), true);
-		/// <summary>
-		/// ReplaceEffectColorB
-		/// </summary>
-		[AllowNull] public static RoomSettings.RoomEffect.Type ReplaceEffectColorB = new(nameof(ReplaceEffectColorB), true);
-	}
-
-	/// <summary>
 	/// Replaces the effect colors of the current room with custom colors.
 	/// By LB/M4rbleL1ne
 	/// </summary>
@@ -32,14 +17,14 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 
 	internal static void Apply()
 	{
-		ColorRoomEffect.colorEffectTypes.Add(ReplaceEffectColorA);
-		ColorRoomEffect.colorEffectTypes.Add(ReplaceEffectColorB);
+		ColorRoomEffect.colorEffectTypes.Add(_Enums.ReplaceEffectColorA);
+		ColorRoomEffect.colorEffectTypes.Add(_Enums.ReplaceEffectColorB);
 		_CommonHooks.PostRoomLoad += PostRoomLoad;
 	}
 
 	internal static void Undo()
 	{
-		ColorRoomEffect.colorEffectTypes.Remove(ReplaceEffectColorA);
+		ColorRoomEffect.colorEffectTypes.Remove(_Enums.ReplaceEffectColorA);
 		ColorRoomEffect.colorEffectTypes.Remove(ReplaceEffectColorB);
 		_CommonHooks.PostRoomLoad -= PostRoomLoad;
 	}

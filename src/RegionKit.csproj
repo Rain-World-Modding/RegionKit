@@ -11,8 +11,8 @@
 		<Authors>RegionKit team</Authors>
 		<Description>All-in-one custom region dependency library.</Description>
 		<Copyright>GPL v3</Copyright>
-		<FileVersion>3.3</FileVersion>
-		<AssemblyVersion>3.3</AssemblyVersion>
+		<FileVersion>3.4</FileVersion>
+		<AssemblyVersion>3.4</AssemblyVersion>
 		<PackageReadmeFile>../README.md</PackageReadmeFile>
 		<PackageLicenseFile>../LICENSE</PackageLicenseFile>
 	</PropertyGroup>
@@ -170,8 +170,10 @@
 		<_CopyItems Include="Assets/Plain/**" />
 	</ItemGroup>
 	<Target Name="CopyOutput" AfterTargets="Build" Condition="'$(RWMods_RK)'!=''">
+		<Delete Files="$(RWMods_RK)/assets"/>
+		<Delete Files="$(RWMods_RK)/plugins"/>
 		<Message
-			Text="RK: Buildcopy from [ $(TargetPath) ] to [ $(RWMods_RK)/plugins ] - @(AssetFiles)"
+			Text="RK: Buildcopy from [ $(TargetPath) ] to [ $(RWMods_RK) ] - @(_CopyItems)"
 			Importance="high" />
 		<Copy 
 			SourceFiles="$(TargetPath)" 

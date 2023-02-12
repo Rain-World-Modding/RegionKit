@@ -5,23 +5,20 @@
 public static class _Module
 {
 	private static bool __appliedOnce = false;
+
 	internal static void Enable()
 	{
 		if (!__appliedOnce)
-		{
-			GlowingSwimmersCI.Apply();
 			PWMalfunction.Patch();
-		}
 		__appliedOnce = true;
+		GlowingSwimmersCI.Apply();
 		ColorRoomEffect.Apply();
 		ReplaceEffectColor.Apply();
 	}
 	internal static void Disable()
 	{
+		GlowingSwimmersCI.Undo();
 		ColorRoomEffect.Undo();
 		ReplaceEffectColor.Undo();
 	}
-
-	
-
 }

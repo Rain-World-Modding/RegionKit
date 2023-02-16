@@ -17,11 +17,7 @@ internal static class _Module
 		SunBlockerFix.Apply();
 		CloudAdjustment.Apply();
 		ExtendedGates.Enable();
-<<<<<<< Updated upstream
 		SuperstructureFusesHook.Apply();
-=======
-		SuperstructureFusesFix.Patch();
->>>>>>> Stashed changes
 		
 	}
 	public static void Disable()
@@ -30,10 +26,6 @@ internal static class _Module
 		SunBlockerFix.Undo();
 		CloudAdjustment.Undo();
 		ExtendedGates.Disable();
-<<<<<<< Updated upstream
 		SuperstructureFusesHook.Undo();
-=======
-		SuperstructureFusesFix.Disable();
->>>>>>> Stashed changes
 	}
 }

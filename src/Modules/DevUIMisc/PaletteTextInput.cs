@@ -1,10 +1,7 @@
-<<<<<<< Updated upstream:src/Modules/Misc/PaletteTextInput.cs
-﻿namespace RegionKit
-=======
-﻿using DevInterface;
+﻿
+using DevInterface;
 
 namespace RegionKit.Modules.DevUIMisc
->>>>>>> Stashed changes:src/Modules/DevUIMisc/PaletteTextInput.cs
 {
 	internal class PaletteTextInput
 	{

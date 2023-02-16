@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<!-- Project info -->
 	<PropertyGroup>
 		<LangVersion>11</LangVersion>
@@ -38,8 +38,6 @@
 	</ItemGroup>
 
 	<!-- Submodules. -->
-	<ItemGroup>
-	</ItemGroup>
 
 	<!-- Editorconfig -->
 	<ItemGroup>
@@ -59,69 +57,66 @@
 	<!-- Lib includes. -->
 	<ItemGroup>
 		<Reference Include="0Harmony">
-			<HintPath>lib/0Harmony.dll</HintPath>
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\0Harmony.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="0Harmony20">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\0Harmony20.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="BepInEx">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\BepInEx.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="BepInEx.Harmony">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\BepInEx.Harmony.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="BepInEx.Preloader">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\BepInEx.Preloader.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="HarmonyXInterop">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\HarmonyXInterop.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="HOOKS-Assembly-CSharp">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\plugins\HOOKS-Assembly-CSharp.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="Mono.Cecil">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\Mono.Cecil.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="Mono.Cecil.Mdb">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\Mono.Cecil.Mdb.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="Mono.Cecil.Pdb">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\Mono.Cecil.Pdb.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="Mono.Cecil.Rocks">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\Mono.Cecil.Rocks.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="MonoMod">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\MonoMod.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="MonoMod.RuntimeDetour">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\MonoMod.RuntimeDetour.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="MonoMod.Utils">
+		  <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\MonoMod.Utils.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="netstandard">
+			<HintPath>lib/netstandard.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="Assembly-CSharp">
-			<HintPath>lib/PUBLIC-Assembly-CSharp.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="Assembly-CSharp-firstpass">
-			<HintPath>lib/Assembly-CSharp-firstpass.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="BepInEx.Harmony">
-			<HintPath>lib/BepInEx.Harmony.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="BepInEx.Preloader">
-			<HintPath>lib/BepInEx.Preloader.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="BepInEx">
-			<HintPath>lib/BepInEx.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="Pom">
-			<HintPath>lib/Pom.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="CustomRegions">
-			<HintPath>lib/CustomRegions.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="HOOKS-Assembly-CSharp">
-			<HintPath>lib/HOOKS-Assembly-CSharp.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="Mono.Cecil.Mdb">
-			<HintPath>lib/Mono.Cecil.Mdb.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="Mono.Cecil.Pdb">
-			<HintPath>lib/Mono.Cecil.Pdb.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="Mono.Cecil">
-			<HintPath>lib/Mono.Cecil.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="Mono.Cecil.Rocks">
-			<HintPath>lib/Mono.Cecil.Rocks.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="MonoMod">
-			<HintPath>lib/MonoMod.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="MonoMod.RuntimeDetour">
-			<HintPath>lib/MonoMod.RuntimeDetour.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="MonoMod.Utils">
-			<HintPath>lib/MonoMod.Utils.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
 		<Reference Include="UnityEngine">
 			<HintPath>lib/UnityEngine.dll</HintPath>
 			<Private>False</Private>
@@ -170,6 +165,7 @@
 		<_CopyItems Include="Assets/Plain/**" />
 	</ItemGroup>
 	<Target Name="CopyOutput" AfterTargets="Build" Condition="'$(RWMods_RK)'!=''">
+<<<<<<< Updated upstream
 		<Delete Files="$(RWMods_RK)/assets"/>
 		<Delete Files="$(RWMods_RK)/plugins"/>
 		<Message

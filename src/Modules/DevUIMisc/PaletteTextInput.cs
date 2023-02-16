@@ -1,4 +1,10 @@
+<<<<<<< Updated upstream:src/Modules/Misc/PaletteTextInput.cs
 ﻿namespace RegionKit
+=======
+﻿using DevInterface;
+
+namespace RegionKit.Modules.DevUIMisc
+>>>>>>> Stashed changes:src/Modules/DevUIMisc/PaletteTextInput.cs
 {
 	internal class PaletteTextInput
 	{
@@ -13,11 +19,11 @@
 
 		private static void PaletteController_ctor(
 			On.DevInterface.PaletteController.orig_ctor orig,
-			DevInterface.PaletteController self,
-			DevInterface.DevUI owner,
+			PaletteController self,
+			DevUI owner,
 			string IDstring,
-			DevInterface.DevUINode parentNode,
-			UnityEngine.Vector2 pos,
+			DevUINode parentNode,
+			Vector2 pos,
 			string title,
 			int controlPoint)
 		{
@@ -38,13 +44,13 @@
 		// WARNING this is an extremely cursed hack and NOT a reference implementation. If we need string controls for more things we probably need more versatile string controls!
 		internal class PaletteField : IntegerField
 		{
-			DevInterface.PaletteController ctroller;
-			public PaletteField(DevInterface.PaletteController ctroller) : base("", -1, int.MaxValue, 0)
+			PaletteController ctroller;
+			public PaletteField(PaletteController ctroller) : base("", -1, int.MaxValue, 0)
 			{
 				this.ctroller = ctroller;
 			}
 
-			public override string DisplayValueForNode(DevInterface.PositionedDevUINode node, ManagedData data)
+			public override string DisplayValueForNode(PositionedDevUINode node, ManagedData data)
 			{
 				string arg = string.Empty;
 				switch (ctroller.controlPoint)
@@ -104,7 +110,7 @@
 				return "";
 			}
 
-			public override void ParseFromText(DevInterface.PositionedDevUINode node, ManagedData data, string newValue)
+			public override void ParseFromText(PositionedDevUINode node, ManagedData data, string newValue)
 			{
 				base.ParseFromText(node, data, newValue);
 

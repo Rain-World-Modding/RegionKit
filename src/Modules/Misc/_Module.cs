@@ -15,7 +15,7 @@ internal static class _Module
 		__appliedOnce = true;
 		//PaletteTextInput.Apply();
 		SunBlockerFix.Apply();
-		CloudAdjustment.Apply();
+		//CloudAdjustment.Apply();
 		ExtendedGates.Enable();
 		SuperstructureFusesHook.Apply();
 	}
@@ -23,7 +23,7 @@ internal static class _Module
 	{
 		//PaletteTextInput.Undo();
 		SunBlockerFix.Undo();
-		CloudAdjustment.Undo();
+		//CloudAdjustment.Undo();
 		ExtendedGates.Disable();
 		SuperstructureFusesHook.Undo();
 	}

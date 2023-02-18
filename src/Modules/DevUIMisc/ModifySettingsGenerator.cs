@@ -6,20 +6,60 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.IO;
 using DevInterface;
+using static RegionKit.Modules.DevUIMisc.DevUIUtils;
 
 namespace RegionKit.Modules.DevUIMisc
 {
 	internal class ModifySettingsGenerator
 	{
+		public ModifySettingsGenerator(DevUI self, string modname)
+		{
+			if (SettingsSaveOptions.settingsSaveOptionsMenu is null) { return; }
 
+			Debug.Log("\n----Creating modify file----");
+			string filePath = URoomSettings.DefaultSettingsLocation(self, self.room.roomSettings, true);
 
-		static string[] SaveTemp(DevUI self)
+			if (File.Exists(filePath))
+			{ originalS = new RoomSettingsStruct(File.ReadAllLines(filePath)); }
+			else { Debug.Log("Failed to find original settings, aborting"); return; }
+
+			newS = new RoomSettingsStruct(SaveTemp(self));
+
+			Compare();
+
+			if (URoomSettings.PathToSpecificSettings(SettingsSaveOptions.settingsSaveOptionsMenu.modNames[modname], self.room.roomSettings.name, out filePath, false))
+			{
+				filePath = filePath.ToLower();
+
+				bool modifyDirectory = false;
+
+				if (UPath.TryInsertDirectory(filePath, "world", "modify", out filePath))
+				{ modifyDirectory = true; }
+
+				if (UPath.TryInsertDirectory(filePath, "levels", "modify", out filePath))
+				{ modifyDirectory = true; }
+
+				if (!modifyDirectory)
+				{ Debug.Log($"Failed to find modify directory, aborting\n{filePath}"); return; }
+			}
+			else { Debug.Log("can't find new settings, aborting"); return; }
+
+			try
+			{
+				if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+				{ Directory.CreateDirectory(Path.GetDirectoryName(filePath)); }
+			}
+			catch (Exception ex){ Debug.Log($"Failed to create directory, aborting\n{filePath}\n{ex}"); return; }
+
+			File.WriteAllText(filePath, mergeS.ToString());
+		}
+
+		string[] SaveTemp(DevUI self)
 		{
 			mergeS = new MergeSettingsStruct(true);
 			try
-			{
-
-				string tempFilePath = Path.Combine(Path.GetDirectoryName(SettingsPathDisplay.DefaultSettingsLocation(self, self.room.roomSettings, true)), Path.GetFileNameWithoutExtension(SettingsPathDisplay.DefaultSettingsLocation(self, self.room.roomSettings, true)));
+			{ 
+				string tempFilePath = UPath.AppendFileName(URoomSettings.DefaultSettingsLocation(self, self.room.roomSettings, true), "");
 
 				int i = 1;
 				while (File.Exists(tempFilePath + "_temp" + i + ".txt"))
@@ -32,50 +72,13 @@ namespace RegionKit.Modules.DevUIMisc
 				string[] result = File.ReadAllLines(tempFilePath);
 
 				File.Delete(tempFilePath);
-				Debug.Log("returning savetemp");
+
 				return result;
 			}
 			catch (Exception ex) { Debug.Log(ex); return new string[0]; }
 		}
 
-		public static void Main(DevUI self, string modname)
-		{
-			string filePath = SettingsPathDisplay.DefaultSettingsLocation(self, self.room.roomSettings, true);
-
-			if (File.Exists(filePath))
-			{ originalS = new RoomSettingsStruct(File.ReadAllLines(filePath)); }
-			else { Debug.Log("can't find orig settings"); return; }
-
-			newS = new RoomSettingsStruct(SaveTemp(self));
-
-			Compare();
-
-			if (SettingsPathDisplay.PathToSpecificSettings(SettingsPathDisplay.modNamesD[modname], self.room.roomSettings.name, out filePath))
-			{
-				filePath = filePath.ToLower();
-
-				Debug.Log($"path to modify {filePath}");
-
-				if (filePath.Contains($"{Path.DirectorySeparatorChar}world{Path.DirectorySeparatorChar}"))
-				{ filePath = filePath.Insert(filePath.LastIndexOf($"{Path.DirectorySeparatorChar}world{Path.DirectorySeparatorChar}"), $"{Path.DirectorySeparatorChar}modify"); }
-
-				if (filePath.Contains($"{Path.DirectorySeparatorChar}levels{Path.DirectorySeparatorChar}"))
-				{ filePath = filePath.Insert(filePath.LastIndexOf($"{Path.DirectorySeparatorChar}levels{Path.DirectorySeparatorChar}"), $"{Path.DirectorySeparatorChar}modify"); }
-				
-				Debug.Log($"after post {filePath}");
-			}
-			else { Debug.Log("can't find new settings"); return; }
-
-			if (!Directory.Exists(Path.GetDirectoryName(filePath)))
-			{
-				Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-			}
-
-			File.WriteAllText(filePath,mergeS.ToString());
-
-		}
-
-		public static void Compare()
+		public void Compare()
 		{
 			foreach (KeyValuePair<string, string> settingsLine in newS.settingsLines)
 			{
@@ -90,33 +93,33 @@ namespace RegionKit.Modules.DevUIMisc
 			}
 
 
-			foreach (KeyValuePair<string, List<string>> keyValuePair in newS.listMerge)
+			foreach (KeyValuePair<string, List<string>> keyValuePair in newS.listedLines)
 			{
 				foreach (string str in keyValuePair.Value)
 				{
-					if (!originalS.listMerge[keyValuePair.Key].Contains(str))
+					if (!originalS.listedLines[keyValuePair.Key].Contains(str))
 					{ mergeS.listMerge[keyValuePair.Key].Add(str); }
 				}
 			}
 
-			foreach (KeyValuePair<string, List<string>> keyValuePair in originalS.listMerge)
+			foreach (KeyValuePair<string, List<string>> keyValuePair in originalS.listedLines)
 			{
 				foreach (string str in keyValuePair.Value)
 				{
-					if (!newS.listMerge[keyValuePair.Key].Contains(str))
+					if (!newS.listedLines[keyValuePair.Key].Contains(str))
 					{ mergeS.removeLine.Add(str + ", "); }
 				}
 			}
 		}
 
 
-		public static RoomSettingsStruct originalS;
+		public RoomSettingsStruct originalS;
 
-		public static RoomSettingsStruct newS;
+		public RoomSettingsStruct newS;
 
-		public static MergeSettingsStruct mergeS;
+		public MergeSettingsStruct mergeS;
 
-		public static string KeyValuePairToString(KeyValuePair<string, string> keyValuePair)
+		public string KeyValuePairToString(KeyValuePair<string, string> keyValuePair)
 		{ return keyValuePair.Key + ": " + keyValuePair.Value; }
 
 		public struct MergeSettingsStruct
@@ -133,6 +136,7 @@ namespace RegionKit.Modules.DevUIMisc
 				this.removeLine = new List<string>();
 
 				this.listMerge = new Dictionary<string, List<string>>() {
+					{"Effects",new List<string>() },
 					{"PlacedObjects",new List<string>() },
 					{"AmbientSounds",new List<string>() },
 					{"Triggers",new List<string>() }
@@ -141,8 +145,6 @@ namespace RegionKit.Modules.DevUIMisc
 
 			public override string ToString()
 			{
-				Debug.Log($"\n####OUTPUT MERGE FILE####\n");
-
 				List<string> list = new List<string>();
 
 				foreach (string str in removeLine)
@@ -155,20 +157,32 @@ namespace RegionKit.Modules.DevUIMisc
 					list.Add($"[FIND]{keyValuePair.Key}\n[REPLACE]{keyValuePair.Value}");
 				}
 
-				list.Add("[MERGE]");
-				foreach (string str in mergeLine)
+				//only merge if there's stuff to merge
+				bool merge = mergeLine.Count > 0;
+
+				if (!merge)
 				{
-					list.Add(str);
+					foreach (KeyValuePair<string, List<string>> keyValuePair in listMerge)
+					{ if (keyValuePair.Value.Count > 0) { merge = true; break; } }
 				}
 
-				foreach (KeyValuePair<string, List<string>> keyValuePair in listMerge)
+				if (merge)
 				{
-					if (keyValuePair.Value.Count > 0)
-					{ list.Add($"{keyValuePair.Key}: {string.Join(", ", keyValuePair.Value)}, "); }
+					list.Add("[MERGE]");
+					foreach (string str in mergeLine)
+					{
+						list.Add(str);
+					}
 
+					foreach (KeyValuePair<string, List<string>> keyValuePair in listMerge)
+					{
+						if (keyValuePair.Value.Count > 0)
+						{ list.Add($"{keyValuePair.Key}: {string.Join(", ", keyValuePair.Value)}, "); }
+
+					}
+
+					list.Add("[ENDMERGE]");
 				}
-
-				list.Add("[ENDMERGE]");
 
 				return string.Join($"\n", list);
 			}
@@ -178,14 +192,15 @@ namespace RegionKit.Modules.DevUIMisc
 		{
 			public Dictionary<string, string> settingsLines;
 
-			public Dictionary<string, List<string>> listMerge;
+			public Dictionary<string, List<string>> listedLines;
 
 
 			public RoomSettingsStruct(string[] file)
 			{
 				this.settingsLines = new Dictionary<string, string>();
 
-				this.listMerge = new Dictionary<string, List<string>>() {
+				this.listedLines = new Dictionary<string, List<string>>() {
+					{"Effects",new List<string>() },
 					{"PlacedObjects",new List<string>() },
 					{"AmbientSounds",new List<string>() },
 					{"Triggers",new List<string>() }
@@ -200,10 +215,11 @@ namespace RegionKit.Modules.DevUIMisc
 
 					switch (splitLine[0])
 					{
+					case "Effects":
 					case "PlacedObjects":
 					case "AmbientSounds":
 					case "Triggers":
-						listMerge[splitLine[0]] = Regex.Split(splitLine[1], ", ").ToList();
+						listedLines[splitLine[0]] = Regex.Split(splitLine[1], ", ").ToList();
 						break;
 
 					default:

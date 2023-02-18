@@ -17,18 +17,8 @@ namespace RegionKit.Modules.DevUIMisc
 		{
 			On.DevInterface.DevUI.ctor += DevUI_ctor;
 			On.DevInterface.DevUI.SwitchPage += DevUI_SwitchPage;
-			On.DevInterface.Page.ctor += Page_ctor;
 		}
 
-		private static void Page_ctor(On.DevInterface.Page.orig_ctor orig, Page self, DevUI owner, string IDstring, DevUINode parentNode, string name)
-		{
-			if (owner != null)
-			{
-				foreach (string str in owner.pages)
-				{ Debug.Log(str); }
-			}
-			orig(self, owner is null ? null : owner, IDstring, parentNode, name);
-		}
 
 		public static void Undo()
 		{
@@ -49,6 +39,7 @@ namespace RegionKit.Modules.DevUIMisc
 
 		private static void DevUI_ctor(On.DevInterface.DevUI.orig_ctor orig, DevUI self, RainWorldGame game)
 		{
+			//this might need to be an il hook
 			self.game = game;
 			self.placedObjectsContainer = new FContainer();
 			if (game != null)

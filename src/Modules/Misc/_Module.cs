@@ -17,8 +17,6 @@ internal static class _Module
 		SunBlockerFix.Apply();
 		CloudAdjustment.Apply();
 		ExtendedGates.Enable();
-		PaletteTextInput.Apply();
-		SettingsPathDisplay.Apply();
 		SuperstructureFusesHook.Apply();
 	}
 	public static void Disable()
@@ -27,8 +25,6 @@ internal static class _Module
 		SunBlockerFix.Undo();
 		CloudAdjustment.Undo();
 		ExtendedGates.Disable();
-		PaletteTextInput.Undo();
-		SettingsPathDisplay.Undo();
 		SuperstructureFusesHook.Undo();
 	}
 }

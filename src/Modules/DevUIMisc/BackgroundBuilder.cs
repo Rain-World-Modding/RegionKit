@@ -9,45 +9,45 @@ using System.Threading.Tasks;
 using DevInterface;
 using Random = UnityEngine.Random;
 
-namespace RegionKit.Modules.DevUIMisc
+namespace RegionKit.Modules.DevUIMisc;
+
+internal static class BackgroundBuilder
 {
-	internal static class BackgroundBuilder
+	public static void Apply()
 	{
-		public static void Apply()
+		On.DevInterface.DevUI.ctor += DevUI_ctor;
+		On.DevInterface.DevUI.SwitchPage += DevUI_SwitchPage;
+	}
+
+
+	public static void Undo()
+	{
+		On.DevInterface.DevUI.ctor -= DevUI_ctor;
+		On.DevInterface.DevUI.SwitchPage -= DevUI_SwitchPage;
+	}
+
+	private static void DevUI_SwitchPage(On.DevInterface.DevUI.orig_SwitchPage orig, DevUI self, int newPage)
+	{
+		if (newPage == self.pages.IndexOf("Background"))
 		{
-			On.DevInterface.DevUI.ctor += DevUI_ctor;
-			On.DevInterface.DevUI.SwitchPage += DevUI_SwitchPage;
+			self.ClearSprites();
+			self.activePage = new BackgroundPage(self, "Background_Page", null, "Background Settings");
 		}
 
+		else { orig(self, newPage); }
+	}
 
-		public static void Undo()
+	private static void DevUI_ctor(On.DevInterface.DevUI.orig_ctor orig, DevUI self, RainWorldGame game)
+	{
+		//this might need to be an il hook
+		self.game = game;
+		self.placedObjectsContainer = new FContainer();
+		if (game != null)
 		{
-			On.DevInterface.DevUI.ctor -= DevUI_ctor;
-			On.DevInterface.DevUI.SwitchPage -= DevUI_SwitchPage;
+			Futile.stage.AddChild(self.placedObjectsContainer);
 		}
-
-		private static void DevUI_SwitchPage(On.DevInterface.DevUI.orig_SwitchPage orig, DevUI self, int newPage)
+		self.pages = new string[]
 		{
-			if (newPage == self.pages.IndexOf("Background"))
-			{
-				self.ClearSprites();
-				self.activePage = new BackgroundPage(self, "Background_Page", null, "Background Settings");
-			}
-
-			else { orig(self, newPage); }
-		}
-
-		private static void DevUI_ctor(On.DevInterface.DevUI.orig_ctor orig, DevUI self, RainWorldGame game)
-		{
-			//this might need to be an il hook
-			self.game = game;
-			self.placedObjectsContainer = new FContainer();
-			if (game != null)
-			{
-				Futile.stage.AddChild(self.placedObjectsContainer);
-			}
-			self.pages = new string[]
-			{
 				"Room Settings",
 				"Objects",
 				"Sound",
@@ -55,81 +55,81 @@ namespace RegionKit.Modules.DevUIMisc
 				"Triggers",
 				"Dialog",
 				"Background"
-			};
+		};
 
-			self.SwitchPage(game.setupValues.defaultSettingsScreen);
+		self.SwitchPage(game.setupValues.defaultSettingsScreen);
 
+	}
+
+	public class BackgroundPage : Page
+	{
+		// Token: 0x060028F3 RID: 10483 RVA: 0x0031DEDC File Offset: 0x0031C0DC
+		public BackgroundPage(DevUI owner, string IDstring, DevUINode parentNode, string name) : base(owner, IDstring, parentNode, name)
+		{
+			subNodes.Add(new BackgroundTemplateCycler(owner, "Game_Over_Type_Cycler", this, new Vector2(170f, 660f), 120f));
 		}
 
-		public class BackgroundPage : Page
-		{
-			// Token: 0x060028F3 RID: 10483 RVA: 0x0031DEDC File Offset: 0x0031C0DC
-			public BackgroundPage(DevUI owner, string IDstring, DevUINode parentNode, string name) : base(owner, IDstring, parentNode, name)
-			{
-				subNodes.Add(new BackgroundTemplateCycler(owner, "Game_Over_Type_Cycler", this, new Vector2(170f, 660f), 120f));
-			}
+	}
 
+	public class BackgroundTemplateCycler : Button
+	{
+		// Token: 0x060028CD RID: 10445 RVA: 0x0031B114 File Offset: 0x00319314
+		public BackgroundTemplateCycler(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width) : base(owner, IDstring, parentNode, pos, width, "")
+		{
+			subNodes.Add(new DevUILabel(owner, "Title", this, new Vector2(-50f, 0f), 40f, "G.O: "));
 		}
 
-		public class BackgroundTemplateCycler : Button
+		// Token: 0x060028CE RID: 10446 RVA: 0x0031B164 File Offset: 0x00319364
+
+		public BackgroundTemplateType templateType;
+		public override void Refresh()
 		{
-			// Token: 0x060028CD RID: 10445 RVA: 0x0031B114 File Offset: 0x00319314
-			public BackgroundTemplateCycler(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width) : base(owner, IDstring, parentNode, pos, width, "")
+			base.Refresh();
+			string text;
+			if (RoomSettings.dType != null)
 			{
-				subNodes.Add(new DevUILabel(owner, "Title", this, new Vector2(-50f, 0f), 40f, "G.O: "));
+				text = "";
 			}
-
-			// Token: 0x060028CE RID: 10446 RVA: 0x0031B164 File Offset: 0x00319364
-
-			public BackgroundTemplateType templateType;
-			public override void Refresh()
+			else if (!RoomSettings.parent.isAncestor && RoomSettings.parent.dType != null)
 			{
-				base.Refresh();
-				string text;
-				if (RoomSettings.dType != null)
-				{
-					text = "";
-				}
-				else if (!RoomSettings.parent.isAncestor && RoomSettings.parent.dType != null)
-				{
-					text = "<T>";
-				}
-				else
-				{
-					text = "<A>";
-				}
-				string str = text;
-				string str2 = " ";
-				Text = str + str2 + (templateType != null ? templateType.ToString() : null);
+				text = "<T>";
 			}
-
-			// Token: 0x060028CF RID: 10447 RVA: 0x0031B1F8 File Offset: 0x003193F8
-			public override void Clicked()
+			else
 			{
-				if (templateType == null)
-				{
-					templateType = new BackgroundTemplateType(ExtEnum<BackgroundTemplateType>.values.GetEntry(0), false);
-				}
-
-				else
-				{
-					templateType = new BackgroundTemplateType(ExtEnum<BackgroundTemplateType>.values.GetEntry(templateType.Index + 1), false);
-				}
-				Refresh();
+				text = "<A>";
 			}
+			string str = text;
+			string str2 = " ";
+			Text = str + str2 + (templateType != null ? templateType.ToString() : null);
 		}
 
-		public class BackgroundTemplateType : ExtEnum<RoomRain.DangerType>
+		// Token: 0x060028CF RID: 10447 RVA: 0x0031B1F8 File Offset: 0x003193F8
+		public override void Clicked()
 		{
-			public BackgroundTemplateType(string value, bool register = false) : base(value, register)
+			if (templateType == null)
 			{
+				templateType = new BackgroundTemplateType(ExtEnum<BackgroundTemplateType>.values.GetEntry(0), false);
 			}
 
-			public static readonly BackgroundTemplateType AboveCloudsView = new BackgroundTemplateType("AboveCloudsView", true);
-
-			public static readonly BackgroundTemplateType RoofTopView = new BackgroundTemplateType("RoofTopView", true);
-
-			public static readonly BackgroundTemplateType VoidSeaScene = new BackgroundTemplateType("VoidSeaScene", true);
+			else
+			{
+				templateType = new BackgroundTemplateType(ExtEnum<BackgroundTemplateType>.values.GetEntry(templateType.Index + 1), false);
+			}
+			Refresh();
 		}
 	}
+
+	public class BackgroundTemplateType : ExtEnum<RoomRain.DangerType>
+	{
+		public BackgroundTemplateType(string value, bool register = false) : base(value, register)
+		{
+		}
+
+		public static readonly BackgroundTemplateType AboveCloudsView = new BackgroundTemplateType("AboveCloudsView", true);
+
+		public static readonly BackgroundTemplateType RoofTopView = new BackgroundTemplateType("RoofTopView", true);
+
+		public static readonly BackgroundTemplateType VoidSeaScene = new BackgroundTemplateType("VoidSeaScene", true);
+	}
 }
+

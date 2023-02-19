@@ -15,20 +15,16 @@ internal static class _Module
 		__appliedOnce = true;
 		//PaletteTextInput.Apply();
 		SunBlockerFix.Apply();
-		CloudAdjustment.Apply();
+		//CloudAdjustment.Apply();
 		ExtendedGates.Enable();
-		PaletteTextInput.Apply();
-		SettingsPathDisplay.Apply();
 		SuperstructureFusesHook.Apply();
 	}
 	public static void Disable()
 	{
 		//PaletteTextInput.Undo();
 		SunBlockerFix.Undo();
-		CloudAdjustment.Undo();
+		//CloudAdjustment.Undo();
 		ExtendedGates.Disable();
-		PaletteTextInput.Undo();
-		SettingsPathDisplay.Undo();
 		SuperstructureFusesHook.Undo();
 	}
 }

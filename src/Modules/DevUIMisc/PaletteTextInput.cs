@@ -1,5 +1,5 @@
 ﻿﻿using DevInterface;
-namespace RegionKit;
+namespace RegionKit.Modules.DevUIMisc;
 
 
 internal class PaletteTextInput

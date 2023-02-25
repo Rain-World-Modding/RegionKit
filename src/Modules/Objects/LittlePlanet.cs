@@ -1,14 +1,11 @@
-﻿using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
 using DevInterface;
-using RWCustom;
-using UnityEngine;
 
 namespace RegionKit.Modules.Objects;
 
 /// <summary>
+/// By LB/M4rbleL1ne
 /// A small cosmetic hologram
 /// </summary>
 public class LittlePlanet : CosmeticSprite
@@ -18,42 +15,54 @@ public class LittlePlanet : CosmeticSprite
 	/// </summary>
 	public class LittlePlanetData : PlacedObject.ResizableObjectData
 	{
-#pragma warning disable 1591
-		public float red = 1f;
-		public float green = 1f;
-		public float blue = 1f;
+		internal float _red = 1f;
+		internal float _green = 1f;
+		internal float _blue = 1f;
+		/// <summary>
+		/// Sprite alpha
+		/// </summary>
 		public float alpha = 1f;
-		public Vector2 panelPos;
+		internal Vector2 _panelPos;
+		/// <summary>
+		/// Ring rotation speed
+		/// </summary>
 		public float speed = 1f;
 
+		/// <summary>
+		/// Sprite color
+		/// </summary>
 		public Color Color
 		{
-			get => new(red, green, blue);
+			get => new(_red, _green, _blue);
 			set
 			{
-				red = value.r;
-				green = value.g;
-				blue = value.b;
+				_red = value.r;
+				_green = value.g;
+				_blue = value.b;
 			}
 		}
-#pragma warning restore 1591
+
 		///<inheritdoc/>
 		public LittlePlanetData(PlacedObject owner) : base(owner) { }
+
 		///<inheritdoc/>
 		public override void FromString(string s)
 		{
-			base.FromString(s);
 			var sAr = Regex.Split(s, "~");
-			red = float.Parse(sAr[3]);
-			green = float.Parse(sAr[4]);
-			blue = float.Parse(sAr[5]);
-			alpha = float.Parse(sAr[8]);
-			panelPos.x = float.Parse(sAr[9]);
-			panelPos.y = float.Parse(sAr[10]);
-			speed = float.Parse(sAr[12]);
+			float.TryParse(sAr[0], NumberStyles.Any, CultureInfo.InvariantCulture, out handlePos.x);
+			float.TryParse(sAr[1], NumberStyles.Any, CultureInfo.InvariantCulture, out handlePos.y);
+			float.TryParse(sAr[3], NumberStyles.Any, CultureInfo.InvariantCulture, out _red);
+			float.TryParse(sAr[4], NumberStyles.Any, CultureInfo.InvariantCulture, out _green);
+			float.TryParse(sAr[5], NumberStyles.Any, CultureInfo.InvariantCulture, out _blue);
+			float.TryParse(sAr[8], NumberStyles.Any, CultureInfo.InvariantCulture, out alpha);
+			float.TryParse(sAr[9], NumberStyles.Any, CultureInfo.InvariantCulture, out _panelPos.x);
+			float.TryParse(sAr[10], NumberStyles.Any, CultureInfo.InvariantCulture, out _panelPos.y);
+			float.TryParse(sAr[12], NumberStyles.Any, CultureInfo.InvariantCulture, out speed);
+			unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(sAr, 13);
 		}
+
 		///<inheritdoc/>
-		public override string ToString() => $"{base.ToString()}~Color(~{red}~{green}~{blue}~)~Alpha:~{alpha}~{panelPos.x}~{panelPos.y}~Speed:~{speed}";
+		public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs($"{BaseSaveString()}~Color(~{_red}~{_green}~{_blue}~)~Alpha:~{alpha}~{_panelPos.x}~{_panelPos.y}~Speed:~{speed}", "~", unrecognizedAttributes);
 	}
 
 	private bool _underWaterMode;
@@ -68,30 +77,32 @@ public class LittlePlanet : CosmeticSprite
 	private readonly float[] _scaleX = new float[3];
 	private readonly bool[] _increaseRad = new bool[3];
 
-	private PlacedObject _PObj { get; init; }
-	private LittlePlanetData _Data { get; init; }
+	private PlacedObject PObj { get; init; }
+
+	private LittlePlanetData Data => (PObj.data as LittlePlanetData)!;
+
 	///<inheritdoc/>
 	public LittlePlanet(Room room, PlacedObject placedObj)
 	{
 		this.room = room;
-		_PObj = placedObj;
-		_Data = (placedObj.data as LittlePlanetData)!;
+		PObj = placedObj;
 		pos = placedObj.pos;
 		lastPos = pos;
-		_underWaterMode = room.GetTilePosition(_PObj.pos).y < room.defaultWaterLevel;
-		_color = _Data.Color;
-		_baseRad = _Data.Rad;
-		_alpha = _Data.alpha;
-		_speed = _Data.speed;
+		_underWaterMode = room.GetTilePosition(PObj.pos).y < room.defaultWaterLevel;
+		_color = Data.Color;
+		_baseRad = Data.Rad;
+		_alpha = Data.alpha;
+		_speed = Data.speed;
 	}
+
 	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
-		pos = _PObj.pos;
-		_underWaterMode = room.GetTilePosition(_PObj.pos).y < room.defaultWaterLevel;
-		_color = _Data.Color;
-		_alpha = _Data.alpha;
-		_speed = _Data.speed;
+		pos = PObj.pos;
+		_underWaterMode = room.GetTilePosition(PObj.pos).y < room.defaultWaterLevel;
+		_color = Data.Color;
+		_alpha = Data.alpha;
+		_speed = Data.speed;
 		base.Update(eu);
 		for (var i = 0; i < 4; i++)
 		{
@@ -104,6 +115,7 @@ public class LittlePlanet : CosmeticSprite
 			_scaleX[i] += (_increaseRad[i] ? .02f : -.02f) * _speed;
 		}
 	}
+
 	///<inheritdoc/>
 	public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
@@ -131,6 +143,7 @@ public class LittlePlanet : CosmeticSprite
 		sLeaser.sprites[1].scale -= sLeaser.sprites[1].scale / 4f;
 		AddToContainer(sLeaser, rCam, null!);
 	}
+
 	///<inheritdoc/>
 	public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
@@ -148,7 +161,7 @@ public class LittlePlanet : CosmeticSprite
 			_baseRad / 400f * 3f * Mathf.Cos(Mathf.Lerp(_lastScaleX[1], _scaleX[1], timeStacker) * Mathf.PI),
 			_baseRad / 400f * 4f * Mathf.Sin(Mathf.Lerp(_lastScaleX[0], _scaleX[0], timeStacker) * Mathf.PI)
 		};
-		foreach (var s in sLeaser.sprites)
+		foreach (FSprite? s in sLeaser.sprites)
 		{
 			s.x = sPos.x - camPos.x;
 			s.y = sPos.y - camPos.y;
@@ -171,6 +184,7 @@ public class LittlePlanet : CosmeticSprite
 			sLeaser.sprites[i].color = _color;
 		base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
 	}
+
 	///<inheritdoc/>
 	public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContainer)
 	{
@@ -179,33 +193,19 @@ public class LittlePlanet : CosmeticSprite
 		newContainer.AddChild(sLeaser.sprites);
 	}
 }
+
 /// <summary>
-/// DevUI repr
+/// DevUI representation
 /// </summary>
 public class LittlePlanetRepresentation : ResizeableObjectRepresentation
 {
-	#pragma warning disable 1591
-	public class LittlePlanetControlPanel : Panel, IDevUISignals
+	internal class LittlePlanetControlPanel : Panel, IDevUISignals
 	{
 		public class ControlSlider : Slider
 		{
-			LittlePlanet.LittlePlanetData Data { get; init; }
+			private LittlePlanet.LittlePlanetData Data => ((parentNode.parentNode as LittlePlanetRepresentation)!.pObj.data as LittlePlanet.LittlePlanetData)!;
 
-			public ControlSlider(
-				DevUI owner,
-				string IDstring,
-				DevUINode parentNode,
-				Vector2 pos,
-				string title) : base(
-					owner,
-					IDstring,
-					parentNode,
-					pos,
-					title,
-					false,
-					110f)
-				=> Data
-					= ((parentNode.parentNode as LittlePlanetRepresentation)!.pObj.data as LittlePlanet.LittlePlanetData)!;
+			public ControlSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title) : base(owner, IDstring, parentNode, pos, title, false, 110f) { }
 
 			public override void Refresh()
 			{
@@ -214,15 +214,15 @@ public class LittlePlanetRepresentation : ResizeableObjectRepresentation
 				switch (IDstring)
 				{
 				case "ColorR_Slider":
-					num = Data.red;
+					num = Data._red;
 					NumberText = ((int)(255f * num)).ToString();
 					break;
 				case "ColorG_Slider":
-					num = Data.green;
+					num = Data._green;
 					NumberText = ((int)(255f * num)).ToString();
 					break;
 				case "ColorB_Slider":
-					num = Data.blue;
+					num = Data._blue;
 					NumberText = ((int)(255f * num)).ToString();
 					break;
 				case "Alpha_Slider":
@@ -242,13 +242,13 @@ public class LittlePlanetRepresentation : ResizeableObjectRepresentation
 				switch (IDstring)
 				{
 				case "ColorR_Slider":
-					Data.red = nubPos;
+					Data._red = nubPos;
 					break;
 				case "ColorG_Slider":
-					Data.green = nubPos;
+					Data._green = nubPos;
 					break;
 				case "ColorB_Slider":
-					Data.blue = nubPos;
+					Data._blue = nubPos;
 					break;
 				case "Alpha_Slider":
 					Data.alpha = nubPos;
@@ -277,65 +277,40 @@ public class LittlePlanetRepresentation : ResizeableObjectRepresentation
 	private readonly int _linePixelSpriteIndex;
 	private readonly LittlePlanetControlPanel _panel;
 
-	public LittlePlanetRepresentation(DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj, string name) : base(owner, IDstring, parentNode, pObj, pObj.type.ToString(), true)
+	///<inheritdoc/>
+	public LittlePlanetRepresentation(DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj) : base(owner, IDstring, parentNode, pObj, pObj.type.ToString(), true)
 	{
 		_panel = new(owner, "LittlePlanet_Panel", this, new(0f, 100f));
 		subNodes.Add(_panel);
-		_panel.pos = (pObj.data as LittlePlanet.LittlePlanetData)!.panelPos;
+		_panel.pos = (pObj.data as LittlePlanet.LittlePlanetData)!._panelPos;
 		fSprites.Add(new("pixel"));
 		_linePixelSpriteIndex = fSprites.Count - 1;
 		owner.placedObjectsContainer.AddChild(fSprites[_linePixelSpriteIndex]);
 		fSprites[_linePixelSpriteIndex].anchorY = 0f;
 	}
 
+	///<inheritdoc/>
 	public override void Refresh()
 	{
 		base.Refresh();
 		MoveSprite(_linePixelSpriteIndex, absPos);
 		fSprites[_linePixelSpriteIndex].scaleY = _panel.pos.magnitude;
-		fSprites[_linePixelSpriteIndex].rotation = Custom.AimFromOneVectorToAnother(absPos, _panel.absPos);
-		(pObj.data as LittlePlanet.LittlePlanetData)!.panelPos = _panel.pos;
+		fSprites[_linePixelSpriteIndex].rotation = AimFromOneVectorToAnother(absPos, _panel.absPos);
+		(pObj.data as LittlePlanet.LittlePlanetData)!._panelPos = _panel.pos;
 	}
 }
 
-public static class LittlePlanetExtensions
+internal static class LittlePlanetExtensions
 {
-	public static void AddChild(this FContainer self, params FNode[] nodes)
+	internal static void AddChild(this FContainer self, params FNode[] nodes)
 	{
-		foreach (var node in nodes)
+		foreach (FNode node in nodes)
 			self.AddChild(node);
 	}
 
-	public static void RemoveFromContainer(this FNode[] self)
+	internal static void RemoveFromContainer(this FNode[] self)
 	{
-		foreach (var node in self)
+		foreach (FNode node in self)
 			node.RemoveFromContainer();
 	}
-}
-
-
-public static class EmbeddedResourceLoader
-{
-	public static void LoadEmbeddedResource(string name)
-	{
-		__logger.LogDebug($"Loading ER {name}");
-		var thisAssembly = Assembly.GetExecutingAssembly();
-		//var resourceName = thisAssembly.GetManifestResourceNames().First(r => r.Contains(name));
-
-		using Stream resource = _Assets.GetStream("LittlePlanet", $"{name}.png")!;
-		using MemoryStream memoryStream = new();
-		var buffer = new byte[16384];
-		int count;
-		while ((count = resource!.Read(buffer, 0, buffer.Length)) > 0)
-			memoryStream.Write(buffer, 0, count);
-		Texture2D spriteTexture = new(0, 0, TextureFormat.ARGB32, false);
-		//TODO: check if loads correctly
-		spriteTexture.LoadImage(memoryStream.ToArray());
-		spriteTexture.anisoLevel = 1;
-		spriteTexture.filterMode = 0;
-		FAtlas atlas = new(name, spriteTexture, FAtlasManager._nextAtlasIndex, false);
-		Futile.atlasManager.AddAtlas(atlas);
-		FAtlasManager._nextAtlasIndex++;
-	}
-	#pragma warning restore 1591
 }

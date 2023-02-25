@@ -1,65 +1,74 @@
-﻿using System;
-using DevInterface;
-using UnityEngine;
+﻿using DevInterface;
 using static System.Text.RegularExpressions.Regex;
-using static RWCustom.Custom;
 using static UnityEngine.Mathf;
-using Random = UnityEngine.Random;
 
 namespace RegionKit.Modules.Objects;
+
 /// <summary>
-/// By LB Gamer/M4rbleL1ne. 
+/// By LB/M4rbleL1ne.
+/// Prevents the player from sliding on walls
 /// </summary>
 public static class NoWallSlideZones
 {
-	private static On.Player.hook_WallJump __wallJumpHook = static (orig, self, direction) =>
+	internal static void Apply()
 	{
-		if (self.InsideNWSRects())
-			return;
-		orig(self, direction);
-	};
+		On.Player.WallJump += PlayerWallJump;
+		On.Player.Update += PlayerUpdate;
+	}
 
-	private static On.Player.hook_Update __updateHook = static (orig, self, eu) =>
+	internal static void Undo()
+	{
+		On.Player.WallJump -= PlayerWallJump;
+		On.Player.Update -= PlayerUpdate;
+	}
+
+	private static void PlayerUpdate(On.Player.orig_Update orig, Player self, bool eu)
 	{
 		orig(self, eu);
-		if (self.bodyMode == Player.BodyModeIndex.WallClimb && self.InsideNWSRects() && !self.submerged && self.bodyChunks[0].ContactPoint.x is not 0 && self.bodyChunks[0].ContactPoint.x == self.input[0].x)
+		if (self.bodyMode == Player.BodyModeIndex.WallClimb && self.InsideNWSRects() && !self.submerged && self.bodyChunks[0].ContactPoint.x != 0 && self.bodyChunks[0].ContactPoint.x == self.input[0].x)
 		{
-			foreach (var b in self.bodyChunks)
+			foreach (BodyChunk b in self.bodyChunks)
 				b.contactPoint.x = 0;
 			self.bodyMode = Player.BodyModeIndex.Default;
 			self.animation = Player.AnimationIndex.None;
 		}
-	};
-	internal static void Apply()
+	}
+
+	private static void PlayerWallJump(On.Player.orig_WallJump orig, Player self, int direction)
 	{
-		//todo: check if it fucks with movement
-		On.Player.WallJump += __wallJumpHook;
-		On.Player.Update += __updateHook;
+		if (self.InsideNWSRects())
+			return;
+		orig(self, direction);
 	}
 }
+
 /// <summary>
+/// By LB/M4rbleL1ne.
 /// Prevents the player from sticking to walls in a selected area.
 /// </summary>
 public class NoWallSlideZone : UpdatableAndDeletable
 {
-	private PlacedObject pObj;
-	internal FloatRect rect;
+	private readonly PlacedObject _pObj;
+	internal FloatRect _rect;
+
 	///<inheritdoc/>
 	public NoWallSlideZone(Room room, PlacedObject pObj)
 	{
 		this.room = room;
-		this.pObj = pObj;
-		rect = (pObj.data as FloatRectData)!.Rect;
+		_pObj = pObj;
+		_rect = (pObj.data as FloatRectData)!.Rect;
 	}
+
 	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		var r = (pObj.data as FloatRectData)!.Rect;
-		if (!rect.EqualsFloatRect(r))
-			rect = r;
+		FloatRect r = (_pObj.data as FloatRectData)!.Rect;
+		if (!_rect.EqualsFloatRect(r))
+			_rect = r;
 	}
 }
+
 internal class FloatRectData : PlacedObject.Data
 {
 	public Vector2 handlePos;
@@ -73,9 +82,10 @@ internal class FloatRectData : PlacedObject.Data
 		var sAr = Split(s, "~");
 		handlePos.x = float.Parse(sAr[0]);
 		handlePos.y = float.Parse(sAr[1]);
+		unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(sAr, 2);
 	}
 
-	public override string ToString() => $"{handlePos.x}~{handlePos.y}";
+	public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs($"{handlePos.x}~{handlePos.y}", "~", unrecognizedAttributes);
 }
 
 internal class FloatRectRepresentation : PlacedObjectRepresentation
@@ -85,7 +95,7 @@ internal class FloatRectRepresentation : PlacedObjectRepresentation
 	public FloatRectRepresentation(DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj, string name) : base(owner, IDstring, parentNode, pObj, name)
 	{
 		subNodes.Add(new Handle(owner, "Float_Rect_Handle", this, new(80f, 80f)));
-		(subNodes[subNodes.Count - 1] as Handle)!.pos = Data.handlePos;
+		(subNodes[^1] as Handle)!.pos = Data.handlePos;
 		for (var i = 0; i < 5; i++)
 		{
 			fSprites.Add(new("pixel")
@@ -97,13 +107,14 @@ internal class FloatRectRepresentation : PlacedObjectRepresentation
 		}
 		fSprites[5].alpha = .05f;
 	}
+
 	public override void Refresh()
 	{
 		base.Refresh();
-		var camPos = owner.room.game.cameras[0].pos;
+		Vector2 camPos = owner.room.game.cameras[0].pos;
 		MoveSprite(1, absPos);
 		Data.handlePos = (subNodes[0] as Handle)!.pos;
-		var rect = Data.Rect;
+		FloatRect rect = Data.Rect;
 		rect.right++;
 		rect.top++;
 		MoveSprite(1, new Vector2(rect.left, rect.bottom) - camPos);
@@ -136,15 +147,15 @@ internal static class Extensions
 
 	public static bool InsideNWSRects(this Player self)
 	{
-		if (self.room is not null)
+		if (self.room is Room rm)
 		{
-			foreach (var uad in self.room.updateList)
+			foreach (UAD uad in rm.updateList)
 			{
 				if (uad is NoWallSlideZone nws)
 				{
-					foreach (var bc in self.bodyChunks)
+					foreach (BodyChunk bc in self.bodyChunks)
 					{
-						if (InsideRect(bc.pos, nws.rect))
+						if (InsideRect(bc.pos, nws._rect))
 							return true;
 					}
 				}

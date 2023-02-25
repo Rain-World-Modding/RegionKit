@@ -29,7 +29,7 @@ internal static class GlowingSwimmersCI
 	{
 		for (var i = 0; i < self.roomSettings.effects.Count; i++)
 		{
-			var effect = self.roomSettings.effects[i];
+			RoomSettings.RoomEffect effect = self.roomSettings.effects[i];
 			if (effect.type == _Enums.GlowingSwimmers)
 			{
 				if (self.insectCoordinator is null)
@@ -96,6 +96,11 @@ public class GlowingSwimmer : CosmeticInsect
 	private readonly Vector2[,] _segments;
 	private LightSource? _lightSource;
 
+	/// <summary>
+	/// Glowing Swimmer
+	/// </summary>
+	/// <param name="room"></param>
+	/// <param name="pos"></param>
 	public GlowingSwimmer(Room room, Vector2 pos) : base(room, pos, _Enums.GlowingSwimmerInsect)
 	{
 		creatureAvoider = new(this, 10, 300f, .3f);

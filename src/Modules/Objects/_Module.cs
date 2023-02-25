@@ -41,7 +41,6 @@ public static class _Module
 			RegisterFullyManagedObjectType(steamFields.ToArray(), typeof(SteamHazard), nameof(SteamHazard), RK_POM_CATEGORY);
 
 
-			NoWallSlideZones.Apply();
 			RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>("RoomBorderTP", RK_POM_CATEGORY);
 			RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect", RK_POM_CATEGORY);
 			RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>("PlacedWaterfall", RK_POM_CATEGORY);
@@ -62,6 +61,8 @@ public static class _Module
 		On.DevInterface.ObjectsPage.CreateObjRep += CreateObjectReps;
 		On.Room.NowViewed += Room_Viewed;
 		On.Room.NoLongerViewed += Room_NotViewed;
+		CustomEntranceSymbols.Apply();
+		NoWallSlideZones.Apply();
 		//todo: check if it's okay to have like this
 		_CommonHooks.PostRoomLoad += RoomPostLoad;
 		//On.RainWorld.LoadResources += LoadLittlePlanetResources;
@@ -74,6 +75,8 @@ public static class _Module
 		On.PlacedObject.GenerateEmptyData -= MakeEmptyData;
 		On.DevInterface.ObjectsPage.CreateObjRep -= CreateObjectReps;
 		_CommonHooks.PostRoomLoad -= RoomPostLoad;
+		CustomEntranceSymbols.Undo();
+		NoWallSlideZones.Undo();
 		foreach (var hk in __objectHooks) if (hk.IsApplied) hk.Undo();
 	}
 
@@ -162,7 +165,7 @@ public static class _Module
 					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + Custom.DegToVec(RNG.value * 360f) * .2f
 				});
 			}
-			var pObjRep = new LittlePlanetRepresentation(self.owner, "LittlePlanet_Rep", self, pObj, tp.ToString());
+			var pObjRep = new LittlePlanetRepresentation(self.owner, "LittlePlanet_Rep", self, pObj);
 			self.tempNodes.Add(pObjRep);
 			self.subNodes.Add(pObjRep);
 		}
@@ -179,9 +182,22 @@ public static class _Module
 			self.tempNodes.Add(pObjRep);
 			self.subNodes.Add(pObjRep);
 		}
-		// else
-		// 	orig(self, tp, pObj);
-		orig.Invoke(self, tp, pObj);
+		else if (tp == _Enums.CustomEntranceSymbol)
+		{
+			if (pObj is null)
+			{
+				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
+				{
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(RNG.value * 360f) * .2f
+				});
+			}
+			var pObjRep = new CESRepresentation(self.owner, $"{tp}_Rep", self, pObj);
+			self.tempNodes.Add(pObjRep);
+			self.subNodes.Add(pObjRep);
+		}
+		else
+			orig(self, tp, pObj);
+		//orig.Invoke(self, tp, pObj); -> this will add a duplicate PlacedObjectRepresentation
 	}
 
 	private static void MakeEmptyData(On.PlacedObject.orig_GenerateEmptyData orig, PlacedObject self)
@@ -201,6 +217,10 @@ public static class _Module
 		else if (self.type == _Enums.NoWallSlideZone)
 		{
 			self.data = new FloatRectData(self);
+		}
+		else if (self.type == _Enums.CustomEntranceSymbol)
+		{
+			self.data = new CESData(self);
 		}
 		orig.Invoke(self);
 	}

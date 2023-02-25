@@ -12,12 +12,14 @@ public static class _Module
 			PWMalfunction.Patch();
 		__appliedOnce = true;
 		GlowingSwimmersCI.Apply();
+		ColoredCamoBeetlesCI.Apply();
 		ColorRoomEffect.Apply();
 		ReplaceEffectColor.Apply();
 	}
 	internal static void Disable()
 	{
 		GlowingSwimmersCI.Undo();
+		ColoredCamoBeetlesCI.Undo();
 		ColorRoomEffect.Undo();
 		ReplaceEffectColor.Undo();
 	}

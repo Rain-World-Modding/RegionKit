@@ -111,6 +111,9 @@ public static class _Module
 			case nameof(_Enums.ProjectedCircle):
 				self.AddObject(new ProjectedCircleObject(self, pObj));
 				break;
+			case nameof(_Enums.UpsideDownWaterFall):
+				self.AddObject(new UpsideDownWaterFallObject(self, pObj, 1f, 5f, 1f, 5f, 1f, "Water", true));
+				break;
 			}
 			if (pObj.data is WormgrassRectData && !wormgrassDataFound)
 			{
@@ -195,6 +198,19 @@ public static class _Module
 			self.tempNodes.Add(pObjRep);
 			self.subNodes.Add(pObjRep);
 		}
+		else if (tp == _Enums.UpsideDownWaterFall)
+		{
+			if (pObj is null)
+			{
+				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
+				{
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + Custom.DegToVec(RNG.value * 360f) * .2f
+				});
+			}
+			var pObjRep = new UpDownWFRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString());
+			self.tempNodes.Add(pObjRep);
+			self.subNodes.Add(pObjRep);
+		}
 		else
 			orig(self, tp, pObj);
 		//orig.Invoke(self, tp, pObj); -> this will add a duplicate PlacedObjectRepresentation
@@ -221,6 +237,10 @@ public static class _Module
 		else if (self.type == _Enums.CustomEntranceSymbol)
 		{
 			self.data = new CESData(self);
+		}
+		else if (self.type == _Enums.UpsideDownWaterFall)
+		{
+			self.data = new UpDownWFData(self);
 		}
 		orig.Invoke(self);
 	}

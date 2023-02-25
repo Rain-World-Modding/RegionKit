@@ -1,6 +1,7 @@
 ﻿using DevInterface;
 using static System.Text.RegularExpressions.Regex;
 using static UnityEngine.Mathf;
+using System.Globalization;
 
 namespace RegionKit.Modules.Objects;
 
@@ -80,8 +81,8 @@ internal class FloatRectData : PlacedObject.Data
 	public override void FromString(string s)
 	{
 		var sAr = Split(s, "~");
-		handlePos.x = float.Parse(sAr[0]);
-		handlePos.y = float.Parse(sAr[1]);
+		float.TryParse(sAr[0], NumberStyles.Any, CultureInfo.InvariantCulture, out handlePos.x);
+		float.TryParse(sAr[1], NumberStyles.Any, CultureInfo.InvariantCulture, out handlePos.y);
 		unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(sAr, 2);
 	}
 

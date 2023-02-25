@@ -2,12 +2,13 @@
 
 /// <summary>
 /// By LB/M4rbleL1ne
+/// Glowing swimmer insect
 /// </summary>
 internal static class GlowingSwimmersCI
 {
 	internal static void Apply()
 	{
-		_CommonHooks.PostRoomLoad += RoomPostLoad;
+		_CommonHooks.PostRoomLoad += PostRoomLoad;
 		On.InsectCoordinator.SpeciesDensity_Type_1 += InsectCoordinatorSpeciesDensityInsectType;
 		On.InsectCoordinator.RoomEffectToInsectType += InsectCoordinatorRoomEffectToInsectType;
 		On.InsectCoordinator.TileLegalForInsect += InsectCoordinatorTileLegalForInsect;
@@ -17,7 +18,7 @@ internal static class GlowingSwimmersCI
 
 	internal static void Undo()
 	{
-		_CommonHooks.PostRoomLoad -= RoomPostLoad;
+		_CommonHooks.PostRoomLoad -= PostRoomLoad;
 		On.InsectCoordinator.SpeciesDensity_Type_1 -= InsectCoordinatorSpeciesDensityInsectType;
 		On.InsectCoordinator.RoomEffectToInsectType -= InsectCoordinatorRoomEffectToInsectType;
 		On.InsectCoordinator.TileLegalForInsect -= InsectCoordinatorTileLegalForInsect;
@@ -25,7 +26,7 @@ internal static class GlowingSwimmersCI
 		On.InsectCoordinator.CreateInsect -= InsectCoordinatorCreateInsect;
 	}
 
-	private static void RoomPostLoad(Room self)
+	private static void PostRoomLoad(Room self)
 	{
 		for (var i = 0; i < self.roomSettings.effects.Count; i++)
 		{
@@ -83,6 +84,7 @@ internal static class GlowingSwimmersCI
 }
 
 /// <summary>
+/// By LB/M4rbleL1ne
 /// Glowing swimmer
 /// </summary>
 public class GlowingSwimmer : CosmeticInsect

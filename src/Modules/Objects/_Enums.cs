@@ -1,6 +1,5 @@
-namespace RegionKit.Modules.Objects;
+﻿namespace RegionKit.Modules.Objects;
 
-//Made By LeeMoriya
 ///<inheritdoc/>
 public class _Enums
 {
@@ -33,4 +32,8 @@ public class _Enums
 	/// </summary>
 	/// <returns></returns>
 	public static PlacedObject.Type ProjectedCircle = new(nameof(ProjectedCircle), true);
+	/// <summary>
+	/// Upside down waterfall
+	/// </summary>
+	public static PlacedObject.Type UpsideDownWaterFall = new(nameof(UpsideDownWaterFall), true);
 }

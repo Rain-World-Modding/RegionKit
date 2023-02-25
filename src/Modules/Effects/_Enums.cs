@@ -22,9 +22,17 @@ public static class _Enums
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type GlowingSwimmers = new(nameof(GlowingSwimmers), true);
 	/// <summary>
+	/// Colored Camo Beetle effect enum
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type ColoredCamoBeetles = new(nameof(ColoredCamoBeetles), true);
+	/// <summary>
 	/// Glowing Swimmer insect enum
 	/// </summary>
 	public static CosmeticInsect.Type GlowingSwimmerInsect = new(nameof(GlowingSwimmerInsect), true);
+	/// <summary>
+	/// Colored Camo Beetle insect enum
+	/// </summary>
+	public static CosmeticInsect.Type ColoredCamoBeetle = new(nameof(ColoredCamoBeetle), true);
 	/// <summary>
 	/// ReplaceEffectColorA
 	/// </summary>

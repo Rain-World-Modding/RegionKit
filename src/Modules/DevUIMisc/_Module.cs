@@ -23,6 +23,7 @@ public static class _Module
 		}
 		__appliedOnce = true;
 		PaletteTextInput.Apply();
+		CloudBuilder.Apply();
 		//BackgroundBuilder.Apply();
 
 		//currently used for settings saving options stuffs, but will probably later be used for much more

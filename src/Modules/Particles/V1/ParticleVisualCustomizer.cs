@@ -54,7 +54,7 @@ public class ParticleVisualCustomizer : ManagedData, IParticleVisualProvider
 	///<inheritdoc/>
 	public PlacedObject Owner => owner;
 	///<inheritdoc/>
-	public ParticleVisualState DataForNew()
+	public ParticleVisualState StateForNew()
 	{
 		var res = new ParticleVisualState(
 			elmName,

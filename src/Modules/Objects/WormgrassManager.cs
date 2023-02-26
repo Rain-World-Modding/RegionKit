@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using RWCustom;
 using UnityEngine;
-using static System.Math;
 using static RWCustom.Custom;
 
 namespace RegionKit.Modules.Objects;

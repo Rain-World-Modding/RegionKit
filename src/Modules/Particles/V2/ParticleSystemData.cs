@@ -1,3 +1,5 @@
+using static UnityEngine.Mathf;
+
 namespace RegionKit.Modules.Particles.V2;
 
 public class ParticleSystemData : ManagedData
@@ -40,6 +42,22 @@ public class ParticleSystemData : ManagedData
 	public int maxAmount;
 	public ParticleSystemData(PlacedObject owner) : base(owner, null)
 	{
+	}
+	public ParticleState StateForNew()
+	{
+		var res = new ParticleState
+		{
+			dir = LerpAngle(VecToDeg(sdBase) - startDirFluke, VecToDeg(sdBase) + startDirFluke, UnityEngine.Random.value),
+			speed = Clamp(Lerp(startSpeed - startSpeedFluke, startSpeed + startSpeedFluke, UnityEngine.Random.value), 0f, float.MaxValue),
+			fadeIn = ClampedIntDeviation(fadeIn, fadeInFluke, minRes: 0),
+			fadeOut = ClampedIntDeviation(fadeOut, fadeOutFluke, minRes: 0),
+			lifetime = ClampedIntDeviation(lifeTime, lifeTimeFluke, minRes: 0),
+			stateChangeSlated = 1,
+			age = 0,
+
+		};
+
+		return res;
 	}
 
 	public enum SpawnMode{

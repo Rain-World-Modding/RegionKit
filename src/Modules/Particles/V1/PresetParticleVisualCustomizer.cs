@@ -22,7 +22,7 @@ public class PresetParticleVisualCustomizer : ManagedData, IParticleVisualProvid
 	///<inheritdoc/>
 	public PlacedObject Owner => owner;
 	///<inheritdoc/>
-	public ParticleVisualState DataForNew()
+	public ParticleVisualState StateForNew()
 	{
 		ParticleVisualState state;
 		if (_Module.TryFindPreset(presetTags, out state)) return state;

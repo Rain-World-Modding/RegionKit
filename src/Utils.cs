@@ -16,6 +16,17 @@ internal static partial class Utils
 	// 	GetFn<Func<int, string>>(null, methodof<string>("InternalAllocateStr", BF_ALL_CONTEXTS_STATIC)!)!;
 	#endregion
 	#region collections
+	public static void EnqueueSeveral<T>(this Queue<T> queue, IEnumerable<T> items){
+		foreach (T t in items) queue.Enqueue(t);
+	}
+	public static bool TryDequeue<T>(this Queue<T> queue, out T? result){
+		if (queue.Count == 0) {
+			result = default;
+			return false;
+		}
+		result = queue.Dequeue();
+		return true;
+	}
 	/// <summary>
 	/// Attempts getting an item at specified index; if none found, uses default value.
 	/// </summary>
@@ -136,7 +147,24 @@ internal static partial class Utils
 			//if (ct != list.Count) throw new InvalidOperationException("List was modified");
 		}
 	}
-
+	public static IEnumerable<int> Indices(int count){
+		for (int i = 0; i < count; i++)
+		{
+			yield return i;
+		}
+	}
+	public static IEnumerable<int> Indices<T>(IList<T> arr){
+		for (int i = 0; i < arr.Count; i++)
+		{
+			yield return i;
+		}
+	}
+	public static IEnumerable<int> Indices<T>(T[] arr){
+		for (int i = 0; i < arr.Length; i++)
+		{
+			yield return i;
+		}
+	}
 	/// <summary>
 	/// Creates a looped version of a selected enumerator.
 	/// </summary>

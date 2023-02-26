@@ -151,7 +151,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 				p = (GenericParticle)
 					PossibleBirths.RandomOrDefault()!.DynamicInvoke(
 						_ParticleSystemData.DataForNew(),
-						_visuals.RandomOrDefault()?.DataForNew() ?? default);
+						_visuals.RandomOrDefault()?.StateForNew() ?? default);
 				p.pos = PickSpawnPos();
 				foreach (var provider in _modifiers)
 				{

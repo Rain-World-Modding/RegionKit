@@ -11,6 +11,7 @@ global using static Pom.Pom;
 global using static RegionKit.Mod;
 global using static RegionKit.Utils;
 global using static RWCustom.Custom;
+global using static UnityEngine.Mathf;
 global using BIE = BepInEx;
 global using LOG = BepInEx.Logging;
 global using DBG = System.Diagnostics;

@@ -36,4 +36,8 @@ public class _Enums
 	/// Upside down waterfall
 	/// </summary>
 	public static PlacedObject.Type UpsideDownWaterFall = new(nameof(UpsideDownWaterFall), true);
+	/// <summary>
+	/// Colored light beam
+	/// </summary>
+	public static PlacedObject.Type ColoredLightBeam = new(nameof(ColoredLightBeam), true);
 }

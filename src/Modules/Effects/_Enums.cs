@@ -41,4 +41,8 @@ public static class _Enums
 	/// ReplaceEffectColorB
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type ReplaceEffectColorB = new(nameof(ReplaceEffectColorB), true);
+	/// <summary>
+	/// Effect category
+	/// </summary>
+	public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKit = new(nameof(RegionKit), true);
 }

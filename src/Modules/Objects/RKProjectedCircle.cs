@@ -1,23 +1,26 @@
 ﻿using CoralBrain;
-using UnityEngine;
 
 namespace RegionKit.Modules.Objects;
 
-
-internal class ProjectedCircleObject : UpdatableAndDeletable, IOwnProjectedCircles
+/// <summary>
+/// By LB/M4rbleL1ne
+/// Adds a projected circle, requires sunblock
+/// </summary>
+public class ProjectedCircleObject : UpdatableAndDeletable, IOwnProjectedCircles
 {
 	private readonly PlacedObject _pObj;
 
+	///<inheritdoc/>
 	public ProjectedCircleObject(Room room, PlacedObject pObj)
 	{
 		this.room = room;
-		this._pObj = pObj;
+		_pObj = pObj;
 		room.AddObject(new ProjectedCircle(room, this, 0, 180f));
 	}
 
-	public bool CanHostCircle() => true;
+	bool IOwnProjectedCircles.CanHostCircle() => true;
 
-	public Vector2 CircleCenter(int index, float timeStacker) => _pObj.pos;
+	Vector2 IOwnProjectedCircles.CircleCenter(int index, float timeStacker) => _pObj.pos;
 
-	public Room HostingCircleFromRoom() => this.room;
+	Room IOwnProjectedCircles. HostingCircleFromRoom() => room;
 }

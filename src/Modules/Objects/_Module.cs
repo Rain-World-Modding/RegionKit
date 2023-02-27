@@ -1,4 +1,5 @@
 ﻿using MonoMod.RuntimeDetour;
+using DevInterface;
 
 namespace RegionKit.Modules.Objects;
 ///<inheritdoc/>
@@ -41,7 +42,6 @@ public static class _Module
 			RegisterFullyManagedObjectType(steamFields.ToArray(), typeof(SteamHazard), nameof(SteamHazard), RK_POM_CATEGORY);
 
 
-			NoWallSlideZones.Apply();
 			RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>("RoomBorderTP", RK_POM_CATEGORY);
 			RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect", RK_POM_CATEGORY);
 			RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>("PlacedWaterfall", RK_POM_CATEGORY);
@@ -60,12 +60,17 @@ public static class _Module
 		__appliedOnce = true;
 		On.PlacedObject.GenerateEmptyData += MakeEmptyData;
 		On.DevInterface.ObjectsPage.CreateObjRep += CreateObjectReps;
+		On.DevInterface.ObjectsPage.DevObjectGetCategoryFromPlacedType += ObjectsPageDevObjectGetCategoryFromPlacedType;
 		On.Room.NowViewed += Room_Viewed;
 		On.Room.NoLongerViewed += Room_NotViewed;
+		CustomEntranceSymbols.Apply();
+		ColoredLightBeam.Apply();
+		NoWallSlideZones.Apply();
 		//todo: check if it's okay to have like this
 		_CommonHooks.PostRoomLoad += RoomPostLoad;
 		//On.RainWorld.LoadResources += LoadLittlePlanetResources;
 	}
+
 	internal static void Disable()
 	{
 		//On.RainWorld.LoadResources -= LoadLittlePlanetResources;
@@ -73,8 +78,28 @@ public static class _Module
 		On.Room.NoLongerViewed -= Room_NotViewed;
 		On.PlacedObject.GenerateEmptyData -= MakeEmptyData;
 		On.DevInterface.ObjectsPage.CreateObjRep -= CreateObjectReps;
+		On.DevInterface.ObjectsPage.DevObjectGetCategoryFromPlacedType -= ObjectsPageDevObjectGetCategoryFromPlacedType;
 		_CommonHooks.PostRoomLoad -= RoomPostLoad;
+		CustomEntranceSymbols.Undo();
+		ColoredLightBeam.Undo();
+		NoWallSlideZones.Undo();
 		foreach (var hk in __objectHooks) if (hk.IsApplied) hk.Undo();
+	}
+
+	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)
+	{
+		ObjectsPage.DevObjectCategories res = orig(self, type);
+		if (type == _Enums.ProjectedCircle ||
+			type == _Enums.NoWallSlideZone ||
+			type == _Enums.ColoredLightBeam ||
+			type == _Enums.CustomEntranceSymbol ||
+			type == _Enums.PWLightrod ||
+			type == _Enums.UpsideDownWaterFall ||
+			type == _Enums.LittlePlanet ||
+			type == _Enums.ARKillRect ||
+			type == _Enums.RainbowNoFade)
+			res = new ObjectsPage.DevObjectCategories(RK_POM_CATEGORY);
+		return res;
 	}
 
 	private static void RoomPostLoad(Room self)
@@ -107,6 +132,16 @@ public static class _Module
 				break;
 			case nameof(_Enums.ProjectedCircle):
 				self.AddObject(new ProjectedCircleObject(self, pObj));
+				break;
+			case nameof(_Enums.UpsideDownWaterFall):
+				self.AddObject(new UpsideDownWaterFallObject(self, pObj, 1f, 5f, 1f, 5f, 1f, "Water", true));
+				break;
+			case nameof(_Enums.ColoredLightBeam):
+				var coloredLightBeam = new ColoredLightBeam(pObj);
+				self.AddObject(coloredLightBeam);
+				self.SetLightBeamBlink(coloredLightBeam, m);
+				coloredLightBeam.baseColorMode = (pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType is ColoredLightBeam.ColoredLightBeamData.ColorType.Environment;
+				coloredLightBeam.effectColor = (int)(pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType - 1;
 				break;
 			}
 			if (pObj.data is WormgrassRectData && !wormgrassDataFound)
@@ -162,7 +197,7 @@ public static class _Module
 					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + Custom.DegToVec(RNG.value * 360f) * .2f
 				});
 			}
-			var pObjRep = new LittlePlanetRepresentation(self.owner, "LittlePlanet_Rep", self, pObj, tp.ToString());
+			var pObjRep = new LittlePlanetRepresentation(self.owner, "LittlePlanet_Rep", self, pObj);
 			self.tempNodes.Add(pObjRep);
 			self.subNodes.Add(pObjRep);
 		}
@@ -179,9 +214,48 @@ public static class _Module
 			self.tempNodes.Add(pObjRep);
 			self.subNodes.Add(pObjRep);
 		}
-		// else
-		// 	orig(self, tp, pObj);
-		orig.Invoke(self, tp, pObj);
+		else if (tp == _Enums.CustomEntranceSymbol)
+		{
+			if (pObj is null)
+			{
+				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
+				{
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(RNG.value * 360f) * .2f
+				});
+			}
+			var pObjRep = new CESRepresentation(self.owner, $"{tp}_Rep", self, pObj);
+			self.tempNodes.Add(pObjRep);
+			self.subNodes.Add(pObjRep);
+		}
+		else if (tp == _Enums.UpsideDownWaterFall)
+		{
+			if (pObj is null)
+			{
+				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
+				{
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(RNG.value * 360f) * .2f
+				});
+			}
+			var pObjRep = new UpDownWFRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString());
+			self.tempNodes.Add(pObjRep);
+			self.subNodes.Add(pObjRep);
+		}
+		else if (tp == _Enums.ColoredLightBeam)
+		{
+			if (pObj is null)
+			{
+				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
+				{
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(RNG.value * 360f) * .2f
+				});
+			}
+			var pObjRep = new ColoredLightBeamRepresentation(self.owner, $"{tp}_Rep", self, pObj);
+			self.tempNodes.Add(pObjRep);
+			self.subNodes.Add(pObjRep);
+		}
+		else
+			orig(self, tp, pObj);
+		//orig.Invoke(self, tp, pObj); -> this will add a duplicate PlacedObjectRepresentation
 	}
 
 	private static void MakeEmptyData(On.PlacedObject.orig_GenerateEmptyData orig, PlacedObject self)
@@ -201,6 +275,18 @@ public static class _Module
 		else if (self.type == _Enums.NoWallSlideZone)
 		{
 			self.data = new FloatRectData(self);
+		}
+		else if (self.type == _Enums.CustomEntranceSymbol)
+		{
+			self.data = new CESData(self);
+		}
+		else if (self.type == _Enums.UpsideDownWaterFall)
+		{
+			self.data = new UpDownWFData(self);
+		}
+		else if (self.type == _Enums.ColoredLightBeam)
+		{
+			self.data = new ColoredLightBeam.ColoredLightBeamData(self);
 		}
 		orig.Invoke(self);
 	}

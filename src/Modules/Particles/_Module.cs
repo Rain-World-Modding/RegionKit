@@ -27,8 +27,8 @@ internal static class _Module
 			RegisterManagedObject<V1.RoomParticleSystem, V1.RectParticleSpawnerData, ManagedRepresentation>("RectParticleSpawner", RK_POM_CATEGORY);
 			RegisterManagedObject<V1.RoomParticleSystem, V1.OffscreenSpawnerData, ManagedRepresentation>("OffscreenParticleSpawner", RK_POM_CATEGORY);
 			RegisterManagedObject<V1.RoomParticleSystem, V1.WholeScreenSpawnerData, ManagedRepresentation>("WholeScreenSpawner", RK_POM_CATEGORY);
-			RegisterManagedObject<V2.ParticleSystem, V2.ParticleSystemData, ManagedRepresentation>("V2ParticleSystem", RK_POM_CATEGORY, true);
-			RegisterEmptyObjectType<V2.ParticleRectZone, ManagedRepresentation>("V2ParticleRectZone", RK_POM_CATEGORY);
+			//RegisterManagedObject<V2.ParticleSystem, V2.ParticleSystemData, ManagedRepresentation>("V2ParticleSystem", RK_POM_CATEGORY, true);
+			//RegisterEmptyObjectType<V2.ParticleRectZone, ManagedRepresentation>("V2ParticleRectZone", RK_POM_CATEGORY);
 			//RegisterEmptyObjectType
 		}
 		__appliedOnce = true;

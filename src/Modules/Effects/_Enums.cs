@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Effects;
+﻿namespace RegionKit.Modules.Effects;
 ///<inheritdoc/>
 public static class _Enums
 {
@@ -17,8 +17,22 @@ public static class _Enums
 
 	public static RoomSettings.RoomEffect.Type FogOfWarSolid = new(nameof(FogOfWarSolid), false); // disabled
 	public static RoomSettings.RoomEffect.Type FogOfWarDarkened = new(nameof(FogOfWarDarkened), false); //disabled
+	/// <summary>
+	/// Glowing Swimmer effect enum
+	/// </summary>
 	public static RoomSettings.RoomEffect.Type GlowingSwimmers = new(nameof(GlowingSwimmers), true);
+	/// <summary>
+	/// Colored Camo Beetle effect enum
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type ColoredCamoBeetles = new(nameof(ColoredCamoBeetles), true);
+	/// <summary>
+	/// Glowing Swimmer insect enum
+	/// </summary>
 	public static CosmeticInsect.Type GlowingSwimmerInsect = new(nameof(GlowingSwimmerInsect), true);
+	/// <summary>
+	/// Colored Camo Beetle insect enum
+	/// </summary>
+	public static CosmeticInsect.Type ColoredCamoBeetle = new(nameof(ColoredCamoBeetle), true);
 	/// <summary>
 	/// ReplaceEffectColorA
 	/// </summary>
@@ -27,4 +41,8 @@ public static class _Enums
 	/// ReplaceEffectColorB
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type ReplaceEffectColorB = new(nameof(ReplaceEffectColorB), true);
+	/// <summary>
+	/// Effect category
+	/// </summary>
+	public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKit = new(nameof(RegionKit), true);
 }

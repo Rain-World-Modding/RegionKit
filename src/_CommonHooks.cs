@@ -38,12 +38,12 @@ internal static class _CommonHooks
 			}
 			catch (Exception ex)
 			{
-				errors.Add((ex, false));
+				errors.Add((ex, true));
 			}
 		}
 		foreach ((Exception err, bool post) in errors)
 		{
-
+			__logger.LogError((post ? "Error in PostRoomLoad : " : "Error in PreRoomLoad : ") + err);
 		}
 	}
 

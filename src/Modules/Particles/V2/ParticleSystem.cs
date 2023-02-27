@@ -11,16 +11,16 @@ public class ParticleSystem : UpdatableAndDeletable, IDrawable
 	private readonly HashSet<int> _indicesBuffer = new();
 	private readonly HashSet<int> _activeParticles = new();
 	//private IEnumerable<int> _incomingIndex;
-	private Queue<int> _upcomingIndices;
+	private Queue<int> _upcomingIndices = new();
 	private IEnumerable<IntVector2>? _tilesShuffledLoop;
 	private readonly List<IntVector2> _suitableTiles = new();
 	private readonly List<IParticleZone> _zones = new();
 	private readonly List<IParticleVisualProvider> _visProvs = new();
 	private readonly PlacedObject _owner;
-	private ParticleSystemData _Data => (_owner.data as ParticleSystemData)!;
+	private ParticleSystemData _Data => (ParticleSystemData)_owner.data;
 	public ParticleSystem(PlacedObject owner, Room rm)
 	{
-		_particlePool = new (ParticleState, ParticleVisualState)[0];
+		//_particlePool = new (ParticleState, ParticleVisualState)[0];
 		//_incomingIndex = new int[0];
 		_owner = owner;
 		this.room = rm;
@@ -33,12 +33,11 @@ public class ParticleSystem : UpdatableAndDeletable, IDrawable
 		_indicesBuffer.Clear();
 		if (!_initDone)
 		{
-
 		}
 		_initDone = true;
 		foreach (int index in _activeParticles)
 		{
-			ref var part = ref _particlePool[index];
+			ref (ParticleState, ParticleVisualState) part = ref _particlePool[index];
 			part.Item1.Update();
 			if (part.Item1.stateChangeSlated < 0)
 			{
@@ -58,12 +57,15 @@ public class ParticleSystem : UpdatableAndDeletable, IDrawable
 			int tospawn = RNG.Range(_Data.minAmount, _Data.maxAmount);
 			for (int i = 0; i < tospawn; i++)
 			{
+				__logger.LogDebug("u" + i);
 				if (!_upcomingIndices.TryDequeue(out int index))
 				{
 					__logger.LogError($"PARTICLE SPAWNER IN ROOM {room.abstractRoom.name}: PARTICLE POOL EXCEEDED CAPACITY");
 					break;
 				}
-				_particlePool[index] = (_Data.StateForNew(), _visProvs.RandomOrDefault()?.StateForNew() ?? IParticleVisualProvider.PlaceholderProv.instance.StateForNew());
+				Vector2 pos = (_suitableTiles.RandomOrDefault().ToVector2() + new Vector2(RNG.value, RNG.value)) * 20f;
+				_particlePool[index] = (_Data.StateForNew(index, pos), _visProvs.RandomOrDefault()?.StateForNew() ?? IParticleVisualProvider.PlaceholderProv.instance.StateForNew());
+				_activeParticles.Add(index);
 			}
 		}
 	}
@@ -73,6 +75,7 @@ public class ParticleSystem : UpdatableAndDeletable, IDrawable
 		{
 			if (po.data is IParticleZone zone)
 			{
+				//todo: add filters
 				_zones.Add(zone);
 				_suitableTiles.AddRange(zone.SelectedTiles);
 			}
@@ -85,6 +88,7 @@ public class ParticleSystem : UpdatableAndDeletable, IDrawable
 		{
 			_visProvs.Add(IParticleVisualProvider.PlaceholderProv.instance);
 		}
+		__logger.LogDebug($"particle system in room {room.abstractRoom.name} collected {_zones.Count} zones ({_Data.groupTags}) with {_suitableTiles.Count} total tiles");
 	}
 
 	private void CalculateCapacity()
@@ -100,8 +104,8 @@ public class ParticleSystem : UpdatableAndDeletable, IDrawable
 			remExpectancy -= 1f;
 		}
 		_particlePool = new (ParticleState, ParticleVisualState)[(int)sum + _POOL_PADDING]; //extra just in case
-		_upcomingIndices.EnqueueSeveral(Indices(_particlePool.Length));
-		//_incomingIndex = Indices(_particlePool.Length);
+		_upcomingIndices.EnqueueSeveral(Indices(_particlePool));
+		__logger.LogDebug($"particle system in room {room.abstractRoom.name} created a buffer of length {_particlePool.Length}");
 	}
 
 	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner)
@@ -126,14 +130,20 @@ public class ParticleSystem : UpdatableAndDeletable, IDrawable
 	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		bool reAddSpritesSlated = false;
+
 		foreach (int index in Indices(_particlePool))
 		{
 			ref var current = ref _particlePool[index];
 			ref var move = ref current.Item1;
 			ref var vis = ref current.Item2;
+			if (move.lastPos is null || move.lastRot is null)
+			{
+				continue;
+			}
 			FSprite
 				partsprite = sLeaser.sprites[index * 2],
 				lightsprite = sLeaser.sprites[index * 2 + 1];
+
 			if (move.stateChangeSlated < 0)
 			{
 				partsprite.isVisible = false;
@@ -151,17 +161,21 @@ public class ParticleSystem : UpdatableAndDeletable, IDrawable
 				lightsprite.shader = rCam.game.rainWorld.Shaders[vis.flat ? "FlatLight" : "LightSource"];
 				continue;
 			}
-			Vector2 
+
+			Vector2
 				posnew = move.pos + camPos,
 				posold = move.lastPos[0] + camPos;
-			float 
+			float
 				rotnew = move.rot,
 				rotold = move.lastRot[0];
 			partsprite.x = Lerp(posold.x, posnew.x, timeStacker);
 			partsprite.y = Lerp(posold.y, posnew.y, timeStacker);
 			lightsprite.x = Lerp(posold.x, posnew.x, timeStacker);
 			lightsprite.y = Lerp(posold.y, posnew.y, timeStacker);
+			//todo:
+			partsprite.alpha = move.CurrentPower;
 		}
+		if (reAddSpritesSlated) this.AddToContainer(sLeaser, rCam, null);
 	}
 
 	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)

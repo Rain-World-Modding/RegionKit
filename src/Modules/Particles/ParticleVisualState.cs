@@ -40,7 +40,8 @@ public struct ParticleVisualState
 		bool flat,
 		float scale)
 	{
-		this.scale = scale;
+		BangBang(aElm, nameof(aElm));
+		BangBang(shader, nameof(shader));
 		this.atlasElement = aElm;
 		this.shader = shader;
 		this.container = container;
@@ -51,6 +52,7 @@ public struct ParticleVisualState
 		this.lightRadiusMin = lRadMin;
 		this.affectedByDark = affByDark;
 		this.flat = flat;
+		this.scale = scale;
 	}
 	/// <summary>
 	/// Returns blank settings

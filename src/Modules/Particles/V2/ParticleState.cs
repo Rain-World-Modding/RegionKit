@@ -85,7 +85,8 @@ public struct ParticleState
 		this.lifetime = lifetime;
 		this.fadeOut = fadeOut;
 		this.pos = pos;
-
+		lastRot = new float[STATE_BUFFER_SIZE];
+		lastPos = new Vector2[STATE_BUFFER_SIZE];
 	}
 	/// <summary>
 	/// ran every frame while the particle is active.
@@ -93,7 +94,7 @@ public struct ParticleState
 	public void Update()
 	{
 		if (stateChangeSlated > 0) stateChangeSlated = 0;
-		for (int i = STATE_BUFFER_SIZE; i > 0; i++)
+		for (int i = STATE_BUFFER_SIZE - 1; i > 0; i--)
 		{
 			lastPos[i] = lastPos[i - 1];
 			lastRot[i] = lastRot[i - 1];

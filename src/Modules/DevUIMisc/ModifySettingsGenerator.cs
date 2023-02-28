@@ -27,7 +27,7 @@ internal class ModifySettingsGenerator
 
 		Compare();
 
-		if (URoomSettings.PathToSpecificSettings(SettingsSaveOptions.settingsSaveOptionsMenu.modNames[modname], self.room.roomSettings.name, out filePath, false))
+		if (URoomSettings.PathToSpecificSettings(SettingsSaveOptions.settingsSaveOptionsMenu.modNames[modname], self.room.roomSettings.name, out filePath, false, URoomSettings.UsingSpecificSlugcatName(self)))
 		{
 			filePath = filePath.ToLower();
 

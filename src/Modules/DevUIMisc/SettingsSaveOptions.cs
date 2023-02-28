@@ -41,8 +41,7 @@ internal class SettingsSaveOptions
 			if (settingsSaveOptionsMenu.ChangePath != null)
 			{ settingsSaveOptionsMenu.ChangePath.Text = subbuttonid; }
 
-
-			if (DevUIUtils.URoomSettings.PathToSpecificSettings(settingsSaveOptionsMenu.modNames[subbuttonid], self.RoomSettings.name, out string filePath))
+			if (DevUIUtils.URoomSettings.PathToSpecificSettings(settingsSaveOptionsMenu.modNames[subbuttonid], self.RoomSettings.name, out string filePath, slugName: DevUIUtils.URoomSettings.UsingSpecificSlugcatName(self.owner)))
 			{
 				self.RoomSettings.filePath = filePath;
 				Debug.Log($"new filepath is [{filePath}]");

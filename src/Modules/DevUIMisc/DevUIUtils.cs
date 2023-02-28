@@ -75,6 +75,27 @@ internal class DevUIUtils
 	public static class URoomSettings
 	{
 
+		public static string UsingSpecificSlugcatName(DevUI self)
+		{
+			bool usingSpecific = false;
+			foreach (DevUINode node in self.activePage.subNodes)
+			{
+				if (node is DevUILabel label && label.Text == "Using Specific!")
+				{
+					usingSpecific = true;
+					break;
+				}
+			}
+
+			if (!usingSpecific) { return ""; }
+
+			string? name = (self.activePage.owner.game.session as StoryGameSession)?.saveState.saveStateNumber.ToString();
+			if (name == null)
+			{ return ""; }
+
+			return name;
+		}
+
 		public static string DefaultSettingsLocation(DevUI self, RoomSettings roomSettings, bool includeRoot)
 		{
 			//this is basically a copy-paste of the settings loading from the RoomSettings constructor
@@ -124,6 +145,18 @@ internal class DevUIUtils
 				}
 			}
 
+			if (!File.Exists(result))
+			{
+				string text = WorldLoader.FindRoomFile(roomSettings.name, false, ".txt");
+				if (File.Exists(text))
+				{
+					result = text.Substring(0, text.Length - 4) + "_settings.txt";
+				}
+			}
+
+			if (!File.Exists(result))
+			{ return ""; }
+
 			if (includeRoot) return result;
 
 			UPath.TryCropToSubstringLeft(result, "world", out result);
@@ -133,7 +166,7 @@ internal class DevUIUtils
 			return result;
 		}
 
-		public static bool PathToSpecificSettings(string modPackDirectory, string roomName, out string filePath, bool makeDirectory = true)
+		public static bool PathToSpecificSettings(string modPackDirectory, string roomName, out string filePath, bool makeDirectory = true, string slugName = "")
 		{
 			filePath = WorldLoader.FindRoomFile(roomName, false, ".txt").ToLower();
 
@@ -141,7 +174,7 @@ internal class DevUIUtils
 
 			UPath.TryCropToSubstringRight(filePath, "levels", out filePath);
 
-			filePath = modPackDirectory + UPath.AppendFileName(filePath, "_settings.txt");
+			filePath = modPackDirectory + UPath.AppendFileName(filePath, "_settings"+ slugName == ""? "" : $"-{slugName}" +".txt");
 
 			if (!makeDirectory) { return true; }
 

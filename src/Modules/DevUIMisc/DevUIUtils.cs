@@ -101,16 +101,16 @@ internal class DevUIUtils
 			//this is basically a copy-paste of the settings loading from the RoomSettings constructor
 			//probably not the best way to do this, but hey, it seems to work
 
-			SlugcatStats.Name? playerChar = self.game.GetStorySession.saveStateNumber;
+			SlugcatStats.Name? playerChar = self.game.GetStorySession?.saveStateNumber;
 
 			string result;
-			if (roomSettings.isTemplate)
+			if (roomSettings.isTemplate && self.game.world.region?.name is string s)
 			{
 				result = AssetManager.ResolveFilePath(string.Concat(new string[]
 				{
 				"World",
 				Path.DirectorySeparatorChar.ToString(),
-				self.game.world.region.name,
+				s,
 				Path.DirectorySeparatorChar.ToString(),
 				roomSettings.name,
 				".txt"

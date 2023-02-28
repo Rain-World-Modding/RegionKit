@@ -104,12 +104,24 @@ public class Mod : BIE.BaseUnityPlugin
 	///<inheritdoc/>
 	public void ScanAssemblyForModules(RFL.Assembly asm)
 	{
-		foreach (Type t in asm.DefinedTypes)
+		Type[] types;
+		try
+		{
+			types = asm.GetTypes();
+		}
+		catch (ReflectionTypeLoadException e)
+		{
+			types = e.Types.Where(t => t != null).ToArray();
+			__logger.LogError(e);
+			__logger.LogError(e.InnerException);
+		}
+		foreach (Type t in types)
 		{
 			if (t.IsGenericTypeDefinition) continue;
 			TryRegisterModule(t);
 		}
 	}
+
 	///<inheritdoc/>
 	public void TryRegisterModule(Type? t)
 	{

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using static RegionKit.Modules.Effects._Enums;
+﻿using static RegionKit.Modules.Effects._Enums;
 
 namespace RegionKit.Modules.Effects;
 
@@ -17,14 +16,14 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 
 	internal static void Apply()
 	{
-		ColorRoomEffect.colorEffectTypes.Add(_Enums.ReplaceEffectColorA);
-		ColorRoomEffect.colorEffectTypes.Add(_Enums.ReplaceEffectColorB);
+		ColorRoomEffect.colorEffectTypes.Add(ReplaceEffectColorA);
+		ColorRoomEffect.colorEffectTypes.Add(ReplaceEffectColorB);
 		_CommonHooks.PostRoomLoad += PostRoomLoad;
 	}
 
 	internal static void Undo()
 	{
-		ColorRoomEffect.colorEffectTypes.Remove(_Enums.ReplaceEffectColorA);
+		ColorRoomEffect.colorEffectTypes.Remove(ReplaceEffectColorA);
 		ColorRoomEffect.colorEffectTypes.Remove(ReplaceEffectColorB);
 		_CommonHooks.PostRoomLoad -= PostRoomLoad;
 	}

@@ -228,6 +228,5 @@ internal class ModifySettingsGenerator
 				}
 			}
 		}
-
 	}
 }

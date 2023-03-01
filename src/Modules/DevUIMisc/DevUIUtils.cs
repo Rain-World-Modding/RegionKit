@@ -174,7 +174,10 @@ internal class DevUIUtils
 
 			UPath.TryCropToSubstringRight(filePath, "levels", out filePath);
 
-			filePath = modPackDirectory + UPath.AppendFileName(filePath, "_settings"+ slugName == ""? "" : $"-{slugName}" +".txt");
+			if (slugName != "")
+			{ slugName = "-" + slugName; }
+
+			filePath = modPackDirectory + UPath.AppendFileName(filePath, "_settings" + slugName +".txt");
 
 			if (!makeDirectory) { return true; }
 

@@ -15,6 +15,7 @@ public static class _Module
 		__appliedOnce = true;
 		GlowingSwimmersCI.Apply();
 		ColoredCamoBeetlesCI.Apply();
+		MosquitoInsectsCI.Apply();
 		ColorRoomEffect.Apply();
 		ReplaceEffectColor.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
@@ -24,6 +25,7 @@ public static class _Module
 	{
 		GlowingSwimmersCI.Undo();
 		ColoredCamoBeetlesCI.Undo();
+		MosquitoInsectsCI.Undo();
 		ColorRoomEffect.Undo();
 		ReplaceEffectColor.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
@@ -39,6 +41,7 @@ public static class _Module
 			type == _Enums.CloudAdjustment ||
 			type == _Enums.GlowingSwimmers ||
 			type == _Enums.ColoredCamoBeetles ||
+			type == _Enums.MosquitoInsects ||
 			type == _Enums.PWMalfunction)
 			res = _Enums.RegionKit;
 		return res;

@@ -92,8 +92,8 @@ internal static class MosquitoInsectsCI
 /// </summary>
 public class MosquitoInsect : RedSwarmer
 {
-    readonly float _bodySize = Mathf.Max(1.1f, .6f + RNG.value);
-    int _wantToSuckCounter = 200, _restCtr;
+    private readonly float _bodySize = Mathf.Max(1.1f, .6f + RNG.value);
+    private int _wantToSuckCounter = 200, _restCtr;
 
 	///<inheritdoc/>
 	public MosquitoInsect(Room room, Vector2 pos) : base(room, pos) => type = _Enums.MosquitoInsect;

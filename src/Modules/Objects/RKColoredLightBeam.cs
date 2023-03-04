@@ -10,13 +10,12 @@ namespace RegionKit.Modules.Objects;
 /// </summary>
 public class ColoredLightBeam : LightBeam
 {
-	internal Color paletteEffectColor;
-	internal bool baseColorMode;
-	internal int effectColor = -1;
-	internal bool colorUpdated;
+	internal Color _paletteEffectColor;
+	internal bool _baseColorMode, _colorUpdated;
+	internal int _effectColor = -1;
 
 	///<inheritdoc/>
-	public ColoredLightBeam(PlacedObject placedObject) : base(placedObject) => paletteEffectColor = Color.white;
+	public ColoredLightBeam(PlacedObject placedObject) : base(placedObject) => _paletteEffectColor = Color.white;
 
 	internal static void Apply()
 	{
@@ -37,9 +36,9 @@ public class ColoredLightBeam : LightBeam
 	private static void LightBeamDrawSprites(On.LightBeam.orig_DrawSprites orig, LightBeam self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		if (self is ColoredLightBeam b)
-			b.colorUpdated = false;
+			b._colorUpdated = false;
 		orig(self, sLeaser, rCam, timeStacker, camPos);
-		if (self is ColoredLightBeam b2 && !b2.colorUpdated)
+		if (self is ColoredLightBeam b2 && !b2._colorUpdated)
 			self.UpdateColor(sLeaser, rCam, self.lastAlpha);
 	}
 
@@ -56,8 +55,8 @@ public class ColoredLightBeam : LightBeam
 			(sender as Button)!.Text = data.colorType.ToString();
 			if (rep.LB is ColoredLightBeam b)
 			{
-				b.baseColorMode = data.colorType is ColoredLightBeamData.ColorType.Environment;
-				b.effectColor = (int)data.colorType - 1;
+				b._baseColorMode = data.colorType is ColoredLightBeamData.ColorType.Environment;
+				b._effectColor = (int)data.colorType - 1;
 			}
 		}
 	}
@@ -78,29 +77,22 @@ public class ColoredLightBeam : LightBeam
 		orig(self, sLeaser, rCam, a);
 		if (self is ColoredLightBeam b)
 		{
-			if (!b.baseColorMode)
+			if (!b._baseColorMode)
 			{
-				if (b.effectColor >= 0)
-					b.paletteEffectColor = rCam.currentPalette.texture.GetPixel(30, 5 - b.effectColor * 2);
-				self.color = Color.Lerp(b.paletteEffectColor, Color.white, (b.placedObject.data as LightBeamData)!.colorA);
+				if (b._effectColor >= 0)
+					b._paletteEffectColor = rCam.currentPalette.texture.GetPixel(30, 5 - b._effectColor * 2);
+				self.color = Color.Lerp(b._paletteEffectColor, Color.white, (b.placedObject.data as LightBeamData)!.colorA);
 				Color color = RGB2RGBA(self.color, a);
 				TriangleMesh mesh = (sLeaser.sprites[0] as TriangleMesh)!;
 				for (var i = 0; i < mesh.verticeColors.Length; i++)
 					mesh.verticeColors[i] = color;
 			}
-			b.colorUpdated = true;
+			b._colorUpdated = true;
 		}
 	}
 
 	internal class ColoredLightBeamData : LightBeamData
 	{
-		public enum ColorType
-		{
-			Environment,
-			EffectColor1,
-			EffectColor2
-		}
-
 		public ColorType colorType;
 
 		public ColoredLightBeamData(PlacedObject owner) : base(owner) { }
@@ -118,6 +110,13 @@ public class ColoredLightBeam : LightBeam
 			BaseSaveString() + string.Format(CultureInfo.InvariantCulture, "~{0}~{1}~{2}~{3}~{4}~{5}", panelPos.x, panelPos.y, alpha, colorA, colorB, sun ? "1" : "0"),
 			string.Format(CultureInfo.InvariantCulture, "~{0}~{1}~{2}~{3}", blinkType, blinkRate, nightLight ? "1" : "0", colorType)),
 			"~", unrecognizedAttributes);
+
+		public enum ColorType
+		{
+			Environment,
+			EffectColor1,
+			EffectColor2
+		}
 	}
 }
 
@@ -128,8 +127,8 @@ internal class ColoredLightBeamRepresentation : LightBeamRepresentation
 		fLabels[0].text = "Colored Light Beam";
 		if (LB is ColoredLightBeam b)
 		{
-			b.baseColorMode = (pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType is ColoredLightBeam.ColoredLightBeamData.ColorType.Environment;
-			b.effectColor = (int)(pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType - 1;
+			b._baseColorMode = (pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType is ColoredLightBeam.ColoredLightBeamData.ColorType.Environment;
+			b._effectColor = (int)(pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType - 1;
 		}
 	}
 }

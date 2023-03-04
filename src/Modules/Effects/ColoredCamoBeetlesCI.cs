@@ -104,13 +104,13 @@ internal static class ColoredCamoBeetlesCI
 /// </summary>
 public class ColoredCamoBeetleInsect : Beetle
 {
-    float _lerper;
-    bool _lerpUp = true;
+    private float _lerper;
+	private bool _lerpUp = true;
     internal const float ADD = .075f;
-    readonly int _effectColor;
-    int _middleSleepCtr;
+	private readonly int _effectColor;
+	private int _middleSleepCtr;
 
-    bool CanMiddleSleep => _middleSleepCtr > 0 && stressed < .6f && room?.GetTile(pos).wallbehind is true;
+	private bool CanMiddleSleep => _middleSleepCtr > 0 && stressed < .6f && room?.GetTile(pos).wallbehind is true;
 
 	/// <summary>
 	/// Insect ctor

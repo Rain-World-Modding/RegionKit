@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace RegionKit.Modules.Objects;
 /// <summary>
@@ -101,18 +102,8 @@ public class Drawable : CosmeticSprite
 		{
 			try
 			{
-				#pragma warning disable CS0618 //WWW is obsolete
-				WWW www = new WWW(AssetManager.ResolveFilePath($"decals/{_Data.GetValue<string>("SpriteName")}"));
-				Texture2D tex = new Texture2D(1, 1, TextureFormat.ARGB32, false)
-				{
-					wrapMode = TextureWrapMode.Clamp,
-					anisoLevel = 0,
-					filterMode = FilterMode.Point
-				};
-				www.LoadImageIntoTexture(tex);
-				HeavyTexturesCache.LoadAndCacheAtlasFromTexture(_Data.GetValue<string>("spriteName"), tex, false);
+				LoadFile(_Data.GetValue<string>("spriteName"));
 				sLeaser.sprites[0].SetElementByName(_Data.GetValue<string>("spriteName"));
-				#pragma warning restore CS0618
 			}
 			catch (Exception e) when (e is FutileException)
 			{
@@ -137,5 +128,17 @@ public class Drawable : CosmeticSprite
 		var col = _Data.GetValue<Color>("colour");
 		col.a = _Data.GetValue<int>("alpha") / 255f;
 		sLeaser.sprites[0].color = _Data.GetValue<bool>("useColour") ? col : new Color(Color.white.r, Color.white.g, Color.white.b, _Data.GetValue<int>("alpha") / 255f);
+	}
+
+	public void LoadFile(string fileName)
+	{
+		if (Futile.atlasManager.GetAtlasWithName(fileName) != null)
+		{
+			return;
+		}
+		string str = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
+		Texture2D texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+		AssetManager.SafeWWWLoadTexture(ref texture, "file:///" + str, true, true);
+		HeavyTexturesCache.LoadAndCacheAtlasFromTexture(fileName, texture, false);
 	}
 }

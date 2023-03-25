@@ -7,6 +7,7 @@ using DevInterface;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using System.IO;
+using RegionKit.Modules.DevUIMisc.GenericNodes;
 
 namespace RegionKit.Modules.DevUIMisc;
 

@@ -8,7 +8,7 @@ using DevInterface;
 
 namespace RegionKit.Modules.DevUIMisc;
 
-internal class DevUIUtils
+internal static class DevUIUtils
 {
 	public static class UPath
 	{
@@ -199,5 +199,18 @@ internal class DevUIUtils
 
 		}
 
+	}
+
+	public static void SendSignal(this DevUINode devUINode, DevUISignalType signalType, DevUINode sender, string message)
+	{
+		while (devUINode != null)
+		{
+			devUINode = devUINode.parentNode;
+			if (devUINode is IDevUISignals signals)
+			{
+				signals.Signal(signalType, sender, message);
+				break;
+			}
+		}
 	}
 }

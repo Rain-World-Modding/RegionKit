@@ -76,7 +76,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	/// <summary>
 	/// Global HTT override.
 	/// </summary>
-	public static bool Override_HTT = IO.File.Exists(AssetManager.ResolveFilePath("world/htt.txt"));
+	public static bool Override_HTT => IO.File.Exists(AssetManager.ResolveFilePath("world/htt.txt"));
 	private bool _htt;
 
 	/// <summary>

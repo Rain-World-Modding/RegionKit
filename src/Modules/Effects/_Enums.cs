@@ -26,6 +26,10 @@ public static class _Enums
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type ColoredCamoBeetles = new(nameof(ColoredCamoBeetles), true);
 	/// <summary>
+	/// Mosquito Insect effet enum
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type MosquitoInsects = new(nameof(MosquitoInsects), true);
+	/// <summary>
 	/// Glowing Swimmer insect enum
 	/// </summary>
 	public static CosmeticInsect.Type GlowingSwimmerInsect = new(nameof(GlowingSwimmerInsect), true);
@@ -33,6 +37,10 @@ public static class _Enums
 	/// Colored Camo Beetle insect enum
 	/// </summary>
 	public static CosmeticInsect.Type ColoredCamoBeetle = new(nameof(ColoredCamoBeetle), true);
+	/// <summary>
+	/// Mosquito Insect enum
+	/// </summary>
+	public static CosmeticInsect.Type MosquitoInsect = new(nameof(MosquitoInsect), true);
 	/// <summary>
 	/// ReplaceEffectColorA
 	/// </summary>

@@ -40,4 +40,12 @@ public class _Enums
 	/// Colored light beam
 	/// </summary>
 	public static PlacedObject.Type ColoredLightBeam = new(nameof(ColoredLightBeam), true);
+	/// <summary>
+	/// LB Climbable wire
+	/// </summary>
+	public static PlacedObject.Type ClimbableWire = new(nameof(ClimbableWire), true);
+	/// <summary>
+	/// LB Climbable pole
+	/// </summary>
+	public static PlacedObject.Type ClimbablePole = new (nameof(ClimbablePole), true);
 }

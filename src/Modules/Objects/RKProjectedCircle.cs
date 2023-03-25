@@ -22,5 +22,5 @@ public class ProjectedCircleObject : UpdatableAndDeletable, IOwnProjectedCircles
 
 	Vector2 IOwnProjectedCircles.CircleCenter(int index, float timeStacker) => _pObj.pos;
 
-	Room IOwnProjectedCircles. HostingCircleFromRoom() => room;
+	Room IOwnProjectedCircles.HostingCircleFromRoom() => room;
 }

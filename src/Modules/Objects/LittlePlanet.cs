@@ -10,71 +10,11 @@ namespace RegionKit.Modules.Objects;
 /// </summary>
 public class LittlePlanet : CosmeticSprite
 {
-	/// <summary>
-	/// DevUI data
-	/// </summary>
-	public class LittlePlanetData : PlacedObject.ResizableObjectData
-	{
-		internal float _red = 1f;
-		internal float _green = 1f;
-		internal float _blue = 1f;
-		/// <summary>
-		/// Sprite alpha
-		/// </summary>
-		public float alpha = 1f;
-		internal Vector2 _panelPos;
-		/// <summary>
-		/// Ring rotation speed
-		/// </summary>
-		public float speed = 1f;
-
-		/// <summary>
-		/// Sprite color
-		/// </summary>
-		public Color Color
-		{
-			get => new(_red, _green, _blue);
-			set
-			{
-				_red = value.r;
-				_green = value.g;
-				_blue = value.b;
-			}
-		}
-
-		///<inheritdoc/>
-		public LittlePlanetData(PlacedObject owner) : base(owner) { }
-
-		///<inheritdoc/>
-		public override void FromString(string s)
-		{
-			var sAr = Regex.Split(s, "~");
-			float.TryParse(sAr[0], NumberStyles.Any, CultureInfo.InvariantCulture, out handlePos.x);
-			float.TryParse(sAr[1], NumberStyles.Any, CultureInfo.InvariantCulture, out handlePos.y);
-			float.TryParse(sAr[3], NumberStyles.Any, CultureInfo.InvariantCulture, out _red);
-			float.TryParse(sAr[4], NumberStyles.Any, CultureInfo.InvariantCulture, out _green);
-			float.TryParse(sAr[5], NumberStyles.Any, CultureInfo.InvariantCulture, out _blue);
-			float.TryParse(sAr[8], NumberStyles.Any, CultureInfo.InvariantCulture, out alpha);
-			float.TryParse(sAr[9], NumberStyles.Any, CultureInfo.InvariantCulture, out _panelPos.x);
-			float.TryParse(sAr[10], NumberStyles.Any, CultureInfo.InvariantCulture, out _panelPos.y);
-			float.TryParse(sAr[12], NumberStyles.Any, CultureInfo.InvariantCulture, out speed);
-			unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(sAr, 13);
-		}
-
-		///<inheritdoc/>
-		public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs($"{BaseSaveString()}~Color(~{_red}~{_green}~{_blue}~)~Alpha:~{alpha}~{_panelPos.x}~{_panelPos.y}~Speed:~{speed}", "~", unrecognizedAttributes);
-	}
-
 	private bool _underWaterMode;
 	private Color _color;
 	private readonly float _baseRad;
-	private float _alpha;
-	private float _speed;
-	private readonly float[] _lastRot = new float[4];
-	private readonly float[] _rot = new float[4];
-	private readonly float[] _rotSpeed = new float[4] { -1f, .5f, -.25f, .125f };
-	private readonly float[] _lastScaleX = new float[3];
-	private readonly float[] _scaleX = new float[3];
+	private float _alpha, _speed;
+	private readonly float[] _lastRot = new float[4], _rot = new float[4], _rotSpeed = new float[4] { -1f, .5f, -.25f, .125f }, _lastScaleX = new float[3], _scaleX = new float[3];
 	private readonly bool[] _increaseRad = new bool[3];
 
 	private PlacedObject PObj { get; init; }
@@ -191,6 +131,61 @@ public class LittlePlanet : CosmeticSprite
 		newContainer ??= rCam.ReturnFContainer("GrabShaders");
 		sLeaser.sprites.RemoveFromContainer();
 		newContainer.AddChild(sLeaser.sprites);
+	}
+
+	/// <summary>
+	/// DevUI data
+	/// </summary>
+	public class LittlePlanetData : PlacedObject.ResizableObjectData
+	{
+		internal float _red = 1f;
+		internal float _green = 1f;
+		internal float _blue = 1f;
+		/// <summary>
+		/// Sprite alpha
+		/// </summary>
+		public float alpha = 1f;
+		internal Vector2 _panelPos;
+		/// <summary>
+		/// Ring rotation speed
+		/// </summary>
+		public float speed = 1f;
+
+		/// <summary>
+		/// Sprite color
+		/// </summary>
+		public Color Color
+		{
+			get => new(_red, _green, _blue);
+			set
+			{
+				_red = value.r;
+				_green = value.g;
+				_blue = value.b;
+			}
+		}
+
+		///<inheritdoc/>
+		public LittlePlanetData(PlacedObject owner) : base(owner) { }
+
+		///<inheritdoc/>
+		public override void FromString(string s)
+		{
+			var sAr = Regex.Split(s, "~");
+			float.TryParse(sAr[0], NumberStyles.Any, CultureInfo.InvariantCulture, out handlePos.x);
+			float.TryParse(sAr[1], NumberStyles.Any, CultureInfo.InvariantCulture, out handlePos.y);
+			float.TryParse(sAr[3], NumberStyles.Any, CultureInfo.InvariantCulture, out _red);
+			float.TryParse(sAr[4], NumberStyles.Any, CultureInfo.InvariantCulture, out _green);
+			float.TryParse(sAr[5], NumberStyles.Any, CultureInfo.InvariantCulture, out _blue);
+			float.TryParse(sAr[8], NumberStyles.Any, CultureInfo.InvariantCulture, out alpha);
+			float.TryParse(sAr[9], NumberStyles.Any, CultureInfo.InvariantCulture, out _panelPos.x);
+			float.TryParse(sAr[10], NumberStyles.Any, CultureInfo.InvariantCulture, out _panelPos.y);
+			float.TryParse(sAr[12], NumberStyles.Any, CultureInfo.InvariantCulture, out speed);
+			unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(sAr, 13);
+		}
+
+		///<inheritdoc/>
+		public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs($"{BaseSaveString()}~Color(~{_red}~{_green}~{_blue}~)~Alpha:~{alpha}~{_panelPos.x}~{_panelPos.y}~Speed:~{speed}", "~", unrecognizedAttributes);
 	}
 }
 

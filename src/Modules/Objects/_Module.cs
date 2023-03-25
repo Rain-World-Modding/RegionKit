@@ -68,6 +68,7 @@ public static class _Module
 		CustomEntranceSymbols.Apply();
 		ColoredLightBeam.Apply();
 		NoWallSlideZones.Apply();
+		RKAdditionalClimbables.Apply();
 		//todo: check if it's okay to have like this
 		_CommonHooks.PostRoomLoad += RoomPostLoad;
 		//On.RainWorld.LoadResources += LoadLittlePlanetResources;
@@ -85,6 +86,7 @@ public static class _Module
 		CustomEntranceSymbols.Undo();
 		ColoredLightBeam.Undo();
 		NoWallSlideZones.Undo();
+		RKAdditionalClimbables.Undo();
 		foreach (var hk in __objectHooks) if (hk.IsApplied) hk.Undo();
 	}
 
@@ -99,7 +101,9 @@ public static class _Module
 			type == _Enums.UpsideDownWaterFall ||
 			type == _Enums.LittlePlanet ||
 			type == _Enums.ARKillRect ||
-			type == _Enums.RainbowNoFade)
+			type == _Enums.RainbowNoFade ||
+			type == _Enums.ClimbablePole ||
+			type == _Enums.ClimbableWire)
 			res = new ObjectsPage.DevObjectCategories(RK_POM_CATEGORY);
 		return res;
 	}
@@ -142,8 +146,27 @@ public static class _Module
 				var coloredLightBeam = new ColoredLightBeam(pObj);
 				self.AddObject(coloredLightBeam);
 				self.SetLightBeamBlink(coloredLightBeam, m);
-				coloredLightBeam.baseColorMode = (pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType is ColoredLightBeam.ColoredLightBeamData.ColorType.Environment;
-				coloredLightBeam.effectColor = (int)(pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType - 1;
+				coloredLightBeam._baseColorMode = (pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType is ColoredLightBeam.ColoredLightBeamData.ColorType.Environment;
+				coloredLightBeam._effectColor = (int)(pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType - 1;
+				break;
+			case nameof(_Enums.ClimbablePole):
+				self.AddObject(new ClimbablePole(self, (ClimbJumpVineData)pObj.data));
+				break;
+			case nameof(_Enums.ClimbableWire):
+				MoreSlugcats.ClimbableVineRenderer? climbableVineRenderer = null;
+				var num13 = self.updateList.Count - 1;
+				while (num13 >= 0 && climbableVineRenderer == null)
+				{
+					if (self.updateList[num13] is MoreSlugcats.ClimbableVineRenderer r)
+						climbableVineRenderer = r;
+					num13--;
+				}
+				if (climbableVineRenderer == null)
+				{
+					climbableVineRenderer = new(self);
+					self.AddObject(climbableVineRenderer);
+				}
+				self.waitToEnterAfterFullyLoaded = Math.Max(self.waitToEnterAfterFullyLoaded, 80);
 				break;
 			}
 			if (pObj.data is WormgrassRectData && !wormgrassDataFound)
@@ -255,6 +278,19 @@ public static class _Module
 			self.tempNodes.Add(pObjRep);
 			self.subNodes.Add(pObjRep);
 		}
+		else if (tp == _Enums.ClimbablePole || tp == _Enums.ClimbableWire)
+		{
+			if (pObj is null)
+			{
+				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
+				{
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(RNG.value * 360f) * .2f
+				});
+			}
+			var pObjRep = new ClimbJumpVineRepresentation(self.owner, $"{tp}_Rep", self, pObj);
+			self.tempNodes.Add(pObjRep);
+			self.subNodes.Add(pObjRep);
+		}
 		else
 			orig(self, tp, pObj);
 		//orig.Invoke(self, tp, pObj); -> this will add a duplicate PlacedObjectRepresentation
@@ -289,6 +325,14 @@ public static class _Module
 		else if (self.type == _Enums.ColoredLightBeam)
 		{
 			self.data = new ColoredLightBeam.ColoredLightBeamData(self);
+		}
+		else if (self.type == _Enums.ClimbablePole)
+		{
+			self.data = new ClimbJumpVineData(self);
+		}
+		else if (self.type == _Enums.ClimbableWire)
+		{
+			self.data = new ClimbWireData(self);
 		}
 		orig.Invoke(self);
 	}

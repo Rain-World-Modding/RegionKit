@@ -12,15 +12,10 @@ internal class UpsideDownWaterFallObject : UpdatableAndDeletable, IDrawable
 {
 	public FloatRect rect;
 	public PlacedObject pObj;
-    public float bubbleAmount;
-	public float bubbleLightness;
-	public float dripAmount;
+    public float bubbleAmount, bubbleLightness, dripAmount, lastFlow, flow, dripLightness;
 	public Vector2 pos;
-	public float lastFlow;
-	public float flow;
 	public string container;
 	public bool cutAtWaterLevel;
-	public float dripLightness;
 
 	private float InvertX => Data.handlePos.x < 0 ? -1f : 1f;
 
@@ -215,15 +210,10 @@ internal class UWaterDrip : WaterDrip
 
 internal class UpDownWFData : PlacedObject.Data
 {
-    public Vector2 handlePos = new(80f, 80f);
-	public float flow = 1f;
-	public float bubbleAmount = 5f;
-	public float bubbleLightness = 1f;
-	public Vector2 panelPos;
-	public float dripAmount = 5f;
+    public Vector2 handlePos = new(80f, 80f), panelPos;
+	public float flow = 1f, bubbleAmount = 5f, bubbleLightness = 1f, dripAmount = 5f, dripLightness = 1f;
 	public string container = "Water";
 	public bool cutAtWaterLevel = true;
-	public float dripLightness = 1f;
 
     public virtual FloatRect Rect => new(Mathf.Min(owner.pos.x, owner.pos.x + handlePos.x), Mathf.Min(owner.pos.y, owner.pos.y + handlePos.y), Mathf.Max(owner.pos.x, owner.pos.x + handlePos.x), Mathf.Max(owner.pos.y, owner.pos.y + handlePos.y));
 
@@ -251,112 +241,6 @@ internal class UpDownWFData : PlacedObject.Data
 
 internal class UpDownWFRepresentation : PlacedObjectRepresentation
 {
-	public class UpDownWFControlPanel : Panel, IDevUISignals
-	{
-		public class ControlSlider : Slider
-		{
-		    private UpDownWFData Data => ((parentNode.parentNode as UpDownWFRepresentation)!.pObj.data as UpDownWFData)!;
-
-			public ControlSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title) : base(owner, IDstring, parentNode, pos, title, false, 110f) { }
-
-			public override void Refresh()
-			{
-				base.Refresh();
-				float num;
-				switch (IDstring)
-				{
-					case "Flow_Slider":
-						num = Data.flow;
-						NumberText = ((int)(100f * num)).ToString() + "%";
-						RefreshNubPos(num);
-						break;
-					case "BubbleAmount_Slider":
-						num = Data.bubbleAmount;
-						NumberText = Math.Round(num, 1).ToString();
-						RefreshNubPos(num / 5f);
-						break;
-					case "DripAmount_Slider":
-						num = Data.dripAmount;
-						NumberText = Math.Round(num, 1).ToString();
-						RefreshNubPos(num / 5f);
-						break;
-					case "BubbleLightness_Slider":
-						num = Data.bubbleLightness;
-						NumberText = ((int)(100f * num)).ToString() + "%";
-						RefreshNubPos(num);
-						break;
-					case "DripLightness_Slider":
-						num = Data.dripLightness;
-						NumberText = ((int)(100f * num)).ToString() + "%";
-						RefreshNubPos(num);
-						break;
-				}
-			}
-
-			public override void NubDragged(float nubPos)
-			{
-				switch (IDstring)
-				{
-					case "Flow_Slider":
-						Data.flow = nubPos;
-						break;
-					case "BubbleAmount_Slider":
-						Data.bubbleAmount = nubPos * 5f;
-						break;
-					case "DripAmount_Slider":
-						Data.dripAmount = nubPos * 5f;
-						break;
-					case "BubbleLightness_Slider":
-						Data.bubbleLightness = nubPos;
-						break;
-					case "DripLightness_Slider":
-						Data.dripLightness = nubPos;
-						break;
-				}
-				parentNode.parentNode.Refresh();
-				Refresh();
-			}
-		}
-
-		private UpDownWFData Data => ((parentNode as UpDownWFRepresentation)!.pObj.data as UpDownWFData)!;
-
-		public UpDownWFControlPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new(250f, 145f), "UpsideDownWaterFall")
-		{
-			subNodes.Add(new ControlSlider(owner, "Flow_Slider", this, new(5f, 125f), "Flow: "));
-			subNodes.Add(new ControlSlider(owner, "BubbleAmount_Slider", this, new(5f, 105f), "Bubble Amount: "));
-			subNodes.Add(new ControlSlider(owner, "BubbleLightness_Slider", this, new(5f, 85f), "Bubble Lightness: "));
-			subNodes.Add(new ControlSlider(owner, "DripAmount_Slider", this, new(5f, 65f), "Drip Amount: "));
-			subNodes.Add(new ControlSlider(owner, "DripLightness_Slider", this, new(5f, 45f), "Drip Lightness: "));
-			subNodes.Add(new Button(owner, "Container_Button", this, new(5f, 25f), 240f, "Container: " + Data.container));
-			subNodes.Add(new Button(owner, "CutAtWaterLevel_Button", this, new(5f, 5f), 240f, "Cut At Water Level: " + Data.cutAtWaterLevel));
-		}
-
-		public void Signal(DevUISignalType type, DevUINode sender, string message) 
-		{
-			if (sender.IDstring is "Container_Button")
-            {
-				switch (Data.container)
-                {
-					case "Water":
-						Data.container = "Foreground";
-						break;
-					case "Foreground":
-						Data.container = "Background";
-						break;
-					case "Background":
-						Data.container = "Water";
-						break;
-				}
-				(sender as Button)!.Text = "Container: " + Data.container;
-			}
-			else if (sender.IDstring is "CutAtWaterLevel_Button")
-            {
-				Data.cutAtWaterLevel = !Data.cutAtWaterLevel;
-				(sender as Button)!.Text = "Cut At Water Level: " + Data.cutAtWaterLevel;
-			}
-		}
-	}
-
 	private readonly UpDownWFControlPanel _panel;
 
 	private UpDownWFData Data => (pObj.data as UpDownWFData)!;
@@ -404,5 +288,111 @@ internal class UpDownWFRepresentation : PlacedObjectRepresentation
 		fSprites[6].scaleY = _panel.pos.magnitude;
 		fSprites[6].rotation = AimFromOneVectorToAnother(absPos, _panel.absPos);
 		Data.panelPos = _panel.pos;
+	}
+
+	public class UpDownWFControlPanel : Panel, IDevUISignals
+	{
+		public class ControlSlider : Slider
+		{
+			private UpDownWFData Data => ((parentNode.parentNode as UpDownWFRepresentation)!.pObj.data as UpDownWFData)!;
+
+			public ControlSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title) : base(owner, IDstring, parentNode, pos, title, false, 110f) { }
+
+			public override void Refresh()
+			{
+				base.Refresh();
+				float num;
+				switch (IDstring)
+				{
+				case "Flow_Slider":
+					num = Data.flow;
+					NumberText = ((int)(100f * num)).ToString() + "%";
+					RefreshNubPos(num);
+					break;
+				case "BubbleAmount_Slider":
+					num = Data.bubbleAmount;
+					NumberText = Math.Round(num, 1).ToString();
+					RefreshNubPos(num / 5f);
+					break;
+				case "DripAmount_Slider":
+					num = Data.dripAmount;
+					NumberText = Math.Round(num, 1).ToString();
+					RefreshNubPos(num / 5f);
+					break;
+				case "BubbleLightness_Slider":
+					num = Data.bubbleLightness;
+					NumberText = ((int)(100f * num)).ToString() + "%";
+					RefreshNubPos(num);
+					break;
+				case "DripLightness_Slider":
+					num = Data.dripLightness;
+					NumberText = ((int)(100f * num)).ToString() + "%";
+					RefreshNubPos(num);
+					break;
+				}
+			}
+
+			public override void NubDragged(float nubPos)
+			{
+				switch (IDstring)
+				{
+				case "Flow_Slider":
+					Data.flow = nubPos;
+					break;
+				case "BubbleAmount_Slider":
+					Data.bubbleAmount = nubPos * 5f;
+					break;
+				case "DripAmount_Slider":
+					Data.dripAmount = nubPos * 5f;
+					break;
+				case "BubbleLightness_Slider":
+					Data.bubbleLightness = nubPos;
+					break;
+				case "DripLightness_Slider":
+					Data.dripLightness = nubPos;
+					break;
+				}
+				parentNode.parentNode.Refresh();
+				Refresh();
+			}
+		}
+
+		private UpDownWFData Data => ((parentNode as UpDownWFRepresentation)!.pObj.data as UpDownWFData)!;
+
+		public UpDownWFControlPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new(250f, 145f), "UpsideDownWaterFall")
+		{
+			subNodes.Add(new ControlSlider(owner, "Flow_Slider", this, new(5f, 125f), "Flow: "));
+			subNodes.Add(new ControlSlider(owner, "BubbleAmount_Slider", this, new(5f, 105f), "Bubble Amount: "));
+			subNodes.Add(new ControlSlider(owner, "BubbleLightness_Slider", this, new(5f, 85f), "Bubble Lightness: "));
+			subNodes.Add(new ControlSlider(owner, "DripAmount_Slider", this, new(5f, 65f), "Drip Amount: "));
+			subNodes.Add(new ControlSlider(owner, "DripLightness_Slider", this, new(5f, 45f), "Drip Lightness: "));
+			subNodes.Add(new Button(owner, "Container_Button", this, new(5f, 25f), 240f, "Container: " + Data.container));
+			subNodes.Add(new Button(owner, "CutAtWaterLevel_Button", this, new(5f, 5f), 240f, "Cut At Water Level: " + Data.cutAtWaterLevel));
+		}
+
+		public void Signal(DevUISignalType type, DevUINode sender, string message)
+		{
+			if (sender.IDstring is "Container_Button")
+			{
+				switch (Data.container)
+				{
+				case "Water":
+					Data.container = "Foreground";
+					break;
+				case "Foreground":
+					Data.container = "Background";
+					break;
+				case "Background":
+					Data.container = "Water";
+					break;
+				}
+				(sender as Button)!.Text = "Container: " + Data.container;
+			}
+			else if (sender.IDstring is "CutAtWaterLevel_Button")
+			{
+				Data.cutAtWaterLevel = !Data.cutAtWaterLevel;
+				(sender as Button)!.Text = "Cut At Water Level: " + Data.cutAtWaterLevel;
+			}
+		}
 	}
 }

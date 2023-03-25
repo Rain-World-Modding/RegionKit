@@ -52,6 +52,8 @@ public static class _Module
 				//new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.Loaded)), typeof(_Module).GetMethodAllContexts(nameof(Room_Loaded))),
 				//new Hook(typeof(GHalo).GetMethodAllContexts("get_Speed"), _mt.GetMethodAllContexts(nameof(halo_speed)))
 			};
+
+			PopupsMod.Register();
 		}
 		else
 		{

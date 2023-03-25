@@ -23,6 +23,9 @@ internal static class BetterClouds
 	private static FieldInfo __BackgroundScene_elementsAddedToRoom = typeof(BackgroundScene).GetField("elementsAddedToRoom", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 	private static void AboveCloudsView_Update(On.AboveCloudsView.orig_Update orig, AboveCloudsView self, bool eu)
 	{
+
+		if (self.room.world?.region?.name != "TM") { orig(self, eu); return; } 
+
 		// Temporarily change element depth to place clouds behind other objects
 		const float depthOffset = 10000f;
 		bool addedToRoom = (bool)__BackgroundScene_elementsAddedToRoom.GetValue(self);
@@ -53,6 +56,8 @@ internal static class BetterClouds
 	private static void AboveCloudsView_ctor(On.AboveCloudsView.orig_ctor orig, AboveCloudsView self, Room room, RoomSettings.RoomEffect effect)
 	{
 		orig(self, room, effect);
+
+		if (room.world?.region?.name != "TM") return;
 
 		try
 		{

@@ -7,6 +7,7 @@ using RegionKit.Modules.Effects;
 using static RegionKit.Modules.DevUIMisc.SettingsSaveOptions;
 using DevInterface;
 using System.Diagnostics;
+using RegionKit.Modules.BackgroundBuilder;
 
 namespace RegionKit.Modules.DevUIMisc;
 
@@ -24,7 +25,6 @@ public static class _Module
 		__appliedOnce = true;
 		PaletteTextInput.Apply();
 		CloudBuilder.Apply();
-		//BackgroundBuilder.Apply();
 
 		//currently used for settings saving options stuffs, but will probably later be used for much more
 		On.DevInterface.Page.ctor += Page_ctor;
@@ -38,7 +38,6 @@ public static class _Module
 	internal static void Disable()
 	{
 		PaletteTextInput.Undo();
-		//BackgroundBuilder.Undo();
 
 		On.DevInterface.Page.ctor -= Page_ctor;
 		On.DevInterface.Page.Refresh -= Page_Refresh;
@@ -70,16 +69,16 @@ public static class _Module
 
 		//move pages over to avoid collision with save buttons
 		//for BackgroundBuilder, currently unused
-		/*foreach (DevUINode node in self.subNodes)
+		foreach (DevUINode node in self.subNodes)
 		{
 			if (node is SwitchPageButton switchPageButton)
 			{
 				switchPageButton.pos.x -= 20f;
 				switchPageButton.Refresh();
 			}
-		}*/
+		}
 
-		if (self is MapPage || self is BackgroundBuilder.BackgroundPage)
+		if (self is MapPage or BuilderPage.BackgroundPage)
 		{ settingsSaveOptionsMenu = null; return; }
 
 		settingsSaveOptionsMenu = new SettingsSaveOptionsMenu(owner, "SettingsSaveOptions", self);

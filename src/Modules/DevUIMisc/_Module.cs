@@ -69,14 +69,14 @@ public static class _Module
 
 		//move pages over to avoid collision with save buttons
 		//for BackgroundBuilder, currently unused
-		foreach (DevUINode node in self.subNodes)
+		/*foreach (DevUINode node in self.subNodes)
 		{
 			if (node is SwitchPageButton switchPageButton)
 			{
 				switchPageButton.pos.x -= 20f;
 				switchPageButton.Refresh();
 			}
-		}
+		}*/
 
 		if (self is MapPage or BuilderPage.BackgroundPage)
 		{ settingsSaveOptionsMenu = null; return; }

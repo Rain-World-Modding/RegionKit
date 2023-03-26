@@ -20,6 +20,11 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 		this.room = room;
 		this._pObj = pObj;
 
+		if (room.regionGate is ElectricGate elec)
+		{
+			elec.meterHeight = _Data.GetValue<float>("elecpos");
+		}
+
 		if (_Data.GetValue<bool>("nowater"))
 		{
 			IDrawable? water = null;
@@ -52,6 +57,13 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
+
+		//assigning this every frame is a bit wasteful
+		//but eh, the performance impact is incredibly negligible
+		if (room.regionGate is ElectricGate elec)
+		{
+			elec.meterHeight = _Data.GetValue<float>("elecpos");
+		}
 
 		if (room.regionGate.washingCounter == 0) room.regionGate.washingCounter = 200;
 		if (_leftDoor != null)

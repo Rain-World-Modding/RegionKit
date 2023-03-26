@@ -1,6 +1,8 @@
-﻿namespace RegionKit.Modules.Climbables;
+﻿using RegionKit.Modules.Objects;
 
-public class ClimbableArc : UpdatableAndDeletable, IClimbableVine, IDrawable
+namespace RegionKit.Modules.Climbables;
+
+public class ClimbableArc : UpdatableAndDeletable, IClimbJumpVine, IDrawable
 {
 	protected ManagedData data => placedObject.data as ManagedData;
 	private Vector2[] _Quad
@@ -160,4 +162,10 @@ public class ClimbableArc : UpdatableAndDeletable, IClimbableVine, IDrawable
 	{
 		return this.nodeCount;
 	}
+
+	SoundID IClimbJumpVine.GrabSound() => SoundID.Slugcat_Grab_Beam;
+
+	SoundID IClimbJumpVine.ClimbSound() => SoundID.Slugcat_Climb_Along_Horizontal_Beam;
+
+	bool IClimbJumpVine.JumpAllowed() => true;
 }

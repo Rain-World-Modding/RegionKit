@@ -1,17 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RegionKit.Modules.Effects;
-using static RegionKit.Modules.DevUIMisc.SettingsSaveOptions;
-using DevInterface;
-using System.Diagnostics;
-using MonoMod.RuntimeDetour;
-using Climbables;
-using System.CodeDom;
-
-namespace RegionKit.Modules.Climbables;
+﻿namespace RegionKit.Modules.Climbables;
 
 
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Climbables")]

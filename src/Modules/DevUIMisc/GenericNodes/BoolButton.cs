@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DevInterface;
 
-namespace RegionKit.Modules.DevUIMisc;
+namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 
 internal class BoolButton : Button
 {

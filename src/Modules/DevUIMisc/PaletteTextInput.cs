@@ -1,7 +1,6 @@
 ﻿﻿using DevInterface;
 namespace RegionKit.Modules.DevUIMisc;
 
-
 internal class PaletteTextInput
 {
 	internal static void Apply()

@@ -9,7 +9,6 @@ namespace RegionKit.Modules.Objects;
 
 internal static class PopupsMod
 {
-
 	public static void Register()
 	{
 		var settings = new List<ManagedField>

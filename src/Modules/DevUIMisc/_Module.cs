@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RegionKit.Modules.Effects;
-using static RegionKit.Modules.DevUIMisc.SettingsSaveOptions;
+﻿using static RegionKit.Modules.DevUIMisc.SettingsSaveOptions;
 using DevInterface;
-using System.Diagnostics;
 using RegionKit.Modules.BackgroundBuilder;
 
 namespace RegionKit.Modules.DevUIMisc;

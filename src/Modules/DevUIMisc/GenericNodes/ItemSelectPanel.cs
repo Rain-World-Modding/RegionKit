@@ -13,7 +13,7 @@ public class ItemSelectPanel : Panel, IDevUISignals
 		this.columns = columns;
 
 		currentOffset = 0;
-		perpage = (int)((size.y - 60f) / 20f * columns);
+		perpage = (int)((this.size.y - 60f) / 20f * columns);
 		PopulateItems(currentOffset);
 	}
 

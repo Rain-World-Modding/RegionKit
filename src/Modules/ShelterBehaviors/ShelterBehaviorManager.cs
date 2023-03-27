@@ -8,11 +8,13 @@ namespace RegionKit.Modules.ShelterBehaviors;
 /// </summary>
 public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsReady
 {
+
+	private int testCounter;
 	// /// <summary>
 	// /// Whether vanilla door should be disabled.
 	// /// </summary>
 	// private bool _noVanillaDoors;
-	private bool _hideVanillaDoor;
+	private bool _hiddenVanillaDoor;
 	/// <summary>
 	/// Default spawn pos for the room.
 	/// </summary>
@@ -59,7 +61,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	// /// Weakdict for replacement of <see cref="Player.forceSleepCounter"/>.
 	// /// </summary>
 	// private AttachedField<Player, int> _actualForceSleepCounter = new();
-	private bool _debug = false;
+	private bool _debug = true;
 	// /// <summary>
 	// /// Close counter for situation where <see cref="_hasNoDoors"/> is true.
 	// /// </summary>
@@ -95,11 +97,18 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	static private int _incrementalsalt;
 	private PlacedObject? _brokenWaterLevel;
 
-	private void ContitionalLog(string str)
+	private void ConditionalLog(string str)
 	{
 		if (_debug && Input.GetKey("l"))
 		{
 			__logger.LogDebug("Shelterbehaviormanager " + str);
+		}
+	}
+	private void CountdownLog(object data)
+	{
+		if (testCounter == 0)
+		{
+			__logger.LogDebug($"Shelterbehaviormanager {data}");
 		}
 	}
 	/// <summary>
@@ -114,14 +123,12 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 		this._manData = (pObj.data as ShelterManagerData)!;
 		this._placedObjectIndex = room.roomSettings.placedObjects.IndexOf(pObj);
 
-		_hideVanillaDoor = false;
+		_hiddenVanillaDoor = false;
 		//_noVanillaDoors = false;
 		this._broken = room.shelterDoor.Broken;
 		this._vanillaSpawnPosition = room.shelterDoor.playerSpawnPos;
 
 		//_actualForceSleepCounter = new AttachedField<Player, int>();
-
-		if (_manData.hideVanillaDoor) this.HideVanillaDoors();
 		if (_manData.holdToTrigger) holdToTrigger = true;
 
 		if (room.game.session is StoryGameSession story)
@@ -159,6 +166,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 				break;
 			}
 		}
+		if (_manData.hideVanillaDoor) this.HideVanillaDoors();
 		_spawnCycleCtr = UnityEngine.Random.Range(0, _spawnPositions.Count);
 	}
 
@@ -226,228 +234,35 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
-		// if (_deleteHackDoorNextFrame)
-		// {
-		// 	if (_tempSpawnPosHackDoor != null)
-		// 	{
-		// 		_tempSpawnPosHackDoor.Destroy();
-		// 		room.updateList.Remove(_tempSpawnPosHackDoor);
-		// 		_tempSpawnPosHackDoor = null;
-		// 	}
-		// 	_deleteHackDoorNextFrame = false;
-		// }
+		testCounter--;
+		if (testCounter < 0) testCounter = 10;
+		bool closeCrutch = room.shelterDoor.IsClosing;
 
+		ConditionalLog(room.shelterDoor.IsClosing.ToString());
+		ConditionalLog(closeCrutch.ToString());
+		//CountdownLog(room.shelterDoor.GetHashCode());
 		if (this.room.game.world.rainCycle.timer == _manData.initWait && this.room.game.setupValues.cycleStartUp)
 		{
 			float closeSpeed = -1f / _manData.openUpAnim;
-			foreach (var sub in _subscribers)
+			foreach (IReactToShelterEvents sub in _subscribers)
 			{
 				sub.ShelterEvent(1f, closeSpeed);
 			}
 		}
-
-		base.Update(eu);
-		//ContitionalLog("Update");
-		// if (_noVanillaDoors)
-		// {
-		// 	ContitionalLog("Update no-vanilla-doors");
-		// 	// From Player update
-		// 	for (int i = 0; i < room.game.Players.Count; i++)
-		// 	{
-		// 		if (room.game.Players[i].realizedCreature != null && room.game.Players[i].realizedCreature.room == room)
-		// 		{
-		// 			ContitionalLog("Updating player " + i);
-		// 			Player p = (room.game.Players[i].realizedCreature as Player)!;
-		// 			if (p.room.abstractRoom.shelter && p.room.game.IsStorySession && !p.dead && !p.Sleeping && !_broken)// && p.room.shelterDoor != null && !p.room.shelterDoor.Broken)
-		// 			{
-		// 				if (!p.stillInStartShelter && p.FoodInRoom(p.room, false) >= ((!p.abstractCreature.world.game.GetStorySession.saveState.malnourished) ? p.slugcatStats.foodToHibernate : p.slugcatStats.maxFood))
-		// 				{
-		// 					p.readyForWin = true;
-		// 					p.forceSleepCounter = 0;
-		// 					ContitionalLog("ready a");
-		// 				}
-		// 				else if (p.room.world.rainCycle.timer > p.room.world.rainCycle.cycleLength)
-		// 				{
-		// 					p.readyForWin = true;
-		// 					p.forceSleepCounter = 0;
-		// 					ContitionalLog("ready b");
-		// 				}
-		// 				else if (p.input[0].y < 0 && !p.input[0].jmp && !p.input[0].thrw && !p.input[0].pckp && p.IsTileSolid(1, 0, -1) && !p.abstractCreature.world.game.GetStorySession.saveState.malnourished && p.FoodInRoom(p.room, false) > 0 && p.FoodInRoom(p.room, false) < p.slugcatStats.foodToHibernate && (p.input[0].x == 0 || ((!p.IsTileSolid(1, -1, -1) || !p.IsTileSolid(1, 1, -1)) && p.IsTileSolid(1, p.input[0].x, 0))))
-		// 				{
-		// 					p.forceSleepCounter++;
-		// 					ContitionalLog("force");
-		// 				}
-		// 				else
-		// 				{
-		// 					p.forceSleepCounter = 0;
-		// 					ContitionalLog("not ready");
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// 	// From HUD update
-		// 	for (int i = 0; i < room.game.cameras.Length; i++)
-		// 	{
-		// 		if (room.game.cameras[i].room == room && room.game.cameras[i].hud != null)
-		// 		{
-		// 			ContitionalLog("Updated HUD");
-		// 			HUD.HUD hud = room.game.cameras[i].hud;
-		// 			if (hud.owner is Player p)
-		// 			{
-		// 				hud.showKarmaFoodRain = (p.RevealMap ||
-		// 					(p.room != null && p.room.abstractRoom.shelter && p.room.abstractRoom.realizedRoom != null && !this._broken));
-		// 				if (holdToTrigger && p.readyForWin) // trigger sleep
-		// 				{
-		// 					hud.foodMeter.forceSleep = 0;
-		// 					hud.foodMeter.showSurvLim = (float)hud.foodMeter.survivalLimit;
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// } // end noVanillaDoors
-
-
-		if (!_closing && !_broken)
+		if (closeCrutch && !_closing)
 		{
-			ContitionalLog("Update not-closing");
-			//PreventVanillaClose();
-			// handle player sleep and triggers
-			// for (int i = 0; i < room.game.Players.Count; i++)
-			// {
-			// 	if (room.game.Players[i].realizedCreature != null && room.game.Players[i].realizedCreature.room == room)
-			// 	{
-			// 		Player p = (room.game.Players[i].realizedCreature as Player)!;
-			// 		if (p.room.abstractRoom.shelter && p.room.game.IsStorySession && !p.dead)// && p.room.shelterDoor != null && !p.room.shelterDoor.Broken)
-			// 		{
-			// 			ContitionalLog("found player " + i);
-			// 			// if (holdToTrigger) p.readyForWin = false; // lets make a better use of this flag shall we
-			// 			if (!PlayersInTriggerZone())
-			// 			{
-			// 				ContitionalLog("player NOT in trigger zone");
-			// 				p.readyForWin = false;
-			// 				p.forceSleepCounter = 0;
-			// 				_actualForceSleepCounter[p] = 0;
-			// 				p.touchedNoInputCounter = Mathf.Min(p.touchedNoInputCounter, 19);
-			// 				p.sleepCounter = 0;
-			// 				this._noMovingCounter = _manData.framesToTrigger;
-			// 			}
-			// 			else
-			// 			{
-			// 				ContitionalLog("player in trigger zone");
-			// 			}
-
-			// 			if (p.touchedNoInputCounter == 0)
-			// 			{
-			// 				_noMovingCounter = _manData.framesToTrigger;
-			// 			}
-
-			// 			if (!holdToTrigger && p.readyForWin && p.touchedNoInputCounter > 1)
-			// 			{
-			// 				ContitionalLog("ready not moving");
-			// 				_noMovingCounter--;
-			// 				if (_noMovingCounter <= 0)
-			// 				{
-			// 					ContitionalLog("CLOSE due to ready");
-			// 					Close();
-			// 				}
-			// 			}
-			// 			else if (p.forceSleepCounter > 260 || _actualForceSleepCounter[p] > 260)
-			// 			{
-			// 				ContitionalLog("CLOSE due to force sleep");
-			// 				p.sleepCounter = -24;
-			// 				Close();
-			// 			}
-			// 			else if (p.readyForWin && holdToTrigger && p.input[0].y < 0 && !p.input[0].jmp && !p.input[0].thrw && !p.input[0].pckp && p.IsTileSolid(1, 0, -1) && (p.input[0].x == 0 || ((!p.IsTileSolid(1, -1, -1) || !p.IsTileSolid(1, 1, -1)) && p.IsTileSolid(1, p.input[0].x, 0))))
-			// 			{
-			// 				ContitionalLog("force sleep hold to trigger");
-			// 				// need something to preserve last counter through player update, zeroes if ready4win
-			// 				_actualForceSleepCounter[p] += _manData.httSpeed - (/* _noVanillaDoors ? 0 :  */1); // gets uses default for int so this works
-			// 				p.forceSleepCounter = _actualForceSleepCounter[p];
-			// 			}
-			// 			// else if (_noVanillaDoors && p.input[0].y < 0 && !p.input[0].jmp && !p.input[0].thrw && !p.input[0].pckp && p.IsTileSolid(1, 0, -1) && (p.input[0].x == 0 || ((!p.IsTileSolid(1, -1, -1) || !p.IsTileSolid(1, 1, -1)) && p.IsTileSolid(1, p.input[0].x, 0))))
-			// 			// {
-			// 			// 	// allow starve
-			// 			// 	_actualForceSleepCounter[p] += 1;
-			// 			// 	p.forceSleepCounter = _actualForceSleepCounter[p];
-			// 			// }
-			// 			else
-			// 			{
-			// 				_actualForceSleepCounter[p] = 0;
-			// 			}
-			// 		}
-			// 	}
-			// }
-		}
-		if (!_closing && room.shelterDoor.IsClosing)
-		{
-			float speed = 1f / (float)_manData.framesToSleep;
-			__logger.LogWarning($"ShelterBehaviorManager: Main door closing! {speed}");
 			_closing = true;
+			float speed = 1f / (float)_manData.framesToWin;
+			__logger.LogWarning($"ShelterBehaviorManager: Main door closing! {speed}");
 			//todo: are you sure it's frames to sleep?
-			room.shelterDoor.closeSpeed = speed;
+			//room.shelterDoor.closeSpeed = speed;
 			foreach (IReactToShelterEvents sub in _subscribers)
 			{
 				sub.ShelterEvent(room.shelterDoor.closedFac, speed);
 			}
 		}
 		SyncSecondaryDoors();
-
-
-		// if (_closing && _hasNoDoors)
-		// {
-		// 	if (room.waterObject != null && _manData.animateWater && _brokenWaterLevel != null)
-		// 	{
-		// 		room.waterObject.fWaterLevel = Mathf.Lerp(this.room.waterObject.originalWaterLevel, this._brokenWaterLevel.pos.y + 50f, Mathf.Pow((float)_noDoorCloseCount / ((float)_manData.framesToWin + 20f), 1.6f));
-		// 	}
-		// 	// Manage no-door logic
-		// 	if (_noDoorCloseCount == _manData.framesToSleep)
-		// 	{
-		// 		for (int j = 0; j < this.room.game.Players.Count; j++)
-		// 		{
-		// 			Player? p = (this.room.game.Players[j].realizedCreature as Player);
-		// 			if (p is null) continue;
-		// 			if (p.FoodInRoom(this.room, false) >= p.slugcatStats.foodToHibernate)
-		// 			{
-		// 				p.sleepWhenStill = true;
-		// 			}
-		// 		}
-		// 	}
-		// 	if (_noDoorCloseCount == _manData.framesToStarve)
-		// 	{
-		// 		for (int k = 0; k < this.room.game.Players.Count; k++)
-		// 		{
-		// 			Player? p = (this.room.game.Players[k].realizedCreature as Player);
-		// 			if (p is null) continue;
-		// 			if (this.room.game.Players[k].realizedCreature != null && p.FoodInRoom(this.room, false) < ((!this.room.game.GetStorySession.saveState.malnourished) ? 1 : p.slugcatStats.maxFood))
-		// 			{
-		// 				this.room.game.GoToStarveScreen();
-		// 			}
-		// 		}
-		// 	}
-		// 	if (_noDoorCloseCount == _manData.framesToWin)
-		// 	{
-		// 		bool flag = true;
-		// 		for (int i = 0; i < this.room.game.Players.Count; i++)
-		// 		{
-		// 			if (!this.room.game.Players[i].state.alive)
-		// 			{
-		// 				flag = false;
-		// 			}
-		// 		}
-		// 		if (flag)
-		// 		{
-		// 			Player? p = (this.room.game.Players[0].realizedCreature as Player);
-		// 			if (p is null) goto EXIT_;
-		// 			this.room.game.Win(p.FoodInRoom(this.room, false) < p.slugcatStats.foodToHibernate);
-		// 		}
-		// 		else
-		// 		{
-		// 			this.room.game.GoToDeathScreen();
-		// 		}
-		// 	}
-		// EXIT_:;
-		// 	_noDoorCloseCount++;
-		// }
+		base.Update(eu);
 	}
 
 	/// <summary>
@@ -544,14 +359,17 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 
 	private void SyncSecondaryDoors()
 	{
+		//__logger.LogWarning(_customDoors.Count);
 		foreach (ShelterDoor door in _customDoors)
 		{
-			if (door.closeSpeed is 0f && _closing)
+			//if (door == room.shelterDoor) continue;
+			if (door.closeSpeed <= 0f && _closing)
 			{
+				__logger.LogWarning($"{door.GetHashCode()} closing secondary {room.shelterDoor.closeSpeed}");
 				door.Close();
 				door.closeSpeed = room.shelterDoor.closeSpeed;
 			}
-			else if (door.closeSpeed > 0f && !_closing)
+			else if (door.closeSpeed >= 0f && !_closing)
 			{
 				door.closeSpeed = 0f;
 				door.closedFac = 0f;
@@ -575,9 +393,10 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 		//room.shelterDoor.Destroy();
 		//room.CleanOutObjectNotInThisRoom(room.shelterDoor);
 		//room.shelterDoor = null;
-		this._hideVanillaDoor = true;
+		this._hiddenVanillaDoor = true;
 		if (_customDoors.Count is 0)
 		{
+			__logger.LogWarning($"Moving vanilla door {room.shelterDoor.GetHashCode()} away");
 			room.shelterDoor.pZero = new(-20000, -20000);
 			for (int i = 0; i < room.shelterDoor.closeTiles.Length; i++)
 			{
@@ -587,8 +406,12 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 		}
 		else
 		{
+			__logger.LogWarning($"Switching main door {room.shelterDoor.GetHashCode()} to another");
 			room.shelterDoor.Destroy();
+			room.CleanOutObjectNotInThisRoom(room.shelterDoor);
 			room.shelterDoor = _customDoors[0];
+			_customDoors.RemoveAt(0);
+			__logger.LogWarning(room.shelterDoor.GetHashCode());
 		}
 
 	}

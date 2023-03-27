@@ -23,13 +23,10 @@ Our goal for region kit is to have a unified mod to hold objects, room effects, 
 - \[disabled\] ConditionalEffects
 - \[disabled\] FogOfWar
 - \[disabled\] CustomArenaDivisions
-- \[disabled\] PaletteTextInput
 - \[changed\] EchoExtender - configs now work by name (White/Yellow/Red)
 
-## Active
+## Active -> incomplete section
 
-- Superstructure Fuses Fix
-  	- Fixes Superstructure fuses in arena mode, preventing crashes.
 - PWLightRod
   	- RGB based SSLightRod.
 - Placed Wormgrass
@@ -94,6 +91,8 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 	- RegionKit.Machinery
 	- Particle Systems
 	- Misc internal janitoring
+	- Placed Wormgrass
+	- Placed Waterfall
 
 - DeltaTime
 	- Initial versions
@@ -102,31 +101,52 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 	- Arena Management
 
 - M4rbleL1ne
-	- Several arena fixes
 	- Customisable Effect Colors
 	- NoWallSlideZones
 	- GlowingSwimmers
 	- SunblockerFix
+	- LittlePlanet
+	- ProjectedCircle
+	- CustomEntranceSymbols
+	- ColoredCamoBeetles
+	- UpsideDownWaterFall
+	- MosquitoInsects
+	- ClimbableWire and ClimbablePole
+	- ColoredLightBeam port
+
+- Bro
+	- Concealed Garden objects port
+	- Popups and Climbables port
+	- SettingsSave for Specific Slugs
+	- CloudAdjustment
+	- Many object fixes
 
 - Henpemaz
 	- Placed Objects Manager Framework
 	- CustomSpritesLoader
 	- ShelterBehaviors
+	- Original Concealed Garden code
+	- Original Climbables and Popups code
+	- PaletteTextInput
 
 - Thrithralas
 	- Echo Extender
 	- Flooded Assembly Ported Objects (ColouredLightSource, FreeformDecalOrSprite)
 	- Vector2ArrayField for POM Framework
+	- Drawable
 
 - Slime_Cubed
-	- Superstructure Fuses Fix
 	- The Mast
 	- Conditional Effects
 	- Fog of War Effects (Line of Sight)
 
 - LeeMoriya
-	- ARObjects
+	- RainbowNoFade + ARKillRect (ARObjects)
 	- Spinning Fan
+	- SteamHazard and Shroud
+
+- Bebe
+	- Shortcut color
 
 - Doggo
 	- The Mast Permission
@@ -136,17 +156,14 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 
 - Dracentis
 	- Arid Barrens Code
+	- Original ColoredLightBeam
 
 **Initial ExtendedGates authors**: Henpemaz (code); Mehri'Kairotep, Thalber, LB/M4rbleL1ne and Nautillo (spritework).
 
 ## Download
 Downloads can be found [here](https://github.com/Rain-World-Modding/RegionKit/releases/latest).
 
-<!-- **Requires EnumExtender and Custom Regions Support**
-
-Region Kit also comes packed with auto update support. -->
-
-## More Info
+## Links
 
 More information such as how to make use of some of the features can be found on the [Modding Wiki](https://rainworldmodding.miraheze.org/wiki/Main_Page).
 

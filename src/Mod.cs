@@ -3,7 +3,7 @@ namespace RegionKit;
 /// <summary>
 /// Main plugin class
 /// </summary>
-[BIE.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "3.5")]
+[BIE.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "3.6")]
 public class Mod : BIE.BaseUnityPlugin
 {
 	internal const string RK_POM_CATEGORY = "RegionKit";
@@ -25,7 +25,7 @@ public class Mod : BIE.BaseUnityPlugin
 
 	private void Init(On.RainWorld.orig_OnModsInit orig, RainWorld self)
 	{
-		try{ orig(self); }
+		try { orig(self); }
 		catch (Exception ex) { __logger.LogFatal($"Caught error in init-orig: {ex}"); }
 		try
 		{
@@ -41,7 +41,8 @@ public class Mod : BIE.BaseUnityPlugin
 			_modulesSetUp = true;
 			_Assets.LoadResources();
 		}
-		catch (Exception ex){
+		catch (Exception ex)
+		{
 			__logger.LogError($"Error on init: {ex}");
 		}
 	}

@@ -22,6 +22,7 @@
 		<TreatWarningsAsErrors>False</TreatWarningsAsErrors>
 		<WarningsAsErrors>$(WarningsAsErrors);NU1605;</WarningsAsErrors>
 		<DefineConstants>$(DefineConstants)TRACE;RK;REMIX</DefineConstants>
+		<Nowarn>1591</Nowarn>
 	</PropertyGroup>
 	<!-- Release configuration. Build for release. -->
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -29,6 +30,7 @@
 		<TreatWarningsAsErrors>False</TreatWarningsAsErrors>
 		<WarningsAsErrors>$(WarningsAsErrors);NU1605;</WarningsAsErrors>
 		<DefineConstants>$(DefineConstants)TRACE;RK;REMIX</DefineConstants>
+		<Nowarn>1591</Nowarn>
 	</PropertyGroup>
 	<!-- Exclude reference folder from project. -->
 	<ItemGroup>
@@ -170,13 +172,13 @@
 		<_CopyItems Include="Assets/Plain/**" />
 	</ItemGroup>
 	<Target Name="CopyOutput" AfterTargets="Build" Condition="'$(RWMods_RK)'!=''">
-		<Delete Files="$(RWMods_RK)/assets"/>
-		<Delete Files="$(RWMods_RK)/plugins"/>
+		<Delete Files="$(RWMods_RK)/assets" />
+		<Delete Files="$(RWMods_RK)/plugins" />
 		<Message
 			Text="RK: Buildcopy from [ $(TargetPath) ] to [ $(RWMods_RK) ] - @(_CopyItems)"
 			Importance="high" />
-		<Copy 
-			SourceFiles="$(TargetPath)" 
+		<Copy
+			SourceFiles="$(TargetPath)"
 			DestinationFolder="$(RWMods_RK)/plugins"
 			Retries="3"
 			RetryDelayMilliseconds="300" />
@@ -185,10 +187,10 @@
 			DestinationFolder="$(RWMods_RK)/assets/regionkit/%(RecursiveDir)"
 			Retries="3"
 			RetryDelayMilliseconds="300" />
-		<Copy 
+		<Copy
 			SourceFiles="modinfo.json"
 			DestinationFolder="$(RWMods_RK)"
 			Retries="3"
-			RetryDelayMilliseconds="300"/>
+			RetryDelayMilliseconds="300" />
 	</Target>
 </Project>

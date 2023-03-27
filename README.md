@@ -163,7 +163,7 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 ## Download
 Downloads can be found [here](https://github.com/Rain-World-Modding/RegionKit/releases/latest).
 
-## More Info
+## Links
 
 More information such as how to make use of some of the features can be found on the [Modding Wiki](https://rainworldmodding.miraheze.org/wiki/Main_Page).
 

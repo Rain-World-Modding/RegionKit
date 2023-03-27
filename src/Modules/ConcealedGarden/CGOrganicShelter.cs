@@ -10,7 +10,7 @@ namespace RegionKit.Modules.ConcealedGarden;
 public static class CGOrganicShelter
 {
 
-	public class CGOrganicShelterCoordinator : UpdatableAndDeletable, IDrawable, ShelterBehaviors.IReactToShelterEvents
+	public class CGOrganicShelterCoordinator : UpdatableAndDeletable, IDrawable, IReactToShelterEvents
 	{
 		private readonly PlacedObject pObj;
 		private readonly RainCycle rainCycle;
@@ -54,7 +54,7 @@ public static class CGOrganicShelter
 			//this.framesToClose = data.GetValue<int>("ftc");
 
 			PlacedObject.Type lockType = new PlacedObject.Type("CGOrganicLockPart", false);
-			
+
 			PlacedObject.Type liningType = new PlacedObject.Type("CGOrganicLining", false);
 
 			List<PlacedObject> locks = new List<PlacedObject>();

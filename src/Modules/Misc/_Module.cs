@@ -9,8 +9,6 @@ internal static class _Module
 		if (!__appliedOnce)
 		{
 			_Enums.Register();
-			//CustomArenaDivisions.Patch
-			//CustomArenaDivisions.
 		}
 		__appliedOnce = true;
 		//PaletteTextInput.Apply();

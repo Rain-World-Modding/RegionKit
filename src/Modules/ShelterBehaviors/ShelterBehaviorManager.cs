@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using RWCustom;
-using UnityEngine;
+﻿//todo: spawn positions don't work
+//todo: most settings don't work
 namespace RegionKit.Modules.ShelterBehaviors;
 /// <summary>
 /// Main object used to change how shelters behave; required for all other placedObjects to function.
@@ -240,6 +238,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 
 		ConditionalLog(room.shelterDoor.IsClosing.ToString());
 		ConditionalLog(closeCrutch.ToString());
+		ConditionalLog("---");
 		//CountdownLog(room.shelterDoor.GetHashCode());
 		if (this.room.game.world.rainCycle.timer == _manData.initWait && this.room.game.setupValues.cycleStartUp)
 		{

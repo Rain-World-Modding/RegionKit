@@ -106,7 +106,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	/// </summary>
 	public ShelterBehaviorManager(Room instance, PlacedObject pObj)
 	{
-		__logger.LogWarning($"Creating a shelter manager in room {instance.abstractRoom.name}");
+		__logger.LogDebug($"Creating a shelter manager in room {instance.abstractRoom.name}");
 		this.room = instance;
 		this._pObj = pObj;
 		//this._data = (pObj.data as ManagedData)!;
@@ -242,7 +242,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 		{
 			_closing = true;
 			float speed = 1f / (float)_manData.framesToWin;
-			__logger.LogWarning($"ShelterBehaviorManager: Main door closing! {speed}");
+			__logger.LogDebug($"ShelterBehaviorManager: Main door closing! {speed}");
 			//todo: are you sure it's frames to sleep?
 			//room.shelterDoor.closeSpeed = speed;
 			foreach (IReactToShelterEvents sub in _subscribers)
@@ -357,13 +357,12 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 
 	private void SyncSecondaryDoors()
 	{
-		//__logger.LogWarning(_customDoors.Count);
 		foreach (ShelterDoor door in _customDoors)
 		{
 			//if (door == room.shelterDoor) continue;
 			if (door.closeSpeed <= 0f && _closing)
 			{
-				__logger.LogWarning($"{door.GetHashCode()} closing secondary {room.shelterDoor.closeSpeed}");
+				__logger.LogDebug($"{door.GetHashCode()} closing secondary {room.shelterDoor.closeSpeed}");
 				door.Close();
 				door.closeSpeed = room.shelterDoor.closeSpeed;
 			}
@@ -394,7 +393,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 		this._hiddenVanillaDoor = true;
 		if (_customDoors.Count is 0)
 		{
-			__logger.LogWarning($"Moving vanilla door {room.shelterDoor.GetHashCode()} away");
+			__logger.LogDebug($"Moving vanilla door {room.shelterDoor.GetHashCode()} away");
 			room.shelterDoor.pZero = new(-20000, -20000);
 			for (int i = 0; i < room.shelterDoor.closeTiles.Length; i++)
 			{
@@ -404,12 +403,12 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 		}
 		else
 		{
-			__logger.LogWarning($"Switching main door {room.shelterDoor.GetHashCode()} to another");
+			__logger.LogDebug($"Switching main door {room.shelterDoor.GetHashCode()} to another");
 			room.shelterDoor.Destroy();
 			room.CleanOutObjectNotInThisRoom(room.shelterDoor);
 			room.shelterDoor = _customDoors[0];
 			_customDoors.RemoveAt(0);
-			__logger.LogWarning(room.shelterDoor.GetHashCode());
+			__logger.LogDebug(room.shelterDoor.GetHashCode());
 		}
 
 	}

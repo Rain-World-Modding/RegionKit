@@ -50,13 +50,6 @@ public static class _Module
 			//     //new BooleanField("httt", false, displayName: "HTT Tutorial"),
 			//     new IntegerField("htttcd", -1, 12, 6, displayName: "HTT Tut. Cooldown"), }, typeof(ShelterBehaviorManager.HoldToTriggerTutorialObject), nameof(_Enums.ShelterBhvrHTTTutorial), RK_POM_CATEGORY);
 
-
-
-			//RegisterEmptyObjectType("ShelterBhvrPlacedDoor", typeof()) TODO directional data and rep;
-			RegisterFullyManagedObjectType(new ManagedField[]{
-				new IntVector2Field("dir", new RWCustom.IntVector2(0,1), IntVector2Field.IntVectorReprType.fourdir), }
-			, null!, nameof(_Enums.ShelterBhvrMoveVanillaDoor), RK_POM_CATEGORY);
-
 			RegisterFullyManagedObjectType(new ManagedField[]{
 				new IntVector2Field("dir", new RWCustom.IntVector2(0,1), IntVector2Field.IntVectorReprType.fourdir), }
 			, null!, nameof(_Enums.ShelterBhvrPlacedDoor), RK_POM_CATEGORY);

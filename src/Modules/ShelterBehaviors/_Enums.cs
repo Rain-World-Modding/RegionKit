@@ -29,9 +29,4 @@ public static class _Enums
 	/// </summary>
 	/// <returns></returns>
 	public static readonly PlacedObject.Type ShelterBhvrSpawnPosition = new("ShelterBhvrSpawnPosition", true);
-	/// <summary>
-	/// Moves vanilla door to a new place
-	/// </summary>
-	/// <returns></returns>
-	public static readonly PlacedObject.Type ShelterBhvrMoveVanillaDoor = new(nameof(ShelterBhvrMoveVanillaDoor), true);
 }

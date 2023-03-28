@@ -44,7 +44,7 @@ public static class _Module
 			// 	new BooleanField("ani", false, displayName:"Animate Water"),
 
 			// 	}, typeof(ShelterBehaviorManager), nameof(_Enums.ShelterBhvrManager), RK_POM_CATEGORY);
-			RegisterManagedObject<ShelterBehaviorManager.HoldToTriggerTutorialObject, HoldToTriggerTutorialData, ManagedRepresentation>(nameof(_Enums.ShelterBhvrHTTTutorial), RK_POM_CATEGORY);
+			RegisterManagedObject<HoldToTriggerTutorialObject, HoldToTriggerTutorialData, ManagedRepresentation>(nameof(_Enums.ShelterBhvrHTTTutorial), RK_POM_CATEGORY);
 
 			// RegisterFullyManagedObjectType(new ManagedField[]{
 			//     //new BooleanField("httt", false, displayName: "HTT Tutorial"),

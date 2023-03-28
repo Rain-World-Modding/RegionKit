@@ -6,8 +6,7 @@ namespace RegionKit.Modules.ShelterBehaviors;
 /// </summary>
 public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsReady
 {
-
-	private int testCounter;
+	private IntVector2? _cachedOldSpawnPos;
 	// /// <summary>
 	// /// Whether vanilla door should be disabled.
 	// /// </summary>
@@ -100,13 +99,6 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 		if (_debug && Input.GetKey("l"))
 		{
 			__logger.LogDebug("Shelterbehaviormanager " + str);
-		}
-	}
-	private void CountdownLog(object data)
-	{
-		if (testCounter == 0)
-		{
-			__logger.LogDebug($"Shelterbehaviormanager {data}");
 		}
 	}
 	/// <summary>
@@ -232,8 +224,6 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
-		testCounter--;
-		if (testCounter < 0) testCounter = 10;
 		bool closeCrutch = room.shelterDoor.IsClosing;
 
 		ConditionalLog(room.shelterDoor.IsClosing.ToString());
@@ -300,12 +290,20 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	/// <param name="coords">Tile to be treated as spawn point.</param>
 	public void ApplySpawnHack(IntVector2 coords)
 	{
-		if (_tempSpawnPosHackDoor != null && room.updateList.Contains(_tempSpawnPosHackDoor)) room.updateList.Remove(_tempSpawnPosHackDoor);
-		_tempSpawnPosHackDoor = new ShelterDoor(room);
-		_tempSpawnPosHackDoor.closeTiles = new IntVector2[0];
-		_tempSpawnPosHackDoor.playerSpawnPos = coords;
-		room.updateList.Insert(0, _tempSpawnPosHackDoor);
-
+		_cachedOldSpawnPos = room.shelterDoor.playerSpawnPos;
+		room.shelterDoor.playerSpawnPos = coords;
+	}
+	/// <summary>
+	/// Undoes the hack, restoring spawn point to normal
+	/// </summary>
+	public void UndoSpawnHack()
+	{
+		if (_cachedOldSpawnPos is not IntVector2 actualPos)
+		{
+			__logger.LogDebug($"{room.abstractRoom.name} shelterman Trying to undo hack when there is no hack");
+			return;
+		}
+		room.shelterDoor.playerSpawnPos = actualPos;
 	}
 	/// <summary>
 	/// Applies the next queued spawn position from <see cref="_spawnPositions"/>, applies vanilla one if there is none.
@@ -314,8 +312,9 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	{
 		_spawnCycleCtr++;
 		if (_spawnCycleCtr >= _spawnPositions.Count) _spawnCycleCtr = 0;
-		ApplySpawnHack((_spawnPositions.Count > 0) ? _spawnPositions[_spawnCycleCtr] : _vanillaSpawnPosition);
+		//ApplySpawnHack((_spawnPositions.Count > 0) ? _spawnPositions[_spawnCycleCtr] : _vanillaSpawnPosition);
 	}
+	public IntVector2 CurrentSpawnPos() => (_spawnPositions.Count > 0) ? _spawnPositions[_spawnCycleCtr] : _vanillaSpawnPosition;
 	// /// <summary>
 	// /// Checks whether players are in a zone eligible for starting sleep sequence.
 	// /// </summary>

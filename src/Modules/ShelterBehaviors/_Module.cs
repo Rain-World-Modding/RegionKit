@@ -16,8 +16,9 @@ public static class _Module
 	{
 		var mngr = instance.Room.realizedRoom?.updateList?.FirstOrDefault(x => x is ShelterBehaviorManager) as ShelterBehaviorManager;
 		mngr?.CycleSpawnPosition();
+		mngr?.ApplySpawnHack(mngr.CurrentSpawnPos());
 		orig(instance);
-
+		mngr?.UndoSpawnHack();
 	}
 	internal static void Enable()
 	{

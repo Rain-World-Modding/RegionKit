@@ -42,7 +42,7 @@ public class ShelterManagerData : ManagedData
 	public bool animateWater;
 	public ShelterManagerData(PlacedObject owner) : base(owner, new ManagedField[]
 	{
-		new BooleanField("nvd", true, displayName:"No Vanilla Door"),
+		new BooleanField("nvd", false, displayName:"No Vanilla Door"),
 		new BooleanField("htt", false, displayName:"Hold To Trigger"),
 		new IntegerField("htts", 1, 10, 4, displayName:"HTT Trigger Speed"),
 		new BooleanField("cs", false, displayName:"Consumable Shelter"),

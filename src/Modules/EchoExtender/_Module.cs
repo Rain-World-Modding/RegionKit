@@ -134,26 +134,41 @@ public static class _Module
 	private static void GhostConversationOnAddEvents(On.GhostConversation.orig_AddEvents orig, GhostConversation self)
 	{
 		orig(self);
-		if (EchoParser.__echoConversations.ContainsKey(self.id))
+		if (!EchoParser.__echoConversations.ContainsKey(self.id))
 		{
-			foreach (string line in Regex.Split(EchoParser.__echoConversations[self.id], "(\r|\n)+"))
+			return;
+		}
+		foreach (string line in Regex.Split(EchoParser.__echoConversations[self.id], "(\r|\n)+"))
+		{
+			string? resText = null;
+			__logger.LogDebug($"[Echo Extender] Processing line {line}");
+			if (line.All(c => char.IsSeparator(c) || c == '\n' || c == '\r')) continue;
+			if (!line.StartsWith("("))
 			{
-				if (line.All(c => char.IsSeparator(c) || c == '\n' || c == '\r')) continue;
-				if (line.StartsWith("("))
-				{
-					var difficulties = line.Substring(1, line.IndexOf(")", StringComparison.Ordinal) - 1);
-					foreach (string s in difficulties.Split(','))
-					{
-						if (ParseExtEnum<SlugcatStats.Name>(s, false) == __slugcatNumber)
-						{
-							self.events.Add(new Conversation.TextEvent(self, 0, Regex.Replace(line, @"^\((\d|(\d+,)+\d)\)", ""), 0));
-							break;
-						}
-					}
-					continue;
-				}
-				self.events.Add(new Conversation.TextEvent(self, 0, line, 0));
+				__logger.LogDebug("line is normal");
+				//self.events.Add(new Conversation.TextEvent(self, 0, line, 0));
+				resText = line;
+				goto MAKE_EVENT_;
 			}
+			int closingParenIndex = line.IndexOf(")", StringComparison.Ordinal);
+			string? difficulties = line.Substring(1, closingParenIndex - 1);
+			string[] diffs = difficulties.Split(',');
+			__logger.LogDebug($"line is conditional. {diffs.Length} suitable diffs, testing against \"{__slugcatNumber?.value}\"");
+			//if (diffs.Length is 0) continue;
+			//__logger.LogDebug(diffs.)
+			foreach (string diff in diffs)
+			{
+				__logger.LogDebug($"op: \"{diff}\" ({diff == __slugcatNumber?.value})");
+				if (diff.Trim() == __slugcatNumber?.value)
+				{
+					//self.events.Add(new Conversation.TextEvent(self, 0, Regex.Replace(line, @"^\((\d|(\d+,)+\d)\)", ""), 0)); //we no longer numbah here
+					resText = line.Substring(closingParenIndex + 1);
+					break;
+				}
+			}
+		MAKE_EVENT_:
+			if (resText is null) continue;
+			self.events.Add(new Conversation.TextEvent(self, 0, resText, 0));
 		}
 	}
 

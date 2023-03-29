@@ -13,7 +13,7 @@ namespace RegionKit.Modules.EchoExtender;
 /// </summary>
 public struct EchoSettings
 {
-
+	internal bool _initialized;
 
 	/// <summary>
 	/// Which room should the echo appear in
@@ -126,7 +126,7 @@ public struct EchoSettings
 	/// Default configuration
 	/// </summary>
 	public static EchoSettings Default;
-	static EchoSettings()
+	internal static void InitDefault()
 	{
 		Default = Empty;
 		Default.EchoRoom.AddMultiple("", SlugcatStats.Name.White, SlugcatStats.Name.Yellow, SlugcatStats.Name.Red);
@@ -179,7 +179,8 @@ public struct EchoSettings
 	public static EchoSettings FromFile(string path)
 	{
 		__logger.LogMessage("[Echo Extender] Found settings file: " + path);
-		if (!File.Exists(path)){
+		if (!File.Exists(path))
+		{
 			__logger.LogError("[Echo Extender] Error: File not found!");
 			return Default;
 		}
@@ -187,6 +188,7 @@ public struct EchoSettings
 		EchoSettings settings = Empty;
 		foreach (string row in rows)
 		{
+
 			if (row.StartsWith("#") || row.StartsWith("//")) continue;
 			try
 			{
@@ -197,59 +199,61 @@ public struct EchoSettings
 				{
 					foreach (string rawNum in pass.Substring(1, pass.IndexOf(')') - 1).SplitAndRemoveEmpty(","))
 					{
-						if (!ExtEnumBase.TryParse(typeof(SlugcatStats.Name), rawNum, false, out ExtEnumBase result))
+						SlugcatStats.Name tarname = new(rawNum, false);
+						if (tarname.Index < 0)
 						{
 							__logger.LogWarning($"[Echo Extender] Found an invalid character name '{rawNum}'! Skipping : " + row);
 							continue;
 						}
-
-						difficulties.Add((SlugcatStats.Name)result);
+						difficulties.Add(tarname);
 					}
-
 					pass = pass.Substring(pass.IndexOf(")", StringComparison.Ordinal) + 1);
 				}
 				else difficulties = DefaultDifficulties();
 
+				//float floatval = float.Parse(split[1]);
+				string trimmed = split[1].Trim();
+				bool
+					sfloat = float.TryParse(trimmed, out float floatval),
+					sint = int.TryParse(trimmed, out int intval);
 				switch (pass.Trim().ToLower())
 				{
 				case "room":
-					settings.EchoRoom.AddMultiple(split[1].Trim(), difficulties);
+					settings.EchoRoom.AddMultiple(trimmed, difficulties);
 					break;
 				case "size":
-					settings.EchoSizeMultiplier.AddMultiple(float.Parse(split[1]), difficulties);
+					settings.EchoSizeMultiplier.AddMultiple(floatval, difficulties);
 					break;
 				case "radius":
-					settings.EffectRadius.AddMultiple(float.Parse(split[1]), difficulties);
+					settings.EffectRadius.AddMultiple(floatval, difficulties);
 					break;
 				case "priming":
-					settings.RequirePriming.AddMultiple((PrimingKind)int.Parse(split[1]), difficulties);
+					settings.RequirePriming.AddMultiple((PrimingKind)intval, difficulties);
 					break;
 				case "minkarma":
-					settings.MinimumKarma.AddMultiple(int.Parse(split[1]), difficulties);
+					settings.MinimumKarma.AddMultiple(intval, difficulties);
 					break;
 				case "minkarmacap":
-					settings.MinimumKarmaCap.AddMultiple(int.Parse(split[1]), difficulties);
+					settings.MinimumKarmaCap.AddMultiple(intval, difficulties);
 					break;
 				case "difficulties":
-					settings.SpawnOnDifficulty = split[1].Split(',').Select(s => (SlugcatStats.Name)ExtEnumBase.Parse(typeof(SlugcatStats.Name), s.Trim(), false)).ToArray();
+					settings.SpawnOnDifficulty = split[1].Split(',').Select(s => new SlugcatStats.Name(s, false)).ToArray();
 					break;
 				case "echosong":
-					string trimmed = split[1].Trim();
 					string result = EchoParser.__echoSongs.TryGetValue(trimmed, out string song) ? song : trimmed;
 					settings.EchoSong.AddMultiple(result, difficulties);
 					break;
 				case "defaultflip":
-					settings.DefaultFlip.AddMultiple(float.Parse(split[1]), difficulties);
+					settings.DefaultFlip.AddMultiple(floatval, difficulties);
 					break;
 				default:
 					__logger.LogWarning($"[Echo Extender] Setting '{pass.Trim().ToLower()}' not found! Skipping : " + row);
 					break;
 				}
 			}
-
-			catch (Exception)
+			catch (Exception ex)
 			{
-				__logger.LogWarning("[Echo Extender] Failed to parse line " + row);
+				__logger.LogWarning($"[Echo Extender] Failed to parse line \"{row}\" : {ex}");
 			}
 		}
 

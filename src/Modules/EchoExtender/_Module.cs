@@ -9,7 +9,7 @@ namespace RegionKit.Modules.EchoExtender;
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Echo Extender")]
 public static class _Module
 {
-	private static SlugcatStats.Name __slugcatNumber { get; set; } = SlugcatStats.Name.White;
+	private static SlugcatStats.Name? __slugcatNumber { get; set; }
 	/// <summary>
 	/// Applies hooks
 	/// </summary>
@@ -57,6 +57,7 @@ public static class _Module
 
 	private static void StoryGameSessionOnCtor(On.StoryGameSession.orig_ctor orig, StoryGameSession self, SlugcatStats.Name savestatenumber, RainWorldGame game)
 	{
+		if (!EchoSettings.Default._initialized) EchoSettings.InitDefault();
 		__logger.LogInfo("[Echo Extender] Loading Echoes from Region Mods...");
 		EchoParser.LoadAllRegions(savestatenumber);
 		orig(self, savestatenumber, game);
@@ -104,20 +105,21 @@ public static class _Module
 
 	private static bool GhostWorldPresenceOnSpawnGhost(On.GhostWorldPresence.orig_SpawnGhost orig, GhostWorldPresence.GhostID ghostid, int karma, int karmacap, int ghostpreviouslyencountered, bool playingasred)
 	{
-		var result = orig(ghostid, karma, karmacap, ghostpreviouslyencountered, playingasred);
-		if (!EchoParser.__extendedEchoIDs.Contains(ghostid)) return result;
+		var vanilla_result = orig(ghostid, karma, karmacap, ghostpreviouslyencountered, playingasred);
+		if (!EchoParser.__extendedEchoIDs.Contains(ghostid)) return vanilla_result;
 		EchoSettings settings = EchoParser.__echoSettings[ghostid];
-		bool SODcondition = settings.SpawnOnThisDifficulty(__slugcatNumber);
-		bool karmaCondition = settings.KarmaCondition(karma, karmacap, __slugcatNumber);
-		bool karmaCapCondition = settings.GetMinimumKarmaCap(__slugcatNumber) <= karmacap;
+		bool SODcondition = settings.SpawnOnThisDifficulty(__slugcatNumber ?? SlugcatStats.Name.White);
+		bool karmaCondition = settings.KarmaCondition(karma, karmacap, __slugcatNumber ?? SlugcatStats.Name.White);
+		bool karmaCapCondition = settings.GetMinimumKarmaCap(__slugcatNumber ?? SlugcatStats.Name.White) <= karmacap;
 		__logger.LogInfo($"[Echo Extender] Getting echo conditions for {ghostid}");
-		__logger.LogInfo($"[Echo Extender] Using difficulty {__slugcatNumber}");
-		__logger.LogInfo($"[Echo Extender] Spawn On Difficulty : {(SODcondition ? "Met" : "Not Met")} [Required: <{string.Join(", ", (settings.SpawnOnDifficulty.Length > 0 ? settings.SpawnOnDifficulty : EchoSettings.Default.SpawnOnDifficulty).Select(i => i.ToString()).ToArray())}>]");
-		__logger.LogInfo($"[Echo Extender] Minimum Karma : {(karmaCondition ? "Met" : "Not Met")} [Required: {(settings.GetMinimumKarma(__slugcatNumber) == -2 ? "Dynamic" : settings.GetMinimumKarma(__slugcatNumber).ToString())}, Having: {karma}]");
-		__logger.LogInfo($"[Echo Extender] Minimum Karma Cap : {(karmaCapCondition ? "Met" : "Not Met")} [Required: {settings.GetMinimumKarmaCap(__slugcatNumber)}, Having: {karmacap}]");
-		EchoSettings.PrimingKind prime = settings.GetPriming(__slugcatNumber);
-		bool primedCond = prime switch{
-			EchoSettings.PrimingKind.Yes => ghostpreviouslyencountered == 1, 
+		__logger.LogInfo($"[Echo Extender] Using difficulty {__slugcatNumber} ({__slugcatNumber?.Index})");
+		__logger.LogInfo($"[Echo Extender] Spawn On Difficulty : {(SODcondition ? "Met" : "Not Met")} [Required: <{string.Join(", ", (settings.SpawnOnDifficulty.Length > 0 ? settings.SpawnOnDifficulty : EchoSettings.Default.SpawnOnDifficulty).Select(i => $"{i.value} ({i.Index})").ToArray())}>]");
+		__logger.LogInfo($"[Echo Extender] Minimum Karma : {(karmaCondition ? "Met" : "Not Met")} [Required: {(settings.GetMinimumKarma(__slugcatNumber ?? SlugcatStats.Name.White) == -2 ? "Dynamic" : settings.GetMinimumKarma(__slugcatNumber ?? SlugcatStats.Name.White).ToString())}, Having: {karma}]");
+		__logger.LogInfo($"[Echo Extender] Minimum Karma Cap : {(karmaCapCondition ? "Met" : "Not Met")} [Required: {settings.GetMinimumKarmaCap(__slugcatNumber ?? SlugcatStats.Name.White)}, Having: {karmacap}]");
+		EchoSettings.PrimingKind prime = settings.GetPriming(__slugcatNumber ?? SlugcatStats.Name.White);
+		bool primedCond = prime switch
+		{
+			EchoSettings.PrimingKind.Yes => ghostpreviouslyencountered == 1,
 			_ => ghostpreviouslyencountered != 2
 		};
 		__logger.LogInfo($"[Echo Extender] Primed : {(primedCond ? "Met" : "Not Met")} [Required: {(prime)}, Having {ghostpreviouslyencountered}]");

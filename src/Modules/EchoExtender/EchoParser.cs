@@ -24,14 +24,14 @@ internal static class EchoParser
 		{ "UNUSED", "NA_37 - Else6" }
 	};
 
-	public static GhostWorldPresence.GhostID GetEchoID(string regionShort) => (GhostWorldPresence.GhostID)ExtEnumBase.Parse(typeof(GhostWorldPresence.GhostID), regionShort, false);
-	public static Conversation.ID GetConversationID(string regionShort) => (Conversation.ID)ExtEnumBase.Parse(typeof(Conversation.ID), "Ghost_" + regionShort, false);
+	public static GhostWorldPresence.GhostID GetEchoID(string regionShort) => new(regionShort, false);
+	public static Conversation.ID GetConversationID(string regionShort) => new($"Ghost_{regionShort}", false);
 
 	public static bool EchoIDExists(string regionShort)
 	{
 		try
 		{
-			return GetEchoID(regionShort).Index > 0;
+			return GetEchoID(regionShort).Index >= 0;
 			//return true;
 		}
 		catch (Exception)
@@ -39,24 +39,22 @@ internal static class EchoParser
 			return false;
 		}
 	}
-
-
-	// ReSharper disable once InconsistentNaming
 	public static void LoadAllRegions(SlugcatStats.Name character)
 	{
 		foreach (var region in Region.LoadAllRegions(character))
 		{
 			string regInitials = region.name;
-			string convPath = AssetManager.ResolveFilePath($"world/{region.name}/echoconv.txt");
+			string convPath = AssetManager.ResolveFilePath($"world/{region.name}/echoConv.txt");
 			__logger.LogInfo($"[Echo Extender] Checking region {region.name} for Echo.");
 			if (File.Exists(convPath))
 			{
 				string convText = File.ReadAllText(convPath);
 				convText = ManageXOREncryption(convText, convPath);
 				string settingsPath = AssetManager.ResolveFilePath($"world/{region.name}/echoSettings.txt");
-				var settings = File.Exists(settingsPath) ? RegionKit.Modules.EchoExtender.EchoSettings.FromFile(settingsPath) : RegionKit.Modules.EchoExtender.EchoSettings.Default;
+				EchoSettings settings = File.Exists(settingsPath) ? EchoSettings.FromFile(settingsPath) : EchoSettings.Default;
 				if (!EchoIDExists(regInitials))
 				{
+					__logger.LogDebug($"[Echo Extender] Registering new echo in {region.name}");
 					__extendedEchoIDs.Add(new GhostWorldPresence.GhostID(regInitials, true));
 					__echoConversations.Add(new Conversation.ID($"Ghost_{regInitials}", true), convText);
 					__logger.LogInfo("[Echo Extender] Added conversation for echo in region " + regInitials);
@@ -65,7 +63,6 @@ internal static class EchoParser
 				{
 					__logger.LogWarning("[Echo Extender] An echo for this region already exists, skipping.");
 				}
-
 				__echoSettings.SetKey(GetEchoID(regInitials), settings);
 			}
 			else

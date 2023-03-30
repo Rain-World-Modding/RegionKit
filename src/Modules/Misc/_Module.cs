@@ -16,6 +16,7 @@ internal static class _Module
 		CloudAdjustment.Apply();
 		ExtendedGates.Enable();
 		SuperstructureFusesHook.Apply();
+		RainSong.Enable();
 	}
 	public static void Disable()
 	{
@@ -24,5 +25,6 @@ internal static class _Module
 		CloudAdjustment.Undo();
 		ExtendedGates.Disable();
 		SuperstructureFusesHook.Undo();
+		RainSong.Disable();
 	}
 }

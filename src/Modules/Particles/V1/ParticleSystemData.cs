@@ -6,7 +6,7 @@ namespace RegionKit.Modules.Particles.V1;
 /// </summary>
 public abstract class ParticleSystemData : ManagedData
 {
-	#pragma warning disable 1591
+#pragma warning disable 1591
 	[BooleanField("warmup", false, displayName: "Warmup on room load")]
 	public bool doWarmup;
 	[IntegerField("fadeIn", 0, 400, 80, ManagedFieldWithPanel.ControlType.text, displayName: "Fade-in frames")]
@@ -21,7 +21,8 @@ public abstract class ParticleSystemData : ManagedData
 	public int lifeTime;
 	[IntegerField("ltFluke", 0, 15000, 0, ManagedFieldWithPanel.ControlType.text, displayName: "Lifetime fluke")]
 	public int lifeTimeFluke;
-	[Vector2Field("sdBase", 30f, 30f, label: "Direction")]
+	//[Vector2Field("sdBase", 30f, 30f, label: "Direction")]
+	[BackedByField("sdBase")]
 	public Vector2 startDirBase;
 	[FloatField("sdFluke", 0f, 180f, 0f, displayName: "Direction fluke (deg)")]
 	public float startDirFluke;
@@ -34,7 +35,7 @@ public abstract class ParticleSystemData : ManagedData
 	public int minCooldown;
 	[IntegerField("cdMax", 1, int.MaxValue, 50, ManagedFieldWithPanel.ControlType.text, displayName: "Max cooldown")]
 	public int maxCooldown;
-	#pragma warning restore 1591
+#pragma warning restore 1591
 	/// <summary>
 	/// Recaches tile set if needed and returns it
 	/// </summary>
@@ -75,7 +76,10 @@ public abstract class ParticleSystemData : ManagedData
 	protected Vector2 _c_ownerpos;
 	///<inheritdoc/>
 	public ParticleSystemData(PlacedObject owner, List<ManagedField>? additionalFields)
-		: base(owner, null)
+		: base(
+			owner,
+			additionalFields.AddRangeReturnSelf(new ManagedField[] { new Vector2Field("sdBase", new Vector2(30f, 30f), label: "Direction"), }).ToArray()
+			)
 	{
 		//c_ST = GetSuitableTiles();
 	}

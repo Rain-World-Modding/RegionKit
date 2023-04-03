@@ -9,7 +9,7 @@ namespace RegionKit.Modules.EchoExtender;
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Echo Extender")]
 public static class _Module
 {
-	private static SlugcatStats.Name __slugcatNumber { get; set; } = SlugcatStats.Name.White;
+	private static SlugcatStats.Name? __slugcatNumber { get; set; }
 	/// <summary>
 	/// Applies hooks
 	/// </summary>
@@ -57,6 +57,7 @@ public static class _Module
 
 	private static void StoryGameSessionOnCtor(On.StoryGameSession.orig_ctor orig, StoryGameSession self, SlugcatStats.Name savestatenumber, RainWorldGame game)
 	{
+		if (!EchoSettings.Default._initialized) EchoSettings.InitDefault();
 		__logger.LogInfo("[Echo Extender] Loading Echoes from Region Mods...");
 		EchoParser.LoadAllRegions(savestatenumber);
 		orig(self, savestatenumber, game);
@@ -104,20 +105,21 @@ public static class _Module
 
 	private static bool GhostWorldPresenceOnSpawnGhost(On.GhostWorldPresence.orig_SpawnGhost orig, GhostWorldPresence.GhostID ghostid, int karma, int karmacap, int ghostpreviouslyencountered, bool playingasred)
 	{
-		var result = orig(ghostid, karma, karmacap, ghostpreviouslyencountered, playingasred);
-		if (!EchoParser.__extendedEchoIDs.Contains(ghostid)) return result;
+		var vanilla_result = orig(ghostid, karma, karmacap, ghostpreviouslyencountered, playingasred);
+		if (!EchoParser.__extendedEchoIDs.Contains(ghostid)) return vanilla_result;
 		EchoSettings settings = EchoParser.__echoSettings[ghostid];
-		bool SODcondition = settings.SpawnOnThisDifficulty(__slugcatNumber);
-		bool karmaCondition = settings.KarmaCondition(karma, karmacap, __slugcatNumber);
-		bool karmaCapCondition = settings.GetMinimumKarmaCap(__slugcatNumber) <= karmacap;
+		bool SODcondition = settings.SpawnOnThisDifficulty(__slugcatNumber ?? SlugcatStats.Name.White);
+		bool karmaCondition = settings.KarmaCondition(karma, karmacap, __slugcatNumber ?? SlugcatStats.Name.White);
+		bool karmaCapCondition = settings.GetMinimumKarmaCap(__slugcatNumber ?? SlugcatStats.Name.White) <= karmacap;
 		__logger.LogInfo($"[Echo Extender] Getting echo conditions for {ghostid}");
-		__logger.LogInfo($"[Echo Extender] Using difficulty {__slugcatNumber}");
-		__logger.LogInfo($"[Echo Extender] Spawn On Difficulty : {(SODcondition ? "Met" : "Not Met")} [Required: <{string.Join(", ", (settings.SpawnOnDifficulty.Length > 0 ? settings.SpawnOnDifficulty : EchoSettings.Default.SpawnOnDifficulty).Select(i => i.ToString()).ToArray())}>]");
-		__logger.LogInfo($"[Echo Extender] Minimum Karma : {(karmaCondition ? "Met" : "Not Met")} [Required: {(settings.GetMinimumKarma(__slugcatNumber) == -2 ? "Dynamic" : settings.GetMinimumKarma(__slugcatNumber).ToString())}, Having: {karma}]");
-		__logger.LogInfo($"[Echo Extender] Minimum Karma Cap : {(karmaCapCondition ? "Met" : "Not Met")} [Required: {settings.GetMinimumKarmaCap(__slugcatNumber)}, Having: {karmacap}]");
-		EchoSettings.PrimingKind prime = settings.GetPriming(__slugcatNumber);
-		bool primedCond = prime switch{
-			EchoSettings.PrimingKind.Yes => ghostpreviouslyencountered == 1, 
+		__logger.LogInfo($"[Echo Extender] Using difficulty {__slugcatNumber} ({__slugcatNumber?.Index})");
+		__logger.LogInfo($"[Echo Extender] Spawn On Difficulty : {(SODcondition ? "Met" : "Not Met")} [Required: <{string.Join(", ", (settings.SpawnOnDifficulty.Length > 0 ? settings.SpawnOnDifficulty : EchoSettings.Default.SpawnOnDifficulty).Select(i => $"{i.value} ({i.Index})").ToArray())}>]");
+		__logger.LogInfo($"[Echo Extender] Minimum Karma : {(karmaCondition ? "Met" : "Not Met")} [Required: {(settings.GetMinimumKarma(__slugcatNumber ?? SlugcatStats.Name.White) == -2 ? "Dynamic" : settings.GetMinimumKarma(__slugcatNumber ?? SlugcatStats.Name.White).ToString())}, Having: {karma}]");
+		__logger.LogInfo($"[Echo Extender] Minimum Karma Cap : {(karmaCapCondition ? "Met" : "Not Met")} [Required: {settings.GetMinimumKarmaCap(__slugcatNumber ?? SlugcatStats.Name.White)}, Having: {karmacap}]");
+		EchoSettings.PrimingKind prime = settings.GetPriming(__slugcatNumber ?? SlugcatStats.Name.White);
+		bool primedCond = prime switch
+		{
+			EchoSettings.PrimingKind.Yes => ghostpreviouslyencountered == 1,
 			_ => ghostpreviouslyencountered != 2
 		};
 		__logger.LogInfo($"[Echo Extender] Primed : {(primedCond ? "Met" : "Not Met")} [Required: {(prime)}, Having {ghostpreviouslyencountered}]");
@@ -132,26 +134,41 @@ public static class _Module
 	private static void GhostConversationOnAddEvents(On.GhostConversation.orig_AddEvents orig, GhostConversation self)
 	{
 		orig(self);
-		if (EchoParser.__echoConversations.ContainsKey(self.id))
+		if (!EchoParser.__echoConversations.ContainsKey(self.id))
 		{
-			foreach (string line in Regex.Split(EchoParser.__echoConversations[self.id], "(\r|\n)+"))
+			return;
+		}
+		foreach (string line in Regex.Split(EchoParser.__echoConversations[self.id], "(\r|\n)+"))
+		{
+			string? resText = null;
+			__logger.LogDebug($"[Echo Extender] Processing line {line}");
+			if (line.All(c => char.IsSeparator(c) || c == '\n' || c == '\r')) continue;
+			if (!line.StartsWith("("))
 			{
-				if (line.All(c => char.IsSeparator(c) || c == '\n' || c == '\r')) continue;
-				if (line.StartsWith("("))
-				{
-					var difficulties = line.Substring(1, line.IndexOf(")", StringComparison.Ordinal) - 1);
-					foreach (string s in difficulties.Split(','))
-					{
-						if (ParseExtEnum<SlugcatStats.Name>(s, false) == __slugcatNumber)
-						{
-							self.events.Add(new Conversation.TextEvent(self, 0, Regex.Replace(line, @"^\((\d|(\d+,)+\d)\)", ""), 0));
-							break;
-						}
-					}
-					continue;
-				}
-				self.events.Add(new Conversation.TextEvent(self, 0, line, 0));
+				__logger.LogDebug("line is normal");
+				//self.events.Add(new Conversation.TextEvent(self, 0, line, 0));
+				resText = line;
+				goto MAKE_EVENT_;
 			}
+			int closingParenIndex = line.IndexOf(")", StringComparison.Ordinal);
+			string? difficulties = line.Substring(1, closingParenIndex - 1);
+			string[] diffs = difficulties.Split(',');
+			__logger.LogDebug($"line is conditional. {diffs.Length} suitable diffs, testing against \"{__slugcatNumber?.value}\"");
+			//if (diffs.Length is 0) continue;
+			//__logger.LogDebug(diffs.)
+			foreach (string diff in diffs)
+			{
+				__logger.LogDebug($"op: \"{diff}\" ({diff == __slugcatNumber?.value})");
+				if (diff.Trim() == __slugcatNumber?.value)
+				{
+					//self.events.Add(new Conversation.TextEvent(self, 0, Regex.Replace(line, @"^\((\d|(\d+,)+\d)\)", ""), 0)); //we no longer numbah here
+					resText = line.Substring(closingParenIndex + 1);
+					break;
+				}
+			}
+		MAKE_EVENT_:
+			if (resText is null) continue;
+			self.events.Add(new Conversation.TextEvent(self, 0, resText, 0));
 		}
 	}
 

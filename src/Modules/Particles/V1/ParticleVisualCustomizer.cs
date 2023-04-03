@@ -8,14 +8,18 @@ namespace RegionKit.Modules.Particles.V1;
 /// </summary>
 public class ParticleVisualCustomizer : ManagedData, IParticleVisualProvider
 {
-	#pragma warning disable 1591
-	[ColorField("sColBase", 1f, 1f, 1f, 1f, DisplayName: "Sprite color base")]
+#pragma warning disable 1591
+	//[ColorField("sColBase", 1f, 1f, 1f, 1f, DisplayName: "Sprite color base")]
+	[BackedByField("sColBase")]
 	public Color spriteColor;
-	[ColorField("sColFluke", 0f, 0f, 0f, 0f, DisplayName: "Sprite color fluke")]
+	//[ColorField("sColFluke", 0f, 0f, 0f, 0f, DisplayName: "Sprite color fluke")]
+	[BackedByField("sColFluke")]
 	public Color spriteColorFluke;
-	[ColorField("lColBase", 1f, 1f, 1f, 1f, DisplayName: "Light color base")]
+	//[ColorField("lColBase", 1f, 1f, 1f, 1f, DisplayName: "Light color base")]
+	[BackedByField("lColBase")]
 	public Color lightColor;
-	[ColorField("lColFluke", 0f, 0f, 0f, 0f, DisplayName: "Light color fluke")]
+	//[ColorField("lColFluke", 0f, 0f, 0f, 0f, DisplayName: "Light color fluke")]
+	[BackedByField("lColFluke")]
 	public Color lightColorFluke;
 	[BooleanField("flat", false, displayName: "Flat light")]
 	public bool flatLight;
@@ -35,17 +39,27 @@ public class ParticleVisualCustomizer : ManagedData, IParticleVisualProvider
 	public string elmName = "SkyDandelion";
 	[StringField("shader", "Basic", displayName: "Shader")]
 	public string shader = "Basic";
-	[Vector2Field("p2", 40f, 0f, Vector2Field.VectorReprType.circle)]
+	//[Vector2Field("p2", 40f, 0f, Vector2Field.VectorReprType.circle)]
+	[BackedByField("p2")]
 	public Vector2 p2;
-	[EnumField<ContainerCodes>("cc", ContainerCodes.Foreground)]
+	//[EnumField<ContainerCodes>("cc", ContainerCodes.Foreground)]
+	[BackedByField("cc")]
 	public ContainerCodes containerCode;
 	[FloatField("z_scalemin", 0.1f, 2f, 1f, 0.05f, ManagedFieldWithPanel.ControlType.slider, displayName: "scale min")]
 	public float scalemin = 1f;
 	[FloatField("z_scalemax", 0.1f, 2f, 1f, 0.05f, ManagedFieldWithPanel.ControlType.slider, displayName: "scale max")]
 	public float scalemax = 1f;
-	#pragma warning restore 1591
+#pragma warning restore 1591
 	///<inheritdoc/>
-	public ParticleVisualCustomizer(PlacedObject owner) : base(owner, null)
+	public ParticleVisualCustomizer(PlacedObject owner) : base(owner, new ManagedField[]
+		{
+			new ColorField("sColBase", new Color(1f, 1f, 1f), displayName:"Sprite color"),
+			new ColorField("sColFluke", new Color(0f, 0f, 0f), displayName:"Sprite color fluke"),
+			new ColorField("lColBase", new Color(1f, 1f,1f), displayName:"Light color"),
+			new ColorField("lColFluke", new Color(0f, 0f, 0f), displayName:"Light color fluke"),
+			new Vector2Field("p2", new Vector2(40f, 0f), Vector2Field.VectorReprType.circle),
+			new EnumField<ContainerCodes>("cc", ContainerCodes.Foreground, null, displayName:"Container")
+		})
 	{
 
 	}

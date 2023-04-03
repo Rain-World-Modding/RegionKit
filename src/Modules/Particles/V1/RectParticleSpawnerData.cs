@@ -4,10 +4,15 @@ namespace RegionKit.Modules.Particles.V1;
 /// </summary>
 public class RectParticleSpawnerData : ParticleSystemData
 {
-	[Vector2Field("effRect", 40f, 40f, Vector2Field.VectorReprType.rect)]
+	//[Vector2Field("effRect", 40f, 40f, Vector2Field.VectorReprType.rect)]
+	[BackedByField("effRect")]
 	Vector2 RectBounds;
 	///<inheritdoc/>
-	public RectParticleSpawnerData(PlacedObject owner) : base(owner, null)
+	public RectParticleSpawnerData(PlacedObject owner) : base(
+		owner,
+		new List<ManagedField> {
+			new Vector2Field("effRect", new Vector2(40f, 40f), Vector2Field.VectorReprType.rect)
+		})
 	{
 
 	}

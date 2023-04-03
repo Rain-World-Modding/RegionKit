@@ -11,7 +11,7 @@ public class OffscreenSpawnerData : ParticleSystemData
 	public bool AirOnly;
 	#pragma warning restore 1591
 	///<inheritdoc/>
-	public OffscreenSpawnerData(PlacedObject owner) : base(owner, new List<ManagedField>())
+	public OffscreenSpawnerData(PlacedObject owner) : base(owner, new())
 	{
 	}
 

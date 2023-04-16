@@ -6,13 +6,19 @@ namespace RegionKit.Modules.Effects;
 /// Replaces the effect colors of the current room with custom colors.
 /// By LB/M4rbleL1ne
 /// </summary>
-public class ReplaceEffectColor : UpdatableAndDeletable
+public class ReplaceEffectColor : UAD
 {
-	/// <summary>
-	/// Replaces the effect colors of the current room with custom colors.
-	/// By LB/M4rbleL1ne
-	/// </summary>
+	private readonly bool _colorB;
+
+	/// <inheritdoc cref="ReplaceEffectColor"/>
 	public ReplaceEffectColor(Room room) => this.room = room;
+
+	/// <inheritdoc cref="ReplaceEffectColor"/>
+	public ReplaceEffectColor(Room room, bool colorB)
+	{
+		this.room = room;
+		_colorB = colorB;
+	}
 
 	internal static void Apply()
 	{
@@ -36,7 +42,7 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 			if (effect.type == ReplaceEffectColorA || effect.type == ReplaceEffectColorB)
 			{
 				__logger.LogDebug($"ReplaceEffectColor in room {self.abstractRoom.name}");
-				self.AddObject(new ReplaceEffectColor(self));
+				self.AddObject(new ReplaceEffectColor(self, effect.type == ReplaceEffectColorB));
 			}
 		}
 	}
@@ -54,7 +60,7 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 				if (cam.room?.roomSettings is RoomSettings rs)
 				{
 					var flag = cam.paletteB > -1;
-					if (rs.IsEffectInRoom(ReplaceEffectColorA))
+					if (!_colorB && rs.IsEffectInRoom(ReplaceEffectColorA))
 					{
 						float a = rs.GetEffectAmount(ReplaceEffectColorA), clrar = rs.GetRedAmount(ReplaceEffectColorA), clrag = rs.GetGreenAmount(ReplaceEffectColorA), clrab = rs.GetBlueAmount(ReplaceEffectColorA);
 						var clrArA = new Color[] { new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a), new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a) };
@@ -66,7 +72,7 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 							cam.fadeTexB.SetPixels(30, 12, 2, 2, clrArA, 0);
 						}
 					}
-					if (rs.IsEffectInRoom(ReplaceEffectColorB))
+					else if (_colorB && rs.IsEffectInRoom(ReplaceEffectColorB))
 					{
 						float b = rs.GetEffectAmount(ReplaceEffectColorB), clrbr = rs.GetRedAmount(ReplaceEffectColorB), clrbg = rs.GetGreenAmount(ReplaceEffectColorB), clrbb = rs.GetBlueAmount(ReplaceEffectColorB);
 						var clrArB = new Color[] { new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b), new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b) };

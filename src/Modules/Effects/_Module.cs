@@ -18,6 +18,7 @@ public static class _Module
 		MosquitoInsectsCI.Apply();
 		ColorRoomEffect.Apply();
 		ReplaceEffectColor.Apply();
+		HiveColorAlpha.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -28,6 +29,7 @@ public static class _Module
 		MosquitoInsectsCI.Undo();
 		ColorRoomEffect.Undo();
 		ReplaceEffectColor.Undo();
+		HiveColorAlpha.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -42,7 +44,8 @@ public static class _Module
 			type == _Enums.GlowingSwimmers ||
 			type == _Enums.ColoredCamoBeetles ||
 			type == _Enums.MosquitoInsects ||
-			type == _Enums.PWMalfunction)
+			type == _Enums.PWMalfunction ||
+			type == _Enums.HiveColorAlpha)
 			res = _Enums.RegionKit;
 		return res;
 	}

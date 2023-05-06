@@ -22,7 +22,6 @@ public class StringControl : DevUILabel
 		// No data refresh until the transaction is complete :/
 		// TrySet happens on input and focus loss
 		base.Refresh();
-		Debug.Log($"refreshing node {IDstring} with text {Text}");
 	}
 
 	public override void Update()

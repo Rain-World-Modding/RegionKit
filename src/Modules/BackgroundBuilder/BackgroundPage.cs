@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using DevInterface;
 using RegionKit.Modules.DevUIMisc;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
@@ -58,7 +59,7 @@ internal static class BuilderPageHooks
 		if (newPage == self.pages.IndexOf("Background"))
 		{
 			self.ClearSprites();
-			self.activePage = new BackgroundPage(self, "Background_Page", null!, "Background Settings");
+			self.activePage = new BackgroundPage(self, "Background_Page", null!, "Background");
 		}
 
 		else { orig(self, newPage); }
@@ -70,13 +71,14 @@ public class BackgroundPage : Page
 	// Token: 0x060028F3 RID: 10483 RVA: 0x0031DEDC File Offset: 0x0031C0DC
 	public BackgroundPage(DevUI owner, string IDstring, DevUINode parentNode, string name) : base(owner, IDstring, parentNode, name)
 	{
-		subNodes.Add(new GenericSlider(owner, "XOffset", this, new Vector2(120f, 660f), "XOffset", true, 60f, minValue: -5000, maxValue: 5000, initialValue: RoomSettings.BackgroundData().roomOffset.x));
+		subNodes.Add(new GenericSlider(owner, "XOffset", this, new Vector2(120f, 660f), "XOffset", true, 60f, RoomSettings.BackgroundData().roomOffset.x, stringWidth: 32) { minValue = -5000, maxValue = 5000, defaultValue = RoomSettings.parent.BackgroundData().roomOffset.x });
 
-		subNodes.Add(new GenericSlider(owner, "YOffset", this, new Vector2(120f, 640f), "YOffset", true, 60f, minValue: -5000, maxValue: 5000, initialValue: RoomSettings.BackgroundData().roomOffset.y));
+		subNodes.Add(new GenericSlider(owner, "YOffset", this, new Vector2(120f, 640f), "YOffset", true, 60f, RoomSettings.BackgroundData().roomOffset.y, stringWidth: 32) { minValue = -5000, maxValue = 5000, defaultValue = RoomSettings.parent.BackgroundData().roomOffset.y });
 
-		backgroundSave = new PanelSelectButton(owner, "BackgroundSave", this, new Vector2(260f, 620f), 30f, "...", backgroundSaves(), "Select Background");
+		backgroundSave = new PanelSelectButton(owner, "BackgroundSave", this, new Vector2(260f, 620f), 30f, "...", backgroundSaves(), "Select Background") { panelPos = new Vector2(420f, 190f) };
 		subNodes.Add(backgroundSave);
-		saveName = new BackgroundFileStringControl(owner, "saveName", this, new Vector2(120f, 620f), 130f, RoomSettings.BackgroundData().backgroundName, StringControl.TextIsValidFilename);
+
+		saveName = new BackgroundFileStringControl(owner, "saveName", this, new Vector2(120f, 620f), 128f, RoomSettings.BackgroundData().backgroundName, BackgroundFileStringControl.TextIsValidBackground);
 		subNodes.Add(saveName);
 		//subNodes.Add(new Button(owner, "refresh", this, new Vector2(300f, 620f), 60f, "refresh"));
 
@@ -122,6 +124,13 @@ public class BackgroundPage : Page
 				{
 					saveName.Text = subButtonID;
 					saveName.actualValue = subButtonID;
+					saveName.Refresh();
+				}
+				else if (subButtonID == "<Default>")
+				{
+					saveName.Text = subButtonID;
+					saveName.actualValue = "";
+					saveName.Refresh();
 				}
 			}
 
@@ -133,11 +142,8 @@ public class BackgroundPage : Page
 
 			else if (sender.IDstring == "Load")
 			{
-				if (Data.TryGetPathFromName(saveName.actualValue, out _))
-				{
-					RoomSettings.BackgroundData().FromName(saveName.actualValue, owner.game.GetStorySession.saveStateNumber);
-					SwitchRoomBackground(owner.room, RoomSettings.BackgroundData().type, true);
-				}
+				RoomSettings.BackgroundData().FromName(saveName.actualValue, owner.game.GetStorySession.saveStateNumber);
+				SwitchRoomBackground(owner.room, RoomSettings.BackgroundData().type, true);
 			}
 
 			else if (sender.IDstring == "Save")
@@ -152,10 +158,12 @@ public class BackgroundPage : Page
 			{
 				RoomSettings.BackgroundData().roomOffset.x = slider.actualValue;
 				RoomSettings.BackgroundData().realData.UpdateSceneElement("");
+				RoomSettings.BackgroundData().roomOffsetInit = RoomSettings.BackgroundData().roomOffset == RoomSettings.parent.BackgroundData().roomOffset;
 			}
 
 			else if (sender.IDstring == "YOffset" && sender is GenericSlider slider2)
 			{
+				RoomSettings.BackgroundData().roomOffsetInit = true;
 				RoomSettings.BackgroundData().roomOffset.y = slider2.actualValue;
 				RoomSettings.BackgroundData().realData.UpdateSceneElement("");
 			}
@@ -257,6 +265,18 @@ public class BackgroundPage : Page
 				this.SendSignal(StringFinish, this, "");
 			}
 		}
+		public override void Refresh()
+		{
+			base.Refresh();
+			if (actualValue == "")
+			{ Text = "<Default>"; }
+			else { Text = actualValue; }
+
+			if (actualValue.ToLower() == RoomSettings.parent.BackgroundData().backgroundName.ToLower())
+			{ Text = "<T>" + Text; }
+		}
+		public static bool TextIsValidBackground(string value)
+		{ return Data.TryGetPathFromName(value, out _) || value == ""; }
 	}
 
 	public class ElementAssetSelect : PositionedDevUINode, IDevUISignals
@@ -269,7 +289,8 @@ public class BackgroundPage : Page
 			subNodes.Add(label);
 			ppos.x += 140f;
 
-			select = new PanelSelectButton(owner, "Asset_Select", this, ppos, 30f, "...", ElementNames().ToArray(), "Select Element", new Vector2(420f, -200f), new Vector2(280f, 420f), 240f, 1);
+			select = new PanelSelectButton(owner, "Asset_Select", this, ppos, 30f, "...", ElementNames().ToArray(), "Select Element") 
+			{ panelPos = new Vector2(420f, -200f), panelSize = new Vector2(280f, 420f), panelButtonWidth = 240f, panelColumns = 1 };
 			subNodes.Add(select);
 		}
 
@@ -303,5 +324,5 @@ public class BackgroundPage : Page
 		}
 
 	}
-	public static string[] backgroundSaves() => AssetManager.ListDirectory(_Module.BGPath).Where(x => File.ReadAllLines(x)[0] != "UNLISTED").Select(i => Path.GetFileNameWithoutExtension(i)).ToArray();
+	public static string[] backgroundSaves() => AssetManager.ListDirectory(_Module.BGPath).Where(x => File.ReadAllLines(x)[0] != "UNLISTED").Select(i => Path.GetFileNameWithoutExtension(i)).Prepend("<Default>").ToArray();
 }

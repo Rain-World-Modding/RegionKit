@@ -41,7 +41,7 @@ internal static class Data
 	private static void RoomSettings_InheritEffects(On.RoomSettings.orig_InheritEffects orig, RoomSettings self)
 	{
 		orig(self);
-		if (self.parent.BackgroundData().roomOffset is not null && self.BackgroundData().roomOffset is null)
+		if (self.parent.BackgroundData().roomOffsetInit && !self.BackgroundData().roomOffsetInit)
 		{ self.BackgroundData().roomOffset = self.parent.BackgroundData().roomOffset; }
 
 		if (self.parent.BackgroundData().HasData() && !self.BackgroundData().HasData())
@@ -68,6 +68,7 @@ internal static class Data
 			{
 				string[] array3 = Regex.Split(array2[1], ",");
 				self.BackgroundData().roomOffset = new Vector2(float.Parse(array3[0]), float.Parse(array3[1]));
+				self.BackgroundData().roomOffsetInit = true;
 			}
 
 			if (array2.Length == 2 && array2[0] == "BackgroundType")
@@ -89,8 +90,10 @@ internal static class Data
 
 		public RoomSettings roomSettings;
 
-		public Vector2? roomOffset = null;
+		public Vector2 roomOffset = Vector2.zero;
+		public bool roomOffsetInit = false; //nullables were too painful to work with
 
+		public void UpdateOffsetInit() => roomOffsetInit = (roomOffset == roomSettings.parent.BackgroundData().roomOffset);
 
 		public string backgroundName = "";
 
@@ -107,10 +110,18 @@ internal static class Data
 		/// <summary>
 		/// Checks if data was loaded from txt or serialized from background
 		/// </summary>
-		public bool HasData()
+		public bool HasData() => type != BackgroundTemplateType.None && TryGetPathFromName(backgroundName, out _);
+
+		public void Reset()
 		{
-			return type != BackgroundTemplateType.None && TryGetPathFromName(backgroundName, out _);
+			backgroundName = "";
+			protect = false;
+			backgroundOffset = Vector2.zero;
+			type = BackgroundTemplateType.None;
+			parent = null;
+			realData = new();
 		}
+
 		/// <summary>
 		/// processes slugcat conditions and removes any that no longer apply
 		/// </summary>
@@ -161,6 +172,7 @@ internal static class Data
 
 		public void FromName(string name, SlugcatStats.Name slug)
 		{
+			Reset();
 			backgroundName = name;
 			if (TryGetPathFromName(name, out string path)) TryGetFromPath(path, slug);
 			else { backgroundName = ""; }
@@ -200,7 +212,7 @@ internal static class Data
 						break;
 
 					case "Parent":
-						if (TryGetPathFromName(array[1], out string parentPath) && array[1] != backgroundName)
+						if (TryGetPathFromName(array[1], out string parentPath) && array[1].ToLower() != backgroundName.ToLower())
 						{
 							parent = new RoomBGData(roomSettings);
 							parent.FromName(array[1], slug);
@@ -279,10 +291,10 @@ internal static class Data
 		public string[] SaveLines()
 		{
 			List<string> result = new();
-			if (roomOffset is Vector2 v2 && roomOffset != roomSettings.parent.BackgroundData().roomOffset)
-			{ result.Add($"BackgroundOffset: {v2.x},{v2.y}"); }
+			if (roomOffsetInit && roomOffset != roomSettings.parent.BackgroundData().roomOffset)
+			{ result.Add($"BackgroundOffset: {roomOffset.x},{roomOffset.y}"); }
 
-			bool isParent = TryGetPathFromName(roomSettings.parent.BackgroundData().backgroundName, out _) && backgroundName == roomSettings.parent.BackgroundData().backgroundName;
+			bool isParent = TryGetPathFromName(roomSettings.parent.BackgroundData().backgroundName, out _) && backgroundName.ToLower() == roomSettings.parent.BackgroundData().backgroundName.ToLower();
 			if (TryGetPathFromName(backgroundName, out _) && !isParent)
 			{ result.Add($"BackgroundType: {backgroundName}"); }
 
@@ -712,9 +724,14 @@ internal static class Data
 
 	public static bool TryGetPathFromName(string name, out string path)
 	{
-		path = AssetManager.ResolveFilePath(Path.Combine(_Module.BGPath, name + ".txt"));
-		if (File.Exists(path)) return true;
-		else { return false; }
+		path = "";
+		try
+		{
+			path = AssetManager.ResolveFilePath(Path.Combine(_Module.BGPath, name + ".txt"));
+			if (File.Exists(path)) return true;
+			else { return false; }
+		}
+		catch { return false; }
 	}
 
 	public static bool SyncIfDefault(ref float one, ref float two)

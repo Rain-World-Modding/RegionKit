@@ -1,0 +1,8 @@
+Parent: AtC_Default_Saint
+PROTECTED
+OffsetX: 200
+---------------
+startAltitude: 9000
+endAltitude: 26400
+
+DistantBuilding: AtC_Spire1, 317, -148, 50, -30

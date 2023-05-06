@@ -2,7 +2,7 @@
 
 namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 
-internal class StringControl : DevUILabel
+public class StringControl : DevUILabel
 {
 	public StringControl(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width, string text, IsTextValid del) : base(owner, IDstring, parentNode, pos, width, text)
 	{

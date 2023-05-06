@@ -17,7 +17,6 @@ public static class _Module
 		}
 		__appliedOnce = true;
 		PaletteTextInput.Apply();
-		CloudBuilder.Apply();
 
 		//currently used for settings saving options stuffs, but will probably later be used for much more
 		On.DevInterface.Page.ctor += Page_ctor;
@@ -62,16 +61,16 @@ public static class _Module
 
 		//move pages over to avoid collision with save buttons
 		//for BackgroundBuilder, currently unused
-		/*foreach (DevUINode node in self.subNodes)
+		foreach (DevUINode node in self.subNodes)
 		{
 			if (node is SwitchPageButton switchPageButton)
 			{
 				switchPageButton.pos.x -= 20f;
 				switchPageButton.Refresh();
 			}
-		}*/
+		}
 
-		if (self is MapPage or BuilderPage.BackgroundPage)
+		if (self is MapPage or BackgroundPage)
 		{ settingsSaveOptionsMenu = null; return; }
 
 		settingsSaveOptionsMenu = new SettingsSaveOptionsMenu(owner, "SettingsSaveOptions", self);

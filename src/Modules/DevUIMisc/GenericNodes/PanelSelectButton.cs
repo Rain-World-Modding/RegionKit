@@ -2,7 +2,7 @@
 
 namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 
-internal class PanelSelectButton : Button, IDevUISignals
+public class PanelSelectButton : Button, IDevUISignals
 {
 	public PanelSelectButton(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width, string text, 
 		string[] values, string panelName, Vector2? panelPos = null, Vector2? panelSize = null, float panelButtonWidth = 145f, int panelColumns = 2)

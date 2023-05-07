@@ -237,7 +237,7 @@ public struct EchoSettings
 					settings.MinimumKarmaCap.AddMultiple(intval, difficulties);
 					break;
 				case "difficulties":
-					settings.SpawnOnDifficulty = split[1].Split(',').Select(s => new SlugcatStats.Name(s, false)).ToArray();
+					settings.SpawnOnDifficulty = split[1].Split(',').Select(s => new SlugcatStats.Name(s.Trim(), false)).ToArray();
 					break;
 				case "echosong":
 					string result = EchoParser.__echoSongs.TryGetValue(trimmed, out string song) ? song : trimmed;

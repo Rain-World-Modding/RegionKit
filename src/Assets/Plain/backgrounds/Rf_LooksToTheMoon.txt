@@ -1,0 +1,19 @@
+Type: RoofTopView
+PROTECTED
+OffsetX: 0
+OffsetY: 0
+---------------
+floorLevel: 26
+daySky: Rf_Sky
+duskSky: Rf_DuskSky
+nightSky: Rf_NightSky
+
+Floor: floor, 0, 0, 1, 12
+DistantBuilding: Rf_HoleFix, -2676, -17, 1, 0
+DistantBuilding: RF_CityA_DM, 0, -25.5, 8.5, 0
+DistantBuilding: RF_CityB_DM, 215, -13, 6.5, 0
+DistantBuilding: RF_CityC_DM, 100, -8.5, 5, 0
+Smoke: 0, 586, 7, 2.5, 0.1, 0.8, False
+Smoke: 0, 26, 4.2, 0.2, 0.1, 0, True
+Smoke: 0, 54, 2, 0.5, 0.1, 0, True
+Smoke: 0, 40, 1.2, 0.75, 0.1, 0, True

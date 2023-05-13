@@ -6,7 +6,7 @@ public class RectParticleSpawnerData : ParticleSystemData
 {
 	//[Vector2Field("effRect", 40f, 40f, Vector2Field.VectorReprType.rect)]
 	[BackedByField("effRect")]
-	Vector2 RectBounds;
+	public Vector2 RectBounds;
 	///<inheritdoc/>
 	public RectParticleSpawnerData(PlacedObject owner) : base(
 		owner,

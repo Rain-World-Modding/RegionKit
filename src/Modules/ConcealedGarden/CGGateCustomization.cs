@@ -20,6 +20,12 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 		this.room = room;
 		this._pObj = pObj;
 
+		if (room.regionGate == null)
+		{
+			__logger.LogError("CGGateCustomization can't apply because gate is null!\nThis might be caused by an incompatibility with another mod");
+			return;
+		}
+
 		if (room.regionGate is ElectricGate elec)
 		{
 			elec.meterHeight = _Data.GetValue<float>("elecpos");
@@ -27,16 +33,11 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 
 		if (_Data.GetValue<bool>("nowater"))
 		{
-			IDrawable? water = null;
-			foreach (var item in room.drawableObjects)
-			{
-				if (item is Water)
-				{
-					water = item;
-					break;
-				}
+			if (room.drawableObjects.Contains(room.regionGate.graphics.water))
+			{ 
+				room.drawableObjects.Remove(room.regionGate.graphics.water);
+				room.regionGate.graphics.water = null;
 			}
-			if (water != null) room.drawableObjects.Remove(water);
 		}
 
 		if (_Data.GetValue<bool>("noleft"))

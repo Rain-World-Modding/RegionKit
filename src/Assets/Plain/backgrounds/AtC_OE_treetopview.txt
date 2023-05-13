@@ -1,0 +1,11 @@
+Parent: AtC_GeneralDefault
+PROTECTED
+---------------
+startAltitude: 0
+endAltitude: 36900
+
+DistantBuilding: AtC_LocalSpire, 725, -610, 25, -10
+DistantBuilding: AtC_LocalSpire_Lights, 725, -610, 25, -10
+DistantBuilding: AtC_RetainingWall, 1010, -530, 25, -9
+DistantBuilding: AtC_FivePebbles, 70, -370, 400, -100
+DistantLightning: AtC_FivePebblesLight, 70, -340, 30, 370

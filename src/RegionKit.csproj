@@ -46,6 +46,7 @@
 	<!-- Editorconfig -->
 	<ItemGroup>
 		<None Include="./.editorconfig" />
+		<None Include="Modules\BackgroundBuilder\OLDBuilderPage.cs" />
 		<EditorConfigFiles Remove="./.editorconfig" />
 	</ItemGroup>
 

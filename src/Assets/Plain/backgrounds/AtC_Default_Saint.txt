@@ -1,0 +1,27 @@
+Parent: AtC_GeneralDefault
+PROTECTED
+---------------
+DistantBuilding: AtC_Structure1SAINT, -520, -85, 160, -20
+DistantBuilding: AtC_Structure2SAINT, 88, -37, 350, 0
+DistantBuilding: AtC_Structure3SAINT, -316, -24, 600, -100
+DistantBuilding: AtC_Structure4SAINT, -648, -21, 700, -200
+DistantBuilding: AtC_Structure5SAINT, 156, -22, 800, -350
+DistantBuilding: AtC_Structure6SAINT, -242, -20, 850, -350
+DistantBuilding: AtC_Spire1SAINT, -587, -134, 80, -60
+DistantBuilding: AtC_Spire2SAINT, -653, -57, 100, 10
+DistantBuilding: AtC_Spire3SAINT, 0, -46, 155, 0
+DistantBuilding: AtC_Spire4SAINT, -224, -20, 190, 80
+DistantBuilding: AtC_Spire5SAINT, -276, -24, 360, -100
+DistantBuilding: AtC_Spire6SAINT, -39, -33, 280, 0
+DistantBuilding: AtC_Spire7SAINT, 155, -7, 370, -85
+DistantBuilding: AtC_Spire8SAINT, -380, 3, 380, -50
+DistantBuilding: AtC_Spire9SAINT, -207, -1, 395, -50
+
+//let's leave the right side alive
+DistantBuilding: AtC_Structure1, 670, -85, 120, -20
+DistantBuilding: AtC_Spire2SAINT, 470, -57, 160, 10
+DistantBuilding: AtC_Spire5SAINT, 220, -24, 365, -100
+DistantBuilding: AtC_Spire6SAINT, 520, -33, 285, 0
+DistantBuilding: AtC_Spire7SAINT, 340, -7, 375, -85
+DistantBuilding: AtC_Spire8SAINT, 600, 3, 380, -50
+DistantBuilding: AtC_Spire9SAINT, 175, -1, 390, -50

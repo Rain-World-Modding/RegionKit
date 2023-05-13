@@ -18,27 +18,24 @@ namespace RegionKit.Modules.BackgroundBuilder;
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "DevUI")]
 public static class _Module
 {
-	private static bool __appliedOnce = false;
+	public const string BGPath = "Assets\\RegionKit\\Backgrounds";
 	internal static void Enable()
 	{
-		return; //still wip
-		if (!__appliedOnce)
-		{
-			//what is this for
-		}
-		__appliedOnce = true;
-		CloudBuilder.Apply();
-		BuilderPage.Apply();
 		Data.Apply();
 		Init.Apply();
+		BuilderPageHooks.Apply();
 		ExceptionFixes.Apply();
+		return; //still wip
 		BackgroundUpdates.Apply();
 	}
 	internal static void Disable()
 	{
-		return; //still wip
-		BuilderPage.Undo();
+		Data.Undo();
+		Init.Undo();
+		BuilderPageHooks.Undo();
 		ExceptionFixes.Undo();
+		return; //still wip
+		//BuilderPage.Undo();
 	}
 
 }

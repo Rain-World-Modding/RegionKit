@@ -6,29 +6,31 @@ namespace RegionKit.Modules.Machinery.V1;
 public class MachineryCustomizer : ManagedData
 {
 #pragma warning disable 1591
-	[StringField("element", "pixel", "Atlas element")]
+	[StringField("09element", "pixel", "Atlas element")]
 	public string elementName = "pixel";
-	[StringField("shader", "Basic", displayName: "Shader")]
+	[StringField("12shader", "Basic", displayName: "Shader")]
 	public string shaderName = "Basic";
 	//[StringField("container", "Items", displayName:"rCam container")]
-	[EnumField<ContainerCodes>("containerCode", ContainerCodes.Items, displayName: "Container")]
+	[EnumField<ContainerCodes>("04containerCode", ContainerCodes.Items, displayName: "Container")]
 	public ContainerCodes containerName;
-	[FloatField("scX", 0f, 35f, 1f, increment: 0.1f, ManagedFieldWithPanel.ControlType.text, displayName: "X scale")]
+	[FloatField("10scX", 0f, 35f, 1f, increment: 0.1f, ManagedFieldWithPanel.ControlType.text, displayName: "X scale")]
 	public float scaleX = 1f;
-	[FloatField("scY", 0f, 35f, 1f, increment: 0.1f, ManagedFieldWithPanel.ControlType.text, displayName: "Y scale")]
+	[FloatField("11scY", 0f, 35f, 1f, increment: 0.1f, ManagedFieldWithPanel.ControlType.text, displayName: "Y scale")]
 	public float scaleY = 1f;
-	[FloatField("addRot", -90f, 90f, 0f, increment: 0.5f, displayName: "Additional rotation")]
+	[FloatField("05addRot", -90f, 90f, 0f, increment: 0.5f, displayName: "Additional rotation")]
 	public float addedRotation = 0f;
-	[ColorField("sCol", 1f, 0f, 0f, 1f, DisplayName: "Color")]
+	[ColorField("01sCol", 1f, 0f, 0f, 1f, DisplayName: "Color")]
 	public Color spriteColor;
-	[EnumField<MachineryID>("amID", MachineryID.Piston, displayName: "Affected machinery")]
+	[EnumField<MachineryID>("02amID", MachineryID.Piston, displayName: "Affected machinery")]
 	public MachineryID affectedMachinesID;
-	[FloatField("alpha", 0f, 1f, 1f, increment: 0.01f, ManagedFieldWithPanel.ControlType.text, "Alpha")]
+	[FloatField("06alpha", 0f, 1f, 1f, increment: 0.01f, ManagedFieldWithPanel.ControlType.text, "Alpha")]
 	public float alpha;
-	[FloatField("anchX", -10f, 10f, 0.5f, control: ManagedFieldWithPanel.ControlType.text, displayName: "X anchor")]
+	[FloatField("07anchX", -10f, 10f, 0.5f, control: ManagedFieldWithPanel.ControlType.text, displayName: "X anchor")]
 	public float anchorX;
-	[FloatField("anchY", -10f, 10f, 0.5f, control: ManagedFieldWithPanel.ControlType.text, displayName: "Y anchor")]
+	[FloatField("08anchY", -10f, 10f, 0.5f, control: ManagedFieldWithPanel.ControlType.text, displayName: "Y anchor")]
 	public float anchorY;
+	[Vector2Field("03radius", 30f, 0f, Vector2Field.VectorReprType.circle)]
+	public Vector2 radius;
 #pragma warning restore 1591
 	/// <summary>
 	/// Whether a given point belongs to this customizer
@@ -37,7 +39,7 @@ public class MachineryCustomizer : ManagedData
 	/// <returns></returns>
 	public bool AffectsInPoint(Vector2 p)
 	{
-		return (p - owner.pos).sqrMagnitude < GetValue<Vector2>("radius").magnitude;
+		return (p - owner.pos).sqrMagnitude < radius.magnitude;
 	}
 
 	internal void BringToKin(FSprite other)

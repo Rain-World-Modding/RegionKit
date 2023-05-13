@@ -1,0 +1,16 @@
+Parent: AtC_Default_Saint
+PROTECTED
+---------------
+distantCloudsCount: 41
+distantCloudsEndDepth: 800
+overrideYEnd: 4000
+curveCloudDepth: 3
+
+REMOVE_DistantBuilding: AtC_Structure1SAINT, -520, -85, 160, -20
+DistantBuilding: AtC_Structure1SAINT, -520, -100, 149.5, -20
+
+REMOVE_DistantBuilding: AtC_Structure2SAINT, 88, -37, 350, 0
+DistantBuilding: AtC_Structure2SAINT, 88, -47, 359.8, 0
+
+REMOVE_DistantBuilding: AtC_Structure1, 670, -85, 120, -20
+DistantBuilding: AtC_Structure1, 670, -105, 116.3, -20

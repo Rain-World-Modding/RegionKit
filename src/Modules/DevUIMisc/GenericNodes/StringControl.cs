@@ -2,7 +2,7 @@
 
 namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 
-internal class StringControl : DevUILabel
+public class StringControl : DevUILabel
 {
 	public StringControl(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width, string text, IsTextValid del) : base(owner, IDstring, parentNode, pos, width, text)
 	{
@@ -22,7 +22,6 @@ internal class StringControl : DevUILabel
 		// No data refresh until the transaction is complete :/
 		// TrySet happens on input and focus loss
 		base.Refresh();
-		Debug.Log($"refreshing node {IDstring} with text {Text}");
 	}
 
 	public override void Update()

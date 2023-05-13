@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using static AboveCloudsView;
-using static RegionKit.Modules.BackgroundBuilder.Data;
 using static RoofTopView;
 
 namespace RegionKit.Modules.BackgroundBuilder;
@@ -16,7 +15,6 @@ internal static class BackgroundUpdates
 	{
 		On.BackgroundScene.Update += BackgroundScene_Update;
 		On.BackgroundScene.BackgroundSceneElement.DrawSprites += BackgroundSceneElement_DrawSprites;
-		On.AboveCloudsView.Update += AboveCloudsView_Update;
 		On.BackgroundScene.BackgroundSceneElement.DrawPos += BackgroundSceneElement_DrawPos;
 	}
 
@@ -26,24 +24,6 @@ internal static class BackgroundUpdates
 		{ Debug.Log($"name is [{GetSpriteOfElement(self)?._atlas.name}] and pos is {orig(self, camPos, hDisplace)} and depth is {self.depth}"); }
 		Vector2 offset = new Vector2();
 		return orig(self, camPos, hDisplace) - offset;
-	}
-
-	private static void AboveCloudsView_Update(On.AboveCloudsView.orig_Update orig, AboveCloudsView self, bool eu)
-	{
-		orig(self, eu);
-		if (!BuilderPage.checkForBackgroundPage(self.room.game.devUI)) return;
-
-		if (self.room.roomSettings.BackgroundData().backgroundData is not CloudsBackgroundData data) return;
-
-		//Debug.Log($"data {data.startAltitude} undata {self.startAltitude}");
-
-		if ((data.startAltitude != null && data.startAltitude != self.startAltitude) ||
-			(data.endAltitude != null && data.endAltitude != self.endAltitude))
-		{
-			self.startAltitude = data.startAltitude ?? self.startAltitude;
-			self.endAltitude = data.endAltitude ?? self.endAltitude;
-			self.sceneOrigo = new Vector2(2514f, (self.startAltitude + self.endAltitude) / 2f);
-		}
 	}
 
 	private static void BackgroundSceneElement_DrawSprites(On.BackgroundScene.BackgroundSceneElement.orig_DrawSprites orig, BackgroundScene.BackgroundSceneElement self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
@@ -84,68 +64,12 @@ internal static class BackgroundUpdates
 		orig(self, sLeaser, rCam, timeStacker, camPos);
 	}
 
-	public static void CloudDepthAdjust(AboveCloudsView self)
-	{
-		Debug.Log("CloudDepthAdjust");
-		if (self.room.roomSettings.BackgroundData().backgroundData is not CloudsBackgroundData cloudsData) return;
-
-		self.cloudsStartDepth = cloudsData.cloudsStartDepth ?? self.cloudsStartDepth;
-		self.cloudsEndDepth = cloudsData.cloudsEndDepth ?? self.cloudsEndDepth;
-		self.distantCloudsEndDepth = cloudsData.distantCloudsEndDepth ?? self.distantCloudsEndDepth;
-
-		foreach (BackgroundScene.BackgroundSceneElement element in self.elements.ToList())
-		{
-			if (element is DistantCloud dcloud)
-			{
-				element.depth = self.DistantCloudDepth(dcloud.distantCloudDepth);
-				element.CData().DepthUpdate = true;
-			}
-
-			else if(element is CloseCloud ccloud)
-			{
-				element.depth = self.CloudDepth(ccloud.cloudDepth);
-				element.CData().DepthUpdate = true;
-			}
-		}
-	}
-
-	public static void CloudAmountAdjust(AboveCloudsView self)
-	{
-		if (self.room.roomSettings.BackgroundData().backgroundData is not CloudsBackgroundData cloudsData) return;
-		foreach (BackgroundScene.BackgroundSceneElement element in self.elements.ToList())
-		{
-			if (element is DistantCloud or CloseCloud)
-			{
-				element.Destroy();
-				self.elements.Remove(element);
-			}
-		}
-
-		int num = (int)(cloudsData.cloudsCount ?? 7f);
-		for (int i = 0; i < num; i++)
-		{
-			float cloudDepth = i / (float)(num - 1);
-			CloseCloud cloud = new CloseCloud(self, new Vector2(0f, 0f), cloudDepth, i);
-			cloud.CData().needsAddToRoom = true;
-			self.AddElement(cloud);
-		}
-
-		num = (int)(cloudsData.distantCloudsCount ?? 11f);
-		for (int j = 0; j < num; j++)
-		{
-			float num15 = j / (float)(num - 1);
-			DistantCloud dcloud = new DistantCloud(self, new Vector2(0f, -40f * self.cloudsEndDepth * (1f - num15)), num15, j);
-			dcloud.CData().needsAddToRoom = true;
-			self.AddElement(dcloud);
-		}
-	}
-
 
 	private static void BackgroundScene_Update(On.BackgroundScene.orig_Update orig, BackgroundScene self, bool eu)
 	{
 		orig(self, eu);
 
-		if (!BuilderPage.checkForBackgroundPage(self.room.game.devUI)) return;
+		//if (!BuilderPage.checkForBackgroundPage(self.room.game.devUI)) return;
 
 		foreach (BackgroundScene.BackgroundSceneElement element in self.elements)
 		{

@@ -76,7 +76,7 @@ public class PistonArray : UpdatableAndDeletable
 	{
 		_mc = _mc
 			?? room.roomSettings.placedObjects.FirstOrDefault(
-				x => x.data is MachineryCustomizer nmc && nmc.GetValue<MachineryID>("amID") == MachineryID.Piston && (x.pos - this._PO.pos).sqrMagnitude <= nmc.GetValue<Vector2>("radius").sqrMagnitude)?.data as MachineryCustomizer
+				x => x.data is MachineryCustomizer nmc && nmc.affectedMachinesID == MachineryID.Piston && (x.pos - this._PO.pos).sqrMagnitude <= nmc.radius.sqrMagnitude)?.data as MachineryCustomizer
 			?? new MachineryCustomizer(null);
 	}
 

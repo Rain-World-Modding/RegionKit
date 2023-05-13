@@ -5,17 +5,17 @@ namespace RegionKit.Modules.Machinery.V1;
 public class PistonData : BaseMachineryData
 {
 	#pragma warning disable 1591
-	[EnumField<OperationMode>("opmode", OperationMode.Sinal, displayName: "Operation mode")]
+	[EnumField<OperationMode>("1opmode", OperationMode.Sinal, displayName: "Operation mode")]
 	public OperationMode opmode;
-	[FloatField("rot", -180f, 180f, 0f, increment: 1f, displayName: "Direction", control: ManagedFieldWithPanel.ControlType.slider)]
+	[FloatField("6rot", -180f, 180f, 0f, increment: 1f, displayName: "Direction", control: ManagedFieldWithPanel.ControlType.slider)]
 	public float rotation = 0f;
-	[FloatField("amp", 0f, 120f, 20f, increment: 1f, displayName: "Amplitude", control: ManagedFieldWithPanel.ControlType.text)]
+	[FloatField("3amp", 0f, 120f, 20f, increment: 1f, displayName: "Amplitude", control: ManagedFieldWithPanel.ControlType.text)]
 	public float amplitude = 20f;
-	[BooleanField("align_rot", true, displayName: "Straight angles only", control: ManagedFieldWithPanel.ControlType.button)]
+	[BooleanField("2align_rot", true, displayName: "Straight angles only", control: ManagedFieldWithPanel.ControlType.button)]
 	public bool align = false;
-	[FloatField("phase", -5f, 5f, 0f, displayName: "Phase", control: ManagedFieldWithPanel.ControlType.text)]
+	[FloatField("5phase", -5f, 5f, 0f, displayName: "Phase", control: ManagedFieldWithPanel.ControlType.text)]
 	public float phase = 0f;
-	[FloatField("frequency", 0.05f, 2f, 1f, displayName: "Frequency", increment: 0.05f, control: ManagedFieldWithPanel.ControlType.text)]
+	[FloatField("4frequency", 0.05f, 2f, 1f, displayName: "Frequency", increment: 0.05f, control: ManagedFieldWithPanel.ControlType.text)]
 	public float frequency = 1f;
 	public Vector2 forcePos;
 	#pragma warning restore 1591

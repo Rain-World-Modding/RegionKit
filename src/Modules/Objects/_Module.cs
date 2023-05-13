@@ -16,8 +16,7 @@ public static class _Module
 		{
 			//NewEffects/
 			//NewObjects.Hook();
-			//RegisterFullyManagedObjectType(ColoredLightSource.__fields, typeof(ColoredLightSource), null, RK_POM_CATEGORY);
-			RegisterManagedObject<ColoredLightSource, ColoredLightSourceData, ManagedRepresentation>("ColouredLightSource", RK_POM_CATEGORY);
+			RegisterFullyManagedObjectType(ColouredLightSource.__fields, typeof(ColouredLightSource), null, RK_POM_CATEGORY);
 			RegisterFullyManagedObjectType(Drawable.__fields, typeof(Drawable), "FreeformDecalOrSprite", RK_POM_CATEGORY);
 			List<ManagedField> shroudFields = new()
 			{

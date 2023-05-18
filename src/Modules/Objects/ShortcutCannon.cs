@@ -8,7 +8,6 @@ using DevInterface;
 using IL.MoreSlugcats;
 using UnityEngine;
 using static IL.PlacedObject;
-using static MonoMod.InlineRT.MonoModRule;
 
 namespace RegionKit.Modules.Objects;
 

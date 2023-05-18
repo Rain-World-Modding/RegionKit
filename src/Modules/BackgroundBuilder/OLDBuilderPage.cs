@@ -14,7 +14,7 @@ using RegionKit.Modules.DevUIMisc;
 using System.Text.RegularExpressions;
 
 namespace RegionKit.Modules.BackgroundBuilder;
-
+#if false
 internal static class BuilderPage
 {
 	public static void Apply()
@@ -206,7 +206,7 @@ internal static class BuilderPage
 
 		public PanelSelectButton backgroundSave;
 
-		public ExtEnumCycler<Data.BackgroundTemplateType> backgroundType;
+		public ExtEnumCycler<BackgroundTemplateType> backgroundType;
 
 		public StringControl saveName;
 
@@ -581,7 +581,7 @@ internal static class BuilderPage
 			Dictionary<DevUINode, object> elementArgs;
 		}
 
-		public static void SwitchRoomBackground(Room self, Data.BackgroundTemplateType type, bool refresh = false)
+		public static void SwitchRoomBackground(Room self, BackgroundTemplateType type, bool refresh = false)
 		{
 			AboveCloudsView? aboveCloudsView = null;
 			RoofTopView? roofTopView = null;
@@ -600,7 +600,7 @@ internal static class BuilderPage
 					{ voidSeaView = vss; }
 				}
 			}
-			if (aboveCloudsView != null && (type != Data.BackgroundTemplateType.AboveCloudsView || refresh))
+			if (aboveCloudsView != null && (type != BackgroundTemplateType.AboveCloudsView || refresh))
 			{
 				Debug.Log("removing acv");
 				aboveCloudsView.Destroy();
@@ -730,3 +730,4 @@ internal static class BuilderPage
 	}
 }
 
+#endif

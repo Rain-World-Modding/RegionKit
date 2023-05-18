@@ -57,7 +57,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 		if (this._PO is null) return;
 		_customizer = _customizer
 			?? room.roomSettings.placedObjects.FirstOrDefault(
-				x => x.data is MachineryCustomizer nmc && nmc.GetValue<MachineryID>("amID") == MachineryID.Cog && (x.pos - this._PO.pos).sqrMagnitude <= nmc.GetValue<Vector2>("radius").sqrMagnitude)?.data as MachineryCustomizer
+				x => x.data is MachineryCustomizer nmc && nmc.affectedMachinesID == MachineryID.Cog && (x.pos - this._PO.pos).sqrMagnitude <= nmc.radius.sqrMagnitude)?.data as MachineryCustomizer
 			?? new MachineryCustomizer(null);
 	}
 

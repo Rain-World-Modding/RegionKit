@@ -62,7 +62,7 @@ internal class SpinningFan : UpdatableAndDeletable, IDrawable
 
 	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner)
 	{
-		rCam.ReturnFContainer("Item").AddChild(sLeaser.sprites[0]);
+		rCam.ReturnFContainer("Foreground").AddChild(sLeaser.sprites[0]);
 	}
 
 	public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)

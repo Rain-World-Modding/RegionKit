@@ -23,7 +23,8 @@ public static class ExtendedGates
 	/// </summary>
 	internal static bool IsVanilla(Req req)
 	{
-		return req?.ToString() is "1" or "2" or "3" or "4" or "5" or "L" or "R";
+		if (req == null) return true;
+		return req.ToString() is "1" or "2" or "3" or "4" or "5" or "L" or "R";
 	}
 	/// <summary>
 	/// Returns a karma requirement for given gate, -1 by 

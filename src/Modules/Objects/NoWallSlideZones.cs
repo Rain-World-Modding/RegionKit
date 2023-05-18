@@ -148,11 +148,11 @@ internal static class Extensions
 
 	public static bool InsideNWSRects(this Player self)
 	{
-		if (self.room is Room rm)
+		if (self.room?.updateList is List<UAD> lst)
 		{
-			foreach (UAD uad in rm.updateList)
+			for (var i = 0; i < lst.Count; i++)
 			{
-				if (uad is NoWallSlideZone nws)
+				if (lst[i] is NoWallSlideZone nws)
 				{
 					foreach (BodyChunk bc in self.bodyChunks)
 					{

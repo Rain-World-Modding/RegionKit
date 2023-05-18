@@ -14,7 +14,6 @@ public static class _Enums
 	/// </summary>
 	/// <returns></returns>
 	public static RoomSettings.RoomEffect.Type CloudAdjustment = new(nameof(CloudAdjustment), true);
-
 	public static RoomSettings.RoomEffect.Type FogOfWarSolid = new(nameof(FogOfWarSolid), false); // disabled
 	public static RoomSettings.RoomEffect.Type FogOfWarDarkened = new(nameof(FogOfWarDarkened), false); //disabled
 	/// <summary>
@@ -49,6 +48,10 @@ public static class _Enums
 	/// ReplaceEffectColorB
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type ReplaceEffectColorB = new(nameof(ReplaceEffectColorB), true);
+	/// <summary>
+	/// HiveColorAlpha
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type HiveColorAlpha = new(nameof(HiveColorAlpha), true);
 	/// <summary>
 	/// Effect category
 	/// </summary>

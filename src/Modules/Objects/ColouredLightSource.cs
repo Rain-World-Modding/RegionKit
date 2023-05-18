@@ -1,15 +1,26 @@
-﻿using UnityEngine;
+﻿using System.Drawing.Text;
+using JetBrains.Annotations;
+using UnityEngine;
 
 namespace RegionKit.Modules.Objects;
 /// <summary>
 /// A light source that can be assigned any rgb value
 /// </summary>
+internal enum EnableConditions
+{
+	Always = 0,
+	Before,
+	After
+}
+
 public class ColouredLightSource : UpdatableAndDeletable
 {
+	private const int noiseUpdatePeriod = 2;
+	private bool lightDisabled = false;
 	private PlacedObject _localPlacedObject;
 	private LightSource _lightSource;
+
 	private ManagedData? _data;
-	private bool _flickering;
 
 	internal static readonly ManagedField[] __fields = {
 		new ColorField("lightCol", Color.white, ManagedFieldWithPanel.ControlType.slider, "Light Colour"),
@@ -18,20 +29,35 @@ public class ColouredLightSource : UpdatableAndDeletable
 		new BooleanField("flatLight", false, ManagedFieldWithPanel.ControlType.button, "Flat"),
 		new FloatField("paletteDarkness", 0f, 1f, 0.5f, displayName: "Darkness Effect"),
 		new FloatField("flickIntensity", 0f, 1f, 0f, displayName: "Flicker Intensity"),
-		new FloatField("threshold", 0f, 1f, 0.5f, displayName: "Flicker Threshold")
+		new FloatField("threshold", 0f, 1f, 0.5f, displayName: "Flicker Threshold"),
+		new EnumField<EnableConditions>("rainConditions", EnableConditions.Always, displayName: "Enable Conditions"),
+		new FloatField("enableThreshold", 0f, 1f, 0f, 0.05f, displayName: "Enable Time Threshold"),
+		new IntegerField("fadeTime", 0, 9999, 100, ManagedFieldWithPanel.ControlType.text, displayName: "Fade Length")
 	};
+	float radius => _data!.GetValue<Vector2>("radius").magnitude;
+	float alpha => _data!.GetValue<float>("alphaChannel");
+	bool flatLight => _data!.GetValue<bool>("flatLight");
+	Color lightCol => _data!.GetValue<Color>("lightCol");
+	float paletteDarkness => _data!.GetValue<float>("paletteDarkness");
+	float flickIntensity => _data!.GetValue<float>("flickIntensity");
+	float flickerThreshold => _data!.GetValue<float>("threshold");
+	EnableConditions rainConditions => _data!.GetValue<EnableConditions>("rainConditions");
+	float enableThreshold => _data!.GetValue<float>("enableThreshold");
+	int fadeTime => _data!.GetValue<int>("fadeTime");
+
 	/// <summary>
 	/// POM ctor
 	/// </summary>
-	public ColouredLightSource(PlacedObject pObj, Room room)
+	public ColouredLightSource(PlacedObject placedObject, Room room)
 	{
-		//Data = new(pObj, null);
 		this.room = room;
-		_localPlacedObject = pObj;
-		_data = (pObj.data as ManagedData)!;
+		_localPlacedObject = placedObject;
+		_data = (placedObject.data as ManagedData)!;
 
-		_lightSource = new LightSource(_localPlacedObject.pos, false, _data?.GetValue<Color>("lightCol") ?? Color.white, this);
-		_lightSource.affectedByPaletteDarkness = _data?.GetValue<float>("paletteDarkness") ?? 0.5f;
+		_lightSource = new LightSource(_localPlacedObject.pos, false, lightCol, this)
+		{
+			affectedByPaletteDarkness = paletteDarkness
+		};
 		room.AddObject(_lightSource);
 	}
 	///<inheritdoc/>
@@ -39,41 +65,42 @@ public class ColouredLightSource : UpdatableAndDeletable
 	{
 		base.Update(eu);
 
-		float rad = _data!.GetValue<Vector2>("radius").magnitude;
-		float alpha = _data.GetValue<float>("alphaChannel");
-		bool flat = _data.GetValue<bool>("flatLight");
-		Color col = _data.GetValue<Color>("lightCol");
-		float darknessEffect = _data.GetValue<float>("paletteDarkness");
-
-		if (!_flickering) _lightSource.setAlpha = alpha;
-		_lightSource.color = col;
-		_lightSource.setRad = rad;
+		float instantAlpha = this.alpha;
+		if (rainConditions != EnableConditions.Always)
+		{
+			instantAlpha *= EnableAlphaLerping();
+		}
+		_lightSource.color = lightCol;
+		_lightSource.setRad = radius;
 		_lightSource.setPos = _localPlacedObject.pos;
-		_lightSource.flat = flat;
-		_lightSource.affectedByPaletteDarkness = darknessEffect;
+		_lightSource.flat = flatLight;
+		_lightSource.affectedByPaletteDarkness = paletteDarkness;
+		if (room.game.clock % noiseUpdatePeriod == 0)
+		{
+			float noiseIntensity = flickIntensity * RNG.value;
+			lightDisabled = noiseIntensity > flickerThreshold;
+		}
+		_lightSource.setAlpha = lightDisabled ? 0f : instantAlpha;
 
-		if (room.game.clock % 2 != 0) return;
-		float noiseIntensity = _data.GetValue<float>("flickIntensity") * OneDimensionalPerlinNoise();
-		if (noiseIntensity > _data.GetValue<float>("threshold"))
-		{
-			_lightSource.setAlpha = 0f;
-			_flickering = true;
-		}
-		else
-		{
-			_lightSource.setAlpha = alpha;
-			_flickering = false;
-		}
 	}
 
-	//Based off of a wind direction algorithm online. If you know a better noise function, entertain me
-	private float OneDimensionalPerlinNoise()
+	private float EnableAlphaLerping()
 	{
-		var aux = RNG.value * Mathf.PI * 2f;
-		var vectorX = Mathf.Cos(aux);
-		var vectorY = Mathf.Sin(aux);
+		float endTime = enableThreshold * room.game.world.rainCycle.cycleLength;
+		float startTime = endTime - fadeTime;
+		float timeLeft = room.game.world.rainCycle.timer;
+		float fade = Mathf.InverseLerp(startTime, endTime, timeLeft);
 
-		float noiseValue = Mathf.Clamp01(Mathf.PerlinNoise(vectorX * Time.time, vectorY * Time.time));
-		return noiseValue;
+		switch (rainConditions)
+		{
+		case EnableConditions.After:
+			return fade;
+
+		case EnableConditions.Before:
+			return 1 - fade;
+
+		default:
+			return 1;
+		}
 	}
 }

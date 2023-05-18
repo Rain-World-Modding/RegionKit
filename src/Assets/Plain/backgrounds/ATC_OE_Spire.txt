@@ -1,0 +1,10 @@
+Parent: AtC_GeneralDefault
+PROTECTED
+---------------
+startAltitude: 0
+endAltitude: 36900
+
+DistantBuilding: AtC_RetainingWall, 1600, -100, 40, -10
+DistantBuilding: AtC_FivePebbles, 150, -200, 900, -100
+FlyingCloud: 0, 75, 355, 0.35, 0.5, 0.9
+FlyingCloud: 0, 43, 920, 0.15, 0.3, 0.95

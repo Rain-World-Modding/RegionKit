@@ -11,8 +11,8 @@
 		<Authors>RegionKit team</Authors>
 		<Description>All-in-one custom region dependency library.</Description>
 		<Copyright>GPL v3</Copyright>
-		<FileVersion>3.7</FileVersion>
-		<AssemblyVersion>3.7</AssemblyVersion>
+		<FileVersion>3.8</FileVersion>
+		<AssemblyVersion>3.8</AssemblyVersion>
 		<PackageReadmeFile>../README.md</PackageReadmeFile>
 		<PackageLicenseFile>../LICENSE</PackageLicenseFile>
 	</PropertyGroup>
@@ -46,6 +46,7 @@
 	<!-- Editorconfig -->
 	<ItemGroup>
 		<None Include="./.editorconfig" />
+		<None Include="Modules\BackgroundBuilder\OLDBuilderPage.cs" />
 		<EditorConfigFiles Remove="./.editorconfig" />
 	</ItemGroup>
 

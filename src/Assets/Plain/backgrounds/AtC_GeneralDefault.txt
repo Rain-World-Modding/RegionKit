@@ -1,0 +1,20 @@
+UNLISTED
+PROTECTED
+Type: AboveCloudsView
+OffsetX: 0
+OffsetY: 0
+---------------
+startAltitude: 20000
+endAltitude: 31400
+cloudsStartDepth: 5
+cloudsEndDepth: 40
+distantCloudsEndDepth: 200
+cloudsCount: 7
+distantCloudsCount: 11
+daySky: AtC_Sky
+(X-Rivulet)duskSky: AtC_DuskSky
+(Rivulet)duskSky: AtC_DuskSky-Rivulet
+nightSky: AtC_NightSky
+
+FlyingCloud: 0, 75, 355, 0.35, 0.5, 0.9
+FlyingCloud: 0, 43, 920, 0.15, 0.3, 0.95

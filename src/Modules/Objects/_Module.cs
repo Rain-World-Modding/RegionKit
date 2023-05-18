@@ -54,6 +54,8 @@ public static class _Module
 			};
 
 			PopupsMod.Register();
+
+			RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", RK_POM_CATEGORY);
 		}
 		else
 		{
@@ -72,6 +74,7 @@ public static class _Module
 		//todo: check if it's okay to have like this
 		_CommonHooks.PostRoomLoad += RoomPostLoad;
 		//On.RainWorld.LoadResources += LoadLittlePlanetResources;
+		ShortcutCannon.Apply();
 	}
 
 	internal static void Disable()
@@ -88,6 +91,7 @@ public static class _Module
 		NoWallSlideZones.Undo();
 		RKAdditionalClimbables.Undo();
 		foreach (var hk in __objectHooks) if (hk.IsApplied) hk.Undo();
+		ShortcutCannon.Undo();
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)

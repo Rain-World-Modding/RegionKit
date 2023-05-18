@@ -148,7 +148,7 @@ public class CESRepresentation : TileObjectRepresentation
 		{
 			CESData data = ((parentNode as CESRepresentation)!.pObj.data as CESData)!;
 			subNodes.Add(new Button(owner, "Sprite_Button", this, new(5f, 5f), 240f, "Sprite: " + data._imageName));
-			subNodes.Add(new Button(owner, "Rotation_Button", this, new(5f, 25f), 240f, "Rotation: " + data._rotation * 360 + "%"));
+			subNodes.Add(new Button(owner, "Rotation_Button", this, new(5f, 25f), 240f, "Rotation: " + data._rotation * 360 + "°"));
 		}
 
 		public void Signal(DevUISignalType type, DevUINode sender, string message)
@@ -173,7 +173,7 @@ public class CESRepresentation : TileObjectRepresentation
 					data._rotation = 0f;
 					break;
 				}
-				(sender as Button)!.Text = "Rotation: " + data._rotation * 360 + "%";
+				(sender as Button)!.Text = "Rotation: " + data._rotation * 360 + "°";
 				return;
 			}
 			else if ((parentNode as CESRepresentation)!._files is string[] f)

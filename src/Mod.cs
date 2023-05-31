@@ -3,7 +3,7 @@ namespace RegionKit;
 /// <summary>
 /// Main plugin class
 /// </summary>
-[BIE.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "3.8")]
+[BIE.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "3.9")]
 public class Mod : BIE.BaseUnityPlugin
 {
 	internal const string RK_POM_CATEGORY = "RegionKit";

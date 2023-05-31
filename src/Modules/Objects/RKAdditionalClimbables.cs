@@ -14,7 +14,64 @@ internal static class RKAdditionalClimbables
 		IL.Player.UpdateAnimation += PlayerUpdateAnimation;
 		IL.Player.Jump += PlayerJump;
 		IL.Player.MovementUpdate += PlayerMovementUpdate;
+		IL.MoreSlugcats.Yeek.Update += Yeek_Update;
+		On.Player.MovementUpdate += Player_MovementUpdate;
+		IL.ClimbableVinesSystem.OverlappingSegment += ClimbableVinesSystem_OverlappingSegment;
     }
+
+	private static void ClimbableVinesSystem_OverlappingSegment(ILContext il)
+	{
+		//fix failed grab bug
+		var c = new ILCursor(il);
+		if (c.TryGotoNext(MoveType.After,
+			x => x.MatchLdarg(1),
+			x => x.MatchLdarg(3),
+			x => x.MatchCall<Vector2>("Distance"),
+			x => x.MatchLdarg(2),
+			x => x.MatchLdarg(4),
+			x => x.MatchCall(typeof(RWCustom.Custom), "LerpMap")))
+		{
+			c.Emit(OpCodes.Ldarg, 6);
+			c.Emit(OpCodes.Add);
+		}
+		else
+			__logger.LogError("Couldn't ILHook ClimbableVinesSystem.OverlappingSegment!");
+	}
+
+	private static void Player_MovementUpdate(On.Player.orig_MovementUpdate orig, Player self, bool eu)
+	{
+		//if the player isn't holding a vine anymore, remove their vinepos
+		//this is critical for JumpAllowed to work, particularly in Yeek.Update where AnimationIndex has been reset already
+		if (self.animation != Player.AnimationIndex.VineGrab)
+		{ self.vinePos = null; }
+		orig(self, eu);
+	}
+
+	private static void Yeek_Update(ILContext il)
+	{
+		int count = 0;
+		var c = new ILCursor(il);
+		while (c.TryGotoNext(MoveType.After,
+			x => x.MatchLdfld<Creature.Grasp>("grabber"),
+			x => x.MatchIsinst<Player>(),
+			x => x.MatchLdfld<Player>("bodyMode"),
+			x => x.MatchLdsfld<Player.BodyModeIndex>("ClimbingOnBeam"),
+			x => x.MatchCall(out _)))
+		{
+			c.Emit(OpCodes.Ldarg_0);
+			c.EmitDelegate((bool flag, MoreSlugcats.Yeek yeek) => JumpAllowed(flag, (yeek.grabbedBy[0].grabber as Player)!));
+			count++;
+		}
+		if (count == 0) __logger.LogError("Couldn't ILHook Yeek.Update!"); 
+		else if (count != 3) __logger.LogError("Couldn't ILHook Yeek.Update!");
+	}
+
+	private static bool JumpAllowed(bool flag, Player player)
+	{
+			return flag || player.room?.climbableVines is ClimbableVinesSystem sys
+				&& player.vinePos is ClimbableVinesSystem.VinePosition vPos
+				&& sys.vines.Count > 0 && sys.GetVineObject(vPos) is IClimbJumpVine v && v.JumpAllowed();
+	}
 
 	internal static void Undo()
 	{
@@ -65,7 +122,7 @@ internal static class RKAdditionalClimbables
 			x => x.MatchCall(out _)))
 		{
 			c.Emit(OpCodes.Ldarg_0);
-			c.EmitDelegate((bool flag, Player self) => flag || (self.animation == Player.AnimationIndex.VineGrab && self.room?.climbableVines is ClimbableVinesSystem sys && self.vinePos is ClimbableVinesSystem.VinePosition vPos && sys.vines.Count > 0 && sys.GetVineObject(vPos) is IClimbJumpVine v && v.JumpAllowed()));
+			c.EmitDelegate(JumpAllowed);
 		}
 		else
 			__logger.LogError("Couldn't ILHook Player.Jump!");

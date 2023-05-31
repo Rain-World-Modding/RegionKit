@@ -119,10 +119,7 @@ internal class RainbowNoFade : CosmeticSprite
 			this.handlePos.y = float.Parse(array[1], NumberStyles.Any, CultureInfo.InvariantCulture);
 			this.panelPos.x = float.Parse(array[2], NumberStyles.Any, CultureInfo.InvariantCulture);
 			this.panelPos.y = float.Parse(array[3], NumberStyles.Any, CultureInfo.InvariantCulture);
-			string[] array2 = array[4].Split(new char[]
-			{
-				','
-			});
+			string[] array2 = array[4].Split(array[4].Contains('|')? '|' : ','); //it'll still parse the old delimiter if it's present
 			int num = 0;
 			while (num < this.fades.Length && num < array2.Length)
 			{
@@ -138,7 +135,7 @@ internal class RainbowNoFade : CosmeticSprite
 				text += string.Format(CultureInfo.InvariantCulture, "{0}{1}", new object[]
 				{
 					this.fades[i],
-					(i >= this.fades.Length - 1) ? string.Empty : ","
+					(i >= this.fades.Length - 1) ? string.Empty : "|"
 				});
 			}
 			return string.Format(CultureInfo.InvariantCulture, "{0}~{1}~{2}~{3}~{4}", new object[]

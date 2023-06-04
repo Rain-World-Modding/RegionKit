@@ -141,6 +141,10 @@
 			<HintPath>lib/UnityEngine.InputLegacyModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="UnityEngine.VideoModule">
+			<HintPath>lib/UnityEngine.VideoModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 		<Reference Include="UnityEngine.UnityWebRequestWWWModule">
 			<HintPath>lib/UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
 			<Private>False</Private>

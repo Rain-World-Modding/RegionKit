@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using RegionKit.Modules.AnimatedDecals;
 
 namespace RegionKit.Modules.Objects;
 /// <summary>
@@ -132,13 +133,21 @@ public class Drawable : CosmeticSprite
 
 	public void LoadFile(string fileName)
 	{
-		if (Futile.atlasManager.GetAtlasWithName(fileName) != null)
+		if (VideoManager.IsVideoFile(fileName))
 		{
-			return;
+			string path = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar + fileName);
+			VideoManager.LoadAndCacheVideo(fileName, path);
 		}
-		string str = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
-		Texture2D texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-		AssetManager.SafeWWWLoadTexture(ref texture, "file:///" + str, true, true);
-		HeavyTexturesCache.LoadAndCacheAtlasFromTexture(fileName, texture, false);
+		else
+		{
+			if (Futile.atlasManager.GetAtlasWithName(fileName) != null)
+			{
+				return;
+			}
+			string str = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
+			Texture2D texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+			AssetManager.SafeWWWLoadTexture(ref texture, "file:///" + str, true, true);
+			HeavyTexturesCache.LoadAndCacheAtlasFromTexture(fileName, texture, false);
+		}
 	}
 }

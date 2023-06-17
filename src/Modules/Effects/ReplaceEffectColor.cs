@@ -6,7 +6,7 @@ namespace RegionKit.Modules.Effects;
 /// Replaces the effect colors of the current room with custom colors.
 /// By LB/M4rbleL1ne
 /// </summary>
-public class ReplaceEffectColor : UAD
+public class ReplaceEffectColor : UpdatableAndDeletable
 {
 	private readonly bool _colorB;
 

@@ -11,4 +11,3 @@ global using static Pom.Pom;
 global using static RegionKit.Mod;
 global using static RegionKit.Utils;
 global using static RWCustom.Custom;
-global using UAD = UpdatableAndDeletable;

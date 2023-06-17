@@ -181,7 +181,7 @@ public class BackgroundPage : Page
 		AboveCloudsView? aboveCloudsView = null;
 		RoofTopView? roofTopView = null;
 		VoidSea.VoidSeaScene? voidSeaView = null;
-		foreach (UAD uad in self.updateList)
+		foreach (UpdatableAndDeletable uad in self.updateList)
 		{
 			if (uad is BackgroundScene)
 			{

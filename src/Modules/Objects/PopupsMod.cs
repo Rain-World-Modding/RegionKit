@@ -35,7 +35,7 @@ internal static class PopupsMod
 	}
 
 
-	public class PopupTrigger : UAD
+	public class PopupTrigger : UpdatableAndDeletable
 	{
 		protected PlacedObject pObj;
 		protected ManagedData data => (ManagedData)pObj.data;

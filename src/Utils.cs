@@ -501,7 +501,7 @@ internal static partial class Utils
 	/// </summary>
 	/// <param name="bcol"></param>
 	/// <returns></returns>
-	public static Color Clamped(this Color bcol)
+	public static Color Clamped(this ref Color bcol)
 	{
 		return new(Clamp01(bcol.r), Clamp01(bcol.g), Clamp01(bcol.b));
 	}
@@ -693,7 +693,7 @@ internal static partial class Utils
 	/// <summary>
 	/// Attempts to find an <see cref="UpdatableAndDeletable"/> of specified type
 	/// </summary>
-	public static T? FindUAD<T>(this Room rm)
+	public static T? FindUpdatableAndDeletable<T>(this Room rm)
 	{
 		BangBang(rm, nameof(rm));
 		for (int i = 0; i < rm.updateList.Count; i++)
@@ -705,7 +705,7 @@ internal static partial class Utils
 	/// <summary>
 	/// Yields all <see cref="UpdatableAndDeletable"/>s of specified type.
 	/// </summary>
-	public static IEnumerable<T> FindAllUAD<T>(this Room rm)
+	public static IEnumerable<T> FindAllUpdatableAndDeletable<T>(this Room rm)
 	{
 		for (int i = 0; i < rm.updateList.Count; i++)
 		{

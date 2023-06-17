@@ -148,7 +148,7 @@ internal static class Extensions
 
 	public static bool InsideNWSRects(this Player self)
 	{
-		if (self.room?.updateList is List<UAD> lst)
+		if (self.room?.updateList is List<UpdatableAndDeletable> lst)
 		{
 			for (var i = 0; i < lst.Count; i++)
 			{

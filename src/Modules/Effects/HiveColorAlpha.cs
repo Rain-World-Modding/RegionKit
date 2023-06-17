@@ -4,7 +4,7 @@
 /// Sets the alpha of the bat hive color in the room
 /// By LB/M4rbleL1ne
 /// </summary>
-public class HiveColorAlpha : UAD
+public class HiveColorAlpha : UpdatableAndDeletable
 {
 	/// <inheritdoc cref="HiveColorAlpha"/>
 	public HiveColorAlpha(Room room) => this.room = room;

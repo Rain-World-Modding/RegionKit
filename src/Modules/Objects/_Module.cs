@@ -16,26 +16,26 @@ public static class _Module
 		RegisterFullyManagedObjectType(ColouredLightSource.__fields, typeof(ColouredLightSource), null, RK_POM_CATEGORY);
 		RegisterFullyManagedObjectType(Drawable.__fields, typeof(Drawable), "FreeformDecalOrSprite", RK_POM_CATEGORY);
 		List<ManagedField> shroudFields = new()
-			{
-				new Vector2ArrayField("quad", 4, true, Vector2ArrayField.Vector2ArrayRepresentationType.Polygon, Vector2.zero, Vector2.right * 20f, (Vector2.right + Vector2.up) * 20f, Vector2.up * 20f)
-			};
+		{
+			new Vector2ArrayField("quad", 4, true, Vector2ArrayField.Vector2ArrayRepresentationType.Polygon, Vector2.zero, Vector2.right * 20f, (Vector2.right + Vector2.up) * 20f, Vector2.up * 20f)
+		};
 		RegisterFullyManagedObjectType(shroudFields.ToArray(), typeof(Shroud), nameof(Shroud), RK_POM_CATEGORY);
 
 		List<ManagedField> fanFields = new()
-			{
-				new FloatField("speed", 0f, 1f, 0.6f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Speed"),
-				new FloatField("scale", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Scale"),
-				new FloatField("depth", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Depth")
-			};
+		{
+			new FloatField("speed", 0f, 1f, 0.6f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Speed"),
+			new FloatField("scale", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Scale"),
+			new FloatField("depth", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Depth")
+		};
 		RegisterFullyManagedObjectType(fanFields.ToArray(), typeof(SpinningFan), nameof(SpinningFan), RK_POM_CATEGORY);
 
 		List<ManagedField> steamFields = new()
-			{
-				new FloatField("f1", 0f, 1f, 0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Duration"),
-				new FloatField("f2", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Frequency"),
-				new FloatField("f3", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Lifetime"),
-				new Vector2Field("v1", new Vector2(0f,45f), Vector2Field.VectorReprType.line)
-			};
+		{
+			new FloatField("f1", 0f, 1f, 0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Duration"),
+			new FloatField("f2", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Frequency"),
+			new FloatField("f3", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Lifetime"),
+			new Vector2Field("v1", new Vector2(0f,45f), Vector2Field.VectorReprType.line)
+		};
 		RegisterFullyManagedObjectType(steamFields.ToArray(), typeof(SteamHazard), nameof(SteamHazard), RK_POM_CATEGORY);
 
 
@@ -53,6 +53,7 @@ public static class _Module
 		PopupsMod.Register();
 
 		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", RK_POM_CATEGORY);
+		RegisterManagedObject<CameraNoise, CameraNoise.CameraNoiseData, ManagedRepresentation>("CameraNoise", RK_POM_CATEGORY);
 	}
 
 	internal static void Enable()

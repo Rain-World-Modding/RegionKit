@@ -73,14 +73,16 @@ public class CameraNoise : UpdatableAndDeletable, IDrawable
 				mesh.MoveVertice(fl, lastpos + left * (thickness / 2f));
 				mesh.MoveVertice(fr, lastpos + right * (thickness / 2f));
 			}
-			foreach (int i in Range(mesh.verticeColors.Length)) {
+			foreach (int i in Range(mesh.verticeColors.Length))
+			{
 				var col = _data.colorBase.Deviation(_data.colorFluke);
 				mesh.verticeColors[i] = col.Clamped();
-				if (i >= segments + 1 * 4) {
-					mesh.verticeColors[i].a = 0f;
-				}
+				mesh.verticeColors[i].a = 
+					(i >= segments + 1 * 4) 
+					? 0f 
+					: ClampedFloatDeviation(_data.alphabase, _data.alphafluke, 0, 1);
 			}
-			
+
 			//sprite.SetPosition(UnityEngine.Random.Range(0f, resolution.x), UnityEngine.Random.Range(0f, resolution.y));
 			//sprite.alpha = UnityEngine.Random.Range(0.5f, 1f);
 		}
@@ -125,6 +127,10 @@ public class CameraNoise : UpdatableAndDeletable, IDrawable
 		public Color colorBase;
 		[ColorField("10colfluke", 0f, 0f, 0f, 1f, DisplayName: "color fluke")]
 		public Color colorFluke;
+		[FloatField("11alphabase", 0f, 1f, 1f, 0.05f, displayName: "alpha base")]
+		public float alphabase;
+		[FloatField("12alphafluke", 0f, 1f, 1f, 0.05f, displayName: "alpha fluke")]
+		public float alphafluke;
 		public CameraNoiseData(PlacedObject owner) : base(owner, null)
 		{
 		}

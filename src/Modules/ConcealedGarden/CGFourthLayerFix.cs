@@ -18,7 +18,7 @@ internal class CGFourthLayerFix
 		if (self.bkgwww == null)
 		{
 			string text = WorldLoader.FindRoomFile(newRoom.abstractRoom.name, true, $"{camPos + 1}_bkg.png");
-			if (!IO.File.Exists(text)) return;
+			if (!System.IO.File.Exists(text)) return;
 			Uri uri = new Uri(text);
 			if (uri.IsFile && System.IO.File.Exists(uri.LocalPath))
 			{
@@ -28,7 +28,7 @@ internal class CGFourthLayerFix
 				#pragma warning restore CS0618 //WWW is obsolete
 			}
 			//Debug.Log("RoomCamera_MoveCamera_1 would load from:" + text);
-			//Debug.Log("RoomCamera_MoveCamera_1 would load :" + System.IO.File.Exists(text));
+			//Debug.Log("RoomCamera_MoveCamera_1 would load :" + System.System.IO.File.Exists(text));
 			//Debug.Log("RoomCamera_MoveCamera_1 bkgwww real " + (self.bkgwww != null));
 		}
 	}

@@ -66,7 +66,7 @@ public static class ExtendedGates
 		On.HUD.Map.GateMarker.ctor += GateMarker_ctor;
 		On.HUD.Map.MapData.KarmaOfGate += MapData_KarmaOfGate;
 		uwu = null;
-		foreach (RFL.Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
+		foreach (System.Reflection.Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
 		{
 			if (asm.GetName().Name == "UwUMod")
 			{
@@ -186,8 +186,8 @@ public static class ExtendedGates
 	private static Req MapData_KarmaOfGate(On.HUD.Map.MapData.orig_KarmaOfGate orig, HUD.Map.MapData self, PlayerProgression progression, World initWorld, string roomName)
 	{
 		string path = AssetManager.ResolveFilePath("world/gates/extendedlocks.txt");
-		if (!IO.File.Exists(path)) goto DEFAULT_;
-		string[] array = IO.File.ReadAllLines(path);
+		if (!System.IO.File.Exists(path)) goto DEFAULT_;
+		string[] array = System.IO.File.ReadAllLines(path);
 		for (int i = 0; i < array.Length; i++)
 		{
 			if (string.IsNullOrEmpty(array[i]) || string.IsNullOrEmpty(array[i].Trim())) continue;
@@ -196,7 +196,7 @@ public static class ExtendedGates
 				array[i] = array[i].Substring(array[i].IndexOf("//"));
 			}
 			if (string.IsNullOrEmpty(array[i]) || string.IsNullOrEmpty(array[i].Trim())) continue;
-			string[] array2 = REG.Regex.Split(array[i], " : ");
+			string[] array2 = System.Text.RegularExpressions.Regex.Split(array[i], " : ");
 			if (array2[0] == roomName)
 			{
 
@@ -213,7 +213,7 @@ public static class ExtendedGates
 					thisGateIsFlippedForWhateverReason = true;
 				}
 
-				string[] namearray = REG.Regex.Split(roomName, "_");
+				string[] namearray = System.Text.RegularExpressions.Regex.Split(roomName, "_");
 				if (namearray.Length == 3)
 				{
 					for (int j = 0; j < namearray.Length; j++)
@@ -261,12 +261,12 @@ public static class ExtendedGates
 		orig(self, room);
 
 		string path2 = AssetManager.ResolveFilePath("world/gates/extendedlocks.txt");//path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "extendedLocks.txt";
-		if (!IO.File.Exists(path2))
+		if (!System.IO.File.Exists(path2))
 		{
 			__logger.LogMessage("ExtendedLocks is not present; skipping");
 			return;
 		}
-		string[] lines = IO.File.ReadAllLines(path2);
+		string[] lines = System.IO.File.ReadAllLines(path2);
 
 		for (int i = 0; i < lines.Length; i++)
 		{
@@ -278,7 +278,7 @@ public static class ExtendedGates
 			}
 			if (string.IsNullOrEmpty(lines[i]) || string.IsNullOrEmpty(lines[i].Trim())) continue;
 
-			string[] array2 = REG.Regex.Split(lines[i], "\\s+:\\s+");
+			string[] array2 = System.Text.RegularExpressions.Regex.Split(lines[i], "\\s+:\\s+");
 			if (array2[0] != room.abstractRoom.name)
 			{
 				__logger.LogDebug($"{lines[i]} does not match {room.abstractRoom.name}");
@@ -327,7 +327,7 @@ public static class ExtendedGates
 		{
 		case nameof(RegionGate.Mode.MiddleClosed):
 			int num = self.PlayersInZone();
-			//if (RNG.value < 0.05f) __logger.LogDebug($"{num},{self.dontOpen},{self.PlayersStandingStill()},{self.EnergyEnoughToOpen},{PlayersMeetSpecialRequirements(self)}");
+			//if (UnityEngine.Random.value < 0.05f) __logger.LogDebug($"{num},{self.dontOpen},{self.PlayersStandingStill()},{self.EnergyEnoughToOpen},{PlayersMeetSpecialRequirements(self)}");
 			if (num > 0 && num < 3 && !self.dontOpen && self.PlayersStandingStill() && self.EnergyEnoughToOpen && (PlayersMeetSpecialRequirements(self) ?? self.MeetRequirement)) //todo: may need to assume null to true?
 			{
 				self.startCounter = preupdateCounter + 1;
@@ -356,7 +356,7 @@ public static class ExtendedGates
 				||
 				(
 					self.room.game.StoryCharacter != SlugcatStats.Name.Red
-					&& IO.File.Exists(AssetManager.ResolveFilePath("nifflasmode.txt"))
+					&& System.IO.File.Exists(AssetManager.ResolveFilePath("nifflasmode.txt"))
 				);
 			}
 

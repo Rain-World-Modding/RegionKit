@@ -260,8 +260,8 @@ namespace RegionKit.Modules.TheMast
 			{
 				// TODO: Allow both chunks of the chain to be grabbed
 				// TODO: Define scavenger interactions
-				var state = RNG.state;
-				RNG.InitState(apc.ID.RandomSeed);
+				var state = UnityEngine.Random.state;
+				UnityEngine.Random.InitState(apc.ID.RandomSeed);
 				pearlCount = Random.Range(2, 5);
 				if (apc.length > 0) pearlCount = apc.length;
 				_pearlColors = new int[pearlCount];

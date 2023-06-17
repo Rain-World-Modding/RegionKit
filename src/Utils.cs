@@ -117,14 +117,14 @@ internal static partial class Utils
 		where T : notnull
 	{
 		var res = default(T);
-		if (arr.Length > 0) return arr[RNG.Range(0, arr.Length)];
+		if (arr.Length > 0) return arr[UnityEngine.Random.Range(0, arr.Length)];
 		return res;
 	}
 	public static T? RandomOrDefault<T>(this List<T> l)
 	{
 		if (l.Count == 0) return default;
 		//var R = new System.Random(l.GetHashCode());
-		return l[RNG.Range(0, l.Count)];
+		return l[UnityEngine.Random.Range(0, l.Count)];
 	}
 
 	public static IEnumerable<int> Indices(this IList list)
@@ -346,7 +346,7 @@ internal static partial class Utils
 	{
 		Assembly[] lasms = AppDomain.CurrentDomain.GetAssemblies();
 		for (int i = lasms.Length - 1; i > -1; i--)
-			if (REG.Regex.Match(lasms[i].FullName, pattern).Success) yield return lasms[i];
+			if (System.Text.RegularExpressions.Regex.Match(lasms[i].FullName, pattern).Success) yield return lasms[i];
 	}
 	/// <summary>
 	/// Force clones an object instance through reflection
@@ -438,7 +438,7 @@ internal static partial class Utils
 		int minRes = int.MinValue,
 		int maxRes = int.MaxValue)
 	{
-		return IntClamp(RNG.Range(start - mDev, start + mDev), minRes, maxRes);
+		return IntClamp(UnityEngine.Random.Range(start - mDev, start + mDev), minRes, maxRes);
 	}
 
 	/// <summary>
@@ -455,7 +455,7 @@ internal static partial class Utils
 		float minRes = float.NegativeInfinity,
 		float maxRes = float.PositiveInfinity)
 	{
-		return Clamp(Lerp(start - mDev, start + mDev, RNG.value), minRes, maxRes);
+		return Clamp(Lerp(start - mDev, start + mDev, UnityEngine.Random.value), minRes, maxRes);
 	}
 
 	/// <summary>
@@ -464,7 +464,7 @@ internal static partial class Utils
 	/// <returns>1f or -1f on a coinflip.</returns>
 	public static float RandSign()
 	{
-		return RNG.value > 0.5f ? -1f : 1f;
+		return UnityEngine.Random.value > 0.5f ? -1f : 1f;
 	}
 
 	/// <summary>
@@ -475,7 +475,7 @@ internal static partial class Utils
 	/// <returns>Resulting vector.</returns>
 	public static Vector2 V2RandLerp(Vector2 a, Vector2 b)
 	{
-		return Vector2.Lerp(a, b, RNG.value);
+		return Vector2.Lerp(a, b, UnityEngine.Random.value);
 	}
 
 	/// <summary>
@@ -497,14 +497,14 @@ internal static partial class Utils
 	public static Color RandDev(this Color bcol, Color dbound, bool clamped = true)
 	{
 		Color res = default;
-		for (int i = 0; i < 3; i++) res[i] = bcol[i] + (dbound[i] * RNG.Range(-1f, 1f));
+		for (int i = 0; i < 3; i++) res[i] = bcol[i] + (dbound[i] * UnityEngine.Random.Range(-1f, 1f));
 		return clamped ? res.Clamped() : res;
 	}
 	#endregion
 	#region misc bs
 	public static FAtlas LoadAtlasOrImage(this FAtlasManager man, string path)
 	{
-		if (IO.File.Exists(AssetManager.ResolveFilePath(path + ".txt")))
+		if (System.IO.File.Exists(AssetManager.ResolveFilePath(path + ".txt")))
 		{
 			__logger.LogDebug(path + " loading as atlas");
 			return man.LoadAtlas(path);
@@ -589,7 +589,7 @@ internal static partial class Utils
 		string[] spl;
 		Vector4 vecres = default;
 		bool vecparsed = false;
-		if ((spl = REG.Regex.Split(str, "\\s*;\\s*")).Length is 2 or 3 or 4)
+		if ((spl = System.Text.RegularExpressions.Regex.Split(str, "\\s*;\\s*")).Length is 2 or 3 or 4)
 		{
 			vecparsed = true;
 			for (int i = 0; i < spl.Length; i++)
@@ -636,13 +636,13 @@ internal static partial class Utils
 		return new(Min(p1.x, p2.x), Min(p1.y, p2.y), Max(p1.x, p2.x), Max(p1.y, p2.y));
 	}
 	/// <summary>
-	/// <see cref="IO.Path.Combine"/> but params.
+	/// <see cref="System.IO.Path.Combine"/> but params.
 	/// </summary>
 	/// <param name="parts"></param>
 	/// <returns></returns>
 	public static string CombinePath(params string[] parts)
 	{
-		return parts.Aggregate(IO.Path.Combine);
+		return parts.Aggregate(System.IO.Path.Combine);
 	}
 	/// <summary>
 	/// Current RainWorld instance. Uses Unity lookup, may be slow.
@@ -704,7 +704,7 @@ internal static partial class Utils
 	{
 		if (resname is null) throw new ArgumentNullException("can not get with a null name");
 		casm ??= Assembly.GetExecutingAssembly();
-		IO.Stream? str = casm.GetManifestResourceStream(resname);
+		System.IO.Stream? str = casm.GetManifestResourceStream(resname);
 		byte[]? bf = str is null ? null : new byte[str.Length];
 		str?.Read(bf, 0, (int)str.Length);
 		return bf;

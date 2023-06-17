@@ -226,9 +226,9 @@ public class ClimbableWire : MoreSlugcats.ClimbableVine, IClimbJumpVine
         for (var i = 0; i < segments.GetLength(0); i++)
         {
             var t = i / (float)(segments.GetLength(0) - 1);
-            segments[i, 0] = Vector2.Lerp(spawnPosA, spawnPosB, t) + RNV() * RNG.value;
+            segments[i, 0] = Vector2.Lerp(spawnPosA, spawnPosB, t) + RNV() * UnityEngine.Random.value;
             segments[i, 1] = segments[i, 0];
-            segments[i, 2] = RNV() * RNG.value;
+            segments[i, 2] = RNV() * UnityEngine.Random.value;
         }
         ropes = new Rope[segments.GetLength(0) - 1];
         for (var i = 0; i < ropes.Length; i++)

@@ -67,25 +67,25 @@ internal class UpsideDownWaterFallObject : UpdatableAndDeletable, IDrawable
         int bonus = (IntWidth + (InvertX > 0f ? 1 : 0)) * (int)InvertX, max = Math.Max(IntPos.x + bonus, IntPos.x), min = Math.Min(IntPos.x + bonus, IntPos.x);
         for (var j = min; j < max; j++)
 		{
-			if (RNG.value < flow)
+			if (UnityEngine.Random.value < flow)
 			{
-				if (RNG.value <= bubbleAmount / 5f)
+				if (UnityEngine.Random.value <= bubbleAmount / 5f)
                 {
 					for (var ick = 0; ick < 4; ick++)
                     {
-						Vector2 bubblePos = room.MiddleOfTile(new IntVector2(j, 0)) + new Vector2(RNG.Range(-10f, 10f), rect.top);
-						var bubble = new UBubble(bubblePos, Custom.DegToVec(160f + RNG.value * 40f) * RNG.value * 20f, false, true, bubbleLightness, container ?? "Water");
+						Vector2 bubblePos = room.MiddleOfTile(new IntVector2(j, 0)) + new Vector2(UnityEngine.Random.Range(-10f, 10f), rect.top);
+						var bubble = new UBubble(bubblePos, Custom.DegToVec(160f + UnityEngine.Random.value * 40f) * UnityEngine.Random.value * 20f, false, true, bubbleLightness, container ?? "Water");
 						if (room.water && cutAtWaterLevel && bubblePos.y < room.FloatWaterLevel(bubblePos.x))
 							bubble = null;
 						if (bubble is not null) 
 							room.AddObject(bubble);
 					}
 				}
-				if (RNG.value <= dripAmount / 5f)
+				if (UnityEngine.Random.value <= dripAmount / 5f)
 				{
-					Vector2 dripPos = room.MiddleOfTile(new IntVector2(j, 0)) + new Vector2(RNG.Range(-10f, 10f), rect.top);
+					Vector2 dripPos = room.MiddleOfTile(new IntVector2(j, 0)) + new Vector2(UnityEngine.Random.Range(-10f, 10f), rect.top);
 					dripPos.y = rect.top;
-					var drip = new UWaterDrip(dripPos, new Vector2(dripPos.x - (pos.x + rect.Width() * InvertX / 2f), 0f) * .4f / IntWidth + Custom.DegToVec(-45f + RNG.value * 90f) * RNG.value * 10f, true, dripLightness, container ?? "Water");
+					var drip = new UWaterDrip(dripPos, new Vector2(dripPos.x - (pos.x + rect.Width() * InvertX / 2f), 0f) * .4f / IntWidth + Custom.DegToVec(-45f + UnityEngine.Random.value * 90f) * UnityEngine.Random.value * 10f, true, dripLightness, container ?? "Water");
 					if (room.water && cutAtWaterLevel && dripPos.y < room.FloatWaterLevel(dripPos.x))
 						drip = null;
 					if (drip is not null)
@@ -172,7 +172,7 @@ internal class UBubble : Bubble
     public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
     {
         base.ApplyPalette(sLeaser, rCam, palette);
-		sLeaser.sprites[0].color = Color.Lerp(Color.Lerp(palette.waterColor1, palette.waterColor2, .3f), Color.white, lightness + RNG.Range(-lightness / 2f, lightness / 2f));
+		sLeaser.sprites[0].color = Color.Lerp(Color.Lerp(palette.waterColor1, palette.waterColor2, .3f), Color.white, lightness + UnityEngine.Random.Range(-lightness / 2f, lightness / 2f));
 	}
 
     public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner) => (newContatiner ?? rCam.ReturnFContainer(container ?? "Water")).AddChild(sLeaser.sprites[0]);
@@ -192,8 +192,8 @@ internal class UWaterDrip : WaterDrip
     public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
     {
         base.ApplyPalette(sLeaser, rCam, palette);
-		colors[0] = Color.Lerp(colors[0], Color.white, lightness + RNG.Range(-lightness / 2f, lightness / 2f));
-		colors[1] = Color.Lerp(colors[0], Color.white, lightness + RNG.Range(-lightness / 2f, lightness / 2f));
+		colors[0] = Color.Lerp(colors[0], Color.white, lightness + UnityEngine.Random.Range(-lightness / 2f, lightness / 2f));
+		colors[1] = Color.Lerp(colors[0], Color.white, lightness + UnityEngine.Random.Range(-lightness / 2f, lightness / 2f));
 	}
 
     public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)

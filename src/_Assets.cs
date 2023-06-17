@@ -22,7 +22,7 @@ internal static class _Assets
 			foreach (string f in AssetManager.ListDirectory(fdir, false, true))
 			{
 				string? atlasname = null;
-				IO.FileInfo fi = new(f);
+				System.IO.FileInfo fi = new(f);
 				if (fi.Extension is ".png")
 				{
 					//__logger.LogMessage($"Assets module Found an image: {f}");
@@ -32,12 +32,12 @@ internal static class _Assets
 					
 
 #if false
-					IO.FileInfo
+					System.IO.FileInfo
 						slicerfile = new(atlasname + ".json"),
 						metafile = new(atlasname + ".meta");
-					using IO.Stream 
+					using System.IO.Stream 
 						pngstream = fi.OpenRead();
-					using IO.Stream?
+					using System.IO.Stream?
 						slicerstream = slicerfile.Exists ? slicerfile.OpenRead() : null,
 						metastream = metafile.Exists ? metafile.OpenRead() : null;
 					__logger.LogDebug($"Assets module loading png {pngstream.Length}, slicer {slicerstream?.Length ?? -1}, meta {metastream?.Length ?? -1}");
@@ -65,7 +65,7 @@ internal static class _Assets
 	}
 	internal static byte[]? GetBytes(params string[] assetpath)
 	{
-		using IO.Stream? stream = GetStream(assetpath);
+		using System.IO.Stream? stream = GetStream(assetpath);
 		if (stream is null) return null;
 		byte[] buff = new byte[stream.Length];
 		stream.Read(buff, 0, (int)stream.Length);
@@ -74,14 +74,14 @@ internal static class _Assets
 	/// <summary>
 	/// Returns an asset stream, taking from merged assets or ER. Dispose of it properly!
 	/// </summary>
-	internal static IO.Stream? GetStream(params string[] assetpath)
+	internal static System.IO.Stream? GetStream(params string[] assetpath)
 	{
 		Func<string, string, string>
 			dotjoin = (x, y) => $"{x}.{y}",
 			slashjoin = (x, y) => $"{x}/{y}";
 		var file = AssetManager.ResolveFilePath($"assets/regionkit/{assetpath.Stitch(slashjoin)}");
-		if (IO.File.Exists(file)) return IO.File.OpenRead(file);
-		return RFL.Assembly.GetExecutingAssembly().GetManifestResourceStream($"RegionKit.Assets.Embedded.{assetpath.Stitch(dotjoin)}");
+		if (System.IO.File.Exists(file)) return System.IO.File.OpenRead(file);
+		return System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream($"RegionKit.Assets.Embedded.{assetpath.Stitch(dotjoin)}");
 	}
 
 	#region ATLASES
@@ -96,7 +96,7 @@ internal static class _Assets
 	// 		new[] { LittlePlanet, "LittlePlanetRing"},
 	// 		new[] { ExtendedGates, "ExtendedGateSymbols"}  }) try
 	// 		{
-	// 			using IO.Stream?
+	// 			using System.IO.Stream?
 	// 				pngstream = _Assets.GetStream(path[0], $"{path[1]}.png")!,
 	// 				jsonstream = _Assets.GetStream(path[0], $"{path[1]}.json")!;
 	// 			LoadCustomAtlas(path[1], pngstream, jsonstream);
@@ -119,7 +119,7 @@ internal static class _Assets
 		return new KeyValuePair<string, string>(pieces[0].Trim(), pieces[1].Trim());
 	}
 
-	internal static FAtlas LoadCustomAtlas(string atlasName, IO.Stream textureStream, IO.Stream? slicerStream, IO.Stream? metaStream = null)
+	internal static FAtlas LoadCustomAtlas(string atlasName, System.IO.Stream textureStream, System.IO.Stream? slicerStream, System.IO.Stream? metaStream = null)
 	{
 		try
 		{
@@ -130,13 +130,13 @@ internal static class _Assets
 			Dictionary<string, object>? slicerData = null;
 			if (slicerStream != null)
 			{
-				IO.StreamReader sr = new(slicerStream, TXT.Encoding.UTF8);
+				System.IO.StreamReader sr = new(slicerStream, System.Text.Encoding.UTF8);
 				slicerData = sr.ReadToEnd().dictionaryFromJson();
 			}
 			Dictionary<string, string>? metaData = null;
 			if (metaStream != null)
 			{
-				IO.StreamReader sr = new(metaStream, TXT.Encoding.UTF8);
+				System.IO.StreamReader sr = new(metaStream, System.Text.Encoding.UTF8);
 				metaData = new Dictionary<string, string>(); // Boooooo no linq and no splitlines, shame on you c#
 				for (string fullLine = sr.ReadLine(); fullLine != null; fullLine = sr.ReadLine())
 				{

@@ -40,7 +40,7 @@ static class _RoomLoader
 				isNewObject = true;
 				pObj = new PlacedObject(tp, null)
 				{
-					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(RNG.value * 360f) * 0.2f
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(UnityEngine.Random.value * 360f) * 0.2f
 				};
 				self.RoomSettings.placedObjects.Add(pObj);
 				self.owner.room.AddObject(new Objects.PWLightRod(pObj, self.owner.room));

@@ -123,7 +123,7 @@ public class StringControl : DevUILabel
 	{ return true; }
 
 	public static bool TextIsValidFilename(string value)
-	{ return value.IndexOfAny(IO.Path.GetInvalidFileNameChars()) < 0; }
+	{ return value.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) < 0; }
 
 	public static readonly DevUISignalType StringEdit = new DevUISignalType("StringEdit", true);
 	public static readonly DevUISignalType StringFinish = new DevUISignalType("StringFinish", true);

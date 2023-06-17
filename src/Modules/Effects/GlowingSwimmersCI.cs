@@ -67,7 +67,7 @@ internal static class GlowingSwimmersCI
 	{
 		if (type == _Enums.GlowingSwimmerInsect)
 		{
-			if (!InsectCoordinator.TileLegalForInsect(type, self.room, pos) || self.room.world.rainCycle.TimeUntilRain < RNG.Range(1200, 1600))
+			if (!InsectCoordinator.TileLegalForInsect(type, self.room, pos) || self.room.world.rainCycle.TimeUntilRain < UnityEngine.Random.Range(1200, 1600))
 				return;
 			var cosmeticInsect = new GlowingSwimmer(self.room, pos);
 			self.allInsects.Add(cosmeticInsect);
@@ -106,7 +106,7 @@ public class GlowingSwimmer : CosmeticInsect
 	public GlowingSwimmer(Room room, Vector2 pos) : base(room, pos, _Enums.GlowingSwimmerInsect)
 	{
 		creatureAvoider = new(this, 10, 300f, .3f);
-		_breath = RNG.value;
+		_breath = UnityEngine.Random.value;
 		_segments = new Vector2[2, 2];
 		Reset(pos);
 	}
@@ -184,7 +184,7 @@ public class GlowingSwimmer : CosmeticInsect
 		for (var i = 0; i < _segments.GetLength(0); i++)
 		{
 			_segments[i, 0] = resetPos + RNV();
-			_segments[i, 1] = RNV() * RNG.value;
+			_segments[i, 1] = RNV() * UnityEngine.Random.value;
 		}
 	}
 
@@ -202,7 +202,7 @@ public class GlowingSwimmer : CosmeticInsect
 			_stressed = LerpAndTick(_stressed, num, .02f, .005f);
 		if (submerged)
 		{
-			_swimDir += RNV() * RNG.value * .5f;
+			_swimDir += RNV() * UnityEngine.Random.value * .5f;
 			if (wantToBurrow)
 				_swimDir.y -= .5f;
 			if (pos.x < 0f)
@@ -216,7 +216,7 @@ public class GlowingSwimmer : CosmeticInsect
 			if (room is Room rm && rm.water)
 				_swimDir = Vector3.Slerp(_swimDir, new(0f, -1f), Mathf.InverseLerp(rm.FloatWaterLevel(pos.x) - 100f, rm.FloatWaterLevel(pos.x), pos.y) * .5f);
 			_swimDir.Normalize();
-			vel += (_swimDir * Mathf.Lerp(.8f, 1.1f, _stressed) + RNV() * RNG.value * .1f) / 1.2f;
+			vel += (_swimDir * Mathf.Lerp(.8f, 1.1f, _stressed) + RNV() * UnityEngine.Random.value * .1f) / 1.2f;
 		}
 		_rot = Vector3.Slerp(_rot, (-vel - _swimDir).normalized, .2f);
 	}
@@ -228,7 +228,7 @@ public class GlowingSwimmer : CosmeticInsect
 	/// <param name="first"></param>
 	public override void WallCollision(IntVector2 dir, bool first)
 	{
-		_swimDir -= RNV() * RNG.value + dir.ToVector2();
+		_swimDir -= RNV() * UnityEngine.Random.value + dir.ToVector2();
 		_swimDir.Normalize();
 	}
 

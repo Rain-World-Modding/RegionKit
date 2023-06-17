@@ -110,7 +110,7 @@ public class Drawable : CosmeticSprite
 			{
 				//ignored
 			}
-			catch (Exception e) when (e is IO.IOException)
+			catch (Exception e) when (e is System.IO.IOException)
 			{
 				//ignored
 			}

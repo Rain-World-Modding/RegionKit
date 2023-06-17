@@ -188,7 +188,7 @@ public static class _Module
 			if (pObj == null)
 			{
 				pObj = new PlacedObject(tp, null);
-				pObj.pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(RNG.value * 360f) * 0.2f;
+				pObj.pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(UnityEngine.Random.value * 360f) * 0.2f;
 				self.RoomSettings.placedObjects.Add(pObj);
 			}
 			DevInterface.PlacedObjectRepresentation placedObjectRepresentation;
@@ -205,7 +205,7 @@ public static class _Module
 			if (pObj == null)
 			{
 				pObj = new PlacedObject(tp, null);
-				pObj.pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(RNG.value * 360f) * 0.2f;
+				pObj.pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(UnityEngine.Random.value * 360f) * 0.2f;
 				self.RoomSettings.placedObjects.Add(pObj);
 			}
 			DevInterface.PlacedObjectRepresentation placedObjectRepresentation;
@@ -223,7 +223,7 @@ public static class _Module
 			{
 				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
 				{
-					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + Custom.DegToVec(RNG.value * 360f) * .2f
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + Custom.DegToVec(UnityEngine.Random.value * 360f) * .2f
 				});
 			}
 			var pObjRep = new LittlePlanetRepresentation(self.owner, "LittlePlanet_Rep", self, pObj);
@@ -236,7 +236,7 @@ public static class _Module
 			{
 				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
 				{
-					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(RNG.value * 360f) * .2f
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
 				});
 			}
 			var pObjRep = new FloatRectRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString());
@@ -249,7 +249,7 @@ public static class _Module
 			{
 				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
 				{
-					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(RNG.value * 360f) * .2f
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
 				});
 			}
 			var pObjRep = new CESRepresentation(self.owner, $"{tp}_Rep", self, pObj);
@@ -262,7 +262,7 @@ public static class _Module
 			{
 				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
 				{
-					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(RNG.value * 360f) * .2f
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
 				});
 			}
 			var pObjRep = new UpDownWFRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString());
@@ -275,7 +275,7 @@ public static class _Module
 			{
 				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
 				{
-					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(RNG.value * 360f) * .2f
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
 				});
 			}
 			var pObjRep = new ColoredLightBeamRepresentation(self.owner, $"{tp}_Rep", self, pObj);
@@ -288,7 +288,7 @@ public static class _Module
 			{
 				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
 				{
-					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(RNG.value * 360f) * .2f
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
 				});
 			}
 			var pObjRep = new ClimbJumpVineRepresentation(self.owner, $"{tp}_Rep", self, pObj);

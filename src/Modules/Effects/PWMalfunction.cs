@@ -110,12 +110,12 @@ class PWMalfunction
 			if (!flag)
 			{
 				instance.disruption = 1f;
-				if (instance.powered && RNG.value < 0.2f)
+				if (instance.powered && UnityEngine.Random.value < 0.2f)
 				{
 					instance.powered = false;
 				}
 			}
-			if (flag && !instance.powered && RNG.value < 0.025f)
+			if (flag && !instance.powered && UnityEngine.Random.value < 0.025f)
 			{
 				instance.powered = true;
 			}

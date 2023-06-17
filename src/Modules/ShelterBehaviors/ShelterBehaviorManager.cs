@@ -31,7 +31,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	/// <summary>
 	/// Global HTT override.
 	/// </summary>
-	public static bool Override_HTT => IO.File.Exists(AssetManager.ResolveFilePath("world/htt.txt"));
+	public static bool Override_HTT => System.IO.File.Exists(AssetManager.ResolveFilePath("world/htt.txt"));
 	private bool _htt;
 
 	// /// <summary>
@@ -420,24 +420,24 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	/// <returns></returns>
 	internal IntVector2 GetSpawnPosition(int salt)
 	{
-		RNG.State oldstate = RNG.state;
+		UnityEngine.Random.State oldstate = UnityEngine.Random.state;
 		try
 		{
 			if (room.game.IsStorySession)
-				RNG.InitState(salt + _incrementalsalt++ + room.game.clock + room.game.GetStorySession.saveState.seed + room.game.GetStorySession.saveState.cycleNumber + room.game.GetStorySession.saveState.deathPersistentSaveData.deaths + room.game.GetStorySession.saveState.deathPersistentSaveData.survives + Mathf.FloorToInt(room.game.GetStorySession.difficulty * 100) + Mathf.FloorToInt(room.game.GetStorySession.saveState.deathPersistentSaveData.howWellIsPlayerDoing * 100));
+				UnityEngine.Random.InitState(salt + _incrementalsalt++ + room.game.clock + room.game.GetStorySession.saveState.seed + room.game.GetStorySession.saveState.cycleNumber + room.game.GetStorySession.saveState.deathPersistentSaveData.deaths + room.game.GetStorySession.saveState.deathPersistentSaveData.survives + Mathf.FloorToInt(room.game.GetStorySession.difficulty * 100) + Mathf.FloorToInt(room.game.GetStorySession.saveState.deathPersistentSaveData.howWellIsPlayerDoing * 100));
 			// if (_noVanillaDoors)
 			// {
-			// 	if (_spawnPositions.Count > 0) return _spawnPositions[RNG.Range(0, _spawnPositions.Count)];
+			// 	if (_spawnPositions.Count > 0) return _spawnPositions[UnityEngine.Random.Range(0, _spawnPositions.Count)];
 			// 	return _vanillaSpawnPosition;
 			// }
 
-			int roll = RNG.Range(0, _spawnPositions.Count + 1);
+			int roll = UnityEngine.Random.Range(0, _spawnPositions.Count + 1);
 			if (_spawnPositions.Count < roll) return _spawnPositions[roll];
 			return _vanillaSpawnPosition;
 		}
 		finally
 		{
-			RNG.state = oldstate;
+			UnityEngine.Random.state = oldstate;
 		}
 	}
 	/// <summary>

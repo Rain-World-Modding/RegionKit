@@ -3,8 +3,8 @@ namespace RegionKit;
 /// <summary>
 /// Main plugin class
 /// </summary>
-[BIE.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "3.9")]
-public class Mod : BIE.BaseUnityPlugin
+[BepInEx.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "3.9")]
+public class Mod : BepInEx.BaseUnityPlugin
 {
 	internal const string RK_POM_CATEGORY = "RegionKit";
 	private static Mod __inst = null!;
@@ -12,7 +12,7 @@ public class Mod : BIE.BaseUnityPlugin
 	private readonly List<ModuleInfo> _modules = new();
 	private bool _modulesSetUp = false;
 	private RainWorld _rw = null!;
-	internal static LOG.ManualLogSource __logger => __inst.Logger;
+	internal static BepInEx.Logging.ManualLogSource __logger => __inst.Logger;
 	internal static RainWorld __RW => __inst._rw;
 	///<inheritdoc/>
 	public void OnEnable()
@@ -103,7 +103,7 @@ public class Mod : BIE.BaseUnityPlugin
 	}
 	#region module shenanigans
 	///<inheritdoc/>
-	public void ScanAssemblyForModules(RFL.Assembly asm)
+	public void ScanAssemblyForModules(System.Reflection.Assembly asm)
 	{
 		Type[] types;
 		try
@@ -129,11 +129,11 @@ public class Mod : BIE.BaseUnityPlugin
 		if (t is null) return;
 		foreach (RegionKitModuleAttribute moduleAttr in t.GetCustomAttributes(typeof(RegionKitModuleAttribute), false))
 		{
-			RFL.MethodInfo
+			System.Reflection.MethodInfo
 				enable = t.GetMethod(moduleAttr._enableMethod, BF_ALL_CONTEXTS_STATIC),
 				disable = t.GetMethod(moduleAttr._disableMethod, BF_ALL_CONTEXTS_STATIC);
-			RFL.MethodInfo? tick = moduleAttr._tickMethod is string ticm ? t.GetMethod(ticm, BF_ALL_CONTEXTS_STATIC) : null;
-			RFL.FieldInfo? loggerField = moduleAttr._loggerField is string logf ? t.GetField(logf, BF_ALL_CONTEXTS_STATIC) : null;
+			System.Reflection.MethodInfo? tick = moduleAttr._tickMethod is string ticm ? t.GetMethod(ticm, BF_ALL_CONTEXTS_STATIC) : null;
+			System.Reflection.FieldInfo? loggerField = moduleAttr._loggerField is string logf ? t.GetField(logf, BF_ALL_CONTEXTS_STATIC) : null;
 			string moduleName = moduleAttr._moduleName ?? t.FullName;
 			if (enable is null || disable is null)
 			{
@@ -151,7 +151,7 @@ public class Mod : BIE.BaseUnityPlugin
 			Action
 				enableDel = (Action)Delegate.CreateDelegate(typeof(Action), enable),
 				disableDel = (Action)Delegate.CreateDelegate(typeof(Action), disable);
-			Action? tickDel = tick is RFL.MethodInfo ntick ? (Action)Delegate.CreateDelegate(typeof(Action), ntick) : null;
+			Action? tickDel = tick is System.Reflection.MethodInfo ntick ? (Action)Delegate.CreateDelegate(typeof(Action), ntick) : null;
 
 			_modules.Add(new(moduleAttr._moduleName ?? t.FullName, enableDel, disableDel, tickDel, moduleAttr._tickPeriod)
 			{

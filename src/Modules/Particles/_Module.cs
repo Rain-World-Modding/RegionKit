@@ -33,18 +33,18 @@ internal static class _Module
 		}
 		__appliedOnce = true;
 
-		//IO.File.WriteAllText(AssetManager.ResolveFilePath("exampleParticle.json"), Newtonsoft.Json.JsonConvert.SerializeObject(PVisualState.Blank, Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new IgnoreShit() }));
+		//System.IO.File.WriteAllText(AssetManager.ResolveFilePath("exampleParticle.json"), Newtonsoft.Json.JsonConvert.SerializeObject(PVisualState.Blank, Formatting.Indented, new JsonSerializerSettings() { ContractResolver = new IgnoreShit() }));
 		__namedPresets.Clear();
 		bool foundany = false;
 		foreach (string file in AssetManager.ListDirectory("assets/regionkit/particlepresets", false, true))
 		{
-			IO.FileInfo fi = new(file);
+			System.IO.FileInfo fi = new(file);
 			if (fi.Extension == ".json")
 			{
 				try
 				{
 					__logger.LogMessage($"Deserializing particle preset {fi.Name}...");
-					var PVS = Newtonsoft.Json.JsonConvert.DeserializeObject<ParticleVisualState>(IO.File.ReadAllText(file));
+					var PVS = Newtonsoft.Json.JsonConvert.DeserializeObject<ParticleVisualState>(System.IO.File.ReadAllText(file));
 					__namedPresets.Add(fi.Name[..^5], PVS);
 					foundany = true;
 				}
@@ -66,7 +66,7 @@ internal static class _Module
 	}
 	internal static bool TryFindPreset(string tags, out ParticleVisualState state)
 	{
-		return _Module.__namedPresets.TryGetValue(REG.Regex.Split(tags, "\\s*,\\s*").RandomOrDefault() ?? "default", out state);
+		return _Module.__namedPresets.TryGetValue(System.Text.RegularExpressions.Regex.Split(tags, "\\s*,\\s*").RandomOrDefault() ?? "default", out state);
 	}
 	private class IgnoreShit : Newtonsoft.Json.Serialization.DefaultContractResolver
 	{

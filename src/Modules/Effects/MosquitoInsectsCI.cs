@@ -70,7 +70,7 @@ internal static class MosquitoInsectsCI
 	{
 		if (type == _Enums.MosquitoInsect)
 		{
-			if (!InsectCoordinator.TileLegalForInsect(type, self.room, pos) || self.room.world.rainCycle.TimeUntilRain < RNG.Range(1200, 1600))
+			if (!InsectCoordinator.TileLegalForInsect(type, self.room, pos) || self.room.world.rainCycle.TimeUntilRain < UnityEngine.Random.Range(1200, 1600))
 				return;
 			var cosmeticInsect = new MosquitoInsect(self.room, pos);
 			self.allInsects.Add(cosmeticInsect);
@@ -92,7 +92,7 @@ internal static class MosquitoInsectsCI
 /// </summary>
 public class MosquitoInsect : RedSwarmer
 {
-    private readonly float _bodySize = Mathf.Max(1.1f, .6f + RNG.value);
+    private readonly float _bodySize = Mathf.Max(1.1f, .6f + UnityEngine.Random.value);
     private int _wantToSuckCounter = 200, _restCtr;
 
 	///<inheritdoc/>
@@ -163,7 +163,7 @@ public class MosquitoInsect : RedSwarmer
         {
             sLeaser.sprites[3 + i].scaleY = 3.5f * (1f - num);
             sLeaser.sprites[3 + i].scaleX = 1.25f - num;
-            sLeaser.sprites[3 + i].rotation = Mathf.Pow(RNG.value, .5f) * 80f * ((RNG.value < .5f) ? (-1f) : 1f) + ((i == 0) ? (-90f) : 90f);
+            sLeaser.sprites[3 + i].rotation = Mathf.Pow(UnityEngine.Random.value, .5f) * 80f * ((UnityEngine.Random.value < .5f) ? (-1f) : 1f) + ((i == 0) ? (-90f) : 90f);
         }
     }
 

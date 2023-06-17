@@ -77,7 +77,7 @@ public class ColouredLightSource : UpdatableAndDeletable
 		_lightSource.affectedByPaletteDarkness = paletteDarkness;
 		if (room.game.clock % noiseUpdatePeriod == 0)
 		{
-			float noiseIntensity = flickIntensity * RNG.value;
+			float noiseIntensity = flickIntensity * UnityEngine.Random.value;
 			lightDisabled = noiseIntensity > flickerThreshold;
 		}
 		_lightSource.setAlpha = lightDisabled ? 0f : instantAlpha;

@@ -71,7 +71,7 @@ internal static class ColoredCamoBeetlesCI
 	{
 		if (type == _Enums.ColoredCamoBeetle)
 		{
-			if (!InsectCoordinator.TileLegalForInsect(type, self.room, pos) || self.room.world.rainCycle.TimeUntilRain < RNG.Range(1200, 1600))
+			if (!InsectCoordinator.TileLegalForInsect(type, self.room, pos) || self.room.world.rainCycle.TimeUntilRain < UnityEngine.Random.Range(1200, 1600))
 				return;
 			if (!self.room.readyForAI || self.room.aimap.getAItile(pos).terrainProximity < 5)
 			{
@@ -120,7 +120,7 @@ public class ColoredCamoBeetleInsect : Beetle
     public ColoredCamoBeetleInsect(Room room, Vector2 pos) : base(room, pos)
     {
         type = _Enums.ColoredCamoBeetle;
-        _effectColor = RNG.Range(0, 2);
+        _effectColor = UnityEngine.Random.Range(0, 2);
     }
 
 	/// <summary>
@@ -148,7 +148,7 @@ public class ColoredCamoBeetleInsect : Beetle
     public override void Act()
     {
         base.Act();
-        if (RNG.value < .05f && _middleSleepCtr == 0)
+        if (UnityEngine.Random.value < .05f && _middleSleepCtr == 0)
             _middleSleepCtr = 200;
         if (CanMiddleSleep)
         {

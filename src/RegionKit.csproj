@@ -53,10 +53,10 @@
 	<!-- Assets -->
 
 	<ItemGroup>
-		<None Update="Assets/**" CopyToOutputDirectory="PreserveNewest" />
-		<Compile Remove="Assets/**" />
-		<None Include="Assets/**" />
-		<EmbeddedResource Include="Assets/Embedded/**" />
+		<None Update="Embedded/**" CopyToOutputDirectory="PreserveNewest" />
+		<Compile Remove="Embedded/**" />
+		<None Include="Embedded/**" />
+		<EmbeddedResource Include="Embedded/**" />
 	</ItemGroup>
 
 	<!-- Lib includes. -->
@@ -173,28 +173,28 @@
 		</PackageReference>
 	</ItemGroup>
 	<!-- Build event -->
-	<ItemGroup>
-		<_CopyItems Include="Assets/Plain/**" />
-	</ItemGroup>
-	<Target Name="CopyOutput" AfterTargets="Build" Condition="'$(RWMods_RK)'!=''">
-		<Delete Files="$(RWMods_RK)/assets" />
-		<Delete Files="$(RWMods_RK)/plugins" />
+	<Target Name="BuildResultToModFolder" AfterTargets="Build">
 		<Message
-			Text="RK: Buildcopy from [ $(TargetPath) ] to [ $(RWMods_RK) ] - @(_CopyItems)"
+			Text="RK: Copying build result to mod folder"
 			Importance="high" />
 		<Copy
 			SourceFiles="$(TargetPath)"
-			DestinationFolder="$(RWMods_RK)/plugins"
+			DestinationFolder="../mod/plugins"
 			Retries="3"
 			RetryDelayMilliseconds="300" />
+		<ItemGroup>
+			<_CopyItems Include="../mod/**" />
+		</ItemGroup>
+		
+	</Target>
+	<Target Name="CopyTo" AfterTargets="BuildResultToModFolder" Condition="'$(RWMods_RK)'!=''"> 
+		<Message
+			Text="RK: Buildcopy from [ $(TargetPath) ] to [ $(RWMods_RK) ] - @(_CopyItems)"
+			Importance="high" />
+		<Delete Files="$(RWMods_RK)/**" />
 		<Copy
 			SourceFiles="@(_CopyItems)"
-			DestinationFolder="$(RWMods_RK)/assets/regionkit/%(RecursiveDir)"
-			Retries="3"
-			RetryDelayMilliseconds="300" />
-		<Copy
-			SourceFiles="modinfo.json"
-			DestinationFolder="$(RWMods_RK)"
+			DestinationFolder="$(RWMods_RK)/%(RecursiveDir)"
 			Retries="3"
 			RetryDelayMilliseconds="300" />
 	</Target>

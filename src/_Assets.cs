@@ -4,11 +4,11 @@ namespace RegionKit;
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Assets")]
 internal static class _Assets
 {
-	private static bool __appliedOnce = false;
+	//private static bool __appliedOnce = false;
 	public static void Enable()
 	{
 		LoadResources();
-		__appliedOnce = true;
+		//__appliedOnce = true;
 	}
 
 	internal static void LoadResources(/* On.RainWorld.orig_OnModsInit orig, RainWorld self */)

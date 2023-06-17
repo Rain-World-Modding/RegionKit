@@ -4,15 +4,8 @@
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Climbables")]
 public static class _Module
 {
-	private static bool __appliedOnce = false;
 	internal static void Enable()
 	{
-		if (!__appliedOnce)
-		{
-			//what is this for
-		}
-		__appliedOnce = true;
-
 		On.ClimbableVinesSystem.VineSwitch += ClimbableVinesSystem_VineSwitch_hk;
 
 		RegisterFullyManagedObjectType(new ManagedField[] { new IntVector2Field("vector", new IntVector2(), IntVector2Field.IntVectorReprType.rect) }, typeof(ClimbablePoleH), "ClimbablePoleH", RK_POM_CATEGORY);

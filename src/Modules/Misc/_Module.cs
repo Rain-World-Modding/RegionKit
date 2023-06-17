@@ -1,16 +1,16 @@
 ﻿namespace RegionKit.Modules.Misc;
 
-[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Miscellanceous")]
+[RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Miscellanceous")]
 internal static class _Module
 {
-	private static bool __appliedOnce;
+
+	public static void Setup()
+	{
+		_Enums.Register();
+	}
 	public static void Enable()
 	{
-		if (!__appliedOnce)
-		{
-			_Enums.Register();
-		}
-		__appliedOnce = true;
+
 		//PaletteTextInput.Apply();
 		SunBlockerFix.Apply();
 		//CloudAdjustment.Apply();

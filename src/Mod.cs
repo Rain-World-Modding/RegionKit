@@ -51,18 +51,28 @@ public class Mod : BepInEx.BaseUnityPlugin
 	{
 		try
 		{
+			if (!mod.ran_setup)
+			{
+				__logger.LogDebug($"setup {mod.name}");
+				mod.setup?.Invoke();
+			}
+			__logger.LogDebug($"enable {mod.name}");
 			mod.enable();
 		}
 		catch (Exception ex)
 		{
 			Logger.LogError($"Could not enable {mod.name}: {ex}");
 		}
+		finally
+		{
+			mod.ran_setup = true;
+		}
 	}
 	///<inheritdoc/>
 	public void OnDisable()
 	{
 		On.RainWorld.OnModsInit -= Init;
-		foreach (var mod in _modules)
+		foreach (ModuleInfo mod in _modules)
 		{
 			RunDisableOn(mod);
 		}
@@ -106,15 +116,11 @@ public class Mod : BepInEx.BaseUnityPlugin
 	public void ScanAssemblyForModules(System.Reflection.Assembly asm)
 	{
 		Type[] types;
-		try
+		types = asm.GetTypesSafe(out var err);
+		if (err is not null)
 		{
-			types = asm.GetTypes();
-		}
-		catch (ReflectionTypeLoadException e)
-		{
-			types = e.Types.Where(t => t != null).ToArray();
-			__logger.LogError(e);
-			__logger.LogError(e.InnerException);
+			__logger.LogError(err);
+			__logger.LogError(err.InnerException);
 		}
 		foreach (Type t in types)
 		{
@@ -132,7 +138,11 @@ public class Mod : BepInEx.BaseUnityPlugin
 			System.Reflection.MethodInfo
 				enable = t.GetMethod(moduleAttr._enableMethod, BF_ALL_CONTEXTS_STATIC),
 				disable = t.GetMethod(moduleAttr._disableMethod, BF_ALL_CONTEXTS_STATIC);
-			System.Reflection.MethodInfo? tick = moduleAttr._tickMethod is string ticm ? t.GetMethod(ticm, BF_ALL_CONTEXTS_STATIC) : null;
+
+			System.Reflection.MethodInfo?
+				tick = moduleAttr._tickMethod is string ticm ? t.GetMethod(ticm, BF_ALL_CONTEXTS_STATIC) : null,
+				setup = moduleAttr._setupMethod is string setupm ? t.GetMethod(setupm, BF_ALL_CONTEXTS_STATIC) : null;
+
 			System.Reflection.FieldInfo? loggerField = moduleAttr._loggerField is string logf ? t.GetField(logf, BF_ALL_CONTEXTS_STATIC) : null;
 			string moduleName = moduleAttr._moduleName ?? t.FullName;
 			if (enable is null || disable is null)
@@ -151,9 +161,18 @@ public class Mod : BepInEx.BaseUnityPlugin
 			Action
 				enableDel = (Action)Delegate.CreateDelegate(typeof(Action), enable),
 				disableDel = (Action)Delegate.CreateDelegate(typeof(Action), disable);
-			Action? tickDel = tick is System.Reflection.MethodInfo ntick ? (Action)Delegate.CreateDelegate(typeof(Action), ntick) : null;
+			;
+			Action?
+				tickDel = tick is System.Reflection.MethodInfo ntick ? (Action)Delegate.CreateDelegate(typeof(Action), ntick) : null,
+				setupDel = setup is System.Reflection.MethodInfo nset ? (Action)Delegate.CreateDelegate(typeof(Action), nset) : null;
 
-			_modules.Add(new(moduleAttr._moduleName ?? t.FullName, enableDel, disableDel, tickDel, moduleAttr._tickPeriod)
+			_modules.Add(new(
+				moduleAttr._moduleName ?? t.FullName,
+				enableDel,
+				disableDel,
+				setupDel,
+				tickDel,
+				moduleAttr._tickPeriod)
 			{
 				counter = 0,
 				errored = false
@@ -176,11 +195,13 @@ public class Mod : BepInEx.BaseUnityPlugin
 		string name,
 		Action enable,
 		Action disable,
+		Action? setup,
 		Action? tick,
 		int period)
 	{
 		internal bool errored;
 		internal int counter;
+		internal bool ran_setup;
 	};
 	#endregion
 }

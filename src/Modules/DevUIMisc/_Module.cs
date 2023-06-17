@@ -8,14 +8,8 @@ namespace RegionKit.Modules.DevUIMisc;
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "DevUI")]
 public static class _Module
 {
-	private static bool __appliedOnce = false;
 	internal static void Enable()
 	{
-		if (!__appliedOnce)
-		{
-			//what is this for
-		}
-		__appliedOnce = true;
 		PaletteTextInput.Apply();
 
 		//currently used for settings saving options stuffs, but will probably later be used for much more

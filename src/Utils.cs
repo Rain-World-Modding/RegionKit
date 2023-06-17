@@ -337,11 +337,29 @@ internal static partial class Utils
 	{
 		return typeof(T).GetField(name, context);
 	}
+
+	public static Type[] GetTypesSafe(this Assembly asm, out ReflectionTypeLoadException? err)
+	{
+		err = null;
+		Type[] types;
+		try
+		{
+			types = asm.GetTypes();
+		}
+		catch (ReflectionTypeLoadException e)
+		{
+			types = e.Types.Where(t => t != null).ToArray();
+			err = e;
+		}
+
+		return types;
+	}
 	/// <summary>
 	/// Yields all loaded assemblies with names matching a given regex.
 	/// </summary>
 	/// <param name="pattern">Regular expression to filter assemblies</param>
 	/// <returns>A yield ienumerable with results</returns>
+
 	public static IEnumerable<Assembly> FindAssemblies(string pattern)
 	{
 		Assembly[] lasms = AppDomain.CurrentDomain.GetAssemblies();

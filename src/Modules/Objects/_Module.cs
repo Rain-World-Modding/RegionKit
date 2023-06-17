@@ -3,65 +3,62 @@ using DevInterface;
 
 namespace RegionKit.Modules.Objects;
 ///<inheritdoc/>
-[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "MiscObjects")]
+[RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "MiscObjects")]
 public static class _Module
 {
-	private static bool __appliedOnce = false;
+
 
 	private static List<Hook> __objectHooks = new();
-	internal static void Enable()
+	internal static void Setup()
 	{
-		//TODO: make unapplies?
-		if (!__appliedOnce)
-		{
-			//NewEffects/
-			//NewObjects.Hook();
-			RegisterFullyManagedObjectType(ColouredLightSource.__fields, typeof(ColouredLightSource), null, RK_POM_CATEGORY);
-			RegisterFullyManagedObjectType(Drawable.__fields, typeof(Drawable), "FreeformDecalOrSprite", RK_POM_CATEGORY);
-			List<ManagedField> shroudFields = new()
+		//NewEffects/
+		//NewObjects.Hook();
+		RegisterFullyManagedObjectType(ColouredLightSource.__fields, typeof(ColouredLightSource), null, RK_POM_CATEGORY);
+		RegisterFullyManagedObjectType(Drawable.__fields, typeof(Drawable), "FreeformDecalOrSprite", RK_POM_CATEGORY);
+		List<ManagedField> shroudFields = new()
 			{
 				new Vector2ArrayField("quad", 4, true, Vector2ArrayField.Vector2ArrayRepresentationType.Polygon, Vector2.zero, Vector2.right * 20f, (Vector2.right + Vector2.up) * 20f, Vector2.up * 20f)
 			};
-			RegisterFullyManagedObjectType(shroudFields.ToArray(), typeof(Shroud), nameof(Shroud), RK_POM_CATEGORY);
+		RegisterFullyManagedObjectType(shroudFields.ToArray(), typeof(Shroud), nameof(Shroud), RK_POM_CATEGORY);
 
-			List<ManagedField> fanFields = new()
+		List<ManagedField> fanFields = new()
 			{
 				new FloatField("speed", 0f, 1f, 0.6f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Speed"),
 				new FloatField("scale", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Scale"),
 				new FloatField("depth", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Depth")
 			};
-			RegisterFullyManagedObjectType(fanFields.ToArray(), typeof(SpinningFan), nameof(SpinningFan), RK_POM_CATEGORY);
+		RegisterFullyManagedObjectType(fanFields.ToArray(), typeof(SpinningFan), nameof(SpinningFan), RK_POM_CATEGORY);
 
-			List<ManagedField> steamFields = new()
+		List<ManagedField> steamFields = new()
 			{
 				new FloatField("f1", 0f, 1f, 0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Duration"),
 				new FloatField("f2", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Frequency"),
 				new FloatField("f3", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Lifetime"),
 				new Vector2Field("v1", new Vector2(0f,45f), Vector2Field.VectorReprType.line)
 			};
-			RegisterFullyManagedObjectType(steamFields.ToArray(), typeof(SteamHazard), nameof(SteamHazard), RK_POM_CATEGORY);
+		RegisterFullyManagedObjectType(steamFields.ToArray(), typeof(SteamHazard), nameof(SteamHazard), RK_POM_CATEGORY);
 
 
-			RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>("RoomBorderTP", RK_POM_CATEGORY);
-			RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect", RK_POM_CATEGORY);
-			RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>("PlacedWaterfall", RK_POM_CATEGORY);
-			RegisterManagedObject<ColorifierUAD, ShortcutColorifierData, ManagedRepresentation>("ShortcutColor", RK_POM_CATEGORY);
+		RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>("RoomBorderTP", RK_POM_CATEGORY);
+		RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect", RK_POM_CATEGORY);
+		RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>("PlacedWaterfall", RK_POM_CATEGORY);
+		RegisterManagedObject<ColorifierUAD, ShortcutColorifierData, ManagedRepresentation>("ShortcutColor", RK_POM_CATEGORY);
 
-			__objectHooks = new List<Hook>
-			{
-				//new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.Loaded)), typeof(_Module).GetMethodAllContexts(nameof(Room_Loaded))),
-				//new Hook(typeof(GHalo).GetMethodAllContexts("get_Speed"), _mt.GetMethodAllContexts(nameof(halo_speed)))
-			};
-
-			PopupsMod.Register();
-
-			RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", RK_POM_CATEGORY);
-		}
-		else
+		__objectHooks = new List<Hook>
 		{
-			foreach (var hk in __objectHooks) if (!hk.IsApplied) hk.Apply();
-		}
-		__appliedOnce = true;
+			//new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.Loaded)), typeof(_Module).GetMethodAllContexts(nameof(Room_Loaded))),
+			//new Hook(typeof(GHalo).GetMethodAllContexts("get_Speed"), _mt.GetMethodAllContexts(nameof(halo_speed)))
+		};
+
+		PopupsMod.Register();
+
+		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", RK_POM_CATEGORY);
+	}
+
+	internal static void Enable()
+	{
+		//TODO: make unapplies?
+		foreach (var hk in __objectHooks) if (!hk.IsApplied) hk.Apply();
 		On.PlacedObject.GenerateEmptyData += MakeEmptyData;
 		On.DevInterface.ObjectsPage.CreateObjRep += CreateObjectReps;
 		On.DevInterface.ObjectsPage.DevObjectGetCategoryFromPlacedType += ObjectsPageDevObjectGetCategoryFromPlacedType;

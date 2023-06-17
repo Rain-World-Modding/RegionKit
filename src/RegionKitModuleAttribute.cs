@@ -5,6 +5,7 @@ public class RegionKitModuleAttribute : Attribute
 {
 	internal readonly string _enableMethod;
 	internal readonly string _disableMethod;
+	internal readonly string _setupMethod;
 	internal readonly string? _tickMethod;
 	internal readonly int _tickPeriod;
 	internal readonly string? _loggerField;
@@ -14,6 +15,7 @@ public class RegionKitModuleAttribute : Attribute
 	/// </summary>
 	/// <param name="enableMethod">Name of a static method that will be called to enable your module. Obligatory.</param>
 	/// <param name="disableMethod">Name of a static method that will be called to disable your module. Obligatory.</param>
+	/// <param name="setupMethod">Name of a static method that will be called to perform one-time setup. Optional.</param>
 	/// <param name="tickMethod">Name of a static method that will be called every few fixedUpdates. Optional.</param>
 	/// <param name="tickPeriod">If tickMethod is set, how often (in frames) will tick be called.</param>
 	/// <param name="loggerField">Name of a static field that will be populated with a ManualLogSource created for your module. Optional</param>
@@ -21,6 +23,7 @@ public class RegionKitModuleAttribute : Attribute
 	public RegionKitModuleAttribute(
 		string enableMethod,
 		string disableMethod,
+		string? setupMethod = null,
 		string? tickMethod = null,
 		int tickPeriod = 1,
 		string? loggerField = null,
@@ -28,6 +31,7 @@ public class RegionKitModuleAttribute : Attribute
 	{
 		this._enableMethod = enableMethod;
 		this._disableMethod = disableMethod;
+		this._setupMethod = setupMethod;
 		this._tickMethod = tickMethod;
 		this._tickPeriod = tickPeriod;
 		this._loggerField = loggerField;

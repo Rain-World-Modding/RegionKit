@@ -16,25 +16,21 @@ namespace RegionKit.Modules.Machinery;
 /// <summary>
 /// Handles registration of machinery objects.
 /// </summary>
-[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Machinery")]
+[RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Machinery")]
 public static class _Module
 {
-	private static bool __appliedOnce = false;
+	public static void Setup()
+	{
+		RegisterMPO();
+		GenerateHooks();
+	}
+
 	/// <summary>
 	/// Applies hooks and registers MPO.
 	/// </summary>
 	public static void Enable()
 	{
-		if (!__appliedOnce)
-		{
-			RegisterMPO();
-			GenerateHooks();
-		}
-		else
-		{
-			foreach (var hk in __machineryHooks) hk.Apply();
-		}
-		__appliedOnce = true;
+		foreach (var hk in __machineryHooks) hk.Apply();
 	}
 
 	private static List<Hook> __machineryHooks = null!;

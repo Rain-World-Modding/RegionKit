@@ -34,6 +34,8 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 
 	public CGLifeSimProjection(Room owner)
 	{
+		this.grid = new Tile[0, 0];
+		this.rectangles = new();
 		this.room = owner;
 		this.places = new List<PlacedObject>();
 
@@ -82,7 +84,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 				if (j == 0 && this.room.physicalObjects[j][k] is CoralBrain.StemSegment && UnityEngine.Random.value < 0.97f) continue;
 				for (int num = 0; num < this.room.physicalObjects[j][k].bodyChunks.Length; num++)
 				{
-					Tile candidate = GetTileAtPos(this.room.physicalObjects[j][k].bodyChunks[num].pos);
+					Tile? candidate = GetTileAtPos(this.room.physicalObjects[j][k].bodyChunks[num].pos);
 					if (candidate != null)
 					{
 						candidate.hovered++;
@@ -102,7 +104,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		}
 	}
 
-	private Tile GetTileAtPos(Vector2 pos)
+	private Tile? GetTileAtPos(Vector2 pos)
 	{
 		int tilex = Mathf.FloorToInt((pos.x / 20f - rootX) / 2f);
 		int tiley = Mathf.FloorToInt((pos.y / 20f - rootY) / 2f); //(Mathf.FloorToInt(pos.y / 20f) - rootY - 1) / 2;
@@ -150,7 +152,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 			this.rectangles = new List<Rect>();
 			foreach (PlacedObject po in places)
 			{
-				RWCustom.IntRect rect = (po.data as PlacedObject.GridRectObjectData).Rect;
+				RWCustom.IntRect rect = ((PlacedObject.GridRectObjectData)po.data).Rect;
 				minX = Mathf.Min(minX, rect.left);
 				minY = Mathf.Min(minY, rect.bottom);
 				maxX = Mathf.Max(maxX, rect.right + 1);
@@ -317,7 +319,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		// ???
 	}
 
-	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner)
 	{
 		if (newContatiner == null)
 		{
@@ -332,7 +334,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 
 	private class Tile
 	{
-		private List<Tile> neighbours;
+		private List<Tile> neighbours = new();
 		internal int hovered;
 		internal int gridX;
 		internal int gridY;

@@ -16,7 +16,7 @@ public class SimpleCogData : BaseMachineryData
 	internal float baseAngVel;
 	internal float rad;
 
-	public SimpleCogData(PlacedObject owner) : base(owner, new ManagedField[]
+	public SimpleCogData(PlacedObject? owner) : base(owner, new ManagedField[]
 	{
 			new EnumField<OperationMode>("opmode", OperationMode.Cosinal, displayName:"Operation mode")
 	})

@@ -25,18 +25,18 @@ internal class CGCameraEffects
 		orig(self);
 		if (self.room != null && self.fullScreenEffect == null)
 		{
-			foreach(PlacedObject pObj in self.room.roomSettings.placedObjects)
+			foreach (PlacedObject pObj in self.room.roomSettings.placedObjects)
 			{
 				if (pObj != null && pObj.type.ToString() == "CGFullScreenShader")
 				{
-					ManagedData data = pObj.data as ManagedData;
+					ManagedData data = (ManagedData)pObj.data;
 
-					string shader = data.GetValue<string>("shader");
+					string shader = data.GetValue<string>("shader") ?? "";
 					if (!self.game.rainWorld.Shaders.ContainsKey(shader))
 					{ continue; }
 
 					self.SetUpFullScreenEffect(data.GetValue<Enum>("container")!.ToString());
-					self.fullScreenEffect.shader = self.game.rainWorld.Shaders[shader];
+					if (self.fullScreenEffect is FSprite effect) effect.shader = self.game.rainWorld.Shaders[shader];
 					self.lightBloomAlphaEffect = RoomSettings.RoomEffect.Type.None;
 					self.lightBloomAlpha = data.GetValue<float>("alpha");
 				}

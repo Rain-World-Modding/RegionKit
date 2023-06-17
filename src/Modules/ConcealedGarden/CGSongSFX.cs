@@ -49,7 +49,7 @@ public class CGSongSFXTrigger : UpdatableAndDeletable
         {
 #pragma warning disable 0649
 		[StringField("1name", "songname", "Name")]
-		public string name;
+		public string name = "songname";
 		[FloatField("2intensity", 0f, 1f, 0.1f, 0.01f, displayName: "Intensity")]
 		public float intensity;
 #pragma warning restore 0649
@@ -58,7 +58,7 @@ public class CGSongSFXTrigger : UpdatableAndDeletable
 	}
 
 	public readonly PlacedObject pObj;
-        private CGSongSFXTriggerData data => pObj.data as CGSongSFXTriggerData;
+        private CGSongSFXTriggerData data => (CGSongSFXTriggerData)pObj.data;
         public CGSongSFXTrigger(Room room, PlacedObject pObj)
         {
             this.room = room;
@@ -95,6 +95,8 @@ public class CGSongSFXTrigger : UpdatableAndDeletable
 		{
 			return;
 		}
+
+		var cGSongSFX = ((CGSongSFX)player.song);
 		if (player.song == null || !(player.song is CGSongSFX) || !(player.song.name == this.data.name))
 		{
 			//this.room.game.manager.musicPlayer.RequestSSSong();
@@ -122,13 +124,13 @@ public class CGSongSFXTrigger : UpdatableAndDeletable
 				player.nextSong.playWhenReady = false;
 			}
 		}
-		else if ((player.song as CGSongSFX).setVolume != null)
+		else if (cGSongSFX.setVolume != null)
 		{
-			(player.song as CGSongSFX).setVolume = new float?(Mathf.Max((player.song as CGSongSFX).setVolume.Value, intensity));
+			cGSongSFX.setVolume = new float?(Mathf.Max(cGSongSFX.setVolume.Value, intensity));
 		}
 		else
 		{
-			(player.song as CGSongSFX).setVolume = new float?(intensity);
+			cGSongSFX.setVolume = new float?(intensity);
 		}
 	}
 }
@@ -153,7 +155,7 @@ public class CGSongSFXTrigger : UpdatableAndDeletable
 		public CGSongSFXGradientData(PlacedObject owner, ManagedField[] fields) : base(owner, customFields.ToList().Concat(fields.ToList()).ToArray()) { }
 	}
 
-	private CGSongSFXGradientData data => pObj.data as CGSongSFXGradientData;
+	private CGSongSFXGradientData data => (CGSongSFXGradientData)pObj.data;
 
 	public CGSongSFXGradient(Room room, PlacedObject pObj) : base(room, pObj) { }
 

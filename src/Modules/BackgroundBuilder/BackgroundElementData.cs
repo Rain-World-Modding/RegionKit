@@ -99,7 +99,7 @@ internal static class BackgroundElementData
 			return new RTV_Smoke(el.pos, el.depth, el.flattened, el.alpha, el.shaderInputColor, el.shaderType);
 
 		default:
-			return null; //this should never happen
+			throw new BackgroundBuilderException(BackgroundBuilderError.InvalidVanillaBgElement); //this should never happen
 		}
 	}
 
@@ -143,7 +143,7 @@ internal static class BackgroundElementData
 
 		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
 		{
-			if (self is not AboveCloudsView acv) return null;
+			if (self is not AboveCloudsView acv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
 			return new AboveCloudsView.DistantBuilding(acv, assetName, DefaultNeutralPos(pos, depth), depth, atmoDepthAdd);
 		}
@@ -170,7 +170,7 @@ internal static class BackgroundElementData
 
 		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
 		{
-			if (self is not AboveCloudsView acv) return null;
+			if (self is not AboveCloudsView acv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
 			return new AboveCloudsView.DistantLightning(acv, assetName, DefaultNeutralPos(pos, depth), depth, minusDepthForLayering);
 		}
@@ -199,7 +199,7 @@ internal static class BackgroundElementData
 
 		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
 		{
-			if (self is not AboveCloudsView acv) return null;
+			if (self is not AboveCloudsView acv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
 			return new AboveCloudsView.FlyingCloud(acv, DefaultNeutralPos(pos, depth), depth, 0, flattened, alpha, shaderInputColor);
 		}
@@ -231,7 +231,7 @@ internal static class BackgroundElementData
 
 		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
 		{
-			if (self is not RoofTopView rtv) return null;
+			if (self is not RoofTopView rtv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
 			return new RoofTopView.Floor(rtv, assetName, DefaultNeutralPos(pos, depth), fromDepth, toDepth);
 		}
@@ -257,7 +257,7 @@ internal static class BackgroundElementData
 
 		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
 		{
-			if (self is not RoofTopView rtv) return null;
+			if (self is not RoofTopView rtv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
 			return new RoofTopView.DistantBuilding(rtv, assetName, DefaultNeutralPos(pos, depth), depth, atmoDepthAdd);
 		}
@@ -283,7 +283,7 @@ internal static class BackgroundElementData
 
 		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
 		{
-			if (self is not RoofTopView rtv) return null;
+			if (self is not RoofTopView rtv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
 			return new RoofTopView.Building(rtv, assetName, DefaultNeutralPos(pos, depth), depth, scale);
 		}
@@ -303,7 +303,7 @@ internal static class BackgroundElementData
 
 		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
 		{
-			if (self is not RoofTopView rtv) return null;
+			if (self is not RoofTopView rtv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
 			return new RoofTopView.DistantGhost(rtv, DefaultNeutralPos(pos, depth), depth, 0);
 		}
@@ -326,7 +326,7 @@ internal static class BackgroundElementData
 
 		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
 		{
-			if (self is not RoofTopView rtv) return null;
+			if (self is not RoofTopView rtv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
 			return new RoofTopView.DustWave(rtv, assetName, new Vector2(pos.x, rtv.floorLevel + pos.y), depth, 0f);
 		}
@@ -355,7 +355,7 @@ internal static class BackgroundElementData
 
 		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
 		{
-			if (self is not RoofTopView rtv) return null;
+			if (self is not RoofTopView rtv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
 			return new RoofTopView.Smoke(rtv, new Vector2(pos.x, rtv.floorLevel + pos.y), depth, 0, flattened, alpha, shaderInputColor, shaderType);
 		}

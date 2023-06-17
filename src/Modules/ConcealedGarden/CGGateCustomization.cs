@@ -13,7 +13,7 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 	private RegionGateGraphics.DoorGraphic? _rightDoor;
 	private bool _swappedDrawOrder;
 
-	private ManagedData _Data => (_pObj.data as ManagedData)!;
+	private ManagedData _Data => (ManagedData)_pObj.data;
 
 	public CGGateCustomization(Room room, PlacedObject pObj)
 	{

@@ -14,16 +14,16 @@ internal class SpinningFan : UpdatableAndDeletable, IDrawable
 	{
 		this._pObj = pObj;
 		this.room = room;
-		var managedData = (this._pObj.data as ManagedData)!;
+		var managedData = (ManagedData)this._pObj.data;
 		_speed = managedData.GetValue<float>("speed");
 		_scale = managedData.GetValue<float>("scale");
 		_depth = managedData.GetValue<float>("depth");
 	}
-	
+
 	public override void Update(bool eu)
 	{
 		_pos = _pObj.pos;
-		var managedData = (_pObj.data as ManagedData)!;
+		var managedData = (ManagedData)_pObj.data;
 		_getToSpeed = Mathf.Lerp(-10f, 10f, managedData.GetValue<float>("speed"));
 		if (room.world.rainCycle.brokenAntiGrav != null)
 		{

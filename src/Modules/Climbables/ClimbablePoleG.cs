@@ -2,11 +2,11 @@
 
 abstract public class ClimbablePoleG : UpdatableAndDeletable, IDrawable, INotifyWhenRoomIsReady
 {
-	protected ManagedData data => placedObject.data as ManagedData;
+	protected ManagedData data => (ManagedData)placedObject.data;
 	protected PlacedObject placedObject;
 	protected IntRect rect;
 	protected IntRect lastRect;
-	protected bool[] oldTiles;
+	protected bool[]? oldTiles;
 	public IntRect RectData
 	{
 		get
@@ -88,10 +88,10 @@ abstract public class ClimbablePoleG : UpdatableAndDeletable, IDrawable, INotify
 		Vector2 width = getWidth();
 		Vector2 start = getStart();
 		Vector2 end = getEnd();
-		(sLeaser.sprites[0] as TriangleMesh).MoveVertice(0, start - width / 2 - camPos);
-		(sLeaser.sprites[0] as TriangleMesh).MoveVertice(1, start + width / 2 - camPos);
-		(sLeaser.sprites[0] as TriangleMesh).MoveVertice(2, end - width / 2 - camPos);
-		(sLeaser.sprites[0] as TriangleMesh).MoveVertice(3, end + width / 2 - camPos);
+		((TriangleMesh)sLeaser.sprites[0]).MoveVertice(0, start - width / 2 - camPos);
+		((TriangleMesh)sLeaser.sprites[0]).MoveVertice(1, start + width / 2 - camPos);
+		((TriangleMesh)sLeaser.sprites[0]).MoveVertice(2, end - width / 2 - camPos);
+		((TriangleMesh)sLeaser.sprites[0]).MoveVertice(3, end + width / 2 - camPos);
 	}
 
 	void INotifyWhenRoomIsReady.AIMapReady()

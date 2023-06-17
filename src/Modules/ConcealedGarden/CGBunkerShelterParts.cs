@@ -48,7 +48,7 @@ internal static class CGBunkerShelterParts
 		private float widthFloat;
 		private StaticSoundLoop backgroundWorkingLoop;
 
-		CGBunkerShelterFlapData data => pObj.data as CGBunkerShelterFlapData;
+		CGBunkerShelterFlapData data => (CGBunkerShelterFlapData)pObj.data;
 
 		public CGBunkerShelterFlap(Room room, PlacedObject pObj)
 		{

@@ -2,7 +2,7 @@
 
 public class ClimbableRope : UpdatableAndDeletable, IClimbableVine, IDrawable
 {
-	protected ManagedData data => placedObject.data as ManagedData;
+	protected ManagedData data => (ManagedData)placedObject.data;
 	protected PlacedObject placedObject;
 	protected Vector2 startPos;
 	protected Vector2 endPos;
@@ -243,10 +243,10 @@ public class ClimbableRope : UpdatableAndDeletable, IClimbableVine, IDrawable
 			Vector2 vector2 = Vector2.Lerp(this.nodes[i, 1], this.nodes[i, 0], timeStacker);
 			Vector2 normalized = (vector - vector2).normalized;
 			Vector2 a = RWCustom.Custom.PerpendicularVector(normalized);
-			(sLeaser.sprites[0] as TriangleMesh).MoveVertice(i * 4, vector - a * d - camPos);
-			(sLeaser.sprites[0] as TriangleMesh).MoveVertice(i * 4 + 1, vector + a * d - camPos);
-			(sLeaser.sprites[0] as TriangleMesh).MoveVertice(i * 4 + 2, vector2 - a * d - camPos);
-			(sLeaser.sprites[0] as TriangleMesh).MoveVertice(i * 4 + 3, vector2 + a * d - camPos);
+			((TriangleMesh)sLeaser.sprites[0]).MoveVertice(i * 4, vector - a * d - camPos);
+			((TriangleMesh)sLeaser.sprites[0]).MoveVertice(i * 4 + 1, vector + a * d - camPos);
+			((TriangleMesh)sLeaser.sprites[0]).MoveVertice(i * 4 + 2, vector2 - a * d - camPos);
+			((TriangleMesh)sLeaser.sprites[0]).MoveVertice(i * 4 + 3, vector2 + a * d - camPos);
 			vector = vector2;
 		}
 	}
@@ -254,9 +254,9 @@ public class ClimbableRope : UpdatableAndDeletable, IClimbableVine, IDrawable
 	void IClimbableVine.BeingClimbedOn(Creature crit)
 	{
 		this.playerCrawlingOff = false;
-		if (crit is Player)
+		if (crit is Player p)
 		{
-			Player p = (crit as Player);
+			
 			float ropeindexFloat = Mathf.Lerp(0, this.ropes.Length - 1, p.vinePos.floatPos);
 			int ropeindex = Mathf.FloorToInt(ropeindexFloat);
 			Vector2 speee = speeds[ropeindex, 0];
@@ -298,7 +298,7 @@ public class ClimbableRope : UpdatableAndDeletable, IClimbableVine, IDrawable
 			// hands animate
 			if (ropeindexFloat * conRad > 40f && p.input[0].y == 0)
 			{
-				PlayerGraphics pgraphics = p.graphicsModule as PlayerGraphics;
+				PlayerGraphics pgraphics = (PlayerGraphics)p.graphicsModule;
 				Vector2 handTarget = nodes[0, 0];
 				float handIndexTargetFloat = ropeindexFloat - 16f / conRad;
 				int handIndexTarget = Mathf.FloorToInt(handIndexTargetFloat);

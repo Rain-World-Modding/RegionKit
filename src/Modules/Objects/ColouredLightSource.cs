@@ -52,7 +52,7 @@ public class ColouredLightSource : UpdatableAndDeletable
 	{
 		this.room = room;
 		_localPlacedObject = placedObject;
-		_data = (placedObject.data as ManagedData)!;
+		_data = (ManagedData)placedObject.data;
 
 		_lightSource = new LightSource(_localPlacedObject.pos, false, lightCol, this)
 		{

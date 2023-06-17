@@ -73,7 +73,7 @@ public static class _Module
 		var result = orig(self, testRoom, worldPos);
 		if (!EchoParser.__echoSettings.TryGetValue(self.ghostID, out var settings)) return result;
 		if (testRoom.index == self.ghostRoom.index) return 1f;
-		var echoEffectLimit = settings.GetRadius(__slugcatNumber) * 1000f; //I think 1 screen is like a 1000 so I'm going with that
+		var echoEffectLimit = settings.GetRadius(__slugcatNumber ?? SlugcatStats.Name.White) * 1000f; //I think 1 screen is like a 1000 so I'm going with that
 		Vector2 globalDistance = Custom.RestrictInRect(worldPos, FloatRect.MakeFromVector2(self.world.RoomToWorldPos(new Vector2(), self.ghostRoom.index), self.world.RoomToWorldPos(self.ghostRoom.size.ToVector2() * 20f, self.ghostRoom.index)));
 		if (!Custom.DistLess(worldPos, globalDistance, echoEffectLimit)) return 0;
 		var someValue = self.DegreesOfSeparation(testRoom); //No clue what this number does
@@ -191,8 +191,9 @@ public static class _Module
 		orig(self, world, ghostid);
 		if (self.ghostRoom is null && EchoParser.__extendedEchoIDs.Contains(self.ghostID))
 		{
-			self.ghostRoom = world.GetAbstractRoom(EchoParser.__echoSettings[ghostid].GetEchoRoom(__slugcatNumber));
-			self.songName = EchoParser.__echoSettings[ghostid].GetEchoSong(__slugcatNumber);
+			SlugcatStats.Name slugnum = __slugcatNumber ?? SlugcatStats.Name.White;
+			self.ghostRoom = world.GetAbstractRoom(EchoParser.__echoSettings[ghostid].GetEchoRoom(slugnum));
+			self.songName = EchoParser.__echoSettings[ghostid].GetEchoSong(slugnum);
 			__logger.LogInfo($"[Echo Extender] Set Song: {self.songName}");
 			__logger.LogInfo($"[Echo Extender] Set Room {self.ghostRoom?.name}");
 		}
@@ -203,7 +204,8 @@ public static class _Module
 		orig(self, room, placedobject, worldghost);
 		if (!EchoParser.__extendedEchoIDs.Contains(self.worldGhost.ghostID)) return;
 		var settings = EchoParser.__echoSettings[self.worldGhost.ghostID];
-		self.scale = settings.GetSizeMultiplier(__slugcatNumber) * 0.75f;
-		self.defaultFlip = settings.GetDefaultFlip(__slugcatNumber);
+		SlugcatStats.Name slugnum = __slugcatNumber ?? SlugcatStats.Name.White;
+		self.scale = settings.GetSizeMultiplier(slugnum) * 0.75f;
+		self.defaultFlip = settings.GetDefaultFlip(slugnum);
 	}
 }

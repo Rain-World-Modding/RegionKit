@@ -13,7 +13,7 @@ public static class CGOrganicShelter
 	public class CGOrganicShelterCoordinator : UpdatableAndDeletable, IDrawable, IReactToShelterEvents
 	{
 		private readonly PlacedObject pObj;
-		private readonly RainCycle rainCycle;
+		private readonly RainCycle? rainCycle;
 		private float closedFac;
 		private float closeSpeed;
 		ManagedData data;
@@ -40,7 +40,7 @@ public static class CGOrganicShelter
 		{
 			this.room = room;
 			this.pObj = pObj;
-			this.data = pObj.data as ManagedData;
+			this.data = (ManagedData)pObj.data;
 			//Debug.Log("Coordinator start");
 			//Debug.Log("Reading data");
 
@@ -76,7 +76,7 @@ public static class CGOrganicShelter
 			for (int i = 0; i < locks.Count; i++)
 			{
 				PlacedObject lk = locks[i];
-				ManagedData lkdata = (lk.data as ManagedData);
+				ManagedData lkdata = ((ManagedData)lk.data);
 				this.lockPos[i] = lk.pos;
 				this.lockTarget[i] = lk.pos + lkdata.GetValue<Vector2>("dest");
 				this.locks[i] = new RootedPaart(lk.pos, lkdata.GetValue<Vector2>("size").magnitude, UnityEngine.Random.value * 360f, lkdata.GetValue<float>("stiff"), 0);
@@ -91,7 +91,7 @@ public static class CGOrganicShelter
 			for (int i = 0; i < linings.Count; i++)
 			{
 				//Debug.Log("and " + (i+1));
-				ManagedData lidata = (linings[i].data as ManagedData);
+				ManagedData lidata = ((ManagedData)linings[i].data);
 				float placerad = lidata.GetValue<Vector2>("size").magnitude;
 				float smin = lidata.GetValue<float>("sizemin");
 				float smax = lidata.GetValue<float>("sizemax");
@@ -159,7 +159,7 @@ public static class CGOrganicShelter
 			}
 			tiles.Clear(); // done with you
 
-			int oldseed = UnityEngine.Random.seed;
+			var oldstate = UnityEngine.Random.state;
 			//Debug.Log("spawning blobs");
 			List<RootedPaart> blobs = new List<RootedPaart>();
 			// Fill these lines with blobs
@@ -170,7 +170,8 @@ public static class CGOrganicShelter
 				float avrDensity = line.Aggregate(0f, (f, t) => f + t.density) / len;
 				float avrMinSize = line.Aggregate(0f, (f, t) => f + t.smin) / len;
 				float avrMaxSize = line.Aggregate(0f, (f, t) => f + t.smax) / len;
-				UnityEngine.Random.seed = line.Aggregate(0, (i, t) => i + t.seed);
+				UnityEngine.Random.InitState(line.Aggregate(0, (i, t) => i + t.seed));
+				//UnityEngine.Random.seed = line.Aggregate(0, (i, t) => i + t.seed);
 				int nodes = Mathf.FloorToInt(UnityEngine.Random.Range(0.5f, 1.5f) * len * avrDensity * 20f / (0.5f * avrMinSize + 0.5f * avrMaxSize));
 				//Debug.Log("b");
 				for (int i = 0; i < nodes; i++)
@@ -193,7 +194,8 @@ public static class CGOrganicShelter
 																												// this has flaws though
 						towardsEpicenter = (line[tileAt + 1].intensity - line[tileAt].intensity) * (line[tileAt + 1].tile - line[tileAt].tile).ToVector2() * (1 - factorBetween) * factorBetween;
 						//Debug.Log("f");
-						UnityEngine.Random.seed = tileAtFactor.seed;
+						UnityEngine.Random.InitState(tileAtFactor.seed);
+						//UnityEngine.Random.seed = tileAtFactor.seed;
 						line[tileAt].seed++;
 					}
 					else
@@ -202,7 +204,7 @@ public static class CGOrganicShelter
 						tileAtFactor = line[0];
 						towardsEpicenter *= 0f;
 						//Debug.Log("h");
-						UnityEngine.Random.seed = tileAtFactor.seed;
+						UnityEngine.Random.InitState(tileAtFactor.seed);
 						line[0].seed++;
 					}
 					//Debug.
@@ -226,7 +228,7 @@ public static class CGOrganicShelter
 			//Debug.Log("m");
 			lines.Clear();
 			//Debug.Log("blobs done");
-			UnityEngine.Random.seed = oldseed;
+			UnityEngine.Random.state = oldstate;
 
 			this.blobs = blobs.ToArray();
 
@@ -329,7 +331,7 @@ public static class CGOrganicShelter
 			get
 			{
 				//return false;
-				return this.room.abstractRoom.shelterIndex > -1 && this.room.world.brokenShelters != null & this.room.world.brokenShelters[this.room.abstractRoom.shelterIndex];
+				return this.room.abstractRoom.shelterIndex > -1 && this.room.world.brokenShelters != null && this.room.world.brokenShelters[this.room.abstractRoom.shelterIndex];
 			}
 		}
 
@@ -379,7 +381,7 @@ public static class CGOrganicShelter
 			}
 		}
 
-		public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+		public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner)
 		{
 			//if (newContatiner == null) newContatiner = rCam.ReturnFContainer("Midground");
 			FContainer mg = rCam.ReturnFContainer("Midground");

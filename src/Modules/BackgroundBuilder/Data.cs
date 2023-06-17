@@ -161,7 +161,7 @@ internal static class Data
 
 					include = inverted != include;
 
-					lines[i] = !include? remove : lines[i].Substring(lines[i].IndexOf(")") + 1);
+					lines[i] = !include ? remove : lines[i].Substring(lines[i].IndexOf(")") + 1);
 				}
 			}
 
@@ -208,7 +208,7 @@ internal static class Data
 
 					case "Type":
 						SetBGTypeAndData((BackgroundTemplateType)ExtEnumBase.Parse(typeof(BackgroundTemplateType), array[1], false));
-						
+
 						break;
 
 					case "Parent":
@@ -266,7 +266,7 @@ internal static class Data
 			{ realData = new RoofTopView_BGData(); }
 
 			else { realData = new BGData(); }
-			
+
 		}
 
 		/// <summary>
@@ -282,7 +282,7 @@ internal static class Data
 			"---------------",
 			};
 
-			return string.Join("\n",lines) + "\n" + realData.Serialize();
+			return string.Join("\n", lines) + "\n" + realData.Serialize();
 		}
 
 		/// <summary>
@@ -323,7 +323,15 @@ internal static class Data
 
 				foreach (CustomBgElement element in backgroundElements)
 				{
-					self.AddElement(element.MakeSceneElement(self));
+					try
+					{
+
+						self.AddElement(element.MakeSceneElement(self));
+					}
+					catch (BackgroundBuilderException bgex)
+					{
+						__logger.LogError($"Could not create custom background element: {bgex}");
+					}
 				}
 			}
 			else
@@ -484,7 +492,7 @@ internal static class Data
 			if (overrideYStart != -40 * cloudsEndDepth) lines.Add($"overrideYStart: {overrideYStart}");
 			if (overrideYEnd != 0) lines.Add($"overrideYEnd: {overrideYEnd}");
 
-			foreach (DistantCloud cloud in Scene.clouds.Where(x => x is DistantCloud))
+			foreach (DistantCloud cloud in (Scene?.clouds ?? new()).Where(x => x is DistantCloud))
 			{
 				Debug.Log("\nCLOUD DEPTHS\nshouldn't go in background file, but useful for positioning\n");
 				Debug.Log($"distantCloud: {cloud.pos.x}, {cloud.pos.y}, {cloud.depth}, {cloud.distantCloudDepth}");
@@ -707,7 +715,7 @@ internal static class Data
 				break;
 
 			case "DistantBuilding":
-				if (TryGetBgElementFromString("RF_"+line, out CustomBgElement element))
+				if (TryGetBgElementFromString("RF_" + line, out CustomBgElement element))
 				{ backgroundElements.Add(element); }
 				break;
 			case "Floor":
@@ -764,8 +772,8 @@ internal static class Data
 	}
 
 	public static bool HasInstanceData(this BackgroundScene.BackgroundSceneElement element)
-	{ 
+	{
 		return element is AboveCloudsView.DistantBuilding or DistantLightning or FlyingCloud or Floor or
-			RoofTopView.DistantBuilding or Building or DistantGhost or DustWave or RoofTopView.Smoke; 
+			RoofTopView.DistantBuilding or Building or DistantGhost or DustWave or RoofTopView.Smoke;
 	}
 }

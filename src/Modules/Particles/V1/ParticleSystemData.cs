@@ -78,7 +78,7 @@ public abstract class ParticleSystemData : ManagedData
 	public ParticleSystemData(PlacedObject owner, List<ManagedField>? additionalFields)
 		: base(
 			owner,
-			additionalFields.AddRangeReturnSelf(new ManagedField[] { new Vector2Field("sdBase", new Vector2(30f, 30f), label: "Direction"), }).ToArray()
+			additionalFields?.AddRangeReturnSelf(new ManagedField[] { new Vector2Field("sdBase", new Vector2(30f, 30f), label: "Direction"), }).ToArray()
 			)
 	{
 		//c_ST = GetSuitableTiles();

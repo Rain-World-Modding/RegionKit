@@ -6,7 +6,7 @@ namespace RegionKit.Modules.ConcealedGarden;
 internal class CGSlipperySlope : UpdatableAndDeletable
 {
 	private PlacedObject pObj;
-	private CGSlipperySlopeData data => pObj.data as CGSlipperySlopeData;
+	private CGSlipperySlopeData data => (CGSlipperySlopeData)pObj.data;
 	public CGSlipperySlope(Room room, PlacedObject pObj)
 	{
 		this.room = room;

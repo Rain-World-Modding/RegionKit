@@ -24,7 +24,7 @@ public class SteamHazard : UpdatableAndDeletable
 	{
 		_placedObject = pObj;
 		this.room = room;
-		ManagedData managedData = (_placedObject.data as ManagedData)!;
+		ManagedData managedData = (ManagedData)_placedObject.data;
 		_durationRate = managedData.GetValue<float>("f1");
 		_frequencyRate = managedData.GetValue<float>("f2");
 		_duration = 0f;
@@ -40,7 +40,7 @@ public class SteamHazard : UpdatableAndDeletable
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		ManagedData managedData = (_placedObject.data as ManagedData)!;
+		ManagedData managedData = (ManagedData)_placedObject.data;
 		_durationRate = managedData.GetValue<float>("f1");
 		_frequencyRate = managedData.GetValue<float>("f2");
 		_lifetime = managedData.GetValue<float>("f3");

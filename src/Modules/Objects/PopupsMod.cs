@@ -38,7 +38,7 @@ internal static class PopupsMod
 	public class PopupTrigger : UAD
 	{
 		protected PlacedObject pObj;
-		protected ManagedData data => pObj.data as ManagedData;
+		protected ManagedData data => (ManagedData)pObj.data;
 		protected int placedObjectIndex;
 		protected bool queuedUp;
 		private int delay;

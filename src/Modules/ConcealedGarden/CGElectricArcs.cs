@@ -52,7 +52,7 @@ internal static class CGElectricArcs
 
 #pragma warning restore 0649
 		public CGElectricSparkData(PlacedObject owner) : base(owner, customFields) { }
-		public CGElectricSparkData(PlacedObject owner, ManagedField[] fields = null) : base(owner, fields == null ? customFields : customFields.ToList().Concat(fields.ToList()).ToArray()) { }
+		public CGElectricSparkData(PlacedObject owner, ManagedField[]? fields = null) : base(owner, fields == null ? customFields : customFields.ToList().Concat(fields.ToList()).ToArray()) { }
 	}
 
 	public class CGElectricArcData : CGElectricSparkData
@@ -69,7 +69,7 @@ internal static class CGElectricArcs
 		public int shockcooldown;
 #pragma warning restore 0649
 		public CGElectricArcData(PlacedObject owner) : base(owner, customFields) { }
-		public CGElectricArcData(PlacedObject owner, ManagedField[] fields = null) : base(owner, fields == null ? customFields : customFields.ToList().Concat(fields.ToList()).ToArray()) { }
+		public CGElectricArcData(PlacedObject owner, ManagedField[]? fields = null) : base(owner, fields == null ? customFields : customFields.ToList().Concat(fields.ToList()).ToArray()) { }
 	}
 
 	public class CGElectricArcGeneratorData : CGElectricSparkData
@@ -94,7 +94,7 @@ internal static class CGElectricArcs
 		public float forwardness;
 #pragma warning restore 0649
 		public CGElectricArcGeneratorData(PlacedObject owner) : base(owner, customFields) { }
-		public CGElectricArcGeneratorData(PlacedObject owner, ManagedField[] fields = null) : base(owner, fields == null ? customFields : customFields.ToList().Concat(fields.ToList()).ToArray()) { }
+		public CGElectricArcGeneratorData(PlacedObject owner, ManagedField[]? fields = null) : base(owner, fields == null ? customFields : customFields.ToList().Concat(fields.ToList()).ToArray()) { }
 
 	}
 
@@ -106,7 +106,7 @@ internal static class CGElectricArcs
 		int cooldown;
 		private bool powered = true;
 
-		private CGElectricArcGeneratorData data => pObj.data as CGElectricArcGeneratorData;
+		private CGElectricArcGeneratorData data => (CGElectricArcGeneratorData)pObj.data;
 		public CGElectricArcGenerator(PlacedObject pObj, Room room)
 		{
 			this.pObj = pObj;
@@ -187,13 +187,13 @@ internal static class CGElectricArcs
 	{
 		private readonly PlacedObject pObj;
 
-		private CGElectricArcData data => pObj.data as CGElectricArcData;
+		private CGElectricArcData data => (CGElectricArcData)pObj.data;
 		public CGElectricArc(PlacedObject pObj)
 		{
 			this.pObj = pObj;
 		}
 
-		Spark spark;
+		Spark? spark;
 		private int cooldown;
 
 		public override void Update(bool eu)
@@ -225,7 +225,7 @@ internal static class CGElectricArcs
 			private StaticSoundLoop soundLoop;
 			private StaticSoundLoop disruptedLoop;
 			private float weightedDisruption;
-			private LightSource light;
+			private LightSource? light;
 
 			public Spark(Room room, Vector2 start, Vector2 stop, UpdatableAndDeletable owner, int nNodes, CGElectricSparkData data)
 			{
@@ -350,7 +350,7 @@ internal static class CGElectricArcs
 
 			public void Shock(PhysicalObject phys, int chunkindex, Vector2 contact)
 			{
-				Creature crit = phys as Creature;
+				Creature? crit = phys as Creature;
 				if (broken && crit != null)  // shocked during decay
 				{
 					crit.room.AddObject(new CreatureSpasmer(crit, true, Mathf.FloorToInt(20 * intensity)));
@@ -451,8 +451,8 @@ internal static class CGElectricArcs
 			{
 				//TriangleMesh trimesh = sLeaser.sprites[0] as TriangleMesh;
 
-				TriangleMesh outermesh = sLeaser.sprites[0] as TriangleMesh;
-				TriangleMesh innermesh = sLeaser.sprites[1] as TriangleMesh;
+				TriangleMesh outermesh = (TriangleMesh)sLeaser.sprites[0];
+				TriangleMesh innermesh = (TriangleMesh)sLeaser.sprites[1];
 				Vector2 prev = start;
 				Vector2 lastPerp = nNodes > 0 ? RWCustom.Custom.PerpendicularVector(Vector2.Lerp(nodes[0].pos, nodes[0].lastPos, timeStacker) - prev).normalized : RWCustom.Custom.PerpendicularVector(stop - prev).normalized;
 				lastPerp = Vector2.Lerp(lastPerp, RWCustom.Custom.PerpendicularVector(stop - start).normalized, 0.6f);

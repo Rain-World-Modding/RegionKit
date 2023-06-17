@@ -7,7 +7,7 @@ namespace RegionKit.Modules.ConcealedGarden;
 public class CGGravityGradient : UpdatableAndDeletable
 {
         private readonly PlacedObject pObj;
-	private CGGravityGradientData data => pObj.data as CGGravityGradientData;
+	private CGGravityGradientData data => (CGGravityGradientData)pObj.data;
 
 
 	public CGGravityGradient(Room room, PlacedObject pObj)

@@ -3,8 +3,8 @@
 namespace RegionKit.Modules.Climbables;
 
 internal class BezierObjectRepresentation : ManagedRepresentation
-    {
-	protected ManagedData data => placedObject.data as ManagedData;
+{
+	protected ManagedData data => (ManagedData)placedObject.data;
 	private Vector2[] _Quad
 	{
 		get
@@ -25,9 +25,9 @@ internal class BezierObjectRepresentation : ManagedRepresentation
 	Handle handleC;
 	Handle handleD;
 
-	GameObject lineObject;
-	LineRenderer lineRenderer;
-	FGameObjectNode lineNode;
+	GameObject? lineObject;
+	LineRenderer? lineRenderer;
+	FGameObjectNode? lineNode;
 	public BezierObjectRepresentation(PlacedObject.Type placedType, ObjectsPage objPage, PlacedObject pObj) : base(placedType, objPage, pObj)
 	{
 		placedObject = pObj;
@@ -48,7 +48,7 @@ internal class BezierObjectRepresentation : ManagedRepresentation
 		}
 
 		lineObject = new GameObject();
-		lineRenderer = lineObject.AddComponent(typeof(LineRenderer)) as LineRenderer;
+		lineRenderer = (LineRenderer)(lineObject.AddComponent(typeof(LineRenderer)));
 		lineRenderer.material = new Material(FShader.defaultShader.shader);
 
 		UpdateLineSegments();
@@ -65,7 +65,7 @@ internal class BezierObjectRepresentation : ManagedRepresentation
 	}
 
 	protected void UpdateLineSegments()
-        {
+	{
 		float heuristicDistance = handleB.pos.magnitude;
 		heuristicDistance += handleD.pos.magnitude;
 		heuristicDistance += (handleB.pos - (handleC.pos + handleD.pos)).magnitude;
@@ -77,35 +77,37 @@ internal class BezierObjectRepresentation : ManagedRepresentation
 		Vector2 posC = handleC.absPos;
 		Vector2 posD = handleD.absPos;
 
-
+		if (lineRenderer is null) {
+			return;
+		};
 		lineRenderer.SetVertexCount(nsegments);
 		float step = 1f / nsegments;
-            for (int i = 0; i < nsegments; i++)
-            {
+		for (int i = 0; i < nsegments; i++)
+		{
 			float t = step * i;
 			float num = 1f - t;
-			Vector2 pt =  num * num * num * posA + 3f * num * num * t * posB + 3f * num * t * t * posD + t * t * t * posC;
+			Vector2 pt = num * num * num * posA + 3f * num * num * t * posB + 3f * num * t * t * posD + t * t * t * posC;
 			lineRenderer.SetPosition(i, pt);
-            }
+		}
 	}
 
 
-        public override void ClearSprites()
-        {
+	public override void ClearSprites()
+	{
 		base.ClearSprites();
 		lineObject = null;
 		lineRenderer = null;
-		lineNode.RemoveFromContainer();
+		lineNode?.RemoveFromContainer();
 		lineNode = null;
 	}
 
 	public override void SetColor(Color col)
-        {
+	{
 		base.SetColor(col);
-		lineRenderer.SetColors(col, col);
-        }
+		lineRenderer?.SetColors(col, col);
+	}
 
-        public override void Refresh()
+	public override void Refresh()
 	{
 		base.Refresh();
 		Vector2[] vectors = new Vector2[]

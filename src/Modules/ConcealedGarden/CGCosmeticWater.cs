@@ -11,7 +11,7 @@ class CGCosmeticWater : UpdatableAndDeletable, IDrawable
 	private PlacedObject pObj;
 	private Water water;
 
-	CGCosmeticWaterData data => pObj.data as CGCosmeticWaterData;
+	CGCosmeticWaterData data => (CGCosmeticWaterData)pObj.data;
 
 	public CGCosmeticWater(Room room, PlacedObject pObj)
 	{
@@ -56,8 +56,8 @@ class CGCosmeticWater : UpdatableAndDeletable, IDrawable
 		FloatRect rect = data.rect;
 		int num = RWCustom.Custom.IntClamp(this.water.PreviousSurfacePoint(camPos.x - 30f), 0, this.water.surface.GetLength(0) - 1);
 		int num2 = RWCustom.Custom.IntClamp(num + this.water.pointsToRender, 0, this.water.surface.GetLength(0) - 1);
-		WaterTriangleMesh mesh0 = (sLeaser.sprites[0] as WaterTriangleMesh);
-		WaterTriangleMesh mesh1 = (sLeaser.sprites[1] as WaterTriangleMesh);
+		WaterTriangleMesh mesh0 = ((WaterTriangleMesh)sLeaser.sprites[0]);
+		WaterTriangleMesh mesh1 = ((WaterTriangleMesh)sLeaser.sprites[1]);
 		for (int i = num; i < num2; i++)
 		{
 			int num3 = (i - num) * 2;
@@ -87,8 +87,8 @@ class CGCosmeticWater : UpdatableAndDeletable, IDrawable
 		}
 		mesh1.MoveVertice(0, rect.GetCorner(FloatRect.CornerLabel.D) - camPos);
 		mesh1.MoveVertice(1, rect.GetCorner(FloatRect.CornerLabel.A) - camPos);
-		mesh1.MoveVertice((sLeaser.sprites[1] as WaterTriangleMesh).vertices.Length - 2, rect.GetCorner(FloatRect.CornerLabel.B) - camPos);
-		mesh1.MoveVertice((sLeaser.sprites[1] as WaterTriangleMesh).vertices.Length - 1, rect.GetCorner(FloatRect.CornerLabel.C) - camPos);
+		mesh1.MoveVertice(((WaterTriangleMesh)sLeaser.sprites[1]).vertices.Length - 2, rect.GetCorner(FloatRect.CornerLabel.B) - camPos);
+		mesh1.MoveVertice(((WaterTriangleMesh)sLeaser.sprites[1]).vertices.Length - 1, rect.GetCorner(FloatRect.CornerLabel.C) - camPos);
 	}
 
 	public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)

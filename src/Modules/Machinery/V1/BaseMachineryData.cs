@@ -8,7 +8,7 @@ public abstract class BaseMachineryData : ManagedData
 	/// <summary>
 	/// Interlay ctor
 	/// </summary>
-	public BaseMachineryData(PlacedObject owner, ManagedField[]? fields) : base(owner, fields) { }
+	public BaseMachineryData(PlacedObject? owner, ManagedField[]? fields) : base(owner, fields) { }
 
 	internal MachineryCustomizer? assignedCustomizer;
 }

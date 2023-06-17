@@ -41,7 +41,7 @@ public class GenericSlider : Slider, IDevUISignals
 		}
 	}
 
-	public SliderNub sliderNub => subNodes[inheritButton ? 3 : 2] as SliderNub;
+	public SliderNub sliderNub => (SliderNub)subNodes[inheritButton ? 3 : 2];
 	public override void Update()
 	{
 		base.Update();

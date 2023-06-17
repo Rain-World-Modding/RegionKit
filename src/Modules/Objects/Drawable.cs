@@ -48,7 +48,7 @@ public class Drawable : CosmeticSprite
 		#pragma warning restore 1591
 	}
 
-	private ManagedData _Data => (_LocalPlacedObject.data as ManagedData)!;
+	private ManagedData _Data => (ManagedData)_LocalPlacedObject.data;
 	private Vector2 _PlacedObjectTile => _LocalPlacedObject.pos;
 	private PlacedObject _LocalPlacedObject { get; }
 	///<inheritdoc/>
@@ -103,7 +103,7 @@ public class Drawable : CosmeticSprite
 		{
 			try
 			{
-				LoadFile(_Data.GetValue<string>("spriteName"));
+				LoadFile(_Data.GetValue<string>("spriteName") ?? "INVALID_SPRITE_NAME");
 				sLeaser.sprites[0].SetElementByName(_Data.GetValue<string>("spriteName"));
 			}
 			catch (Exception e) when (e is FutileException)

@@ -4,7 +4,7 @@ namespace RegionKit.Modules.Climbables;
 
 public class ClimbableArc : UpdatableAndDeletable, IClimbJumpVine, IDrawable
 {
-	protected ManagedData data => placedObject.data as ManagedData;
+	protected ManagedData data => (ManagedData)placedObject.data;
 	private Vector2[] _Quad
 	{
 		get
@@ -37,6 +37,7 @@ public class ClimbableArc : UpdatableAndDeletable, IClimbJumpVine, IDrawable
 			room.AddObject(room.climbableVines);
 		}
 		room.climbableVines.vines.Add(this);
+		this.nodes = new Vector2[0];
 	}
 
 	public override void Update(bool eu)
@@ -120,10 +121,10 @@ public class ClimbableArc : UpdatableAndDeletable, IClimbJumpVine, IDrawable
 			Vector2 vector2 = this.nodes[i];
 			Vector2 normalized = (vector - vector2).normalized;
 			Vector2 a = RWCustom.Custom.PerpendicularVector(normalized);
-			(sLeaser.sprites[0] as TriangleMesh).MoveVertice(i * 4, vector - a * d - camPos);
-			(sLeaser.sprites[0] as TriangleMesh).MoveVertice(i * 4 + 1, vector + a * d - camPos);
-			(sLeaser.sprites[0] as TriangleMesh).MoveVertice(i * 4 + 2, vector2 - a * d - camPos);
-			(sLeaser.sprites[0] as TriangleMesh).MoveVertice(i * 4 + 3, vector2 + a * d - camPos);
+			((TriangleMesh)sLeaser.sprites[0]).MoveVertice(i * 4, vector - a * d - camPos);
+			((TriangleMesh)sLeaser.sprites[0]).MoveVertice(i * 4 + 1, vector + a * d - camPos);
+			((TriangleMesh)sLeaser.sprites[0]).MoveVertice(i * 4 + 2, vector2 - a * d - camPos);
+			((TriangleMesh)sLeaser.sprites[0]).MoveVertice(i * 4 + 3, vector2 + a * d - camPos);
 			vector = vector2;
 		}
 	}

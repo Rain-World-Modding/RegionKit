@@ -15,7 +15,7 @@ internal class Shroud : CosmeticSprite
 		this._pObj = pObj;
 		this.room = room;
 		_alpha = 1f;
-		_quad = (this._pObj.data as ManagedData)!.GetValue<Vector2[]>("quad")!;
+		_quad = ((ManagedData)this._pObj.data).GetValue<Vector2[]>("quad")!;
 		//this.rect = new FloatRect(quad[0],quad[1],quad[2],quad[3]);
 	}
 	public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
@@ -60,7 +60,7 @@ internal class Shroud : CosmeticSprite
 
 	public override void Update(bool eu)
 	{
-		_quad = (_pObj.data as ManagedData)!.GetValue<Vector2[]>("quad")!;
+		_quad = ((ManagedData)_pObj.data).GetValue<Vector2[]>("quad")!;
 		Vector2 camPos = room.game.cameras[0].pos;
 		Vector2[] poly = new Vector2[]
 		{

@@ -8,7 +8,7 @@ namespace RegionKit.Modules.ConcealedGarden;
 
 internal class CGCosmeticLeaves : UpdatableAndDeletable, IDrawable
 {
-	private CosmeticLeavesObjectData data => (pObj.data as CosmeticLeavesObjectData);
+	private CosmeticLeavesObjectData data => (CosmeticLeavesObjectData)pObj.data;
 	private PlacedObject pObj;
 	private Color[] colors;
 	private List<Branch> branches;
@@ -16,16 +16,20 @@ internal class CGCosmeticLeaves : UpdatableAndDeletable, IDrawable
 
 	public CGCosmeticLeaves(PlacedObject placedObject, Room instance)
 	{
+		this.colors = new Color[0];
 		this.pObj = placedObject;
 		this.room = instance;
 
 		this.branches = new List<Branch>();
 		this.leaves = new List<Leaf>();
+		
 
-		var oldseed = UnityEngine.Random.seed;
-		UnityEngine.Random.seed = (int)(this.pObj.pos.x * 100f);
+		var oldstate = UnityEngine.Random.state;
+		//UnityEngine.Random.state = new UnityEngine.Random.State()//(int)(this.pObj.pos.x * 100f);
+		UnityEngine.Random.InitState((int)(this.pObj.pos.x * 100f));
 		new Branch(this, null, 0, data.handleA, data.handleB.magnitude / 2f);
-		UnityEngine.Random.seed = oldseed;
+		UnityEngine.Random.state = oldstate;
+		//UnityEngine.Random.seed = oldseed;
 
 		foreach (var item in branches)
 		{
@@ -39,14 +43,26 @@ internal class CGCosmeticLeaves : UpdatableAndDeletable, IDrawable
 
 	public abstract class BranchPart
 	{
-		protected static float windspeed = 0.01f;
 		protected CGCosmeticLeaves owner;
-		protected BranchPart connectsTo;
+		protected static float windspeed = 0.01f;
+		protected BranchPart? connectsTo;
 		protected int connectsToIndex;
 		protected float rotation;
 
 		protected Vector3[] relpos;
 		protected Vector3[,] pos;
+
+		protected BranchPart(CGCosmeticLeaves owner, int relpos_size, (int, int) pos_size)
+		{
+			this.owner = owner;
+			this.relpos = new Vector3[relpos_size];
+			this.pos = new Vector3[pos_size.Item1, pos_size.Item2];
+		}
+		protected BranchPart(CGCosmeticLeaves owner) {
+			this.owner = owner;
+			this.relpos = new Vector3[0];
+			this.pos = new Vector3[0, 0];
+		}
 
 		protected Vector3 attachedPoint { get { return connectsTo?.pos[0, connectsToIndex] ?? new Vector3(owner.pObj.pos.x, owner.pObj.pos.y, owner.data.depth); } }
 		protected float parentRotation { get { return connectsTo?.rotation ?? 0f; } }
@@ -76,10 +92,9 @@ internal class CGCosmeticLeaves : UpdatableAndDeletable, IDrawable
 		private readonly Vector3 goal;
 		private float[] thicknesses;
 
-		public Branch(CGCosmeticLeaves owner, Branch connectsTo, int connectsToIndex, Vector3 goal, float thicknessAtBase)
+		public Branch(CGCosmeticLeaves owner, Branch? connectsTo, int connectsToIndex, Vector3 goal, float thicknessAtBase) : base(owner)
 		{
 			owner.branches.Add(this);
-			this.owner = owner;
 			this.connectsTo = connectsTo;
 			this.connectsToIndex = connectsToIndex;
 			this.goal = goal;
@@ -139,7 +154,7 @@ internal class CGCosmeticLeaves : UpdatableAndDeletable, IDrawable
 
 		internal void ApplyPalette(FSprite fSprite, RoomPalette palette)
 		{
-			TriangleMesh trimesh = fSprite as TriangleMesh;
+			TriangleMesh trimesh = (TriangleMesh)fSprite;
 			for (int i = 0; i < relpos.Length - 1; i++)
 			{
 				Vector3 a = pos[0, i];
@@ -169,7 +184,7 @@ internal class CGCosmeticLeaves : UpdatableAndDeletable, IDrawable
 
 		internal void DrawSprites(FSprite fSprite, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
-			TriangleMesh trimesh = fSprite as TriangleMesh;
+			TriangleMesh trimesh = (TriangleMesh)fSprite;
 			for (int i = 0; i < relpos.Length - 1; i++)
 			{
 				Vector3 a = Vector2.Lerp(pos[1, i], pos[0, i], timeStacker);
@@ -192,9 +207,8 @@ internal class CGCosmeticLeaves : UpdatableAndDeletable, IDrawable
 		private Vector3 dir;
 		private float[] widths;
 
-		public Leaf(CGCosmeticLeaves owner, Branch connectsTo, int connectsToIndex, Vector3 direction)
+		public Leaf(CGCosmeticLeaves owner, Branch connectsTo, int connectsToIndex, Vector3 direction) : base(owner)
 		{
-			this.owner = owner;
 			owner.leaves.Add(this);
 			this.connectsTo = connectsTo;
 			this.connectsToIndex = connectsToIndex;
@@ -228,7 +242,7 @@ internal class CGCosmeticLeaves : UpdatableAndDeletable, IDrawable
 			Color dark = Color.Lerp(owner.colors[3], owner.colors[1], (Mathf.Clamp(a.z, 0f, 29f) / 29f));
 
 			//fSprite.color = light;
-			TriangleMesh trimesh = fSprite as TriangleMesh;
+			TriangleMesh trimesh = (TriangleMesh)fSprite;
 			//fSprite.alpha = Mathf.InverseLerp(0, 30, attachedPoint.z);
 			Vector2 prev = pos[0, 0];
 
@@ -252,7 +266,7 @@ internal class CGCosmeticLeaves : UpdatableAndDeletable, IDrawable
 
 		internal void DrawSprites(FSprite fSprite, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
-			TriangleMesh trimesh = fSprite as TriangleMesh;
+			TriangleMesh trimesh = (TriangleMesh)fSprite;
 			Vector2 horiz = new Vector2(1f, 0f);
 			Vector2 prev = Vector2.Lerp(pos[1, 0], pos[0, 0], timeStacker) - camPos;
 			for (int i = 0; i < relpos.Length - 1; i++)
@@ -306,7 +320,7 @@ internal class CGCosmeticLeaves : UpdatableAndDeletable, IDrawable
 		this.AddToContainer(sLeaser, rCam, null);
 	}
 
-	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner)
 	{
 		if (newContatiner == null)
 		{

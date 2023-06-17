@@ -455,7 +455,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 
 		//Vector2 origin = placedObject.pos;
 		IntVector2 originTile = room.GetTilePosition(placedObject.pos);
-		IntVector2 dir = (placedObject.data as ManagedData)!.GetValue<IntVector2>("dir");
+		IntVector2 dir = ((ManagedData)placedObject.data).GetValue<IntVector2>("dir");
 		//dir = dir.ToCardinals();
 
 		newDoor.pZero = room.MiddleOfTile(originTile);

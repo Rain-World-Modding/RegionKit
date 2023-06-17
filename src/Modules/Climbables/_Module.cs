@@ -26,7 +26,7 @@ public static class _Module
 	}
 
 
-	private static ClimbableVinesSystem.VinePosition ClimbableVinesSystem_VineSwitch_hk(On.ClimbableVinesSystem.orig_VineSwitch orig, ClimbableVinesSystem self, ClimbableVinesSystem.VinePosition vPos, UnityEngine.Vector2 goalPos, float rad)
+	private static ClimbableVinesSystem.VinePosition? ClimbableVinesSystem_VineSwitch_hk(On.ClimbableVinesSystem.orig_VineSwitch orig, ClimbableVinesSystem self, ClimbableVinesSystem.VinePosition vPos, UnityEngine.Vector2 goalPos, float rad)
 	{
 		ClimbableVinesSystem.VinePosition newPos = orig(self, vPos, goalPos, rad);
 

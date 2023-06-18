@@ -23,7 +23,7 @@ public static class PrimitivesTools
 		=> vec.w is not 0f ? vec : new(vec.x, vec.y, vec.z, 1f);
 	public static IntVector2 ToIntVector2(this Vector2 vec) => new((int)vec.x, (int)vec.y);
 	public static Vector2 ToVector2(this IntVector2 ivec) => new(ivec.x, ivec.y);
-	public static void ClampToNormal(this Color self)
+	public static void ClampToNormal(ref this Color self)
 	{
 		self.r = Clamp01(self.r);
 		self.g = Clamp01(self.g);

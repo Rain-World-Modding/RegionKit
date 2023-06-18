@@ -5,7 +5,7 @@ public class RegionKitModuleAttribute : Attribute
 {
 	internal readonly string _enableMethod;
 	internal readonly string _disableMethod;
-	internal readonly string _setupMethod;
+	internal readonly string? _setupMethod;
 	internal readonly string? _tickMethod;
 	internal readonly int _tickPeriod;
 	internal readonly string? _loggerField;

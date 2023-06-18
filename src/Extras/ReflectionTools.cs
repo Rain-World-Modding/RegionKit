@@ -181,7 +181,7 @@ public static class ReflectionTools
 		foreach (FieldInfo field in tt.GetFields(context))
 		{
 			if (field.IsStatic) continue;
-			field.SetValue(to, field.GetValue(from), context, null, System.Globalization.CultureInfo.CurrentCulture);
+			field.SetValue(to, field.GetValue(from), context, null, System.Globalization.CultureInfo.InvariantCulture);
 		}
 	}
 	/// <summary>
@@ -194,19 +194,23 @@ public static class ReflectionTools
 		List<string> failure = new();
 
 		foreach (FieldInfo field in t.GetFields(BF_ALL_CONTEXTS_STATIC))
-			if (!field.FieldType.IsValueType)
+		{
+			string fullname = $"{t.FullName}.{field.Name}";
+			try
 			{
-				string fullname = $"{t.FullName}.{field.Name}";
-				try
-				{
-					field.SetValue(null, null, BF_ALL_CONTEXTS_STATIC, null, System.Globalization.CultureInfo.CurrentCulture);
-					success.Add(fullname);
-				}
-				catch (Exception ex)
-				{
-					failure.Add(fullname + $" (exception: {ex.Message})");
-				}
+				field.SetValue(
+					null,
+					System.Runtime.Serialization.FormatterServices.GetUninitializedObject(field.FieldType),
+					BF_ALL_CONTEXTS_STATIC,
+					null,
+					System.Globalization.CultureInfo.InvariantCulture);
+				success.Add(fullname);
 			}
+			catch (Exception ex)
+			{
+				failure.Add(fullname + $" (exception: {ex.Message})");
+			}
+		}
 		foreach (Type nested in t.GetNestedTypes(BF_ALL_CONTEXTS_STATIC))
 		{
 			var res = nested.CleanupStatic();
@@ -239,24 +243,7 @@ public static class ReflectionTools
 		MethodInfo method = methodof<string>("InternalSetChar", BF_ALL_CONTEXTS_INSTANCE)!;
 		return GetFn<Action<int, char>>(s, method)!;
 	}
-    /// <summary>
-	/// cleans up all non valuetype fields in a type. for realm cleanups
-	/// </summary>
-	/// <param name="t"></param>
-	internal static void CleanUpStatic(this Type t)
-	{
-		foreach (var fld in t.GetFields(BF_ALL_CONTEXTS_STATIC))
-		{
-			try
-			{
-				if (fld.FieldType.IsValueType || fld.IsLiteral) continue;
-				fld.SetValue(null, default);
-			}
-			catch { }
 
-		}
-		foreach (var child in t.GetNestedTypes()) child.CleanUpStatic();
-	}
 	#endregion
 
 }

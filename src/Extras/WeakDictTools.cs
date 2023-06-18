@@ -2,8 +2,8 @@ namespace RegionKit.Extras;
 
 public static class WeakDictTools
 {
-
-	//moved from M4rbleL1ne's ConditionalEffects
+#if false
+	//moved from SlimeCubed's ConditionalEffects
 	public static void RemoveWeak<T>(Dictionary<WeakReference, T> dict, RoomSettings.RoomEffect key)
 	{
 		WeakReference? weakKey = null;
@@ -44,4 +44,5 @@ public static class WeakDictTools
 			}
 		dict[new WeakReference(key)] = value;
 	}
+#endif
 }

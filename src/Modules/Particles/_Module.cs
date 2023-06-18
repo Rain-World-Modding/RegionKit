@@ -12,18 +12,19 @@ namespace RegionKit.Modules.Particles;
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Particles")]
 internal static class _Module
 {
+	internal const string PARTICLES_POM_CATEGORY = RK_POM_CATEGORY + "-PARTICLES";
 	internal static readonly Dictionary<string, ParticleVisualState> __namedPresets = new();
 
 	internal static void Setup()
 	{
-		RegisterEmptyObjectType<V1.ParticleVisualCustomizer, ManagedRepresentation>("ParticleVisualCustomizer", RK_POM_CATEGORY);
-		RegisterEmptyObjectType<V1.PresetParticleVisualCustomizer, ManagedRepresentation>("ParticleVisualPreset", RK_POM_CATEGORY);
-		RegisterEmptyObjectType<V1.ParticleBehaviourProvider.WavinessProvider, ManagedRepresentation>("ParticleWaviness", RK_POM_CATEGORY);
-		RegisterEmptyObjectType<V1.ParticleBehaviourProvider.SpinProvider, ManagedRepresentation>("ParticleSpin", RK_POM_CATEGORY);
-		RegisterEmptyObjectType<V1.ParticleBehaviourProvider.PlainModuleRegister, ManagedRepresentation>("GenericPBMDispenser", RK_POM_CATEGORY);
-		RegisterManagedObject<V1.RoomParticleSystem, V1.RectParticleSpawnerData, ManagedRepresentation>("RectParticleSpawner", RK_POM_CATEGORY);
-		RegisterManagedObject<V1.RoomParticleSystem, V1.OffscreenSpawnerData, ManagedRepresentation>("OffscreenParticleSpawner", RK_POM_CATEGORY);
-		RegisterManagedObject<V1.RoomParticleSystem, V1.WholeScreenSpawnerData, ManagedRepresentation>("WholeScreenSpawner", RK_POM_CATEGORY);
+		RegisterEmptyObjectType<V1.ParticleVisualCustomizer, ManagedRepresentation>("ParticleVisualCustomizer", PARTICLES_POM_CATEGORY);
+		RegisterEmptyObjectType<V1.PresetParticleVisualCustomizer, ManagedRepresentation>("ParticleVisualPreset", PARTICLES_POM_CATEGORY);
+		RegisterEmptyObjectType<V1.ParticleBehaviourProvider.WavinessProvider, ManagedRepresentation>("ParticleWaviness", PARTICLES_POM_CATEGORY);
+		RegisterEmptyObjectType<V1.ParticleBehaviourProvider.SpinProvider, ManagedRepresentation>("ParticleSpin", PARTICLES_POM_CATEGORY);
+		RegisterEmptyObjectType<V1.ParticleBehaviourProvider.PlainModuleRegister, ManagedRepresentation>("GenericPBMDispenser", PARTICLES_POM_CATEGORY);
+		RegisterManagedObject<V1.RoomParticleSystem, V1.RectParticleSpawnerData, ManagedRepresentation>("RectParticleSpawner", PARTICLES_POM_CATEGORY);
+		RegisterManagedObject<V1.RoomParticleSystem, V1.OffscreenSpawnerData, ManagedRepresentation>("OffscreenParticleSpawner", PARTICLES_POM_CATEGORY);
+		RegisterManagedObject<V1.RoomParticleSystem, V1.WholeScreenSpawnerData, ManagedRepresentation>("WholeScreenSpawner", PARTICLES_POM_CATEGORY);
 	}
 	internal static void Enable()
 	{

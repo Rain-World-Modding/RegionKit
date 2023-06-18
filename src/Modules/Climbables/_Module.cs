@@ -1,17 +1,21 @@
 ﻿namespace RegionKit.Modules.Climbables;
 
 
-[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Climbables")]
+[RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Climbables")]
 public static class _Module
 {
+	internal const string CLIMBABLES_POM_CATEGORY = RK_POM_CATEGORY + "-CLIMBABLES";
+	internal static void Setup()
+	{
+		RegisterFullyManagedObjectType(new ManagedField[] { new IntVector2Field("vector", new IntVector2(), IntVector2Field.IntVectorReprType.rect) }, typeof(ClimbablePoleH), "ClimbablePoleH", CLIMBABLES_POM_CATEGORY);
+		RegisterFullyManagedObjectType(new ManagedField[] { new IntVector2Field("vector", new IntVector2(), IntVector2Field.IntVectorReprType.rect) }, typeof(ClimbablePoleV), "ClimbablePoleV", CLIMBABLES_POM_CATEGORY);
+		RegisterFullyManagedObjectType(new ManagedField[] { new Vector2Field("vector", new Vector2(), Vector2Field.VectorReprType.line) }, typeof(ClimbableRope), "ClimbableRope", CLIMBABLES_POM_CATEGORY);
+		RegisterManagedObject<ClimbableArc, BezierObjectData, BezierObjectRepresentation>("ClimbableArc", CLIMBABLES_POM_CATEGORY);
+	}
+
 	internal static void Enable()
 	{
 		On.ClimbableVinesSystem.VineSwitch += ClimbableVinesSystem_VineSwitch_hk;
-
-		RegisterFullyManagedObjectType(new ManagedField[] { new IntVector2Field("vector", new IntVector2(), IntVector2Field.IntVectorReprType.rect) }, typeof(ClimbablePoleH), "ClimbablePoleH", RK_POM_CATEGORY);
-		RegisterFullyManagedObjectType(new ManagedField[] { new IntVector2Field("vector", new IntVector2(), IntVector2Field.IntVectorReprType.rect) }, typeof(ClimbablePoleV), "ClimbablePoleV", RK_POM_CATEGORY);
-		RegisterFullyManagedObjectType(new ManagedField[] { new Vector2Field("vector", new Vector2(), Vector2Field.VectorReprType.line) }, typeof(ClimbableRope), "ClimbableRope", RK_POM_CATEGORY);
-		RegisterManagedObject<ClimbableArc, BezierObjectData, BezierObjectRepresentation>("ClimbableArc", RK_POM_CATEGORY);
 	}
 	internal static void Disable()
 	{

@@ -200,7 +200,9 @@ public static class ReflectionTools
 			{
 				field.SetValue(
 					null,
-					System.Runtime.Serialization.FormatterServices.GetUninitializedObject(field.FieldType),
+					field.FieldType.IsValueType 
+						? System.Runtime.Serialization.FormatterServices.GetUninitializedObject(field.FieldType)
+						: null,
 					BF_ALL_CONTEXTS_STATIC,
 					null,
 					System.Globalization.CultureInfo.InvariantCulture);

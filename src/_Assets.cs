@@ -304,6 +304,17 @@ internal static class _Assets
 		return fatlas;
 	}
 	#endregion ATLASES
+
+	public static FAtlas LoadAtlasOrImage(this FAtlasManager man, string path)
+	{
+		if (System.IO.File.Exists(AssetManager.ResolveFilePath(path + ".txt")))
+		{
+			__logger.LogDebug(path + " loading as atlas");
+			return man.LoadAtlas(path);
+		}
+		__logger.LogDebug(path + "loading as single image");
+		return man.LoadImage(path);
+	}
 	public static void Disable()
 	{
 		// On.RainWorld.OnModsInit -= LoadResources;

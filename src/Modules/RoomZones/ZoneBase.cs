@@ -6,6 +6,7 @@ public abstract class ZoneBase<TC, TD> : UpdatableAndDeletable, IRoomZone
 {
 	protected PlacedObject _owner;
 	protected TD _Data => (TD)_owner.data;
+	protected GameObject _collider_holder;
 	protected TC _collider;
 	protected readonly List<IntVector2> _c_affectedTiles = new();
 
@@ -13,11 +14,15 @@ public abstract class ZoneBase<TC, TD> : UpdatableAndDeletable, IRoomZone
 	{
 		room = rm;
 		_owner = owner;
-		_collider = _Module.colliderHolder.AddComponent<TC>();
+		_collider_holder = new GameObject($"{this}-colliderholder");
+		_collider = _collider_holder.AddComponent<TC>();
+		_Module.colliderHolders.Add(_collider_holder);
 	}
 	~ZoneBase()
 	{
-		UnityEngine.GameObject.Destroy(_collider);
+		_Module.colliderHolders.Remove(_collider_holder);
+		UnityEngine.GameObject.Destroy(_collider_holder);
+
 	}
 
 	public override void Update(bool eu)

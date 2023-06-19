@@ -28,13 +28,14 @@ public class CircleZone : ZoneBase<UnityEngine.CircleCollider2D, CircleZoneData>
 				if (DistLess(pt, center, _collider.radius)) _c_affectedTiles.Add(new(tile.X, tile.Y));
 			}
 		}
+		__logger.LogDebug($"{_collider.transform.position}, {_collider.radius}, {_Data.p2}, {_owner.pos}");
 		//throw new NotImplementedException();
 	}
 
 	protected override void SyncColliderToData()
 	{
-        _collider.transform.position = _owner.pos;
-        _collider.radius = _Data.p2.magnitude;
-		
+		_collider.transform.position = _owner.pos;
+		_collider.radius = _Data.p2.magnitude;
+
 	}
 }

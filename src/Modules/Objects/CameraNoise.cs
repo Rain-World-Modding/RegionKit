@@ -4,10 +4,18 @@ public class CameraNoise : UpdatableAndDeletable, IDrawable
 	private CameraNoiseData _data => (CameraNoiseData)_owner.data;
 	private PlacedObject _owner;
 	private (Vector2, float, int, int) _c_settings = (default, 0f, 1, 2);
+	private string _c_tags = "";
+	private int[] _tags;
 	public CameraNoise(Room room, PlacedObject owner)
 	{
+		_tags = new int[0];
 		this.room = room;
 		this._owner = owner;
+	}
+	public override void Update(bool eu)
+	{
+		base.Update(eu);
+		RegenerateTagArrayIfNeeded();
 	}
 
 	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
@@ -16,7 +24,19 @@ public class CameraNoise : UpdatableAndDeletable, IDrawable
 		RegenerateSpritesIfNeeded(sLeaser, rCam);
 		this.AddToContainer(sLeaser, rCam, null);
 	}
-
+	private void RegenerateTagArrayIfNeeded()
+	{
+		if (_c_tags == _data.tags)
+		{
+			return;
+		}
+		_tags = System.Text.RegularExpressions.Regex.Split(_data.tags, "\\s*,\\s*").Select((x) =>
+		{
+			int.TryParse(x, out int res);
+			return res;
+		}).ToArray();
+		_c_tags = _data.tags;
+	}
 	private void RegenerateSpritesIfNeeded(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 		var resolution = rCam.game.rainWorld.screenSize;
@@ -77,9 +97,9 @@ public class CameraNoise : UpdatableAndDeletable, IDrawable
 			{
 				var col = _data.colorBase.Deviation(_data.colorFluke);
 				mesh.verticeColors[i] = col.Clamped();
-				mesh.verticeColors[i].a = 
-					(i >= segments + 1 * 4) 
-					? 0f 
+				mesh.verticeColors[i].a =
+					(i >= segments + 1 * 4)
+					? 0f
 					: ClampedFloatDeviation(_data.alphabase, _data.alphafluke, 0, 1);
 			}
 
@@ -131,6 +151,8 @@ public class CameraNoise : UpdatableAndDeletable, IDrawable
 		public float alphabase;
 		[FloatField("12alphafluke", 0f, 1f, 1f, 0.05f, displayName: "alpha fluke")]
 		public float alphafluke;
+		[StringField("13tags", "0", displayName: "tags")]
+		public string tags;
 		public CameraNoiseData(PlacedObject owner) : base(owner, null)
 		{
 		}

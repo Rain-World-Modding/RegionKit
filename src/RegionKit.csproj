@@ -42,7 +42,6 @@
 	<!-- Submodules. -->
 	<ItemGroup>
 	</ItemGroup>
-
 	<!-- Editorconfig -->
 	<ItemGroup>
 		<None Include="./.editorconfig" />
@@ -128,6 +127,9 @@
 		<Reference Include="UnityEngine">
 			<HintPath>lib/UnityEngine.dll</HintPath>
 			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.AssetBundleModule">
+		  <HintPath>lib/UnityEngine.AssetBundleModule.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
 			<HintPath>lib/UnityEngine.CoreModule.dll</HintPath>

@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using RegionKit.Modules.Effects;
+
 namespace RegionKit;
 /// <summary>
 /// Main plugin class
@@ -40,6 +42,8 @@ public class Mod : BepInEx.BaseUnityPlugin
 			}
 			_modulesSetUp = true;
 			_Assets.LoadResources();
+			
+			MossWaterUnlit.MossLoadResources(self);
 		}
 		catch (Exception ex)
 		{

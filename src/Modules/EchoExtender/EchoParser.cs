@@ -41,29 +41,28 @@ internal static class EchoParser
 	}
 	public static void LoadAllRegions(SlugcatStats.Name character)
 	{
-		foreach (var region in Region.LoadAllRegions(character))
+		foreach (var regionInitials in Region.GetFullRegionOrder())
 		{
-			string regInitials = region.name;
-			string convPath = AssetManager.ResolveFilePath($"world/{region.name}/echoConv.txt");
-			__logger.LogInfo($"[Echo Extender] Checking region {region.name} for Echo.");
+			string convPath = AssetManager.ResolveFilePath($"world/{regionInitials}/echoConv.txt");
+			__logger.LogInfo($"[Echo Extender] Checking region {regionInitials} for Echo.");
 			if (File.Exists(convPath))
 			{
 				string convText = File.ReadAllText(convPath);
 				convText = ManageXOREncryption(convText, convPath);
-				string settingsPath = AssetManager.ResolveFilePath($"world/{region.name}/echoSettings.txt");
-				EchoSettings settings = File.Exists(settingsPath) ? EchoSettings.FromFile(settingsPath) : EchoSettings.Default;
-				if (!EchoIDExists(regInitials))
+				string settingsPath = AssetManager.ResolveFilePath($"world/{regionInitials}/echoSettings.txt");
+				EchoSettings settings = EchoSettings.FromFile(settingsPath, character);
+				if (!EchoIDExists(regionInitials))
 				{
-					__logger.LogDebug($"[Echo Extender] Registering new echo in {region.name}");
-					__extendedEchoIDs.Add(new GhostWorldPresence.GhostID(regInitials, true));
-					__echoConversations.Add(new Conversation.ID($"Ghost_{regInitials}", true), convText);
-					__logger.LogInfo("[Echo Extender] Added conversation for echo in region " + regInitials);
+					__logger.LogDebug($"[Echo Extender] Registering new echo in {regionInitials}");
+					__extendedEchoIDs.Add(new GhostWorldPresence.GhostID(regionInitials, true));
+					__echoConversations.Add(new Conversation.ID($"Ghost_{regionInitials}", true), convText);
+					__logger.LogInfo("[Echo Extender] Added conversation for echo in region " + regionInitials);
 				}
 				else
 				{
 					__logger.LogWarning("[Echo Extender] An echo for this region already exists, skipping.");
 				}
-				__echoSettings.SetKey(GetEchoID(regInitials), settings);
+				__echoSettings.SetKey(GetEchoID(regionInitials), settings);
 			}
 			else
 			{

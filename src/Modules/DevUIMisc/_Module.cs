@@ -1,6 +1,7 @@
 ﻿using static RegionKit.Modules.DevUIMisc.SettingsSaveOptions;
 using DevInterface;
 using RegionKit.Modules.BackgroundBuilder;
+using RegionKit.Modules.DevUIMisc.GenericNodes;
 
 namespace RegionKit.Modules.DevUIMisc;
 
@@ -11,6 +12,7 @@ public static class _Module
 	internal static void Enable()
 	{
 		PaletteTextInput.Apply();
+		ListFixes.Apply();
 
 		//currently used for settings saving options stuffs, but will probably later be used for much more
 		On.DevInterface.Page.ctor += Page_ctor;
@@ -24,6 +26,7 @@ public static class _Module
 	internal static void Disable()
 	{
 		PaletteTextInput.Undo();
+		ListFixes.Undo();
 
 		On.DevInterface.Page.ctor -= Page_ctor;
 		On.DevInterface.Page.Refresh -= Page_Refresh;

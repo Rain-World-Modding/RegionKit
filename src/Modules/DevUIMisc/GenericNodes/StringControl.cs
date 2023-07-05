@@ -113,6 +113,11 @@ public class StringControl : DevUILabel
 	{
 		return (int.TryParse(value, out int i) && i.ToString() == value);
 	}
+	public static bool TextIsColor(string value)
+	{
+		try { Color color = hexToColor(value); return colorToHex(color) == value; }
+		catch { return false; }
+	}
 
 	public static bool TextIsExtEnum<T>(string value) where T : ExtEnum<T>
 	{

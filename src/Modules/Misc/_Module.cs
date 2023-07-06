@@ -7,6 +7,7 @@ internal static class _Module
 	public static void Setup()
 	{
 		_Enums.Register();
+		ExtendedGates.InitExLocks();
 	}
 	public static void Enable()
 	{

@@ -1,6 +1,6 @@
 ﻿namespace RegionKit.Modules.Climbables;
 
-abstract public class ClimbablePoleG : UpdatableAndDeletable, IDrawable, INotifyWhenRoomIsReady
+abstract public class ClimbablePoleG : UpdatableAndDeletable, IDrawable
 {
 	protected ManagedData data => (ManagedData)placedObject.data;
 	protected PlacedObject placedObject;
@@ -34,6 +34,8 @@ abstract public class ClimbablePoleG : UpdatableAndDeletable, IDrawable, INotify
 
 		lastRect = rect;
 		oldTiles = null;
+
+		updateTiles();
 	}
 
 
@@ -92,16 +94,6 @@ abstract public class ClimbablePoleG : UpdatableAndDeletable, IDrawable, INotify
 		((TriangleMesh)sLeaser.sprites[0]).MoveVertice(1, start + width / 2 - camPos);
 		((TriangleMesh)sLeaser.sprites[0]).MoveVertice(2, end - width / 2 - camPos);
 		((TriangleMesh)sLeaser.sprites[0]).MoveVertice(3, end + width / 2 - camPos);
-	}
-
-	void INotifyWhenRoomIsReady.AIMapReady()
-	{
-		// pass
-	}
-
-	void INotifyWhenRoomIsReady.ShortcutsReady()
-	{
-		updateTiles();
 	}
 
 	protected void updateTiles()

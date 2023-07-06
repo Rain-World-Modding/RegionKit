@@ -297,7 +297,6 @@ internal static class Data
 		}
 		public virtual void UpdateSceneElement(string message)
 		{
-
 		}
 
 		public virtual void LoadData(string[] fileText)
@@ -376,7 +375,10 @@ internal static class Data
 
 			Scene.SyncAndLoadIfTextureNameExists(ref nightSky, ref acv.nightSky.illustrationName);
 
-			SyncIfDefault(ref atmosphereColor, ref acv.atmosphereColor);
+			if (SyncIfDefault(ref atmosphereColor, ref acv.atmosphereColor))
+			{
+				Shader.SetGlobalVector("_AboveCloudsAtmosphereColor", atmosphereColor);
+			}
 
 			SyncIfDefault(ref startAltitude, ref acv.startAltitude);
 			SyncIfDefault(ref endAltitude, ref acv.endAltitude);
@@ -496,6 +498,12 @@ internal static class Data
 					dcloud.CData().needsAddToRoom = true;
 					Scene.AddElement(dcloud);
 				}
+			}
+
+			if (message == "atmoUpdate")
+			{
+				Scene.atmosphereColor = atmosphereColor;
+				Shader.SetGlobalVector("_AboveCloudsAtmosphereColor", atmosphereColor);
 			}
 		}
 

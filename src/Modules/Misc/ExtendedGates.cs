@@ -158,7 +158,7 @@ public static class ExtendedGates
 		{ ExLocks[req] = new ExtendedLocks.NumericalAlt(req); }
 	}
 
-	internal const string Version = "1.3";
+	internal const string Version = "1.4";
 	internal const string author = "Henpemaz";
 	static Type? uwu;
 	// 1.0 initial release

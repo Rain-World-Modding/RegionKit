@@ -61,6 +61,9 @@ Our goal for region kit is to have a unified mod to hold objects, room effects, 
 	(for instructions see [this file.](./docs/ExtendedGates.md))
 - CustomSpritesLoader
 	- Allows easily loading in atlases or separate sprites without additional code, loads from assetpath `assets/regionkit` (recursively).
+- BackgroundBuilder
+    - Allows custom AboveCloudsView backgrounds to be easily constructed and loaded for a room.
+    - For instructions see [this file](./docs/BackgroundBuilder.md)
   
 ### Particle system
 
@@ -118,7 +121,7 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 	- Concealed Garden objects port
 	- Popups and Climbables port
 	- SettingsSave for Specific Slugs
-	- CloudAdjustment
+	- BackgroundBuilder
 	- Many object fixes
 
 - Henpemaz

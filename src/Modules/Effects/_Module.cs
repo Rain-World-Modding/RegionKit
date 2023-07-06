@@ -19,6 +19,7 @@ public static class _Module
 		ReplaceEffectColor.Apply();
 		HiveColorAlpha.Apply();
 		RoomRainWithoutDeathRain.Apply();
+		MossWaterUnlit.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -31,6 +32,7 @@ public static class _Module
 		ReplaceEffectColor.Undo();
 		HiveColorAlpha.Undo();
 		RoomRainWithoutDeathRain.Undo();
+		MossWaterUnlit.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -46,7 +48,8 @@ public static class _Module
 			type == _Enums.ColoredCamoBeetles ||
 			type == _Enums.MosquitoInsects ||
 			type == _Enums.PWMalfunction ||
-			type == _Enums.HiveColorAlpha)
+			type == _Enums.HiveColorAlpha ||
+			type == _Enums.MossWater)
 			res = _Enums.RegionKit;
 		return res;
 	}

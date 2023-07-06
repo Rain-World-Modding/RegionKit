@@ -53,6 +53,10 @@ public static class _Enums
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type HiveColorAlpha = new(nameof(HiveColorAlpha), true);
 	/// <summary>
+	/// MossWater
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type MossWater = new(nameof(MossWater), true);
+	/// <summary>
 	/// Effect category
 	/// </summary>
 	public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKit = new(nameof(RegionKit), true);

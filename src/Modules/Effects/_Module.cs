@@ -18,7 +18,7 @@ public static class _Module
 		ColorRoomEffect.Apply();
 		ReplaceEffectColor.Apply();
 		HiveColorAlpha.Apply();
-		RoomRainWithoutDeathRain.Apply();
+		//RoomRainWithoutDeathRain.Apply();
 		MossWaterUnlit.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
@@ -31,7 +31,7 @@ public static class _Module
 		ColorRoomEffect.Undo();
 		ReplaceEffectColor.Undo();
 		HiveColorAlpha.Undo();
-		RoomRainWithoutDeathRain.Undo();
+		//RoomRainWithoutDeathRain.Undo();
 		MossWaterUnlit.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}

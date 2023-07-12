@@ -122,54 +122,6 @@ internal static class Data
 			realData = new();
 		}
 
-		/// <summary>
-		/// processes slugcat conditions and removes any that no longer apply
-		/// </summary>
-		public static string[] ProcessedLines(List<string> lines, SlugcatStats.Name slug)
-		{
-			string remove = "lll";
-
-			for (int i = 0; i < lines.Count; i++)
-			{
-				if (lines[i].Length < 1) continue;
-				if (lines[i][0] == '(' && lines[i].Contains(')'))
-				{
-					bool include = false;
-					bool inverted = false;
-
-					string text = lines[i].Substring(1, lines[i].IndexOf(")") - 1);
-					if (text.StartsWith("X-"))
-					{
-						text = text.Substring(2);
-						inverted = true;
-					}
-
-					if (slug == null)
-					{
-						lines[i] = !inverted ? remove : lines[i].Substring(lines[i].IndexOf(")") + 1);
-						continue;
-					}
-
-					foreach (string text2 in text.Split(','))
-					{
-						if (text2 == slug.ToString())
-						{
-							include = true;
-							break;
-						}
-					}
-
-					include = inverted != include;
-
-					lines[i] = !include ? remove : lines[i].Substring(lines[i].IndexOf(")") + 1);
-				}
-			}
-
-			lines.RemoveAll(x => x == remove);
-
-			return lines.ToArray();
-		}
-
 		public void FromName(string name, SlugcatStats.Name slug)
 		{
 			Reset();
@@ -185,7 +137,7 @@ internal static class Data
 		{
 			if (!File.Exists(path)) return false;
 
-			string[] lines = ProcessedLines(File.ReadAllLines(path).ToList(), slug);
+			string[] lines = ProcessSlugcatConditions(File.ReadAllLines(path), slug);
 
 			foreach (string line in lines)
 			{
@@ -345,7 +297,6 @@ internal static class Data
 		}
 		public virtual void UpdateSceneElement(string message)
 		{
-
 		}
 
 		public virtual void LoadData(string[] fileText)
@@ -384,6 +335,8 @@ internal static class Data
 		public float overrideYStart;
 		public float overrideYEnd;
 
+		public Color atmosphereColor;
+
 		public string daySky;
 
 		public string duskSky;
@@ -407,6 +360,7 @@ internal static class Data
 			daySky = "";
 			duskSky = "";
 			nightSky = "";
+			atmosphereColor = Color.black;
 		}
 
 		public override void MakeScene(BackgroundScene self)
@@ -420,6 +374,11 @@ internal static class Data
 			Scene.SyncAndLoadIfTextureNameExists(ref duskSky, ref acv.duskSky.illustrationName);
 
 			Scene.SyncAndLoadIfTextureNameExists(ref nightSky, ref acv.nightSky.illustrationName);
+
+			if (SyncIfDefault(ref atmosphereColor, ref acv.atmosphereColor))
+			{
+				Shader.SetGlobalVector("_AboveCloudsAtmosphereColor", atmosphereColor);
+			}
 
 			SyncIfDefault(ref startAltitude, ref acv.startAltitude);
 			SyncIfDefault(ref endAltitude, ref acv.endAltitude);
@@ -540,6 +499,12 @@ internal static class Data
 					Scene.AddElement(dcloud);
 				}
 			}
+
+			if (message == "atmoUpdate")
+			{
+				Scene.atmosphereColor = atmosphereColor;
+				Shader.SetGlobalVector("_AboveCloudsAtmosphereColor", atmosphereColor);
+			}
 		}
 
 		public override void LineToData(string line)
@@ -601,6 +566,10 @@ internal static class Data
 
 			case "nightSky":
 				nightSky = array[1];
+				break;
+
+			case "atmosphereColor":
+				atmosphereColor = hexToColor(array[1]);
 				break;
 
 			case "DistantBuilding":
@@ -745,6 +714,13 @@ internal static class Data
 	public static bool SyncIfDefault(ref float one, ref float two)
 	{
 		if (one != float.MaxValue)
+		{ two = one; return true; }
+		else { one = two; return false; }
+	}
+
+	public static bool SyncIfDefault(ref Color one, ref Color two)
+	{
+		if (one != Color.black)
 		{ two = one; return true; }
 		else { one = two; return false; }
 	}

@@ -14,8 +14,8 @@ SIDENOTE: As of 1.0 the settings file is necessary to specify room
 In order to modify the settings of the echo, create an `echoSettings.txt` file next to the conversation file. You can use [this](echoSettings.txt) example file which contains the default values and then modify them as you wish. If a setting is not present in this file, it will default to the ones in this settings file. Here are the different settings, the type of values they require and what they do:
 | Setting Name | Required Type | Description | Default Value |
 | ------------ | ------------- | ----------- | ------------- |
-| `difficulties` | Slugcat names seperated by commas | Defines what difficulties the echo will spawn on | White, Yellow, Red, Rivulet, Artificer, Saint, Gourmand, Slugpup |
-| `priming` | True/False | Sets whether the player must visit the location of the echo first before it will spawn. When priming, other conditions are ignored | False for Hunter, True for everyone else |
+| `SpawnOnDifficulty` | none | Defines what difficulties the echo will spawn on | All registered slugcats |
+| `priming` | True/False/Saint | Sets whether the player must visit the location of the echo first before it will spawn. When priming, other conditions are ignored | False for Hunter, Saint for Saint, True for everyone else |
 | `size` | Number | Sets the size factor of the echo | 1 |
 | `minkarma ` | Whole Number | The minimum karma required for the echo to spawn (lowest = 1). If set to -1, this value will be relative to the karma cap of the player. See [the wiki](https://rainworld.fandom.com/wiki/Echo) for more details. | -1 (dynamic) |
 | `minkarmacap` | Whole Number | The minimum karma cap required for the echo to spawn (staring karma cap is 5 and it increases by 2 every echo up to 10) | 1 |

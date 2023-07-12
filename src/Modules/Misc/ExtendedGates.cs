@@ -4,6 +4,13 @@
 //using System.Reflection;
 //using System.Text.RegularExpressions;
 
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
+using HUD;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
 using Gate = RegionGate;
 using Req = RegionGate.GateRequirement;
 
@@ -13,58 +20,183 @@ namespace RegionKit.Modules.Misc;
 /// </summary>
 public static class ExtendedGates
 {
-	internal const string Version = "1.3";
+	public static class ExtendedLocks
+	{
+		public interface LockData
+		{
+			public string GateElementName(GateKarmaGlyph glyph);
+			public string MapElementName(Map.GateMarker gateMarker);
+			public bool Requirement(RegionGate regionGate);
+		}
+
+		public class Open : LockData
+		{
+			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbol0";
+			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaOpen";
+			public bool Requirement(Gate regionGate) => true;
+		}
+		public class Forbidden : LockData
+		{
+			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolForbidden";
+			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaForbidden";
+			public bool Requirement(Gate gate) => false;
+		}
+		public class TenReinforced : LockData
+		{
+			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbol10reinforced";
+			public string MapElementName(Map.GateMarker gateMarker) => "smallKarma10reinforced";
+			public bool Requirement(Gate gate) => (gate.room.game.Players[0].realizedCreature is Player p) && p.Karma == 9 && p.KarmaIsReinforced;
+		}
+		public class ComsMark : LockData
+		{
+			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolComsmark";
+			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaComsmark";
+			public bool Requirement(Gate gate) => gate.room.game.GetStorySession.saveState.deathPersistentSaveData.theMark;
+		}
+		public class Glow : LockData
+		{
+			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolGlow";
+			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaGlow";
+			public bool Requirement(Gate gate) => gate.room.game.GetStorySession.saveState.theGlow;
+		}
+		public class UWU : LockData
+		{
+			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolUwu";
+			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaUwu";
+			public bool Requirement(Gate gate) => uwu != null;
+		}
+		public class Numerical : LockData
+		{
+			public Numerical(Req req) => this.req = req;
+
+			public Req req;
+			public virtual string GateElementName(GateKarmaGlyph glyph)
+			{
+				var intreq = req.GetKarmaLevel();
+				if (intreq >= 5)
+				{
+					int cap = (glyph.room.game.session as StoryGameSession)!.saveState.deathPersistentSaveData.karmaCap;
+					if (cap < intreq) cap = Mathf.Max(6, intreq);
+					return "gateSymbol" + (intreq + 1).ToString() + "-" + (cap + 1).ToString(); // Custom, 1-indexed
+				}
+				else
+				{ return "gateSymbol" + (intreq + 1).ToString(); }
+			}
+			public virtual string MapElementName(Map.GateMarker gateMarker)
+			{
+				int karma = req.GetKarmaLevel();
+				if (karma > 4)
+				{
+					int? cap = gateMarker.map.hud.rainWorld.progression?.currentSaveState?.deathPersistentSaveData?.karmaCap;
+					if (!cap.HasValue || cap.Value < karma) cap = Mathf.Max(6, karma);
+					return "smallKarma" + karma.ToString() + "-" + cap.Value.ToString(); // Vanilla, zero-indexed
+				}
+				else
+				{
+					return "smallKarmaNoRing" + karma;
+				}
+			}
+			public bool Requirement(Gate gate)
+			{
+				AbstractCreature firstAlivePlayer = gate.room.game.FirstAlivePlayer;
+				if (gate.room.game.Players.Count == 0 || firstAlivePlayer == null || (firstAlivePlayer.realizedCreature == null && ModManager.CoopAvailable))
+				{ return false; }
+
+				Player player;
+				if (ModManager.CoopAvailable && gate.room.game.AlivePlayers.Count > 0)
+				{ player = (firstAlivePlayer.realizedCreature as Player)!; }
+				else
+				{ player = (gate.room.game.Players[0].realizedCreature as Player)!; }
+
+				int num = player.Karma;
+				if (ModManager.MSC && player.SlugCatClass == MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName.Artificer && player.grasps.Length != 0)
+				{
+					for (int i = 0; i < player.grasps.Length; i++)
+					{
+						if (player.grasps[i] != null && player.grasps[i].grabbedChunk != null && player.grasps[i].grabbedChunk.owner is Scavenger)
+						{
+							num = (gate.room.game.session as StoryGameSession).saveState.deathPersistentSaveData.karma + (player.grasps[i].grabbedChunk.owner as Scavenger).abstractCreature.karmicPotential;
+							break;
+						}
+					}
+				}
+
+				return num >= req.GetKarmaLevel();
+			}
+		}
+
+		public class NumericalAlt : Numerical
+		{
+			public NumericalAlt(Req req) : base(req) { }
+			public override string GateElementName(GateKarmaGlyph glyph) => base.GateElementName(glyph) + "alt";
+		}
+	}
+
+	public static Dictionary<Req, ExtendedLocks.LockData> ExLocks = new();
+
+	private static readonly ConditionalWeakTable<RegionGate, List<string>> _Tags = new();
+	public static List<string> Tags(this RegionGate p) => _Tags.GetValue(p, _ => new());
+
+	public static void InitExLocks()
+	{
+		ExLocks = new()
+		{
+			[_Enums.Open] = new ExtendedLocks.Open(),
+			[_Enums.Forbidden] = new ExtendedLocks.Forbidden(),
+			[_Enums.CommsMark] = new ExtendedLocks.ComsMark(),
+			[_Enums.Glow] = new ExtendedLocks.Glow(),
+			[_Enums.uwu] = new ExtendedLocks.UWU(),
+			[_Enums.TenReinforced] = new ExtendedLocks.TenReinforced(),
+			[_Enums.SixKarma] = new ExtendedLocks.Numerical(_Enums.SixKarma),
+			[_Enums.SevenKarma] = new ExtendedLocks.Numerical(_Enums.SevenKarma),
+			[_Enums.EightKarma] = new ExtendedLocks.Numerical(_Enums.EightKarma),
+			[_Enums.NineKarma] = new ExtendedLocks.Numerical(_Enums.NineKarma),
+			[_Enums.TenKarma] = new ExtendedLocks.Numerical(_Enums.TenKarma),
+		};
+
+		foreach (Req req in _Enums.alt)
+		{ ExLocks[req] = new ExtendedLocks.NumericalAlt(req); }
+	}
+
+	internal const string Version = "1.4";
 	internal const string author = "Henpemaz";
 	static Type? uwu;
 	// 1.0 initial release
 	// 1.1 13/06/2021 bugfix 6 karma at 5 cap; fix showing open side over karma for inregion minimap
 	/// <summary>
-	/// Checks whether a gate requirement is vanilla or not
-	/// </summary>
-	internal static bool IsVanilla(Req req)
-	{
-		if (req == null) return true;
-		return req.ToString() is "1" or "2" or "3" or "4" or "5" or "L" or "R";
-	}
-	/// <summary>
 	/// Returns a karma requirement for given gate, -1 by 
 	/// </summary>
 	public static int GetKarmaLevel(this Req req)
 	{
-		int result = -1;
 		string str = req.ToString();
 		if (str.EndsWith(ALT_POSTFIX))
 		{
-			int.TryParse(str[..^ALT_POSTFIX.Length], out result);
+			str = str[..^ALT_POSTFIX.Length];
 		}
-		else
-		{
-			int.TryParse(str, out result);
-		}
-		return result - 1;
+		if (int.TryParse(str, out int result))
+		{ return result - 1; }
+		
+		return -1;
 	}
 	internal const string ALT_POSTFIX = "alt";
-	/// <summary>
-	/// Returns whether a gate requirement has alt art
-	/// </summary>
-	public static bool IsAlt(Req req)
-	{
-		return req?.ToString().EndsWith(ALT_POSTFIX) ?? false;
-	}
 
 	internal static void Enable()
 	{
-		On.GateKarmaGlyph.DrawSprites += GateKarmaGlyph_DrawSprites;
-
-		On.RegionGate.ctor += RegionGate_ctor;
-		On.RegionGate.Update += RegionGate_Update;
-		On.RegionGate.KarmaBlinkRed += RegionGate_KarmaBlinkRed;
-
-		On.RegionGateGraphics.Update += RegionGateGraphics_Update;
 		On.RegionGateGraphics.DrawSprites += RegionGateGraphics_DrawSprites;
+		On.RegionGateGraphics.Update += RegionGateGraphics_Update;
+		On.VirtualMicrophone.NewRoom += VirtualMicrophone_NewRoom;
 
+		IL.RegionGate.ctor += RegionGate_ctorIL;
+		On.RegionGate.ctor += RegionGate_ctor;
+		On.RegionGate.customKarmaGateRequirements += RegionGate_customKarmaGateRequirements;
+		On.RegionGate.Update += RegionGate_Update;
+
+		RegionGateMeetRequirementHook = new Hook(typeof(RegionGate).GetProperty("MeetRequirement",
+			BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetGetMethod(), RegionGate_MeetRequirement);
+
+		On.GateKarmaGlyph.DrawSprites += GateKarmaGlyph_DrawSprites;
 		On.HUD.Map.GateMarker.ctor += GateMarker_ctor;
-		On.HUD.Map.MapData.KarmaOfGate += MapData_KarmaOfGate;
+
 		uwu = null;
 		foreach (System.Reflection.Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
 		{
@@ -73,25 +205,26 @@ public static class ExtendedGates
 				uwu = asm.GetType("UwUMod.UwUMod");
 			}
 		}
-		On.VirtualMicrophone.NewRoom += VirtualMicrophone_NewRoom;
 	}
+
+	public static Hook RegionGateMeetRequirementHook = null;
+
 	internal static void Disable()
 	{
-		On.GateKarmaGlyph.DrawSprites -= GateKarmaGlyph_DrawSprites;
-
-		On.RegionGate.ctor -= RegionGate_ctor;
-		On.RegionGate.Update -= RegionGate_Update;
-		On.RegionGate.KarmaBlinkRed -= RegionGate_KarmaBlinkRed;
-
-		On.RegionGateGraphics.Update -= RegionGateGraphics_Update;
 		On.RegionGateGraphics.DrawSprites -= RegionGateGraphics_DrawSprites;
-
-		On.HUD.Map.GateMarker.ctor -= GateMarker_ctor;
-		On.HUD.Map.MapData.KarmaOfGate -= MapData_KarmaOfGate;
-
+		On.RegionGateGraphics.Update -= RegionGateGraphics_Update;
 		On.VirtualMicrophone.NewRoom -= VirtualMicrophone_NewRoom;
-	}
 
+		IL.RegionGate.ctor -= RegionGate_ctorIL;
+		On.RegionGate.ctor -= RegionGate_ctor;
+		On.RegionGate.customKarmaGateRequirements -= RegionGate_customKarmaGateRequirements;
+		On.RegionGate.Update -= RegionGate_Update;
+		RegionGateMeetRequirementHook?.Undo();
+
+		On.GateKarmaGlyph.DrawSprites -= GateKarmaGlyph_DrawSprites;
+		On.HUD.Map.GateMarker.ctor -= GateMarker_ctor;
+	}
+	#region misc fixes
 	private static void RegionGateGraphics_DrawSprites(On.RegionGateGraphics.orig_DrawSprites orig, RegionGateGraphics self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		orig(self, sLeaser, rCam, timeStacker, camPos);
@@ -127,191 +260,86 @@ public static class ExtendedGates
 			}
 		}
 	}
-
-	#region MAPHOOKS
-	private static void GateMarker_ctor(On.HUD.Map.GateMarker.orig_ctor orig, HUD.Map.GateMarker self, HUD.Map map, int room, RegionGate.GateRequirement req, bool showAsOpen)
-	{
-		orig(self, map, room, IsVanilla(req) ? req : Req.OneKarma, showAsOpen);
-		if (IsVanilla(req))
-		{
-			__logger.LogInfo($"Vanilla req {req}, skipping");
-			return;
-		}
-		int karma = 0;
-		__logger.LogInfo($"Constructing custom gate marker image for {req}...");
-		string reqstr = req.ToString();
-		switch (reqstr)
-		{
-		//todo: did you convert it right?
-		case nameof(_Enums.Open): // open
-			self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaOpen"); // Custom
-			break;
-		case nameof(_Enums.TenReinforced): // 10reinforced
-			self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarma10reinforced"); // Custom
-			break;
-		case nameof(_Enums.Forbidden): // forbidden
-			self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaForbidden"); // Custom
-			break;
-		case nameof(_Enums.CommsMark): // comsmark
-			self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaComsmark"); // Custom
-			break;
-		case nameof(_Enums.uwu): // uwu
-			self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaUwu"); // Custom
-			break;
-		case nameof(_Enums.Glow): // glow
-			self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaGlow"); // Custom
-			break;
-		case "6":
-		case "7":
-		case "8":
-		case "9":
-		case "10":
-		default:
-			karma = req.GetKarmaLevel();
-			if (karma > 4)
-			{
-				int? cap = map.hud.rainWorld.progression?.currentSaveState?.deathPersistentSaveData?.karmaCap;
-				if (!cap.HasValue || cap.Value < karma) cap = Mathf.Max(6, karma);
-				self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarma" + karma.ToString()
-				+ "-" + cap.Value.ToString()); // Vanilla, zero-indexed
-			}
-			else
-			{
-				self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaNoRing" + karma);
-			}
-			break;
-		}
-	}
-
-	private static Req MapData_KarmaOfGate(On.HUD.Map.MapData.orig_KarmaOfGate orig, HUD.Map.MapData self, PlayerProgression progression, World initWorld, string roomName)
-	{
-		string path = AssetManager.ResolveFilePath("world/gates/extendedlocks.txt");
-		if (!System.IO.File.Exists(path)) goto DEFAULT_;
-		string[] array = System.IO.File.ReadAllLines(path);
-		for (int i = 0; i < array.Length; i++)
-		{
-			if (string.IsNullOrEmpty(array[i]) || string.IsNullOrEmpty(array[i].Trim())) continue;
-			if (array[i].IndexOf("//") > -1)
-			{
-				array[i] = array[i].Substring(array[i].IndexOf("//"));
-			}
-			if (string.IsNullOrEmpty(array[i]) || string.IsNullOrEmpty(array[i].Trim())) continue;
-			string[] array2 = System.Text.RegularExpressions.Regex.Split(array[i], " : ");
-			if (array2[0] == roomName)
-			{
-
-				string req1 = array2[1];
-				string req2 = array2[2];
-				Req? result = new(req1);
-				Req? result2 = new(req2);
-				//if (result > 1000) result -= 1000; // alt art mode irrelevant here
-				//if (result2 > 1000) result2 -= 1000; // alt art mode irrelevant here
-
-				bool thisGateIsFlippedForWhateverReason = false;
-				if (roomName == "GATE_LF_SB" || roomName == "GATE_DS_SB" || roomName == "GATE_HI_CC" || roomName == "GATE_SS_UW")
-				{
-					thisGateIsFlippedForWhateverReason = true;
-				}
-
-				string[] namearray = System.Text.RegularExpressions.Regex.Split(roomName, "_");
-				if (namearray.Length == 3)
-				{
-					for (int j = 0; j < namearray.Length; j++)
-					{
-						if (namearray[j] == "UX")
-						{
-							namearray[j] = "UW";
-						}
-						else if (namearray[j] == "SX")
-						{
-							namearray[j] = "SS";
-						}
-					}
-				}
-				if (namearray.Length != 3 || (namearray[1] == namearray[2]) || (namearray[1] != initWorld.region.name && namearray[2] != initWorld.region.name)) // In-region gate support
-				{
-					//todo wtf is this supposed to mean
-					// Not worht the trouble of telling which "side" the player is looking from the minimap, pick max
-					//if (result == 1000) result = 0; // open is less important than any karma values
-					//if (result2 == 1000) result2 = 0;
-					//return Mathf.Max(result, result2);
-				}
-
-				if (namearray[1] == initWorld.region.name != thisGateIsFlippedForWhateverReason)
-				{
-					return result ?? Req.OneKarma;
-				}
-				return result2 ?? Req.OneKarma;
-			}
-		}
-
-	DEFAULT_:;
-		return orig(self, progression, initWorld, roomName);
-	}
-
-	#endregion MAPHOOKS
+	#endregion
 
 	#region GATEHOOKS
 
 	/// <summary>
 	/// Loads karmaGate requirements
 	/// </summary>
-	private static void RegionGate_ctor(On.RegionGate.orig_ctor orig, RegionGate self, Room room)
+	private static void RegionGate_ctorIL(MonoMod.Cil.ILContext il)
+	{
+		try
+		{
+			var c = new ILCursor(il);
+
+			if (c.TryGotoNext(MoveType.After,
+				x => x.MatchLdarg(1),
+				x => x.MatchCallvirt<Room>("get_abstractRoom"),
+				x => x.MatchLdfld<AbstractRoom>("name"),
+				x => x.MatchCall<string>("op_Equality"),
+				x => x.MatchBrfalse(out _)))
+			{
+				c.Emit(OpCodes.Ldarg_0);
+				c.Emit(OpCodes.Ldloc_0);
+				c.Emit(OpCodes.Ldloc_2);
+				c.Emit(OpCodes.Ldelem_Ref);
+				c.EmitDelegate((RegionGate self, string line) =>
+				{
+					string[] array = Regex.Split(line, " : ");
+					self.Tags().Clear();
+					for (int i = 3; i < array.Length; i++)
+					{ self.Tags().Add(array[i]); }
+				});
+			}
+			else
+			{
+				__logger.LogError("[ExtendedGates] : failed to hook RegionGate.ctor");
+			}
+		}
+		catch (Exception e) { __logger.LogError("[ExtendedGates] : ERROR WHEN IL HOOKING RegionGate.ctor\n" + e); }
+	}
+
+	private static void RegionGate_ctor(On.RegionGate.orig_ctor orig, Gate self, Room room)
 	{
 		orig(self, room);
-
-		string path2 = AssetManager.ResolveFilePath("world/gates/extendedlocks.txt");//path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "extendedLocks.txt";
-		if (!System.IO.File.Exists(path2))
+		if (self.Tags().Contains("multi"))
 		{
-			__logger.LogMessage("ExtendedLocks is not present; skipping");
-			return;
+			if (self is WaterGate wg) // sets water level, don't want to get into crazy float craze
+			{
+				wg.waterLeft = 30f; // ((!room.world.regionState.gatesPassedThrough[room.abstractRoom.gateIndex]) ? 2f : 1f);
+			}
+			else if (self is ElectricGate eg)
+			{
+				eg.batteryLeft = 30f; // ((!room.world.regionState.gatesPassedThrough[room.abstractRoom.gateIndex]) ? 2f : 1f);
+			}
 		}
-		string[] lines = System.IO.File.ReadAllLines(path2);
+	}
 
-		for (int i = 0; i < lines.Length; i++)
+	private static void RegionGate_customKarmaGateRequirements(On.RegionGate.orig_customKarmaGateRequirements orig, Gate self)
+	{
+		//OE gate lol (should also il hook Map.ctor, but that's just cosmetic and too much pain)
+		if (self.Tags().Contains("OELock") && !self.customOEGateRequirements())
 		{
-			if (string.IsNullOrEmpty(lines[i]) || string.IsNullOrEmpty(lines[i].Trim())) continue;
-			if (lines[i].IndexOf("//") > -1)
-			{
-				__logger.LogMessage("Found comment?..");
-				lines[i] = lines[i].Substring(lines[i].IndexOf("//"));
-			}
-			if (string.IsNullOrEmpty(lines[i]) || string.IsNullOrEmpty(lines[i].Trim())) continue;
+			self.karmaRequirements[0] = MoreSlugcats.MoreSlugcatsEnums.GateRequirement.OELock;
+			self.karmaRequirements[1] = MoreSlugcats.MoreSlugcatsEnums.GateRequirement.OELock;
+		}
 
-			string[] array2 = System.Text.RegularExpressions.Regex.Split(lines[i], "\\s+:\\s+");
-			if (array2[0] != room.abstractRoom.name)
-			{
-				__logger.LogDebug($"{lines[i]} does not match {room.abstractRoom.name}");
-				continue;
-			}
-			__logger.LogMessage($"Found a match!");
-			self.karmaGlyphs[0].Destroy();
-			self.karmaGlyphs[1].Destroy();
-			string req1 = array2[1];
-			string req2 = array2[2];
-			self.karmaRequirements[0] = new(req1);
-			self.karmaRequirements[1] = new(req2);
-			bool alt1 = IsAlt(self.karmaRequirements[0]);
-			bool alt2 = IsAlt(self.karmaRequirements[1]);
-			__logger.LogMessage($"{req1} {req2} {alt1} {alt2}");
-			self.karmaGlyphs = new GateKarmaGlyph[2];
-			self.karmaGlyphs[0] = new GateKarmaGlyph(false, self, self.karmaRequirements[0]/*  + (alt1 ? 1000 : 0) */);
-			room.AddObject(self.karmaGlyphs[0]);
-			self.karmaGlyphs[1] = new GateKarmaGlyph(true, self, self.karmaRequirements[1] /* + (alt2 ? 1000 : 0) */);
-			room.AddObject(self.karmaGlyphs[1]);
+		//we actually want all (most) custom gates to be overwritten by orig when applicable
+		orig(self);
 
-			if (array2.Length > 3 && array2[3].ToLower() == "multi") // "Infinite" uses
+		//guard clause, stop crashing when there are no locks!
+		for (int i = 0; i < self.karmaRequirements.Length; i++)
+		{
+			if (self.karmaRequirements[i] == null || self.karmaRequirements[i].index == -1)
+			{ self.karmaRequirements[i] = Req.OneKarma; }
+
+			//alt art ig
+			if (int.TryParse(self.karmaRequirements[i].value, out int v) && self.room?.game != null && DoesPlayerDeserveAltArt(self.room.game))
 			{
-				if (self is WaterGate wg) // sets water level, don't want to get into crazy float craze
-				{
-					wg.waterLeft = 30f; // ((!room.world.regionState.gatesPassedThrough[room.abstractRoom.gateIndex]) ? 2f : 1f);
-				}
-				else if (self is ElectricGate eg)
-				{
-					eg.batteryLeft = 30f; // ((!room.world.regionState.gatesPassedThrough[room.abstractRoom.gateIndex]) ? 2f : 1f);
-				}
+				Req alt = new Req(v + ALT_POSTFIX, false);
+				if(alt.index != -1) { self.karmaRequirements[i] = alt; }
 			}
-			return;
 		}
 	}
 
@@ -320,46 +348,12 @@ public static class ExtendedGates
 	/// </summary>
 	private static void RegionGate_Update(On.RegionGate.orig_Update orig, RegionGate self, bool eu)
 	{
-		int preupdateCounter = self.startCounter;
 		orig(self, eu);
 		if (!self.room.game.IsStorySession) return; // Paranoid, just like in the base game
+
 		switch (self.mode.ToString())
 		{
-		case nameof(RegionGate.Mode.MiddleClosed):
-			int num = self.PlayersInZone();
-			//if (UnityEngine.Random.value < 0.05f) __logger.LogDebug($"{num},{self.dontOpen},{self.PlayersStandingStill()},{self.EnergyEnoughToOpen},{PlayersMeetSpecialRequirements(self)}");
-			if (num > 0 && num < 3 && !self.dontOpen && self.PlayersStandingStill() && self.EnergyEnoughToOpen && (PlayersMeetSpecialRequirements(self) ?? self.MeetRequirement)) //todo: may need to assume null to true?
-			{
-				self.startCounter = preupdateCounter + 1;
-			}
-			if (self.startCounter == 59)
-			{
-				__logger.LogDebug("Opening...");
-				// OPEN THE GATES on the next frame
-				if (self.room.game.GetStorySession.saveStateNumber == SlugcatStats.Name.Yellow)
-				{
-					self.Unlock(); // sets savestate thing for monk
-				}
-				self.unlocked = true;
-			}
-			break;
-
 		case nameof(RegionGate.Mode.ClosingAirLock):
-			if (preupdateCounter == 59) // We did it... last frame
-			{
-				// if it shouldn't be unlocked, lock it back
-				self.unlocked =
-				(
-					self.room.game.GetStorySession.saveStateNumber == SlugcatStats.Name.Yellow
-					&& self.room.game.GetStorySession.saveState.deathPersistentSaveData.unlockedGates.Contains(self.room.abstractRoom.name)
-				)
-				||
-				(
-					self.room.game.StoryCharacter != SlugcatStats.Name.Red
-					&& System.IO.File.Exists(AssetManager.ResolveFilePath("nifflasmode.txt"))
-				);
-			}
-
 			if (self.room.game.overWorld.worldLoader == null) // In-region gate support
 			{
 				self.waitingForWorldLoader = false;
@@ -370,113 +364,33 @@ public static class ExtendedGates
 			break;
 		}
 	}
-
-	private static bool RegionGate_KarmaBlinkRed(On.RegionGate.orig_KarmaBlinkRed orig, RegionGate self)
+	public static bool RegionGate_MeetRequirement(Func<RegionGate, bool> orig, RegionGate self)
 	{
-		var ores = orig(self);
-		return PlayersMeetSpecialRequirements(self) ?? ores;
-		// return false;
-		// if (self.mode != RegionGate.Mode.MiddleClosed)
-		// {
-		// 	int num = self.PlayersInZone();
-		// 	if (num > 0 && num < 3)
-		// 	{
-		// 		//self.letThroughDir = (num == 1);
-		// 		if (!self.dontOpen && self.karmaRequirements[(!(num == 1)) ? 1 : 0] == Enums_EG.Forbidden) // Forbidden
-		// 		{
-		// 			return true;
-		// 		}
-		// 	}
-		// }
-		// Orig doesn't blink if "unlocked", but we know better, forbiden shall stay forbidden
-	}
+		Req req = self.karmaRequirements[self.letThroughDir ? 0 : 1];
+		if (!ExLocks.ContainsKey(req)) return orig(self);
 
-	private static bool? PlayersMeetSpecialRequirements(RegionGate self)
-	{
-		Req gateRequirement = self.karmaRequirements[self.letThroughDir ? 0 : 1];
-		if (IsVanilla(gateRequirement)) return null;
-		switch (gateRequirement.ToString())
-		{
-		case nameof(_Enums.Open): // open
-			return true;
-		case nameof(_Enums.TenReinforced): // 10reinforced
-			if (((self.room.game.Players[0].realizedCreature is Player p) && p.Karma == 9 && p.KarmaIsReinforced) || self.unlocked)
-				return true;
-			break;
-		case nameof(_Enums.Forbidden): // forbidden
-			self.startCounter = 0;
-			// caused problems with karmablinkred
-			// self.dontOpen = true; // Hope this works against MONK players smh.
-			break;
-		case nameof(_Enums.CommsMark): // comsmark
-			if (self.room.game.GetStorySession.saveState.deathPersistentSaveData.theMark || self.unlocked)
-				return true;
-			break;
-		case nameof(_Enums.uwu): // uwu
-			if (uwu != null || self.unlocked)
-				return true;
-			break;
-		case nameof(_Enums.Glow): // glow
-			if (self.room.game.GetStorySession.saveState.theGlow || self.unlocked)
-				return true;
-			break;
-		default: // custom karma level
-			var player = (self.room.game.Players.FirstOrDefault().realizedCreature as Player);
-			return player?.Karma >= gateRequirement.GetKarmaLevel();
-		}
-		return false;
+		return ExLocks[req].Requirement(self) || self.unlocked;
 	}
 
 	/// <summary>
-	/// Adds support to karma 6 thru 10 for gates, also special gates
+	/// Image used in the gate room
 	/// </summary>
 	private static void GateKarmaGlyph_DrawSprites(On.GateKarmaGlyph.orig_DrawSprites orig, GateKarmaGlyph self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, UnityEngine.Vector2 camPos)
 	{
 		if (self.symbolDirty) // redraw
 		{
-			bool altArt = DoesPlayerDeserveAltArt(self); // this was probably too costly to call every frame, moved
-			if ((!self.gate.unlocked || self.requirement == _Enums.Forbidden) && (!IsVanilla(self.requirement))) // Custom
+			bool canUseUnlockGates = self.room.game.GetStorySession.saveState.deathPersistentSaveData.CanUseUnlockedGates(self.room.game.GetStorySession.saveStateNumber);
+			if (self.requirement != null && ExLocks.ContainsKey(self.requirement) && !(canUseUnlockGates && self.gate.unlocked))
 			{
-				switch (self.requirement.ToString())
+				string element = ExLocks[self.requirement].GateElementName(self);
+				if (Futile.atlasManager.DoesContainElementWithName(element))
+				{ 
+					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName(element); 
+				}
+				else 
 				{
-				case nameof(_Enums.Open): // open
-					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol0"); // its vanilla
-					break;
-				case nameof(_Enums.TenReinforced): // 10reinforced
-					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol10reinforced"); // Custom
-					break;
-				case nameof(_Enums.Forbidden): // forbidden
-					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbolForbidden"); // Custom
-					break;
-				case nameof(_Enums.CommsMark): // comsmark
-					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbolComsmark"); // Custom
-					break;
-				case nameof(_Enums.uwu): // uwu
-					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbolUwu"); // Custom
-					break;
-				case nameof(_Enums.Glow): // glow
-					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbolGlow"); // Custom
-					break;
-				default:
-					var trueReq = self.requirement;
-					if (trueReq.ToString().EndsWith(ALT_POSTFIX)) // alt art
-					{
-						altArt = true;
-					}
-					var intreq = trueReq.GetKarmaLevel();
-					__logger.LogDebug($"{intreq}, {trueReq}");
-					if (intreq >= 5)
-					{
-						int cap = (self.room.game.session as StoryGameSession)!.saveState.deathPersistentSaveData.karmaCap;
-						if (cap < intreq) cap = Mathf.Max(6, intreq);
-						sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol" + (intreq + 1).ToString() + "-" + (cap + 1).ToString() + (altArt ? "alt" : "")); // Custom, 1-indexed
-					}
-					else
-					{	
-						sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol" + (intreq + 1).ToString() + (altArt ? "alt" : "")); // Alt art for vanilla gates
-					}
-					__logger.LogDebug(sLeaser.sprites[1].element.name);
-					break;
+					__logger.LogWarning($"[ExtendedGates] couldn't find gate atlas element [{element}] for lock [{self.requirement.value}], using default");
+					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol0"); 
 				}
 				self.symbolDirty = false;
 			}
@@ -484,16 +398,34 @@ public static class ExtendedGates
 		orig(self, sLeaser, rCam, timeStacker, camPos);
 	}
 
-	private static bool DoesPlayerDeserveAltArt(GateKarmaGlyph self)
+	private static void GateMarker_ctor(On.HUD.Map.GateMarker.orig_ctor orig, HUD.Map.GateMarker self, HUD.Map map, int room, RegionGate.GateRequirement req, bool showAsOpen)
 	{
+		orig(self, map, room, !(req != null && ExLocks.ContainsKey(req)) ? req : null, showAsOpen);
 
-		SaveState? saveState = (self.room?.game?.session as StoryGameSession)?.saveState;
+		if (req != null && ExLocks.ContainsKey(req))
+		{
+			string element = ExLocks[req].MapElementName(self);
+			if (Futile.atlasManager.DoesContainElementWithName(element))
+			{ 
+				self.symbolSprite.element = Futile.atlasManager.GetElementWithName(element); 
+			}
+			else
+			{
+				__logger.LogWarning($"[ExtendedGates] couldn't find map atlas element [{element}] for lock [{req.value}], using default");
+				self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaNoRing-1"); 
+			}
+		}
+	}
+
+	private static bool DoesPlayerDeserveAltArt(RainWorldGame game)
+	{
+		SaveState? saveState = (game.session as StoryGameSession)?.saveState;
 		if (saveState == null) return false;
 		WinState? winState = saveState.deathPersistentSaveData?.winState;
 		if (winState == null) return false;
 
-		float chieftain = self.room!.game.session.creatureCommunities.LikeOfPlayer(CreatureCommunities.CommunityID.Scavengers, -1, 0);
-		if (self.room.game.StoryCharacter == SlugcatStats.Name.Yellow)
+		float chieftain = game.session.creatureCommunities.LikeOfPlayer(CreatureCommunities.CommunityID.Scavengers, -1, 0);
+		if (game.StoryCharacter == SlugcatStats.Name.Yellow)
 		{
 			chieftain = Mathf.InverseLerp(0.42f, 0.9f, chieftain);
 		}
@@ -514,7 +446,7 @@ public static class ExtendedGates
 		}
 		if (passages < 6) return false;
 
-		float lizfrend = self.room.game.session.creatureCommunities.LikeOfPlayer(CreatureCommunities.CommunityID.Lizards, -1, 0);
+		float lizfrend = game.session.creatureCommunities.LikeOfPlayer(CreatureCommunities.CommunityID.Lizards, -1, 0);
 		if (lizfrend < -0.45f) return false;
 
 		if (saveState.cycleNumber < 43) return false;

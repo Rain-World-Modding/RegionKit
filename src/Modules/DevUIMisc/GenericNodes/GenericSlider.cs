@@ -12,6 +12,10 @@ public class GenericSlider : Slider, IDevUISignals
 
 	public float maxValue = 1f;
 
+	public int valueRounding = -1;
+
+	public int displayRounding = 0;
+
 	bool stringControl;
 
 	float stringWidth;
@@ -60,9 +64,16 @@ public class GenericSlider : Slider, IDevUISignals
 	{
 		base.Refresh();
 
+		if(valueRounding >= 0)
+		{ actualValue = (float)Math.Round(actualValue, 2); }
+
 		string str = "";
-		if (actualValue == defaultValue) str = "<D>";
-		NumberText = str + " " + ((int)actualValue).ToString();
+		if (actualValue == defaultValue && inheritButton) str = "<D>";
+		str += " ";
+		if (displayRounding >= 0) str += Math.Round(actualValue, displayRounding).ToString();
+		else str += actualValue.ToString();
+
+		NumberText = str;
 		if (stringControl)
 		{ (subNodes[1] as StringControl)!.actualValue = actualValue.ToString(); }
 

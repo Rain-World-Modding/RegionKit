@@ -106,12 +106,14 @@ internal static class _Module
 	public static void Enable()
 	{
 
+		CGDrySpot.Hooks.Apply();
 		CGCameraEffects.Apply();
 		CGNoLurkArea.Apply();
 		CGShelterRain.Apply();
 	}
 	public static void Disable()
 	{
+		CGDrySpot.Hooks.Undo();
 		CGCameraEffects.Undo();
 		CGNoLurkArea.Undo();
 		CGShelterRain.Undo();

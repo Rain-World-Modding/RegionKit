@@ -53,7 +53,8 @@ public static class _Module
 
 		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", OBJECTS_POM_CATEGORY);
 		RegisterManagedObject<CameraNoise, CameraNoise.CameraNoiseData, ManagedRepresentation>("CameraNoise", OBJECTS_POM_CATEGORY);
-		RegisterManagedObject<SlugcatEyeSelector, SlugcatEyeSelectorData, ManagedRepresentation>("SlugcatEyeSelector", RK_POM_CATEGORY);	}
+		RegisterManagedObject<SlugcatEyeSelector, SlugcatEyeSelectorData, ManagedRepresentation>("SlugcatEyeSelector", RK_POM_CATEGORY);
+	}
 
 	internal static void Enable()
 	{

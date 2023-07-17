@@ -53,7 +53,7 @@ public static class _Module
 
 		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", OBJECTS_POM_CATEGORY);
 		RegisterManagedObject<CameraNoise, CameraNoise.CameraNoiseData, ManagedRepresentation>("CameraNoise", OBJECTS_POM_CATEGORY);
-	}
+		RegisterManagedObject<SlugcatEyeSelector, SlugcatEyeSelectorData, ManagedRepresentation>("SlugcatEyeSelector", RK_POM_CATEGORY);	}
 
 	internal static void Enable()
 	{
@@ -72,6 +72,7 @@ public static class _Module
 		_CommonHooks.PostRoomLoad += RoomPostLoad;
 		//On.RainWorld.LoadResources += LoadLittlePlanetResources;
 		ShortcutCannon.Apply();
+		SlugcatEyeSelector.Apply();
 	}
 
 	internal static void Disable()
@@ -89,6 +90,7 @@ public static class _Module
 		RKAdditionalClimbables.Undo();
 		foreach (var hk in __objectHooks) if (hk.IsApplied) hk.Undo();
 		ShortcutCannon.Undo();
+		SlugcatEyeSelector.Undo();
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)

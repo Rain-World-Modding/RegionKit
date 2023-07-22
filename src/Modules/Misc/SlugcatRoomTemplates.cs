@@ -6,7 +6,7 @@ using System.Text;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 
-namespace RegionKit.Modules.DevUIMisc;
+namespace RegionKit.Modules.Misc;
 
 internal static class SlugcatRoomTemplates
 {
@@ -57,13 +57,14 @@ internal static class SlugcatRoomTemplates
 			c.Emit(OpCodes.Ldarg, 0);
 			c.Emit(OpCodes.Ldarg, 2);
 			c.Emit(OpCodes.Ldarg, 5);
-			c.EmitDelegate((RoomSettings self, Region region, SlugcatStats.Name playerChar) => {
+			c.EmitDelegate((RoomSettings self, Region region, SlugcatStats.Name playerChar) =>
+			{
 				if (playerChar == null) return;
 				string path = AssetManager.ResolveFilePath(
 			$"World{Path.DirectorySeparatorChar}{region.name}{Path.DirectorySeparatorChar}{self.name}-{playerChar.value}.txt"
 			);
 				Debug.Log($"path is [{path}, exists? {File.Exists(path)}]");
-				if (File.Exists(path)) self.filePath = path; 
+				if (File.Exists(path)) self.filePath = path;
 			});
 		}
 	}

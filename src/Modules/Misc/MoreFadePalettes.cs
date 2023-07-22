@@ -10,7 +10,7 @@ using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using DevInterface;
 
-namespace RegionKit.Modules.DevUIMisc;
+namespace RegionKit.Modules.Misc;
 
 internal static class MoreFadePalettes
 {
@@ -62,7 +62,7 @@ internal static class MoreFadePalettes
 	{
 		//for later...
 		if (rs.parent.fadePalette == null) return null!;
-		FadePalette palette = new FadePalette(rs.parent.fadePalette.palette, room.cameraPositions.Length);
+		var palette = new FadePalette(rs.parent.fadePalette.palette, room.cameraPositions.Length);
 		for (int i = 0; i < room.cameraPositions.Length - 1; i++)
 		{ palette.fades[i] = rs.parent.fadePalette.fades[0]; }
 		return palette;
@@ -92,7 +92,7 @@ internal static class MoreFadePalettes
 	}
 
 	#endregion
-	
+
 
 	public static void Apply()
 	{
@@ -151,7 +151,7 @@ internal static class MoreFadePalettes
 				for (int j = 8; j < 16; j++)
 				{
 					Color origColor = self.paletteTexture.GetPixel(i, j - 8);
-					Color newColor = Color.Lerp(fadeTex.GetPixel(i, j), fadeTex.GetPixel(i, j - 8), self.fadeCoord.y);
+					var newColor = Color.Lerp(fadeTex.GetPixel(i, j), fadeTex.GetPixel(i, j - 8), self.fadeCoord.y);
 					self.paletteTexture.SetPixel(i, j - 8, Color.Lerp(origColor, newColor, fade.fades[self.currentCameraPosition]));
 				}
 			}
@@ -192,7 +192,7 @@ internal static class MoreFadePalettes
 	{
 		if (!orig(self, playerChar)) return false;
 
-		List<string[]> list = File.ReadAllLines(self.filePath).Select(x => Regex.Split(x, ": ")).Where(x => x.Length == 2).ToList();
+		var list = File.ReadAllLines(self.filePath).Select(x => Regex.Split(x, ": ")).Where(x => x.Length == 2).ToList();
 
 		Dictionary<int, FadePalette> moreFadeIndex = new();
 		int greatest = -1;
@@ -262,7 +262,7 @@ internal static class MoreFadePalettes
 		public int index;
 		public int camCount => owner.room.cameraPositions.Length;
 		public FadePalette GetFade => RoomSettings.GetMoreFade(index);
-		public MoreFadeDevPanel(DevUI owner, DevUINode parentNode, Vector2 pos, int index) : base(owner, $"MoreFade_{index}", parentNode, pos, new Vector2(210f, 25f + 20f * owner.room.cameraPositions.Length), $"Fade Palette: {(index == -1? "None" : + 2)}")
+		public MoreFadeDevPanel(DevUI owner, DevUINode parentNode, Vector2 pos, int index) : base(owner, $"MoreFade_{index}", parentNode, pos, new Vector2(210f, 25f + 20f * owner.room.cameraPositions.Length), $"Fade Palette: {(index == -1 ? "None" : +2)}")
 		{
 			this.index = index;
 

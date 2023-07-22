@@ -1,4 +1,6 @@
-﻿﻿using DevInterface;
+﻿using DevInterface;
+using RegionKit.Modules.Misc;
+
 namespace RegionKit.Modules.DevUIMisc;
 
 internal class PaletteTextInput

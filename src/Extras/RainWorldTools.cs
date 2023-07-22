@@ -1,4 +1,4 @@
-namespace RegionKit.Extras;
+﻿namespace RegionKit.Extras;
 
 public static class RainWorldTools
 {
@@ -84,37 +84,39 @@ public static class RainWorldTools
 			if (lines[i].Length < 1) continue;
 			if (lines[i][0] == '(' && lines[i].Contains(')'))
 			{
-				bool include = false;
-				bool inverted = false;
-
 				string text = lines[i].Substring(1, lines[i].IndexOf(")") - 1);
-				if (text.StartsWith("X-"))
-				{
-					text = text.Substring(2);
-					inverted = true;
-				}
-
-				if (slug == null)
-				{
-					lines[i] = !inverted ? remove : lines[i].Substring(lines[i].IndexOf(")") + 1);
-					continue;
-				}
-
-				foreach (string text2 in text.Split(','))
-				{
-					if (text2.Trim() == slug.ToString())
-					{
-						include = true;
-						break;
-					}
-				}
-
-				include = inverted != include;
-
-				lines[i] = !include ? remove : lines[i].Substring(lines[i].IndexOf(")") + 1);
+				lines[i] = !StringMatchesSlugcat(text, slug) ? remove : lines[i].Substring(lines[i].IndexOf(")") + 1);
 			}
 		}
 
 		return lines.Where(x => x != remove).ToArray();
+	}
+
+	public static bool StringMatchesSlugcat(string text, SlugcatStats.Name slug)
+	{
+		bool include = false;
+		bool inverted = false;
+
+		if (text.StartsWith("X-"))
+		{
+			text = text.Substring(2);
+			inverted = true;
+		}
+
+		if (slug == null)
+		{
+			return inverted;
+		}
+
+		foreach (string text2 in text.Split(','))
+		{
+			if (text2.Trim() == slug.ToString())
+			{
+				include = true;
+				break;
+			}
+		}
+
+		return inverted != include;
 	}
 }

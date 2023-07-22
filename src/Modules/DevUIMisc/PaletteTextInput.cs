@@ -24,7 +24,7 @@ internal class PaletteTextInput
 	{
 		orig(self, owner, IDstring, parentNode, pos, title, controlPoint);
 
-		if (controlPoint >= 0 && controlPoint <= 3) // one that we know how to process
+		if (controlPoint >= 0 && controlPoint <= 3 || controlPoint == MoreFadePalettes.MFPControl) // one that we know how to process
 		{
 			//todo: probably breaks
 			var paletteField = new PaletteField(self);
@@ -101,6 +101,19 @@ internal class PaletteTextInput
 				{
 					return ctroller.RoomSettings.fadePalette.palette.ToString();
 				}
+			case MoreFadePalettes.MFPControl:
+				if (ctroller.parentNode is MoreFadePalettes.MoreFadeDevPanel panel)
+				{
+					if (panel.GetFade == null)
+					{
+						return "NONE";
+					}
+					else
+					{
+						return panel.GetFade.palette.ToString();
+					}
+				}
+				return "NONE";
 			}
 			return "";
 		}
@@ -129,6 +142,13 @@ internal class PaletteTextInput
 			case 3:
 				change = nint - (ctroller.RoomSettings.fadePalette?.palette ?? 0);
 				if (nint > 0 && ctroller.RoomSettings.fadePalette == null) ctroller.Increment(1);
+				break;
+			case MoreFadePalettes.MFPControl:
+				if (ctroller.parentNode is MoreFadePalettes.MoreFadeDevPanel panel)
+				{
+					change = nint - (panel.GetFade?.palette ?? 0);
+					if (nint > 0 && panel.GetFade == null) ctroller.Increment(1);
+				}
 				break;
 			}
 

@@ -243,7 +243,7 @@ internal static class MoreFadePalettes
 	private static void RoomSettingsPage_ctor(On.DevInterface.RoomSettingsPage.orig_ctor orig, RoomSettingsPage self, DevUI owner, string IDstring, DevUINode parentNode, string name)
 	{
 		orig(self, owner, IDstring, parentNode, name);
-		self.subNodes.Add(new MoreFadeDevPanel(owner, self, new Vector2(40f + 250f, 190f), self.RoomSettings.GetAllFades().Count() - 1));
+		self.subNodes.Add(new MoreFadeDevPanel(owner, self, new Vector2(450f, 360f), self.RoomSettings.GetAllFades().Count() - 1));
 		return;
 		for (int i = 0; i < self.RoomSettings.GetAllFades().Length; i++)
 		{
@@ -284,6 +284,11 @@ internal static class MoreFadePalettes
 			{ height += 20f + camCount * 20f; }
 
 			Resize(new Vector2(210f, height));
+
+			if (pos.y + height > 700f)
+			{
+				Move(new Vector2(pos.x, 700f - height));
+			}
 
 			height -= 20f;
 

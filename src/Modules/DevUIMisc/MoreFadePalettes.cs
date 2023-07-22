@@ -98,7 +98,11 @@ internal static class MoreFadePalettes
 	{
 		On.RoomCamera.ChangeRoom += RoomCamera_ChangeRoom;
 		On.RoomCamera.ApplyEffectColorsToAllPaletteTextures += RoomCamera_ApplyEffectColorsToAllPaletteTextures;
-		IL.RoomCamera.ApplyFade += RoomCamera_ApplyFade;
+		try
+		{
+			IL.RoomCamera.ApplyFade += RoomCamera_ApplyFade;
+		}
+		catch (Exception e) { __logger.LogError($"[MoreFadePalettes] ApplyFade IL Failed!\n{e}"); }
 		//On.HUD.RoomTransition.PlayerEnterShortcut += nah not important enough for the hassle
 
 		On.RoomSettings.Load += RoomSettings_Load;

@@ -15,10 +15,10 @@
 		<AssemblyVersion>3.9</AssemblyVersion>
 		<PackageReadmeFile>../README.md</PackageReadmeFile>
 		<PackageLicenseFile>../LICENSE</PackageLicenseFile>
+		<DebugType>Portable</DebugType>
 	</PropertyGroup>
 	<!-- Debug configuration. Build for release. -->
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DebugType>embedded</DebugType>
 		<TreatWarningsAsErrors>False</TreatWarningsAsErrors>
 		<WarningsAsErrors>$(WarningsAsErrors);NU1605;</WarningsAsErrors>
 		<DefineConstants>$(DefineConstants)TRACE;RK;REMIX</DefineConstants>
@@ -26,7 +26,6 @@
 	</PropertyGroup>
 	<!-- Release configuration. Build for release. -->
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DebugType>embedded</DebugType>
 		<TreatWarningsAsErrors>False</TreatWarningsAsErrors>
 		<WarningsAsErrors>$(WarningsAsErrors);NU1605;</WarningsAsErrors>
 		<DefineConstants>$(DefineConstants)TRACE;RK;REMIX</DefineConstants>
@@ -183,11 +182,17 @@
 		<Message
 			Text="RK: Copying build result to mod folder"
 			Importance="high" />
-		<Copy
+		<Copy SourceFiles="$(OutDir)$(ProjectName).dll" DestinationFolder="../mod/plugins" Retries="3"
+			RetryDelayMilliseconds="300" />
+		<Copy SourceFiles="$(OutDir)$(ProjectName).pdb" DestinationFolder="../mod/plugins" Retries="3"
+			RetryDelayMilliseconds="300" />
+		<Copy SourceFiles="$(OutDir)$(ProjectName).xml" DestinationFolder="../mod/plugins" Retries="3"
+			RetryDelayMilliseconds="300" />
+		<!-- <Copy
 			SourceFiles="$(TargetPath)"
 			DestinationFolder="../mod/plugins"
 			Retries="3"
-			RetryDelayMilliseconds="300" />
+			RetryDelayMilliseconds="300" /> -->
 		<ItemGroup>
 			<_CopyItems Include="../mod/**" />
 		</ItemGroup>

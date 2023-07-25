@@ -17,6 +17,8 @@ internal static class _Module
 		//CloudAdjustment.Apply();
 		ExtendedGates.Enable();
 		SuperstructureFusesHook.Apply();
+		MoreFadePalettes.Apply();
+		SlugcatRoomTemplates.Apply();
 	}
 	public static void Disable()
 	{
@@ -25,5 +27,7 @@ internal static class _Module
 		//CloudAdjustment.Undo();
 		ExtendedGates.Disable();
 		SuperstructureFusesHook.Undo();
+		MoreFadePalettes.Undo();
+		SlugcatRoomTemplates.Undo();
 	}
 }

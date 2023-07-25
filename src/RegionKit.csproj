@@ -129,6 +129,7 @@
 		</Reference>
 		<Reference Include="UnityEngine.AssetBundleModule">
 		  <HintPath>lib/UnityEngine.AssetBundleModule.dll</HintPath>
+		  <Private>False</Private>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
 			<HintPath>lib/UnityEngine.CoreModule.dll</HintPath>

@@ -27,14 +27,14 @@ internal static class Data
 	public static void Apply()
 	{
 		On.RoomSettings.Load += RoomSettings_Load;
-		On.RoomSettings.Save_string_bool += RoomSettings_Save_string_bool;
+		_CommonHooks.RoomSettingsSave += RoomSettings_Save_string_bool;
 		On.RoomSettings.InheritEffects += RoomSettings_InheritEffects;
 	}
 
 	public static void Undo()
 	{
 		On.RoomSettings.Load -= RoomSettings_Load;
-		On.RoomSettings.Save_string_bool -= RoomSettings_Save_string_bool;
+		_CommonHooks.RoomSettingsSave -= RoomSettings_Save_string_bool;
 		On.RoomSettings.InheritEffects -= RoomSettings_InheritEffects;
 	}
 
@@ -48,11 +48,9 @@ internal static class Data
 		{ self.BackgroundData().InheritFromTemplate(self.parent.BackgroundData()); }
 	}
 
-	private static void RoomSettings_Save_string_bool(On.RoomSettings.orig_Save_string_bool orig, RoomSettings self, string path, bool saveAsTemplate)
+	private static List<string> RoomSettings_Save_string_bool(RoomSettings self, bool saveAsTemplate)
 	{
-		orig(self, path, saveAsTemplate);
-		if (self.BackgroundData().SaveLines().Length > 0)
-		{ File.AppendAllLines(path, self.BackgroundData().SaveLines()); }
+		return self.BackgroundData().SaveLines().ToList();
 	}
 
 	private static bool RoomSettings_Load(On.RoomSettings.orig_Load orig, RoomSettings self, SlugcatStats.Name playerChar)

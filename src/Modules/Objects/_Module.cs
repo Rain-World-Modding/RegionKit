@@ -1,5 +1,6 @@
 ﻿using MonoMod.RuntimeDetour;
 using DevInterface;
+using static Pom.Pom;
 
 namespace RegionKit.Modules.Objects;
 ///<inheritdoc/>
@@ -53,6 +54,30 @@ public static class _Module
 
 		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", OBJECTS_POM_CATEGORY);
 		RegisterManagedObject<CameraNoise, CameraNoise.CameraNoiseData, ManagedRepresentation>("CameraNoise", OBJECTS_POM_CATEGORY);
+
+		RegisterFullyManagedObjectType(new ManagedField[]
+			{
+				new IntegerField("reqkarma", 0, 9, 0, displayName:"Req Karma"),
+				new IntegerField("reqkarmacap", 0, 9, 9, displayName:"Req Karma Cap"),
+				new IntegerField("setkarma", -1, 9, 9, displayName:"New Karma"),
+				new IntegerField("setkarmacap", -1, 9, -1, displayName:"New Karma Cap"),
+				new EnumField<BigKarmaShrine.direction>("direction", BigKarmaShrine.direction.Any, displayName:"Direction"),
+				new Vector2Field("radius", Vector2.up * 134.5f, Vector2Field.VectorReprType.circle),
+				new BooleanField("superslow", false, displayName:"Super Slowdown"),
+				new BooleanField("sprite", true, displayName:"Use Sprite"),
+			}, typeof(BigKarmaShrine), "BigKarmaShrine", OBJECTS_POM_CATEGORY);
+
+
+		RegisterFullyManagedObjectType(new ManagedField[]
+			{
+				new Vector2Field("radius", Vector2.up * 134.5f, Vector2Field.VectorReprType.circle),
+				new BooleanField("frame", true, displayName:"Use Frame"),
+				new ColorField("topcolor", new Color(1f, 0.7f, 0.2f), displayName: "top color"),
+				new ColorField("bottomcolor", new Color(0.6f, 0.46f, 0.14f), displayName: "bottom color"),
+				new IntegerField("depth", 0, 30, 0, ManagedFieldWithPanel.ControlType.slider, "depth"),
+				new IntegerField("spriteindex", 0, 9, 9, displayName: "karma display"),
+				new StringField("spritename", "", "sprite name")
+			}, typeof(BigKarmaShrine.MarkSprite), "KarmaShrineSprite", OBJECTS_POM_CATEGORY);
 	}
 
 	internal static void Enable()
@@ -72,6 +97,7 @@ public static class _Module
 		_CommonHooks.PostRoomLoad += RoomPostLoad;
 		//On.RainWorld.LoadResources += LoadLittlePlanetResources;
 		ShortcutCannon.Apply();
+		BigKarmaShrine.Apply();
 	}
 
 	internal static void Disable()
@@ -89,6 +115,7 @@ public static class _Module
 		RKAdditionalClimbables.Undo();
 		foreach (var hk in __objectHooks) if (hk.IsApplied) hk.Undo();
 		ShortcutCannon.Undo();
+		BigKarmaShrine.Undo();
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)

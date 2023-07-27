@@ -152,7 +152,8 @@ internal static class MoreFadePalettes
 				{
 					Color origColor = self.paletteTexture.GetPixel(i, j - 8);
 					var newColor = Color.Lerp(fadeTex.GetPixel(i, j), fadeTex.GetPixel(i, j - 8), self.fadeCoord.y);
-					self.paletteTexture.SetPixel(i, j - 8, Color.Lerp(origColor, newColor, fade.fades[self.currentCameraPosition]));
+					if (fade.fades.Length > self.currentCameraPosition) //we're not throwing, even if it'll fail to render the fade
+					{ self.paletteTexture.SetPixel(i, j - 8, Color.Lerp(origColor, newColor, fade.fades[self.currentCameraPosition])); }
 				}
 			}
 		}
@@ -177,6 +178,8 @@ internal static class MoreFadePalettes
 
 	private static void RoomCamera_ChangeRoom(On.RoomCamera.orig_ChangeRoom orig, RoomCamera self, Room newRoom, int cameraPosition)
 	{
+		self.currentCameraPosition = cameraPosition; //THIS IS REALLY IMPORTANT idk why the base game doesn't do this, shouldn't break anything
+
 		self.MoreFadeTextures().Clear();
 		if (newRoom == null) { orig(self, newRoom, cameraPosition); return; }
 		foreach (FadePalette fade in newRoom.roomSettings.GetAllFades())

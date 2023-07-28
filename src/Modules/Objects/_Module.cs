@@ -7,19 +7,21 @@ namespace RegionKit.Modules.Objects;
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "MiscObjects")]
 public static class _Module
 {
-	private const string OBJECTS_POM_CATEGORY = RK_POM_CATEGORY + "-MISCOBJECTS";
+	public const string OBJECTS_POM_CATEGORY = RK_POM_CATEGORY + "-MISCOBJECTS";
+	public const string GAMEPLAY_POM_CATEGORY = RK_POM_CATEGORY + "-Gameplay";
+	public const string DECORATIONS_POM_CATEGORY = RK_POM_CATEGORY + "-Decorations";
 	private static List<Hook> __objectHooks = new();
 	internal static void Setup()
 	{
 		//NewEffects/
 		//NewObjects.Hook();
-		RegisterFullyManagedObjectType(ColouredLightSource.__fields, typeof(ColouredLightSource), null, OBJECTS_POM_CATEGORY);
-		RegisterFullyManagedObjectType(Drawable.__fields, typeof(Drawable), "FreeformDecalOrSprite", OBJECTS_POM_CATEGORY);
+		RegisterFullyManagedObjectType(ColouredLightSource.__fields, typeof(ColouredLightSource), null, DECORATIONS_POM_CATEGORY);
+		RegisterFullyManagedObjectType(Drawable.__fields, typeof(Drawable), "FreeformDecalOrSprite", DECORATIONS_POM_CATEGORY);
 		List<ManagedField> shroudFields = new()
 		{
 			new Vector2ArrayField("quad", 4, true, Vector2ArrayField.Vector2ArrayRepresentationType.Polygon, Vector2.zero, Vector2.right * 20f, (Vector2.right + Vector2.up) * 20f, Vector2.up * 20f)
 		};
-		RegisterFullyManagedObjectType(shroudFields.ToArray(), typeof(Shroud), nameof(Shroud), OBJECTS_POM_CATEGORY);
+		RegisterFullyManagedObjectType(shroudFields.ToArray(), typeof(Shroud), nameof(Shroud), DECORATIONS_POM_CATEGORY);
 
 		List<ManagedField> fanFields = new()
 		{
@@ -27,7 +29,7 @@ public static class _Module
 			new FloatField("scale", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Scale"),
 			new FloatField("depth", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Depth")
 		};
-		RegisterFullyManagedObjectType(fanFields.ToArray(), typeof(SpinningFan), nameof(SpinningFan), OBJECTS_POM_CATEGORY);
+		RegisterFullyManagedObjectType(fanFields.ToArray(), typeof(SpinningFan), nameof(SpinningFan), DECORATIONS_POM_CATEGORY);
 
 		List<ManagedField> steamFields = new()
 		{
@@ -36,13 +38,13 @@ public static class _Module
 			new FloatField("f3", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Lifetime"),
 			new Vector2Field("v1", new Vector2(0f,45f), Vector2Field.VectorReprType.line)
 		};
-		RegisterFullyManagedObjectType(steamFields.ToArray(), typeof(SteamHazard), nameof(SteamHazard), OBJECTS_POM_CATEGORY);
+		RegisterFullyManagedObjectType(steamFields.ToArray(), typeof(SteamHazard), nameof(SteamHazard), GAMEPLAY_POM_CATEGORY);
 
 
-		RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>("RoomBorderTP", OBJECTS_POM_CATEGORY);
-		RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect", OBJECTS_POM_CATEGORY);
-		RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>("PlacedWaterfall", OBJECTS_POM_CATEGORY);
-		RegisterManagedObject<ColorifierUAD, ShortcutColorifierData, ManagedRepresentation>("ShortcutColor", OBJECTS_POM_CATEGORY);
+		RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>("RoomBorderTP", GAMEPLAY_POM_CATEGORY);
+		RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect", GAMEPLAY_POM_CATEGORY);
+		RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>("PlacedWaterfall", DECORATIONS_POM_CATEGORY);
+		RegisterManagedObject<ColorifierUAD, ShortcutColorifierData, ManagedRepresentation>("ShortcutColor", DECORATIONS_POM_CATEGORY);
 
 		__objectHooks = new List<Hook>
 		{
@@ -52,8 +54,8 @@ public static class _Module
 
 		PopupsMod.Register();
 
-		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", OBJECTS_POM_CATEGORY);
-		RegisterManagedObject<CameraNoise, CameraNoise.CameraNoiseData, ManagedRepresentation>("CameraNoise", OBJECTS_POM_CATEGORY);
+		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", GAMEPLAY_POM_CATEGORY);
+		RegisterManagedObject<CameraNoise, CameraNoise.CameraNoiseData, ManagedRepresentation>("CameraNoise", DECORATIONS_POM_CATEGORY);
 
 		RegisterFullyManagedObjectType(new ManagedField[]
 			{
@@ -65,7 +67,7 @@ public static class _Module
 				new Vector2Field("radius", Vector2.up * 134.5f, Vector2Field.VectorReprType.circle),
 				new BooleanField("superslow", false, displayName:"Super Slowdown"),
 				new BooleanField("sprite", true, displayName:"Use Sprite"),
-			}, typeof(BigKarmaShrine), "BigKarmaShrine", OBJECTS_POM_CATEGORY);
+			}, typeof(BigKarmaShrine), "BigKarmaShrine", GAMEPLAY_POM_CATEGORY);
 
 
 		RegisterFullyManagedObjectType(new ManagedField[]
@@ -77,7 +79,7 @@ public static class _Module
 				new IntegerField("depth", 0, 30, 0, ManagedFieldWithPanel.ControlType.slider, "depth"),
 				new IntegerField("spriteindex", 0, 9, 9, displayName: "karma display"),
 				new StringField("spritename", "", "sprite name")
-			}, typeof(BigKarmaShrine.MarkSprite), "KarmaShrineSprite", OBJECTS_POM_CATEGORY);
+			}, typeof(BigKarmaShrine.MarkSprite), "KarmaShrineSprite", GAMEPLAY_POM_CATEGORY);
 	}
 
 	internal static void Enable()
@@ -122,17 +124,22 @@ public static class _Module
 	{
 		ObjectsPage.DevObjectCategories res = orig(self, type);
 		if (type == _Enums.ProjectedCircle ||
-			type == _Enums.NoWallSlideZone ||
 			type == _Enums.ColoredLightBeam ||
 			type == _Enums.CustomEntranceSymbol ||
 			type == _Enums.PWLightrod ||
 			type == _Enums.UpsideDownWaterFall ||
 			type == _Enums.LittlePlanet ||
+			type == _Enums.RainbowNoFade)
+			res = new ObjectsPage.DevObjectCategories(DECORATIONS_POM_CATEGORY);
+		else if (
+			type == _Enums.NoWallSlideZone ||
 			type == _Enums.ARKillRect ||
-			type == _Enums.RainbowNoFade ||
 			type == _Enums.ClimbablePole ||
-			type == _Enums.ClimbableWire)
-			res = new ObjectsPage.DevObjectCategories(RK_POM_CATEGORY);
+			type == _Enums.ClimbableWire ||
+			type == EchoExtender._Enums.EEGhostSpot ||
+			type == TheMast._Enums.PlacedWind ||
+			type == TheMast._Enums.PlacedPearlChain)
+			res = new ObjectsPage.DevObjectCategories(GAMEPLAY_POM_CATEGORY);
 		return res;
 	}
 

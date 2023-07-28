@@ -19,7 +19,7 @@ namespace RegionKit.Modules.Machinery;
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Machinery")]
 public static class _Module
 {
-	private const string MACHINERY_POM_CATEGORY = RK_POM_CATEGORY + "-MACHINERY";
+	private const string MACHINERY_POM_CATEGORY = RK_POM_CATEGORY + "-Machinery";
 	public static void Setup()
 	{
 		RegisterMPO();

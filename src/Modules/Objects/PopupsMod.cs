@@ -23,14 +23,14 @@ internal static class PopupsMod
 			new IntegerField("cooldown", -1, 40, 1, displayName:"Cooldown Cycles"),
 		};
 
-		RegisterFullyManagedObjectType(settings.ToArray(), typeof(PopupTrigger), "RoomPopupTrigger", RK_POM_CATEGORY);
+		RegisterFullyManagedObjectType(settings.ToArray(), typeof(PopupTrigger), "RoomPopupTrigger", _Module.GAMEPLAY_POM_CATEGORY);
 
 		settings.Add(new Vector2Field("handle", new Vector2(-100, 40), Vector2Field.VectorReprType.circle));
-		RegisterFullyManagedObjectType(settings.ToArray(), typeof(ResizeablePopupTrigger), "ResizeablePopupTrigger", RK_POM_CATEGORY);
+		RegisterFullyManagedObjectType(settings.ToArray(), typeof(ResizeablePopupTrigger), "ResizeablePopupTrigger", _Module.GAMEPLAY_POM_CATEGORY);
 		settings.Pop();
 
 		settings.Add(new Vector2Field("handle", new Vector2(40, 60), Vector2Field.VectorReprType.rect));
-		RegisterFullyManagedObjectType(settings.ToArray(), typeof(RectanglePopupTrigger), "RectanglePopupTrigger", RK_POM_CATEGORY);
+		RegisterFullyManagedObjectType(settings.ToArray(), typeof(RectanglePopupTrigger), "RectanglePopupTrigger", _Module.GAMEPLAY_POM_CATEGORY);
 		settings.Pop();
 	}
 

@@ -1,9 +1,9 @@
-namespace RegionKit.Modules.RoomZones;
+﻿namespace RegionKit.Modules.RoomZones;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Room zones")]
 public static class _Module
 {
-	public const string ZONES_POM_CATEGORY = RK_POM_CATEGORY + "-ZONES";
+	public const string ZONES_POM_CATEGORY = Objects._Module.GAMEPLAY_POM_CATEGORY;
 	public static List<GameObject> colliderHolders = new();
 	public static void Setup()
 	{

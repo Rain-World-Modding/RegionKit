@@ -12,7 +12,7 @@ namespace RegionKit.Modules.Particles;
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Particles")]
 internal static class _Module
 {
-	internal const string PARTICLES_POM_CATEGORY = RK_POM_CATEGORY + "-PARTICLES";
+	internal const string PARTICLES_POM_CATEGORY = RK_POM_CATEGORY + "-Particles";
 	internal static readonly Dictionary<string, ParticleVisualState> __namedPresets = new();
 
 	internal static void Setup()

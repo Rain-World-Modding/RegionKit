@@ -43,13 +43,13 @@ public static class _Module
 			type == _Enums.ReplaceEffectColorB ||
 			type == _Enums.FogOfWarSolid ||
 			type == _Enums.FogOfWarDarkened ||
-			type == _Enums.CloudAdjustment ||
 			type == _Enums.GlowingSwimmers ||
 			type == _Enums.ColoredCamoBeetles ||
 			type == _Enums.MosquitoInsects ||
 			type == _Enums.PWMalfunction ||
 			type == _Enums.HiveColorAlpha ||
-			type == _Enums.MossWater)
+			type == _Enums.MossWater ||
+			type == EchoExtender._Enums.EchoPresenceOverride)
 			res = _Enums.RegionKit;
 		return res;
 	}

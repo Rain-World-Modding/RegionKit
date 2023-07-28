@@ -87,9 +87,9 @@ namespace RegionKit.Modules.Effects
 
 		private static void _CommonHooks_PostRoomLoad(Room obj)
 		{
+			if (obj.game == null) return;
 			if (obj.roomRain == null)
 			{
-				Debug.Log("room rain is null");
 				RoomSettings.RoomEffect.Type[] rainTypes = {
 					RoomSettings.RoomEffect.Type.LightRain,
 					RoomSettings.RoomEffect.Type.HeavyRain,
@@ -99,10 +99,8 @@ namespace RegionKit.Modules.Effects
 				};
 				foreach (RoomSettings.RoomEffect effect in obj.roomSettings.effects)
 				{
-					Debug.Log($"effect type is [{effect.type.value}]");
 					if (rainTypes.Contains(effect.type))
 					{
-						Debug.Log($"effect [{effect.type.value}] un-nulls rain");
 						obj.roomRain = new RoomRain(obj.game.globalRain, obj);
 						obj.AddObject(obj.roomRain);
 						break;

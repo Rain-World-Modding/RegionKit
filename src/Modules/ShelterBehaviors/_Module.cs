@@ -4,7 +4,7 @@ namespace RegionKit.Modules.ShelterBehaviors;
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Shelter Behaviors")]
 public static class _Module
 {
-	public const string SHELTERS_POM_CATEGORY = RK_POM_CATEGORY + "-SHELTERS";
+	public const string SHELTERS_POM_CATEGORY = RK_POM_CATEGORY + "-Shelters";
 	/// <summary>
 	/// Makes creatures <see cref="ShelterBehaviorManager.CycleSpawnPosition"/> on <see cref="AbstractCreature.RealizeInRoom"/>
 	/// </summary>

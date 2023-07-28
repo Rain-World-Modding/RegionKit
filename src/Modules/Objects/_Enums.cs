@@ -4,6 +4,14 @@
 public class _Enums
 {
 	/// <summary>
+	/// LB Climbable wire
+	/// </summary>
+	public static PlacedObject.Type ClimbableWire = new(nameof(ClimbableWire), true);
+	/// <summary>
+	/// LB Climbable pole
+	/// </summary>
+	public static PlacedObject.Type ClimbablePole = new(nameof(ClimbablePole), true);
+	/// <summary>
 	/// Colorable light rod
 	/// </summary>
 	public static PlacedObject.Type PWLightrod = new(nameof(PWLightrod), true);
@@ -41,11 +49,5 @@ public class _Enums
 	/// </summary>
 	public static PlacedObject.Type ColoredLightBeam = new(nameof(ColoredLightBeam), true);
 	/// <summary>
-	/// LB Climbable wire
 	/// </summary>
-	public static PlacedObject.Type ClimbableWire = new(nameof(ClimbableWire), true);
-	/// <summary>
-	/// LB Climbable pole
-	/// </summary>
-	public static PlacedObject.Type ClimbablePole = new (nameof(ClimbablePole), true);
 }

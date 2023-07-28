@@ -56,8 +56,8 @@ public static class _Module
 
 		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", GAMEPLAY_POM_CATEGORY);
 		RegisterManagedObject<CameraNoise, CameraNoise.CameraNoiseData, ManagedRepresentation>("CameraNoise", DECORATIONS_POM_CATEGORY);
-
-		RegisterFullyManagedObjectType(new ManagedField[]
+        RegisterManagedObject<SlugcatEyeSelector, SlugcatEyeSelectorData, ManagedRepresentation>("SlugcatEyeSelector", DECORATIONS_POM_CATEGORY);
+        RegisterFullyManagedObjectType(new ManagedField[]
 			{
 				new IntegerField("reqkarma", 0, 9, 0, displayName:"Req Karma"),
 				new IntegerField("reqkarmacap", 0, 9, 9, displayName:"Req Karma Cap"),
@@ -99,6 +99,7 @@ public static class _Module
 		_CommonHooks.PostRoomLoad += RoomPostLoad;
 		//On.RainWorld.LoadResources += LoadLittlePlanetResources;
 		ShortcutCannon.Apply();
+		SlugcatEyeSelector.Apply();
 		BigKarmaShrine.Apply();
 	}
 
@@ -117,6 +118,7 @@ public static class _Module
 		RKAdditionalClimbables.Undo();
 		foreach (var hk in __objectHooks) if (hk.IsApplied) hk.Undo();
 		ShortcutCannon.Undo();
+		SlugcatEyeSelector.Undo();
 		BigKarmaShrine.Undo();
 	}
 

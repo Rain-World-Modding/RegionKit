@@ -57,11 +57,7 @@ internal class SettingsSaveOptions
 			new ModifySettingsGenerator(self.owner, settingsSaveOptionsMenu.ChangePath.Text);
 		}
 	}
-
-
 	public static SettingsSaveOptionsMenu? settingsSaveOptionsMenu;
-
-
 	public class SettingsSaveOptionsMenu : DevUINode
 	{
 		public SettingsSaveOptionsMenu(DevUI owner, string IDstring, DevUINode parentNode) : base(owner, IDstring, parentNode)

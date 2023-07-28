@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using RegionKit.Extras;
 using UnityEngine;
 using MscNames = MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName;
 
@@ -123,7 +124,8 @@ public struct EchoSettings
 					settings.MinimumKarmaCap = intval;
 					break;
 				case "difficulties":
-					__logger.LogWarning($"[Echo Extender] 'difficulties' is no longer used! New format is [({trimmed})SpawnOnDifficulty]");
+					__logger.LogWarning($"[Echo Extender] 'difficulties' is obsolete! New format is [({trimmed})SpawnOnDifficulty]");
+					if(RainWorldTools.StringMatchesSlugcat(trimmed,name)) settings.SpawnOnDifficulty = true;
 					//settings.SpawnOnDifficulty = split[1].Split(',').Select(s => new SlugcatStats.Name(s.Trim(), false)).ToArray();
 					break;
 				case "spawnondifficulty":

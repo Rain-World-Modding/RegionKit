@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Particles.V1;
+﻿namespace RegionKit.Modules.Particles.V1;
 /// <summary>
 /// Spawns particles everywhere on the screen
 /// </summary>
@@ -15,7 +15,7 @@ public class WholeScreenSpawnerData : ParticleSystemData
 	[BooleanField("nosolid", true, displayName: "Skip solid tiles")]
 	public bool airOnly;
 	///<inheritdoc/>
-	public WholeScreenSpawnerData(PlacedObject owner) : base(owner, null)
+	public WholeScreenSpawnerData(PlacedObject owner) : base(owner, new())
 	{
 
 	}

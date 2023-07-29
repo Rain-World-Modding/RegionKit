@@ -6,7 +6,7 @@ namespace RegionKit;
 /// Main plugin class
 /// </summary>
 [BepInEx.BepInDependency("rwmodding.coreorg.pom", BepInEx.BepInDependency.DependencyFlags.HardDependency)]
-[BepInEx.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "3.9")]
+[BepInEx.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "3.10.1")]
 public class Mod : BepInEx.BaseUnityPlugin
 {
 	internal const string RK_POM_CATEGORY = "RegionKit";

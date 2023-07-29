@@ -28,7 +28,7 @@ public class ClimbableArc : UpdatableAndDeletable, IClimbJumpVine, IDrawable
 	{
 		this.placedObject = placedObject;
 		this.room = instance;
-
+		this.nodes = new Vector2[0];
 		UpdateNodes();
 
 		if (room.climbableVines == null)
@@ -37,7 +37,6 @@ public class ClimbableArc : UpdatableAndDeletable, IClimbJumpVine, IDrawable
 			room.AddObject(room.climbableVines);
 		}
 		room.climbableVines.vines.Add(this);
-		this.nodes = new Vector2[0];
 	}
 
 	public override void Update(bool eu)

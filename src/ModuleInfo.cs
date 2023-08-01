@@ -1,6 +1,7 @@
 namespace RegionKit;
 
 public record ModuleInfo(
+	Type moduleType,
 	string name,
 	Action enable,
 	Action disable,

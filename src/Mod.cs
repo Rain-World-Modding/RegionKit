@@ -171,6 +171,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 				tickDel = tick is System.Reflection.MethodInfo ntick ? (Action)Delegate.CreateDelegate(typeof(Action), ntick) : null,
 				setupDel = setup is System.Reflection.MethodInfo nset ? (Action)Delegate.CreateDelegate(typeof(Action), nset) : null;
 			_modules.Add(new(
+				t,
 				moduleAttr._moduleName ?? t.FullName,
 				enableDel,
 				disableDel,

@@ -16,6 +16,7 @@ public static class ShelterBehaviors
 		}
 		set
 		{
+			ThrowIfModNotInitialized();
 			Impl.ShelterBehaviorManager.Override_HTT = value;
 		}
 	}

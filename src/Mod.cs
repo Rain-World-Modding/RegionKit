@@ -6,9 +6,12 @@ namespace RegionKit;
 /// Main plugin class
 /// </summary>
 [BepInEx.BepInDependency("rwmodding.coreorg.pom", BepInEx.BepInDependency.DependencyFlags.HardDependency)]
-[BepInEx.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "3.10.1")]
+[BepInEx.BepInPlugin(MOD_GUID, MOD_FRIENDLYNAME, MOD_VERSION)]
 public class Mod : BepInEx.BaseUnityPlugin
 {
+	internal const string MOD_VERSION = "3.10.1";
+	internal const string MOD_FRIENDLYNAME = "RegionKit";
+	internal const string MOD_GUID = "rwmodding.coreorg.rk";
 	internal const string RK_POM_CATEGORY = "RegionKit";
 	internal static Mod? __inst;
 	//private readonly List<ActionWithData> _enableDels = new();

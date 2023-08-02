@@ -2,6 +2,9 @@ namespace RegionKit.API;
 
 using Impl = RegionKit.Modules.ShelterBehaviors;
 
+/// <summary>
+/// Functionality for changing shelter activation conditions and more.
+/// </summary>
 public static class ShelterBehaviors
 {
 	/// <summary>

@@ -96,7 +96,18 @@ public static class CollectionTools
 		{
 			return false;
 		}
-
+	}
+	internal static bool TryAdd<Tk, Tv>(this IDictionary<Tk, Tv> dict, Tk key, Tv val)
+	{
+		if (dict.ContainsKey(key)) return false;
+		dict[key] = val;
+		return true;
+	}
+	internal static bool TryRemove<Tk, Tv>(this IDictionary<Tk, Tv> dict, Tk key)
+	{
+		if (!dict.ContainsKey(key)) return false;
+		dict.Remove(key);
+		return true;
 	}
 	internal static bool IndexInRange(this object[] arr, int index) => index > -1 && index < arr.Length;
 
@@ -164,7 +175,7 @@ public static class CollectionTools
 		BangBang(coll, nameof(coll));
 		return coll is null || coll.Count() is 0 ? string.Empty : coll.Aggregate(aggregator ?? JoinWithComma);
 	}
-    public static List<T> AddRangeReturnSelf<T>(this List<T> self, IEnumerable<T> range)
+	public static List<T> AddRangeReturnSelf<T>(this List<T> self, IEnumerable<T> range)
 	{
 		if (self == null) self = new List<T>();
 		self.AddRange(range);

@@ -124,11 +124,20 @@ public static class ExtendedGates
 				return num >= req.GetKarmaLevel();
 			}
 		}
-
 		public class NumericalAlt : Numerical
 		{
 			public NumericalAlt(Req req) : base(req) { }
 			public override string GateElementName(GateKarmaGlyph glyph) => base.GateElementName(glyph) + "alt";
+		}
+		internal record DelegateDriven(
+			Req req,
+			string gateElementName,
+			string mapElementName,
+			Func<Gate, bool> requirement) : LockData
+		{
+			public string GateElementName(GateKarmaGlyph glyph) => gateElementName;
+			public string MapElementName(Map.GateMarker gateMarker) => mapElementName;
+			public bool Requirement(Gate regionGate) => requirement(regionGate);
 		}
 	}
 
@@ -175,7 +184,7 @@ public static class ExtendedGates
 		}
 		if (int.TryParse(str, out int result))
 		{ return result - 1; }
-		
+
 		return -1;
 	}
 	internal const string ALT_POSTFIX = "alt";
@@ -338,7 +347,7 @@ public static class ExtendedGates
 			if (int.TryParse(self.karmaRequirements[i].value, out int v) && self.room?.game != null && DoesPlayerDeserveAltArt(self.room.game))
 			{
 				Req alt = new Req(v + ALT_POSTFIX, false);
-				if(alt.index != -1) { self.karmaRequirements[i] = alt; }
+				if (alt.index != -1) { self.karmaRequirements[i] = alt; }
 			}
 		}
 	}
@@ -384,13 +393,13 @@ public static class ExtendedGates
 			{
 				string element = ExLocks[self.requirement].GateElementName(self);
 				if (Futile.atlasManager.DoesContainElementWithName(element))
-				{ 
-					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName(element); 
+				{
+					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName(element);
 				}
-				else 
+				else
 				{
 					__logger.LogWarning($"[ExtendedGates] couldn't find gate atlas element [{element}] for lock [{self.requirement.value}], using default");
-					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol0"); 
+					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol0");
 				}
 				self.symbolDirty = false;
 			}
@@ -406,13 +415,13 @@ public static class ExtendedGates
 		{
 			string element = ExLocks[req].MapElementName(self);
 			if (Futile.atlasManager.DoesContainElementWithName(element))
-			{ 
-				self.symbolSprite.element = Futile.atlasManager.GetElementWithName(element); 
+			{
+				self.symbolSprite.element = Futile.atlasManager.GetElementWithName(element);
 			}
 			else
 			{
 				__logger.LogWarning($"[ExtendedGates] couldn't find map atlas element [{element}] for lock [{req.value}], using default");
-				self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaNoRing-1"); 
+				self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaNoRing-1");
 			}
 		}
 	}

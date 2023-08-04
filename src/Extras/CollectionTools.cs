@@ -175,7 +175,7 @@ public static class CollectionTools
 		BangBang(coll, nameof(coll));
 		return coll is null || coll.Count() is 0 ? string.Empty : coll.Aggregate(aggregator ?? JoinWithComma);
 	}
-	public static List<T> AddRangeReturnSelf<T>(this List<T> self, IEnumerable<T> range)
+	public static List<T> AddRangeReturnSelf<T>(this List<T>? self, IEnumerable<T> range)
 	{
 		if (self == null) self = new List<T>();
 		self.AddRange(range);

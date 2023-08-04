@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using RWCustom;
-
-namespace RegionKit.Modules.Objects;
+﻿namespace RegionKit.Modules.Objects;
 
 public static class WaterSpoutObjRep
 {
@@ -28,24 +21,24 @@ public class WaterSpout : UpdatableAndDeletable
     public SplashWater.WaterJet jet;
     public Vector2 fromPos;
     public Vector2 toPos;
-    public RectangularDynamicSoundLoop soundLoop;
+    public RectangularDynamicSoundLoop? soundLoop;
 
     public WaterSpout(PlacedObject pObj, Room room)
     {
         this.placedObject = pObj;
         this.room = room;
-        this.force = (this.placedObject.data as ManagedData).GetValue<float>("f1");
+        this.force = ((ManagedData)this.placedObject.data).GetValue<float>("f1");
         this.fromPos = this.placedObject.pos;
-        this.toPos = (this.placedObject.data as ManagedData).GetValue<Vector2>("v1");
+        this.toPos = ((ManagedData)this.placedObject.data).GetValue<Vector2>("v1");
         this.jet = new SplashWater.WaterJet(this.room);
     }
 
     public override void Update(bool eu)
     {
         base.Update(eu);
-        this.force = (this.placedObject.data as ManagedData).GetValue<float>("f1");
+        this.force = ((ManagedData)this.placedObject.data).GetValue<float>("f1");
         this.fromPos = this.placedObject.pos;
-        this.toPos = (this.placedObject.data as ManagedData).GetValue<Vector2>("v1");
+        this.toPos = ((ManagedData)this.placedObject.data).GetValue<Vector2>("v1");
         if(this.jet != null)
         {
             this.jet.Update();

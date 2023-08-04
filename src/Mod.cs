@@ -19,7 +19,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 	private bool _modulesSetUp = false;
 	private RainWorld? _rw;
 	internal static BepInEx.Logging.ManualLogSource __logger => __inst.Logger;
-	internal static RainWorld? __RW => __inst._rw;
+	internal static RainWorld? __RW => __inst?._rw;
 	///<inheritdoc/>
 	public void OnEnable()
 	{

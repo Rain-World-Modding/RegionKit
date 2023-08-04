@@ -14,7 +14,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 {
 	internal static class Hooks
 	{
-		public static Hook WaterfallStrikeHook = null;
+		public static Hook? WaterfallStrikeHook = null;
 		public static void Apply()
 		{
 			try

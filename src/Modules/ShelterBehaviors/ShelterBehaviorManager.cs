@@ -500,7 +500,4 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	// 	this._noTriggers.Add((placedObject.data as PlacedObject.GridRectObjectData)!.Rect);
 	// }
 
-	/// <summary>
-	/// Displays a HTT tutorial message, then destroys itself.
-	/// </summary>
 }

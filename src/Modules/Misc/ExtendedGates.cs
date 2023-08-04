@@ -115,7 +115,7 @@ public static class ExtendedGates
 					{
 						if (player.grasps[i] != null && player.grasps[i].grabbedChunk != null && player.grasps[i].grabbedChunk.owner is Scavenger)
 						{
-							num = (gate.room.game.session as StoryGameSession).saveState.deathPersistentSaveData.karma + (player.grasps[i].grabbedChunk.owner as Scavenger).abstractCreature.karmicPotential;
+							num = ((StoryGameSession)gate.room.game.session).saveState.deathPersistentSaveData.karma + ((Scavenger)player.grasps[i].grabbedChunk.owner).abstractCreature.karmicPotential;
 							break;
 						}
 					}
@@ -216,7 +216,7 @@ public static class ExtendedGates
 		}
 	}
 
-	public static Hook RegionGateMeetRequirementHook = null;
+	public static Hook? RegionGateMeetRequirementHook = null;
 
 	internal static void Disable()
 	{

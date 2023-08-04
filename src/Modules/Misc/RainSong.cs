@@ -1,8 +1,10 @@
+//RainSong by HelloThere
+
 using System.IO;
 using Music;
 
 ///<summary>
-///By HelloThere
+///Allows specifying a song file per region that will play when rain is coming
 ///</summary>
 internal static class RainSong
 {

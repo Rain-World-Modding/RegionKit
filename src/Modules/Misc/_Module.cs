@@ -27,5 +27,7 @@ internal static class _Module
 		//CloudAdjustment.Undo();
 		ExtendedGates.Disable();
 		SuperstructureFusesHook.Undo();
+		MoreFadePalettes.Undo();
+		SlugcatRoomTemplates.Undo();
 	}
 }

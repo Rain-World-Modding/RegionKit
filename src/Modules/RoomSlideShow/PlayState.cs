@@ -94,7 +94,11 @@ internal sealed class PlayState
 	{
 		var interpolationSetting = interpolationSettings[channel];
 
-		return interpolationSetting.interpolator(GetLastKeyFrame(channel).value, GetUpcomingKeyFrame(channel).value, (float)(CountTickLengths(GetLastKeyFrame(channel).atFrame, CurrentIndex) + this.TicksInCurrentFrame) / (float)CurrentTransitionTicks(channel));
+		KeyFrame lastKeyFrame = GetLastKeyFrame(channel);
+		KeyFrame upcomingKeyFrame = GetUpcomingKeyFrame(channel);
+		int ticksInTransitionSoFar = CountTickLengths(lastKeyFrame.atFrame, CurrentIndex) + this.TicksInCurrentFrame;
+		int ticksInTransitionTotal = CurrentTransitionTicks(channel);
+		return interpolationSetting.interpolator(lastKeyFrame.value, upcomingKeyFrame.value, (float)ticksInTransitionSoFar / (float)ticksInTransitionTotal);
 
 	}
 

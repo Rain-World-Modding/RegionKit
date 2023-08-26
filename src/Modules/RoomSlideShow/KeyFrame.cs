@@ -1,9 +1,9 @@
 namespace RegionKit.Modules.Slideshow;
 
-internal struct KeyFrame
+internal class KeyFrame
 {
-	public readonly int atFrame;
-	public readonly Channel channel;
+	public int atFrame;
+	public Channel channel;
 	public float value;
 
 	public KeyFrame(int atFrame, Channel channel, float value)
@@ -11,5 +11,9 @@ internal struct KeyFrame
 		this.atFrame = atFrame;
 		this.channel = channel;
 		this.value = value;
+	}
+	public override string ToString()
+	{
+		return $"KeyFrame{{ atFrame:{atFrame}, channel:{channel}({(int)channel}), value: {value} }}";
 	}
 }

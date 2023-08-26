@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Slideshow.ConvolutedPrototype;
+namespace RegionKit.Modules.Slideshow;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Room Slideshow")]
 public static class _Module {
@@ -9,6 +9,18 @@ public static class _Module {
 
     }
     public static void Setup() {
-
+        try {
+            Playback test = Playback.MakeTestPlayback();
+            PlayState state = new(test);
+            while (!state.Completed) {
+                
+                state.Update();
+                __logger.LogDebug(state.ThisInstant());
+                
+            }
+        }
+        catch (Exception ex) {
+            __logger.LogError(ex);
+        }
     }
 }

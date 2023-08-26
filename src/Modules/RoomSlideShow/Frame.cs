@@ -3,17 +3,17 @@ namespace RegionKit.Modules.Slideshow;
 internal sealed class Frame : PlaybackStep
 {
 	public readonly string elementName;
-	public readonly int startsAt;
-	public readonly int framesDuration;
+	public readonly int index;
+	public readonly int? ticksDuration;
 	public readonly KeyFrame[] keyFramesHere;
 
-	public Frame(string elementName, int startsAt, int framesDuration, KeyFrame[] keyFramesHere)
+	public Frame(int index, string elementName, int? ticksDuration, KeyFrame[] keyFramesHere)
 	{
 		this.elementName = elementName;
-		this.startsAt = startsAt;
-		this.framesDuration = framesDuration;
+		this.index = index;
+		this.ticksDuration = ticksDuration;
 		this.keyFramesHere = keyFramesHere;
 	}
-
+	public int GetTicksDuration(int @default) => ticksDuration ?? @default;
 	public override bool InstantlyProgress => false;
 }

@@ -8,25 +8,27 @@ internal sealed class PlayState
 	private const int MAX_INSTANT_INSTRUCTIONS = 1024;
 	private readonly Dictionary<Channel, KeyFrame> startKeyFrames;
 	private readonly Dictionary<Channel, KeyFrame> endKeyFrames;
-
 	private readonly Dictionary<Channel, KeyFrame> lastKeyFrames = new();
 	private readonly Dictionary<Channel, KeyFrame> nextKeyFrames = new();
 	private readonly Dictionary<Channel, SetInterpolation> interpolationSettings = new();
 	public PlaybackStep CurrentStep => this.owner.playbackSteps[this.CurrentIndex];
 	public Frame CurrentFrame => (Frame)this.CurrentStep;
-	public int TicksInCurrentFrame => TicksSinceStart - CurrentFrame.startsAt;
+	public int TicksInCurrentFrame => TicksSinceStart - CurrentFrame.index;
+	public bool Completed => CurrentIndex >= owner.playbackSteps.Count;
 	public int CurrentIndex { get; private set; } = 0;
 	public int TicksSinceStart { get; private set; } = 0;
 	public string Shader { get; private set; } = "Basic";
-	public int DefaultFrameDelay { get; private set; } = 40;
+	public int DefaultTicksDuration { get; private set; } = 40;
 	public readonly Playback owner;
 
 	public PlayState(Playback owner)
 	{
 		this.owner = owner;
 		this.startKeyFrames = CreateDefaultKeyframes(0);
-		this.endKeyFrames = CreateDefaultKeyframes(owner.playbackSteps.Length - 1);
+		this.endKeyFrames = CreateDefaultKeyframes(owner.playbackSteps.Count - 1);
 		this.interpolationSettings = CreateDefaultInterpolations();
+		__logger.LogDebug("pre run updatekeyframes");
+		UpdateKeyFrames();
 	}
 	private static Dictionary<Channel, SetInterpolation> CreateDefaultInterpolations()
 	{
@@ -59,7 +61,7 @@ internal sealed class PlayState
 			switch (CurrentStep)
 			{
 			case SetDelay setDelay:
-				DefaultFrameDelay = setDelay.newDelay;
+				DefaultTicksDuration = setDelay.newDelay;
 				break;
 
 			case SetInterpolation setInterpol:
@@ -72,7 +74,7 @@ internal sealed class PlayState
 				Shader = setShader.shader;
 				break;
 			case Frame frame:
-				if (TicksSinceStart > frame.startsAt + frame.framesDuration)
+				if (TicksSinceStart > frame.index + frame.GetTicksDuration(this.DefaultTicksDuration))
 				{
 					keepCycling = true;
 				}
@@ -94,33 +96,38 @@ internal sealed class PlayState
 	}
 	public void UpdateKeyFrames()
 	{
-		//move keyframes that have been hit to last
-		List<KeyFrame> fromNextToLast = new();
-		foreach ((Channel channel, KeyFrame keyframe) in nextKeyFrames)
+		(string, string) getDebugStuff()
 		{
-			if (keyframe.atFrame == CurrentIndex)
+			var prev = this.lastKeyFrames.Select(x => x.ToString()).Stitch();
+			var next = this.nextKeyFrames.Select(x => x.ToString()).Stitch();
+			return (prev, next);
+		}
+		__logger.LogDebug($"update keyframes on index {this.CurrentIndex}");
+		{
+			(var prev, var next) = getDebugStuff();
+			__logger.LogDebug($"PRE MODIFY\nprev: {prev}\nnext:{next}");
+		}
+		lastKeyFrames.Clear();
+		nextKeyFrames.Clear();
+		for (int i = 0; i <= CurrentIndex; i++)
+		{
+			if (owner.playbackSteps[i] is not Frame frame) continue;
+			foreach (KeyFrame kf in frame.keyFramesHere)
 			{
-				fromNextToLast.Add(keyframe);
+				lastKeyFrames[kf.channel] = kf;
 			}
 		}
-		foreach (KeyFrame keyframe in fromNextToLast)
+		for (int i = CurrentIndex + 1; i < owner.playbackSteps.Count; i++)
 		{
-			nextKeyFrames.Remove(keyframe.channel);
-			lastKeyFrames[keyframe.channel] = keyframe;
-		}
-		//search for upcoming keyframes
-		var allChannelsToCheck = ((Channel[])Enum.GetValues(typeof(Channel))).Where(item => !nextKeyFrames.ContainsKey(item)).ToList();
-		for (int i = CurrentIndex; i < owner.playbackSteps.Length; i++)
-		{
-			PlaybackStep step = owner.playbackSteps[i];
-			if (step is not Frame frame) continue;
-			foreach (KeyFrame keyFrame in frame.keyFramesHere)
+			if (owner.playbackSteps[i] is not Frame frame) continue;
+			foreach (KeyFrame kf in frame.keyFramesHere)
 			{
-				if (allChannelsToCheck.Contains(keyFrame.channel))
-				{
-					nextKeyFrames[keyFrame.channel] = keyFrame;
-				}
+				nextKeyFrames[kf.channel] = kf;
 			}
+		}
+		{
+			(var prev, var next) = getDebugStuff();
+			__logger.LogDebug($"POST MODIFY\nprev: {prev}\nnext:{next}");
 		}
 		//i hate this lmao
 	}
@@ -136,7 +143,7 @@ internal sealed class PlayState
 		{
 			if (owner.playbackSteps[i] is Frame frame)
 			{
-				result += frame.framesDuration;
+				result += frame.GetTicksDuration(DefaultTicksDuration);
 			}
 		}
 		return result;
@@ -145,8 +152,8 @@ internal sealed class PlayState
 	//todo: check if lerping is right
 	public float GetChannelValue(Channel channel)
 	{
-		var interpolationSetting = interpolationSettings[channel];
-
+		SetInterpolation interpolationSetting = interpolationSettings[channel];
+		//a
 		KeyFrame lastKeyFrame = GetLastKeyFrame(channel);
 		KeyFrame upcomingKeyFrame = GetUpcomingKeyFrame(channel);
 		int ticksInTransitionSoFar = CountTickLengths(lastKeyFrame.atFrame, CurrentIndex) + this.TicksInCurrentFrame;

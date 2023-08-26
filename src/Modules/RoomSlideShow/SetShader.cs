@@ -1,11 +1,11 @@
 namespace RegionKit.Modules.Slideshow;
 
-internal sealed class SetShader : PlaybackStep
+internal sealed record SetShader(string shader) : PlaybackStep
 {
-	public readonly string shader;
+	// public readonly string shader;
 
-	public SetShader(string shader)
-	{
-		this.shader = shader;
-	}
+	// public SetShader(string shader)
+	// {
+	// 	this.shader = shader;
+	// }
 }

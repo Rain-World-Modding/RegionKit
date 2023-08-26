@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace RegionKit.Modules.Slideshow;
 
 internal class Playback
@@ -12,18 +14,16 @@ internal class Playback
 	}
 
 
-	private Playback PushNewFrame(string elementName, int? ticksDuration, KeyFrame[] keyFrames)
+	private Playback PushNewFrame(string elementName, int? ticksDuration, KeyFrame.Raw[] keyFramesRaw)
 	{
 		int newIndex = this.playbackSteps.Count;
-		for (int i = 0; i < keyFrames.Length; i++) {
-			
-			keyFrames[i].atFrame = newIndex;
-		}
+		KeyFrame[] keyFrames = keyFramesRaw.Select(kfr => new KeyFrame(newIndex, kfr)).ToArray();
 
 		playbackSteps.Add(new Frame(newIndex, elementName, ticksDuration, keyFrames));
 		return this;
 	}
-	private Playback PushNewStep(PlaybackStep newStep) {
+	private Playback PushNewStep(PlaybackStep newStep)
+	{
 		playbackSteps.Add(newStep);
 		return this;
 	}
@@ -35,14 +35,25 @@ internal class Playback
 			new SetInterpolation(InterpolationKind.Linear, new[] {Channel.R, Channel.B})
 		},
 		false);
-		result.PushNewFrame("f1", 1, new KeyFrame[] { new(0, Channel.R, 0f), new(0, Channel.B, 0f) });
-		result.PushNewFrame("ff", null, new KeyFrame[0]);
-		result.PushNewFrame("ff", null, new KeyFrame[0]);
-		result.PushNewFrame("f2", 1, new KeyFrame[] { new(0, Channel.R, 1f) });
-		result.PushNewFrame("ff", null, new KeyFrame[0]);
-		result.PushNewFrame("ff", null, new KeyFrame[0]);
-		result.PushNewFrame("ff", null, new KeyFrame[0]);
-		result.PushNewFrame("f3", 1, new KeyFrame[] { new(0, Channel.B, 1f) });
+		result.PushNewFrame("f1", 1, new KeyFrame.Raw[] { new(Channel.R, 0f), new(Channel.B, 0f) });
+		result.PushNewFrame("ff", null, new KeyFrame.Raw[0]);
+		result.PushNewFrame("ff", null, new KeyFrame.Raw[0]);
+		result.PushNewFrame("f2", 1, new KeyFrame.Raw[] { new(Channel.R, 1f) });
+		result.PushNewFrame("ff", null, new KeyFrame.Raw[0]);
+		result.PushNewFrame("ff", null, new KeyFrame.Raw[0]);
+		result.PushNewFrame("ff", null, new KeyFrame.Raw[0]);
+		result.PushNewFrame("f3", 1, new KeyFrame.Raw[] { new(Channel.B, 1f) });
 		return result;
+	}
+
+	public static Playback ReadFromText(string[] text)
+	{
+		Regex commasplit = new("\\s*,\\s*");
+		Regex spacesplit = new Regex("\\s+");
+		foreach (string line in text)
+		{
+
+		}
+		throw new NotImplementedException();
 	}
 }

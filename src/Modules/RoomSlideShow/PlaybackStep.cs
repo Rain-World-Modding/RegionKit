@@ -1,6 +1,6 @@
 namespace RegionKit.Modules.Slideshow;
 
-internal abstract class PlaybackStep
+internal abstract record PlaybackStep
 {
 	public virtual bool InstantlyProgress => true;
 }

@@ -1,6 +1,6 @@
 namespace RegionKit.Modules.Slideshow;
 
-internal record struct SlideShowInstant(string elementName, string shader, Vector2 position, Color color)
+internal record SlideShowInstant(string elementName, string shader, Vector2 position, Color color)
 {
 	// public string elementName;
 	// public string shader;

@@ -15,10 +15,16 @@ internal sealed class SetInterpolation : PlaybackStep
 		{
 			InterpolationKind.No => noInterpol,
 			InterpolationKind.Linear => Mathf.Lerp,
-			InterpolationKind.Quadratic => (from, to, amount) => Mathf.Lerp(from, to, amount * amount),
+			InterpolationKind.Quadratic => ApplyEaser(Mathf.Lerp, (x) => x * x),
 			_ => noInterpol
 		};
 	}
+	public static Interpolator ApplyEaser(Interpolator interpolator, Easer easer) {
+		if (easer is null) throw new ArgumentNullException("easer");
+		if (interpolator is null) throw new ArgumentNullException("interpolator");
+		interpolator = (from, to, x) => {
+			return interpolator(from, to, easer(x));
+		};
+		return interpolator;
+	}
 }
-
-public delegate float Interpolator(float from, float to, float amount01);

@@ -129,7 +129,6 @@ internal sealed class PlayState
 			(var prev, var next) = getDebugStuff();
 			__logger.LogDebug($"POST MODIFY\nprev: {prev}\nnext:{next}");
 		}
-		//i hate this lmao
 	}
 	public SetInterpolation GetInterpolationSetting(Channel channel) => interpolationSettings[channel];
 	public KeyFrame GetLastKeyFrame(Channel channel) => lastKeyFrames.TryGetValue(channel, out KeyFrame frame) ? frame : startKeyFrames[channel];

@@ -10,7 +10,7 @@ internal sealed class PlayState
 	private readonly Dictionary<Channel, KeyFrame> endKeyFrames;
 	private readonly Dictionary<Channel, KeyFrame> lastKeyFrames = new();
 	private readonly Dictionary<Channel, KeyFrame> nextKeyFrames = new();
-	private readonly Dictionary<Channel, SetInterpolation> interpolationSettings = new();
+	private Dictionary<Channel, SetInterpolation> interpolationSettings = new();
 	public PlaybackStep CurrentStep => this.owner.playbackSteps[this.CurrentIndex];
 	public Frame CurrentFrame => (Frame)this.CurrentStep;
 	public int TicksInCurrentFrame => TicksSinceStart - CurrentFrame.index;
@@ -20,37 +20,39 @@ internal sealed class PlayState
 	public string Shader { get; private set; } = "Basic";
 	public int DefaultTicksDuration { get; private set; } = 40;
 	public readonly Playback owner;
+	private readonly bool autoLoop;
 
-	public PlayState(Playback owner)
+	public PlayState(Playback owner, bool autoLoop = true)
 	{
 		this.owner = owner;
+		this.autoLoop = autoLoop;
 		this.startKeyFrames = CreateDefaultKeyframes(0);
 		this.endKeyFrames = CreateDefaultKeyframes(owner.playbackSteps.Count - 1);
-		this.interpolationSettings = CreateDefaultInterpolations();
-		__logger.LogDebug("pre run updatekeyframes");
-		UpdateKeyFrames();
+		Reset();
 	}
 	private static Dictionary<Channel, SetInterpolation> CreateDefaultInterpolations()
 	{
-		return new() {
-			{ Channel.X, new SetInterpolation(InterpolationKind.No, new[] {Channel.X})},
-			{ Channel.Y, new SetInterpolation(InterpolationKind.No, new[] {Channel.Y})},
-			{ Channel.R, new SetInterpolation(InterpolationKind.No, new[] {Channel.R})},
-			{ Channel.G, new SetInterpolation(InterpolationKind.No, new[] {Channel.G})},
-			{ Channel.B, new SetInterpolation(InterpolationKind.No, new[] {Channel.B})},
-			{ Channel.A, new SetInterpolation(InterpolationKind.No, new[] {Channel.A})},
+		return new()
+		{
+			{ Channel.X, new SetInterpolation(InterpolationKind.No, new[] {Channel.X}) },
+			{ Channel.Y, new SetInterpolation(InterpolationKind.No, new[] {Channel.Y}) },
+			{ Channel.R, new SetInterpolation(InterpolationKind.No, new[] {Channel.R}) },
+			{ Channel.G, new SetInterpolation(InterpolationKind.No, new[] {Channel.G}) },
+			{ Channel.B, new SetInterpolation(InterpolationKind.No, new[] {Channel.B}) },
+			{ Channel.A, new SetInterpolation(InterpolationKind.No, new[] {Channel.A}) },
 		};
 	}
 	private static Dictionary<Channel, KeyFrame> CreateDefaultKeyframes(int at)
 	{
-		return new() {
-				{ Channel.X, new(at, Channel.X, 0f)},
-				{ Channel.Y, new(at, Channel.Y, 0f)},
-				{ Channel.R, new(at, Channel.R, 1f)},
-				{ Channel.G, new(at, Channel.G, 1f)},
-				{ Channel.B, new(at, Channel.B, 1f)},
-				{ Channel.A, new(at, Channel.A, 1f)},
-			};
+		return new()
+		{
+			{ Channel.X, new(at, Channel.X, 0f)},
+			{ Channel.Y, new(at, Channel.Y, 0f)},
+			{ Channel.R, new(at, Channel.R, 1f)},
+			{ Channel.G, new(at, Channel.G, 1f)},
+			{ Channel.B, new(at, Channel.B, 1f)},
+			{ Channel.A, new(at, Channel.A, 1f)},
+		};
 	}
 	public void Update()
 	{
@@ -86,7 +88,8 @@ internal sealed class PlayState
 				break;
 			}
 			CurrentIndex++;
-			UpdateKeyFrames();
+			if (Completed && owner.loop && autoLoop) Reset();
+			else UpdateKeyFrames();
 		}
 		if (overstayed)
 		{
@@ -130,6 +133,14 @@ internal sealed class PlayState
 			__logger.LogDebug($"POST MODIFY\nprev: {prev}\nnext:{next}");
 		}
 	}
+	public void Reset()
+	{
+		lastKeyFrames.Clear();
+		nextKeyFrames.Clear();
+		CurrentIndex = 0;
+		TicksSinceStart = 0;
+		this.interpolationSettings = CreateDefaultInterpolations();
+	}
 	public SetInterpolation GetInterpolationSetting(Channel channel) => interpolationSettings[channel];
 	public KeyFrame GetLastKeyFrame(Channel channel) => lastKeyFrames.TryGetValue(channel, out KeyFrame frame) ? frame : startKeyFrames[channel];
 	public KeyFrame GetUpcomingKeyFrame(Channel channel) => nextKeyFrames.TryGetValue(channel, out KeyFrame frame) ? frame : endKeyFrames[channel];
@@ -147,7 +158,6 @@ internal sealed class PlayState
 		}
 		return result;
 	}
-
 	//todo: check if lerping is right
 	public float GetChannelValue(Channel channel)
 	{
@@ -158,9 +168,7 @@ internal sealed class PlayState
 		int ticksInTransitionSoFar = CountTickLengths(lastKeyFrame.atFrame, CurrentIndex) + this.TicksInCurrentFrame;
 		int ticksInTransitionTotal = CurrentTransitionTicks(channel);
 		return interpolationSetting.interpolator(lastKeyFrame.value, upcomingKeyFrame.value, (float)ticksInTransitionSoFar / (float)ticksInTransitionTotal);
-
 	}
-
 	public SlideShowInstant ThisInstant()
 	{
 		string elementName = CurrentFrame.elementName;

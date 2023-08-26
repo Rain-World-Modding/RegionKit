@@ -11,7 +11,7 @@ public static class _Module {
     public static void Setup() {
         try {
             Playback test = Playback.MakeTestPlayback();
-            PlayState state = new(test);
+            PlayState state = new(test, false);
             while (!state.Completed) {
                 
                 state.Update();

@@ -18,6 +18,7 @@ internal sealed class PlayState
 	public int CurrentIndex { get; private set; } = 0;
 	public int TicksSinceStart { get; private set; } = 0;
 	public string Shader { get; private set; } = "Basic";
+	public ContainerCodes Container { get; private set; } = ContainerCodes.Foreground;
 	public int DefaultTicksDuration { get; private set; } = 40;
 	public readonly Playback owner;
 	private readonly bool autoLoop;
@@ -66,7 +67,9 @@ internal sealed class PlayState
 			case SetDelay setDelay:
 				DefaultTicksDuration = setDelay.newDelay;
 				break;
-
+			case SetContainer setContainer:
+				Container = setContainer.newContainer;
+				break;
 			case SetInterpolation setInterpol:
 				foreach (var channel in setInterpol.channels)
 				{
@@ -189,9 +192,10 @@ internal sealed class PlayState
 	{
 		string elementName = CurrentFrame.elementName;
 		string shader = Shader;
+		ContainerCodes container = Container;
 		Vector2 position = new(GetChannelValue(Channel.X), GetChannelValue(Channel.Y));
 		Color color = new(GetChannelValue(Channel.R), GetChannelValue(Channel.G), GetChannelValue(Channel.B), GetChannelValue(Channel.A));
-		return new SlideShowInstant(elementName, shader, position, color);
+		return new SlideShowInstant(elementName, shader, container, position, color);
 	}
 	sealed class NoActualFramesException : Exception
 	{

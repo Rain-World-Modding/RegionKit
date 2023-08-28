@@ -16,9 +16,18 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 	{
 		this.room = room;
 		this._owner = placedObject;
-		this._playback = _Module.__playbacksById[_Data.id];
-		_playState = new(this._playback);
-		//_prevInstant = _thisInstant = _playState.ThisInstant();
+		try
+		{
+			this._playback = _Module.__playbacksById[_Data.id];
+			_playState = new(this._playback);
+		}
+		catch (KeyNotFoundException keyex)
+		{
+			__logger.LogError($"Error constructing slideshow UAD {keyex} destroying itself");
+			Destroy();
+            throw;
+		}
+		_prevInstant = _thisInstant = new SlideShowInstant("Circle20", "Basic", ContainerCodes.Foreground, Vector2.zero, Color.white);
 	}
 	public override void Update(bool eu)
 	{
@@ -32,10 +41,11 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 			_prevInstant = _thisInstant;
 			_thisInstant = _playState.ThisInstant();
 		}
-        catch (Exception ex) {
-            __logger.LogError($"Error on slideshow uad update {ex}, deleting itself");
-            Destroy();
-        }
+		catch (Exception ex)
+		{
+			__logger.LogError($"Error on slideshow uad update {ex}, deleting itself");
+			Destroy();
+		}
 	}
 	public void AddToContainer(
 		RoomCamera.SpriteLeaser sLeaser,
@@ -78,16 +88,20 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		{
 			mesh.verticeColors[i] = color;
 		}
-        mesh.UVvertices[0] = element.uvBottomLeft;
-        mesh.UVvertices[1] = element.uvBottomRight;
-        mesh.UVvertices[3] = element.uvTopRight;
-        mesh.UVvertices[2] = element.uvTopLeft;
-        
-        // mesh.color = color;
-        // mesh.alpha = color.a;
+		mesh.UVvertices[0] = element.uvBottomLeft;
+		mesh.UVvertices[1] = element.uvBottomRight;
+		mesh.UVvertices[3] = element.uvTopRight;
+		mesh.UVvertices[2] = element.uvTopLeft;
+
+		// mesh.color = color;
+		// mesh.alpha = color.a;
 		if (!sLeaser.deleteMeNextFrame && (base.slatedForDeletetion || this.room != rCam.room))
 		{
 			sLeaser.CleanSpritesAndRemove();
+		}
+		if (_thisInstant.container != _prevInstant.container)
+		{
+			AddToContainer(sLeaser, rCam, rCam.ReturnFContainer(_thisInstant.container.ToString()));
 		}
 	}
 	public void InitiateSprites(
@@ -103,6 +117,6 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		};
 		TriangleMesh? mesh = new TriangleMesh("Futile_White", tris, true);
 		sprites[0] = mesh;
-		AddToContainer(sLeaser, rCam, null);
+		AddToContainer(sLeaser, rCam, rCam.ReturnFContainer(_thisInstant.container.ToString()));
 	}
 }

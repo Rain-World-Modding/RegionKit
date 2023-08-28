@@ -13,7 +13,7 @@ internal sealed class PlayState
 	private Dictionary<Channel, SetInterpolation> interpolationSettings = new();
 	public PlaybackStep CurrentStep => this.owner.playbackSteps[this.CurrentIndex];
 	public Frame CurrentFrame => (Frame)this.CurrentStep;
-	public int TicksInCurrentFrame => TicksSinceStart - CurrentFrame.index;
+	public int TicksInCurrentFrame => TicksSinceStart - CountTickLengths(0, CurrentIndex);
 	public bool Completed => CurrentIndex >= owner.playbackSteps.Count;
 	public int CurrentIndex { get; private set; } = 0;
 	public int TicksSinceStart { get; private set; } = 0;
@@ -59,6 +59,7 @@ internal sealed class PlayState
 		bool overstayed = true;
 		for (int i = 0; i < MAX_INSTANT_INSTRUCTIONS; i++)
 		{
+			ResetIfNeeded();
 			bool keepCycling = CurrentStep.InstantlyProgress;
 			switch (CurrentStep)
 			{
@@ -76,8 +77,11 @@ internal sealed class PlayState
 				Shader = setShader.shader;
 				break;
 			case Frame frame:
-				if (TicksSinceStart > frame.index + frame.GetTicksDuration(this.DefaultTicksDuration))
+				int frameDuration = frame.GetTicksDuration(this.DefaultTicksDuration);
+				int ticksInCurrentFrame = TicksInCurrentFrame;
+				if (ticksInCurrentFrame > frameDuration)
 				{
+					__logger.LogDebug($"{ticksInCurrentFrame} exceeds {frame}'s duration {frameDuration}, advancing");
 					keepCycling = true;
 				}
 				break;
@@ -88,8 +92,7 @@ internal sealed class PlayState
 				break;
 			}
 			CurrentIndex++;
-			if (Completed && owner.loop && autoLoop) Reset();
-			else UpdateKeyFrames();
+			if (!ResetIfNeeded()) UpdateKeyFrames();
 		}
 		if (overstayed)
 		{
@@ -97,6 +100,17 @@ internal sealed class PlayState
 		}
 		TicksSinceStart++;
 	}
+
+	private bool ResetIfNeeded()
+	{
+		bool neededReset = Completed && owner.loop && autoLoop;
+		if (neededReset)
+		{
+			Reset();
+		}
+		return neededReset;
+	}
+
 	public void UpdateKeyFrames()
 	{
 		(string, string) getDebugStuff()
@@ -105,14 +119,14 @@ internal sealed class PlayState
 			var next = this.nextKeyFrames.Select(x => x.ToString()).Stitch();
 			return (prev, next);
 		}
-		__logger.LogDebug($"update keyframes on index {this.CurrentIndex}");
-		{
-			(var prev, var next) = getDebugStuff();
-			__logger.LogDebug($"PRE MODIFY\nprev: {prev}\nnext:{next}");
-		}
+		// __logger.LogDebug($"update keyframes on index {this.CurrentIndex}");
+		// {
+		// 	(var prev, var next) = getDebugStuff();
+		// 	__logger.LogDebug($"PRE MODIFY\nprev: {prev}\nnext:{next}");
+		// }
 		lastKeyFrames.Clear();
 		nextKeyFrames.Clear();
-		for (int i = 0; i <= CurrentIndex; i++)
+		for (int i = 0; i <= CurrentIndex && i < owner.playbackSteps.Count; i++)
 		{
 			if (owner.playbackSteps[i] is not Frame frame) continue;
 			foreach (KeyFrame kf in frame.keyFramesHere)
@@ -128,10 +142,10 @@ internal sealed class PlayState
 				nextKeyFrames[kf.channel] = kf;
 			}
 		}
-		{
-			(var prev, var next) = getDebugStuff();
-			__logger.LogDebug($"POST MODIFY\nprev: {prev}\nnext:{next}");
-		}
+		// {
+		// 	(var prev, var next) = getDebugStuff();
+		// 	__logger.LogDebug($"POST MODIFY\nprev: {prev}\nnext:{next}");
+		// }
 	}
 	public void Reset()
 	{
@@ -139,7 +153,9 @@ internal sealed class PlayState
 		nextKeyFrames.Clear();
 		CurrentIndex = 0;
 		TicksSinceStart = 0;
-		this.interpolationSettings = CreateDefaultInterpolations();
+		interpolationSettings = CreateDefaultInterpolations();
+		Shader = "Basic";
+		DefaultTicksDuration = 40;
 	}
 	public SetInterpolation GetInterpolationSetting(Channel channel) => interpolationSettings[channel];
 	public KeyFrame GetLastKeyFrame(Channel channel) => lastKeyFrames.TryGetValue(channel, out KeyFrame frame) ? frame : startKeyFrames[channel];

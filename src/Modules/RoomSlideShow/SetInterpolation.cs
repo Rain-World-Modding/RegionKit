@@ -8,15 +8,10 @@ internal sealed record SetInterpolation(Interpolator interpolator, Interpolation
 
 	public SetInterpolation(
 		InterpolationKind value,
-		Channel[] channels) : this(value switch
-		{
-			InterpolationKind.No => FlatSwitch,
-			InterpolationKind.Linear => Mathf.Lerp,
-			InterpolationKind.Quadratic => ApplyEaser(Mathf.Lerp, (x) => x * x),
-			_ => throw new ArgumentException($"Value contains invalid setting! {value}({(int)value})")
-		},
-		value,
-		channels)
+		Channel[] channels) : this(
+			CreateInterpolator(value),
+			value,
+			channels)
 	{
 		// this.value = value;
 		// this.channels = channels;
@@ -29,6 +24,18 @@ internal sealed record SetInterpolation(Interpolator interpolator, Interpolation
 		// 	_ => noInterpol
 		// };
 	}
+
+	private static Interpolator CreateInterpolator(InterpolationKind value)
+	{
+		return value switch
+		{
+			InterpolationKind.No => FlatSwitch,
+			InterpolationKind.Linear => Mathf.Lerp,
+			InterpolationKind.Quadratic => ApplyEaser(Mathf.Lerp, (x) => x * x),
+			_ => throw new ArgumentException($"Value contains invalid setting! {value}({(int)value})")
+		};
+	}
+
 	public static Interpolator ApplyEaser(Interpolator interpolator, Easer easer)
 	{
 		if (easer is null) throw new ArgumentNullException("easer");

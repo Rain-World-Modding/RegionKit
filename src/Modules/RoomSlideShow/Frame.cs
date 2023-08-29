@@ -2,18 +2,15 @@ namespace RegionKit.Modules.Slideshow;
 
 internal sealed record Frame(int index, string elementName, int? ticksDuration, KeyFrame[] keyFramesHere) : PlaybackStep
 {
-	// public readonly string elementName;
-	// public readonly int index;
-	// public readonly int? ticksDuration;
-	// public readonly KeyFrame[] keyFramesHere;
-
-	// public Frame(int index, string elementName, int? ticksDuration, KeyFrame[] keyFramesHere)
-	// {
-	// 	this.elementName = elementName;
-	// 	this.index = index;
-	// 	this.ticksDuration = ticksDuration;
-	// 	this.keyFramesHere = keyFramesHere;
-	// }
+	public Frame(
+		int index,
+		Raw raw)  : this (
+			index,
+			raw.elementName,
+			raw.ticksDuration,
+			raw.keyFramesHere.Select(kfRaw => new KeyFrame(index, kfRaw)).ToArray()) 
+	{ }
 	public int GetTicksDuration(int @default) => ticksDuration ?? @default;
 	public override bool InstantlyProgress => false;
+	internal sealed record Raw(string elementName, int? ticksDuration, KeyFrame.Raw[] keyFramesHere);
 }

@@ -20,14 +20,12 @@ internal class Playback
 
 
 	private Playback PushNewFrame(
-		string elementName,
-		int? ticksDuration,
-		KeyFrame.Raw[] keyFramesRaw)
+		Frame.Raw raw)
 	{
 		int newIndex = this.playbackSteps.Count;
-		KeyFrame[] keyFrames = keyFramesRaw.Select(kfr => new KeyFrame(newIndex, kfr)).ToArray();
+		// KeyFrame[] keyFrames = keyFramesRaw.Select(kfr => new KeyFrame(newIndex, kfr)).ToArray();
 
-		playbackSteps.Add(new Frame(newIndex, elementName, ticksDuration, keyFrames));
+		playbackSteps.Add(new Frame(newIndex, raw));
 		return this;
 	}
 	private Playback PushNewStep(PlaybackStep newStep)
@@ -46,25 +44,14 @@ internal class Playback
 			},
 			true,
 			"test");
-		result.PushNewFrame("LizardHead0.1", 60, new KeyFrame.Raw[] { new(Channel.R, 0f), new(Channel.B, 0f) });
+		result.PushNewFrame(new ("LizardHead0.1", 60, new KeyFrame.Raw[] { new(Channel.R, 0f), new(Channel.B, 0f) }));
 		//result.PushNewFrame("circle20", null, new KeyFrame.Raw[0]);
-		result.PushNewFrame("Circle20", null, new KeyFrame.Raw[0]);
-		result.PushNewFrame("LizardHead0.2", 60, new KeyFrame.Raw[] { new(Channel.R, 1f) });
+		result.PushNewFrame(new("Circle20", null, new KeyFrame.Raw[0]));
+		result.PushNewFrame(new("LizardHead0.2", 60, new KeyFrame.Raw[] { new(Channel.R, 1f) }));
 		// result.PushNewFrame("circle20", null, new KeyFrame.Raw[0]);
 		// result.PushNewFrame("circle20", null, new KeyFrame.Raw[0]);
-		result.PushNewFrame("Circle20", null, new KeyFrame.Raw[0]);
-		result.PushNewFrame("LizardHead0.3", 60, new KeyFrame.Raw[] { new(Channel.B, 1f) });
+		result.PushNewFrame(new("Circle20", null, new KeyFrame.Raw[0]));
+		result.PushNewFrame(new("LizardHead0.3", 60, new KeyFrame.Raw[] { new(Channel.B, 1f) }));
 		return result;
-	}
-
-	public static Playback ReadFromText(string[] text)
-	{
-		Regex commasplit = new("\\s*,\\s*");
-		Regex spacesplit = new Regex("\\s+");
-		foreach (string line in text)
-		{
-
-		}
-		throw new NotImplementedException();
 	}
 }

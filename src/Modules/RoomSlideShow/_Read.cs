@@ -152,7 +152,8 @@ internal static class _Read
 	{
 		int? ticksDuration = 40;
 		string elementName = tokens[0].value;
-		Dictionary<Channel, KeyFrame.Raw> keyFrames = new();
+		//Dictionary<Channel, KeyFrame.Raw> keyFrames = new();
+		List<KeyFrame.Raw> keyFrames = new();
 		int index = 1;
 		while (index < tokens.Count && tokens[index].kind is not TokenKind.Semicolon)
 		{
@@ -186,12 +187,13 @@ internal static class _Read
 				List<Channel> channels = tok0.GetChannels();
 				foreach (Channel channel in channels)
 				{
-					keyFrames[channel] = new(channel, value);
+					//keyFrames[channel] = new(channel, value);
+					keyFrames.Add(new(channel, value));
 				}
 			}
 			index += increment;
 		}
-		return new(elementName, ticksDuration, keyFrames.Values.ToArray());
+		return new(elementName, ticksDuration, keyFrames.ToArray());
 	}
 	private enum TokenKind
 	{
@@ -215,17 +217,17 @@ internal static class _Read
 		public List<Channel> GetChannels()
 		{
 			if (this.kind is not TokenKind.Channel) throw new ArgumentException($"{this} IS NOT A CHANNEL TOKEN");
-			//__logger.LogDebug($"extracting channels from {this.value}");
+			__logger.LogDebug($"extracting channels from {this.value}");
 			List<Channel> channels = new();
 			string tokenVal = this.value;
-			for (int i = 0; i < tokenVal.Length - 1; i++)
+			for (int i = 0; i < tokenVal.Length; i++)
 			{
 				string substring = tokenVal[i..(i + 1)];
-				//__logger.LogDebug($"substring {substring}");
+				__logger.LogDebug($"substring {substring}");
 				if (!Enum.TryParse(substring, out Channel channel)) throw new ArgumentException($"Unknown channel {substring}");
 				channels.Add(channel);
 			}
-			//__logger.LogDebug(channels.Count);
+			__logger.LogDebug(channels.Count);
 			return channels;
 		}
 		public float GetNumber()

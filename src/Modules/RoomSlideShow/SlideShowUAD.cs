@@ -14,10 +14,10 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		Room room,
 		PlacedObject placedObject)
 	{
-		this.room = room;
-		this._owner = placedObject;
 		try
 		{
+			this.room = room;
+			this._owner = placedObject;
 			this._playback = _Module.__playbacksById[_Data.id];
 			_playState = new(this._playback);
 		}
@@ -25,7 +25,7 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		{
 			__logger.LogError($"Error constructing slideshow UAD {keyex} destroying itself");
 			Destroy();
-            throw;
+			throw;
 		}
 		_prevInstant = _thisInstant = new SlideShowInstant("Circle20", "Basic", ContainerCodes.Foreground, Vector2.zero, Color.white);
 	}
@@ -117,6 +117,12 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		};
 		TriangleMesh? mesh = new TriangleMesh("Futile_White", tris, true);
 		sprites[0] = mesh;
-		AddToContainer(sLeaser, rCam, rCam.ReturnFContainer(_thisInstant.container.ToString()));
+		__logger.LogWarning($"{_thisInstant}, {_prevInstant}");
+		AddToContainer(
+			sLeaser,
+			rCam,
+			// null
+			rCam.ReturnFContainer(_thisInstant.container.ToString())
+			);
 	}
 }

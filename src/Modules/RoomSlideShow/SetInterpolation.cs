@@ -40,11 +40,11 @@ internal sealed record SetInterpolation(Interpolator interpolator, Interpolation
 	{
 		if (easer is null) throw new ArgumentNullException("easer");
 		if (interpolator is null) throw new ArgumentNullException("interpolator");
-		interpolator = (from, to, x) =>
+		Interpolator newInterpolator = (float from, float to, float x) =>
 		{
 			return interpolator(from, to, easer(x));
 		};
-		return interpolator;
+		return newInterpolator;
 	}
 	public static float FlatSwitch(float from, float to, float x) => from;
 }

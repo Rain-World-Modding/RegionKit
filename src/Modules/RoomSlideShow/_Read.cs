@@ -18,7 +18,7 @@ internal static class _Read
 	private static Dictionary<TokenKind, System.Text.RegularExpressions.Regex> __tokenMatchers = new() {
 		{ TokenKind.Whitespace, new("(\\s+)") },
 		{ TokenKind.Action, new("(SHADER|INTERP|CONTAINER|DELAY)") },
-		{ TokenKind.Word, new("(\\w+)") },
+		{ TokenKind.Word, new("([\\w._-]+)") },
 		{ TokenKind.Channel, new("\\[(\\w+)]") },
 		{ TokenKind.Comma, new("(,)") },
 		{ TokenKind.Semicolon, new("(;)") },
@@ -33,12 +33,12 @@ internal static class _Read
 		TokenKind.Action,
 		TokenKind.End,
 		TokenKind.Loop,
+		TokenKind.Number,
 		TokenKind.Word,
 		TokenKind.Channel,
 		TokenKind.Comma,
 		TokenKind.Semicolon,
 		TokenKind.Equals,
-		TokenKind.Number,
 	};
 	private static List<Token> __Tokenize(string text)
 	{
@@ -50,9 +50,9 @@ internal static class _Read
 			foreach (TokenKind kind in __TokenKindOrder)
 			{
 				var match = __tokenMatchers[kind].Match(text[index..]);
-				if (match.Success)
+				if (match.Success && match.Index == 0)
 				{
-					if (kind is not TokenKind.Whitespace) result.Add(new(kind, match.Captures[1].Value)); //auto trim
+					if (kind is not TokenKind.Whitespace) result.Add(new(kind, match.Groups[1].Value)); //auto trim
 					index += match.Length;
 					goto successInMatch;
 				}
@@ -65,6 +65,7 @@ internal static class _Read
 		{
 			result.Add(new(TokenKind.Unrecognized, text[index..]));
 		}
+		__logger.LogDebug($"tokenized {result.Select(x => x.ToString()).Stitch()}");
 		return result;
 	}
 
@@ -74,45 +75,57 @@ internal static class _Read
 		bool loop = true;
 		foreach (string line in lines)
 		{
-			List<Token>? tokens = __Tokenize(line);
-			if (tokens.Count is 0) continue;
-			Token token = tokens[0];
-			PlaybackStep stepToAdd = token.kind switch
+			try
 			{
-				//TokenKind.Whitespace => throw new NotImplementedException(),
-				TokenKind.Action => token.value switch
+
+				List<Token>? tokens = __Tokenize(line);
+				if (tokens.Count is 0) continue;
+				Token token = tokens[0];
+				PlaybackStep stepToAdd = token.kind switch
 				{
-					"SHADER" => __ParseSetShader(tokens),
-					"INTERP" => __ParseSetInterpolation(tokens),
-					"CONTAINER" => __ParseSetContainer(tokens),
-					"DELAY" => __ParseSetDelay(tokens),
-					_ => throw token.IllegalValueError()
-				},
-				TokenKind.End => new EndOfPlayback(false),
-				TokenKind.Loop => new EndOfPlayback(true),
-				_ => throw token.UnexpectedTokenError()
-			};
-			if (stepToAdd is EndOfPlayback endOfPlayback)
-			{
-				loop = endOfPlayback.loop;
-				break;
+					//TokenKind.Whitespace => throw new NotImplementedException(),
+					TokenKind.Action => token.value switch
+					{
+						"SHADER" => __ParseSetShader(tokens),
+						"INTERP" => __ParseSetInterpolation(tokens),
+						"CONTAINER" => __ParseSetContainer(tokens),
+						"DELAY" => __ParseSetDelay(tokens),
+						_ => throw token.IllegalValueError()
+					},
+					TokenKind.Word => new Frame(steps.Count, __ParseFrame(tokens)),
+					TokenKind.End => new EndOfPlayback(false),
+					TokenKind.Loop => new EndOfPlayback(true),
+					_ => throw token.UnexpectedTokenError()
+				};
+				if (stepToAdd is EndOfPlayback endOfPlayback)
+				{
+					loop = endOfPlayback.loop;
+					break;
+				}
+				else
+				{
+					steps.Add(stepToAdd);
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				steps.Add(stepToAdd);
+				__logger.LogError($"{ex}");
 			}
 		}
+		__logger.LogDebug(steps.Select(x => x.ToString()).Stitch());
+		__logger.LogDebug($"loop {loop}");
+
 		return new(steps, loop, id);
 	}
 	private static SetContainer __ParseSetContainer(List<Token> tokens)
 	{
-		if (tokens.Count <= 2) throw new ArgumentException("Missing Container code word");
+		if (tokens.Count < 2) throw new ArgumentException("Missing Container code word");
 		if (!Enum.TryParse(tokens[1].value, out ContainerCodes code)) throw new ArgumentException($"{tokens[1].value} is not a valid ContainerCode");
 		return new(code);
 	}
 	private static SetDelay __ParseSetDelay(List<Token> tokens)
 	{
-		if (tokens.Count <= 2) throw new ArgumentException("Missing Delay amount number");
+		if (tokens.Count < 2) throw new ArgumentException("Missing Delay amount number");
 		if (!float.TryParse(tokens[1].value, out float delay)) throw new ArgumentException($"{tokens[1].value} is not a valid number");
 		return new((int)delay);
 	}
@@ -130,10 +143,9 @@ internal static class _Read
 		List<Channel> channels = tokenChannels.GetChannels();
 		return new(code, channels.ToArray());
 	}
-
 	private static SetShader __ParseSetShader(List<Token> tokens)
 	{
-		if (tokens.Count <= 2) throw new ArgumentException("Missing shader name specifier");
+		if (tokens.Count < 2) throw new ArgumentException("Missing shader name specifier");
 		return new(tokens[1].value);
 	}
 	private static Frame.Raw __ParseFrame(List<Token> tokens)
@@ -161,6 +173,7 @@ internal static class _Read
 				{
 					throw new ArgumentException($"Not enough stuff to complete channel assignment (must be [ABC]=1.234) starting at token index {index}");
 				}
+				
 				increment = 3;
 				Token
 					tok1 = tokens[index + 1],
@@ -202,14 +215,17 @@ internal static class _Read
 		public List<Channel> GetChannels()
 		{
 			if (this.kind is not TokenKind.Channel) throw new ArgumentException($"{this} IS NOT A CHANNEL TOKEN");
+			//__logger.LogDebug($"extracting channels from {this.value}");
 			List<Channel> channels = new();
 			string tokenVal = this.value;
 			for (int i = 0; i < tokenVal.Length - 1; i++)
 			{
 				string substring = tokenVal[i..(i + 1)];
+				//__logger.LogDebug($"substring {substring}");
 				if (!Enum.TryParse(substring, out Channel channel)) throw new ArgumentException($"Unknown channel {substring}");
+				channels.Add(channel);
 			}
-
+			//__logger.LogDebug(channels.Count);
 			return channels;
 		}
 		public float GetNumber()

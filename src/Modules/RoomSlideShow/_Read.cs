@@ -3,20 +3,22 @@ namespace RegionKit.Modules.Slideshow;
 internal static class _Read
 {
 	internal const string EXAMPLE_SYNTAX = """
-    SHADER Basic
-    DELAY 40
-    INTERPOLATE Linear [XY]
-    INTERPOLATE Quadratic [RGBA]
-    CONTAINER Foreground
-    LizardHead0.1, 60; [RB]=0
-    Circle20
-    LizardHead0.2, 60; [R]=1
-    Circle20
-    LizardHead0.3, 60; [B]=1
-    LOOP
-    """;
+	SHADER Basic
+	DELAY 40
+	//comment 1
+	INTERPOLATE Linear [XY]
+	INTERPOLATE Quadratic [RGBA] // comment 2
+	CONTAINER Foreground
+	LizardHead0.1, 60; [RB]=0
+	Circle20
+	LizardHead0.2, 60; [R]=1
+	Circle20
+	LizardHead0.3, 60; [B]=1
+	LOOP
+	""";
 	private static Dictionary<TokenKind, System.Text.RegularExpressions.Regex> __tokenMatchers = new() {
 		{ TokenKind.Whitespace, new("(\\s+)") },
+		{ TokenKind.Comment, new("(//.*)") },
 		{ TokenKind.Action, new("(SHADER|INTERPOLATE|CONTAINER|DELAY)") },
 		{ TokenKind.Word, new("([\\w._-]+)") },
 		{ TokenKind.Channel, new("\\[(\\w+)]") },
@@ -30,6 +32,7 @@ internal static class _Read
 	private static TokenKind[] __TokenKindOrder =
 	{
 		TokenKind.Whitespace,
+		TokenKind.Comment,
 		TokenKind.Action,
 		TokenKind.End,
 		TokenKind.Loop,
@@ -40,20 +43,20 @@ internal static class _Read
 		TokenKind.Semicolon,
 		TokenKind.Equals,
 	};
-	
+
 	public static Playback FromText(string id, string[] lines)
 	{
 		List<PlaybackStep> steps = new();
 		bool loop = true;
 		foreach (string line in lines)
 		{
-			if (line.Trim().Length is 0 || line.StartsWith("//")) continue;
+			//if (line.Trim().Length is 0 || line.StartsWith("//")) continue;
 			try
 			{
 				List<Token>? tokens = __Tokenize(line);
 				if (tokens.Count is 0) continue;
 				Token token = tokens[0];
-				PlaybackStep stepToAdd = token.kind switch
+				PlaybackStep? stepToAdd = token.kind switch
 				{
 					//TokenKind.Whitespace => throw new NotImplementedException(),
 					TokenKind.Action => token.value switch
@@ -65,6 +68,7 @@ internal static class _Read
 						_ => throw token.IllegalValueError()
 					},
 					TokenKind.Word => new Frame(steps.Count, __ParseFrame(tokens)),
+					TokenKind.Comment => null,
 					TokenKind.End => new EndOfPlayback(false),
 					TokenKind.Loop => new EndOfPlayback(true),
 					_ => throw token.UnexpectedTokenError()
@@ -74,7 +78,7 @@ internal static class _Read
 					loop = endOfPlayback.loop;
 					break;
 				}
-				else
+				else if (stepToAdd is not null)
 				{
 					steps.Add(stepToAdd);
 				}
@@ -174,7 +178,7 @@ internal static class _Read
 				{
 					throw new ArgumentException($"Not enough stuff to complete channel assignment (must be [ABC]=1.234) starting at token index {index}");
 				}
-				
+
 				increment = 3;
 				Token
 					tok1 = tokens[index + 1],
@@ -207,6 +211,7 @@ internal static class _Read
 		Number,
 		End,
 		Loop,
+		Comment,
 		Unrecognized
 	}
 	private record struct Token(TokenKind kind, string value)

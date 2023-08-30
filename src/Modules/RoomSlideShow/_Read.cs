@@ -5,8 +5,8 @@ internal static class _Read
 	internal const string EXAMPLE_SYNTAX = """
     SHADER Basic
     DELAY 40
-    INTERP Linear [XY]
-    INTERP Quadratic [RGBA]
+    INTERPOLATE Linear [XY]
+    INTERPOLATE Quadratic [RGBA]
     CONTAINER Foreground
     LizardHead0.1, 60; [RB]=0
     Circle20
@@ -17,7 +17,7 @@ internal static class _Read
     """;
 	private static Dictionary<TokenKind, System.Text.RegularExpressions.Regex> __tokenMatchers = new() {
 		{ TokenKind.Whitespace, new("(\\s+)") },
-		{ TokenKind.Action, new("(SHADER|INTERP|CONTAINER|DELAY)") },
+		{ TokenKind.Action, new("(SHADER|INTERPOLATE|CONTAINER|DELAY)") },
 		{ TokenKind.Word, new("([\\w._-]+)") },
 		{ TokenKind.Channel, new("\\[(\\w+)]") },
 		{ TokenKind.Comma, new("(,)") },
@@ -87,7 +87,7 @@ internal static class _Read
 					TokenKind.Action => token.value switch
 					{
 						"SHADER" => __ParseSetShader(tokens),
-						"INTERP" => __ParseSetInterpolation(tokens),
+						"INTERPOLATE" => __ParseSetInterpolation(tokens),
 						"CONTAINER" => __ParseSetContainer(tokens),
 						"DELAY" => __ParseSetDelay(tokens),
 						_ => throw token.IllegalValueError()

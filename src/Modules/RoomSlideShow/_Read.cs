@@ -40,35 +40,7 @@ internal static class _Read
 		TokenKind.Semicolon,
 		TokenKind.Equals,
 	};
-	private static List<Token> __Tokenize(string text)
-	{
-		List<Token> result = new();
-		int index = 0;
-		bool failToFinish = false;
-		while (index < text.Length)
-		{
-			foreach (TokenKind kind in __TokenKindOrder)
-			{
-				var match = __tokenMatchers[kind].Match(text[index..]);
-				if (match.Success && match.Index == 0)
-				{
-					if (kind is not TokenKind.Whitespace) result.Add(new(kind, match.Groups[1].Value)); //auto trim
-					index += match.Length;
-					goto successInMatch;
-				}
-			}
-			failToFinish = true;
-			break;
-		successInMatch:;
-		}
-		if (failToFinish)
-		{
-			result.Add(new(TokenKind.Unrecognized, text[index..]));
-		}
-		__logger.LogDebug($"tokenized {result.Select(x => x.ToString()).Stitch()}");
-		return result;
-	}
-
+	
 	public static Playback FromText(string id, string[] lines)
 	{
 		List<PlaybackStep> steps = new();
@@ -116,6 +88,34 @@ internal static class _Read
 		__logger.LogDebug($"loop {loop}");
 
 		return new(steps, loop, id);
+	}
+	private static List<Token> __Tokenize(string text)
+	{
+		List<Token> result = new();
+		int index = 0;
+		bool failToFinish = false;
+		while (index < text.Length)
+		{
+			foreach (TokenKind kind in __TokenKindOrder)
+			{
+				var match = __tokenMatchers[kind].Match(text[index..]);
+				if (match.Success && match.Index == 0)
+				{
+					if (kind is not TokenKind.Whitespace) result.Add(new(kind, match.Groups[1].Value)); //auto trim
+					index += match.Length;
+					goto successInMatch;
+				}
+			}
+			failToFinish = true;
+			break;
+		successInMatch:;
+		}
+		if (failToFinish)
+		{
+			result.Add(new(TokenKind.Unrecognized, text[index..]));
+		}
+		__logger.LogDebug($"tokenized {result.Select(x => x.ToString()).Stitch()}");
+		return result;
 	}
 	private static SetContainer __ParseSetContainer(List<Token> tokens)
 	{

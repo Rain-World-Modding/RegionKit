@@ -47,9 +47,9 @@ internal static class _Read
 		bool loop = true;
 		foreach (string line in lines)
 		{
+			if (line.Trim().Length is 0 || line.StartsWith("//")) continue;
 			try
 			{
-
 				List<Token>? tokens = __Tokenize(line);
 				if (tokens.Count is 0) continue;
 				Token token = tokens[0];

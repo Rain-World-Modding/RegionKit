@@ -35,7 +35,7 @@ internal class Playback
 	}
 	public static Playback MakeTestPlayback()
 	{
-		Playback result = _Read.FromText("test", System.Text.RegularExpressions.Regex.Split(_Read.EXAMPLE_SYNTAX, "\r\n"));
+		Playback result = _Read.FromText("test", System.Text.RegularExpressions.Regex.Split(_Read.EXAMPLE_SYNTAX, "\n"));
 		// Playback result = new Playback(
 		// 	playbackSteps: new List<PlaybackStep>() {
 

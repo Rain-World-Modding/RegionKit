@@ -13,7 +13,7 @@ internal static class _Read
 	Circle20
 	LizardHead0.2, 60; [R]=1
 	Circle20
-	LizardHead0.3, 60; [B]=1
+	LizardHead0.1, 60; [B]=1
 	LOOP
 	""";
 	private static Dictionary<TokenKind, System.Text.RegularExpressions.Regex> __tokenMatchers = new() {

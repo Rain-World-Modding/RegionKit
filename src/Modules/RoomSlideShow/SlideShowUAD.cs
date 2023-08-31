@@ -14,12 +14,13 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		Room room,
 		PlacedObject placedObject)
 	{
+		this.room = room;
+		this._owner = placedObject;
 		try
 		{
-			this.room = room;
-			this._owner = placedObject;
-			this._playback = _Module.__playbacksById[_Data.id];
-			_playState = new(this._playback);
+			(Playback? playback, _) = _Module.__playbacksById[_Data.id];
+			this._playback = playback;
+			this._playState = new(playback);
 		}
 		catch (KeyNotFoundException keyex)
 		{

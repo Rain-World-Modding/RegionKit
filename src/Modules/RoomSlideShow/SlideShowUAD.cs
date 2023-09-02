@@ -82,7 +82,7 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 	{
 		FAtlasElement element = Futile.atlasManager.GetElementWithName(Futile.atlasManager.DoesContainElementWithName(_thisInstant.elementName) ? _thisInstant.elementName : "Futile_White");
 		FShader shader = rCam.game.rainWorld.Shaders.TryGetValue(_thisInstant.shader, out FShader selectedShader) ? selectedShader : rCam.game.rainWorld.Shaders["Basic"];
-		Vector2 position = Vector2.Lerp(_prevInstant.position, _thisInstant.position, timeStacker);
+		Vector2 positionShift = Vector2.Lerp(_prevInstant.position, _thisInstant.position, timeStacker);
 		Color color = Color.Lerp(_prevInstant.color, _thisInstant.color, timeStacker);
 		Vector2 scale = Vector2.Lerp(_prevInstant.scale, _thisInstant.scale, timeStacker);
 		float rotation = Mathf.LerpAngle(_prevInstant.rotationDegrees, _thisInstant.rotationDegrees, timeStacker);
@@ -96,10 +96,10 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 			TriangleMesh mesh = (TriangleMesh)mainSprite;
 			// FSprite centroidMarker = sLeaser.sprites[1];
 			//todo: add rotation and scale?
-			mesh.MoveVertice(0, _owner.pos + position - camPos);
-			mesh.MoveVertice(1, _owner.pos + position + meshData.quad[1] - camPos);
-			mesh.MoveVertice(2, _owner.pos + position + meshData.quad[3] - camPos);
-			mesh.MoveVertice(3, _owner.pos + position + meshData.quad[2] - camPos);
+			mesh.MoveVertice(0, _owner.pos + positionShift - camPos);
+			mesh.MoveVertice(1, _owner.pos + positionShift + meshData.quad[1] - camPos);
+			mesh.MoveVertice(2, _owner.pos + positionShift + meshData.quad[3] - camPos);
+			mesh.MoveVertice(3, _owner.pos + positionShift + meshData.quad[2] - camPos);
 
 			// for (int i = 0; i < 4; i++)
 			// {
@@ -112,7 +112,7 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 			break;
 		case SlideShowRectData rectData:
 			//FSprite sprite = sLeaser.sprites[0];
-			mainSprite.SetPosition(_owner.pos + rectData.p2 / 2f - camPos);
+			mainSprite.SetPosition(_owner.pos + rectData.p2 / 2f + positionShift - camPos);
 			mainSprite.width = rectData.p2.x * scale.x;
 			mainSprite.height = rectData.p2.y * scale.y;
 			mainSprite.rotation = rotation;

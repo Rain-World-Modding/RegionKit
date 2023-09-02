@@ -56,7 +56,7 @@ internal sealed class PlayState
 			{ Channel.G, new(at, Channel.G, 1f)},
 			{ Channel.B, new(at, Channel.B, 1f)},
 			{ Channel.A, new(at, Channel.A, 1f)},
-			{ Channel.T, new(at, Channel.T, 1f)},
+			{ Channel.T, new(at, Channel.T, 0f)},
 			{ Channel.H, new(at, Channel.H, 1f)},
 			{ Channel.W, new(at, Channel.W, 1f)},
 		};

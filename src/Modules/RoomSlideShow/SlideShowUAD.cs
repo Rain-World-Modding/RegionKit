@@ -18,7 +18,7 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		this._owner = placedObject;
 		try
 		{
-			(Playback? playback, _) = _Module.__playbacksById[_Data.GetValue<string>("id") ?? "test"];
+			(Playback? playback, _) = _Module.__playbacksById[_Data.GetValue<string>("00id") ?? "test"];
 			this._playback = playback;
 			this._playState = new(playback);
 		}

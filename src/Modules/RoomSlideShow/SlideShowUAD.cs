@@ -8,7 +8,7 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 	private PlayState _playState;
 	private SlideShowInstant _prevInstant;
 	private SlideShowInstant _thisInstant;
-	private SlideShowData _Data => (SlideShowData)_owner.data;
+	private ManagedData _Data => (ManagedData)_owner.data;
 
 	public SlideShowUAD(
 		Room room,
@@ -18,15 +18,14 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		this._owner = placedObject;
 		try
 		{
-			(Playback? playback, _) = _Module.__playbacksById[_Data.id];
+			(Playback? playback, _) = _Module.__playbacksById[_Data.GetValue<string>("id") ?? "test"];
 			this._playback = playback;
 			this._playState = new(playback);
 		}
-		catch (KeyNotFoundException keyex)
+		catch (Exception ex)
 		{
-			__logger.LogError($"Error constructing slideshow UAD {keyex} destroying itself");
+			__logger.LogError($"Error constructing slideshow UAD {ex} destroying itself");
 			Destroy();
-			throw;
 		}
 		_prevInstant = _thisInstant = new SlideShowInstant(
 			"Circle20",
@@ -60,7 +59,8 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		RoomCamera rCam,
 		FContainer? newContatiner)
 	{
-		newContatiner ??= rCam.ReturnFContainer(_Data.container.ToString());
+		//newContatiner ??= rCam.ReturnFContainer(_Data.container.ToString());
+		newContatiner ??= rCam.ReturnFContainer(_thisInstant.container.ToString());
 		foreach (FSprite fsprite in sLeaser.sprites)
 		{
 			fsprite.RemoveFromContainer();
@@ -84,24 +84,41 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		FShader shader = rCam.game.rainWorld.Shaders.TryGetValue(_thisInstant.shader, out FShader selectedShader) ? selectedShader : rCam.game.rainWorld.Shaders["Basic"];
 		Vector2 position = Vector2.Lerp(_prevInstant.position, _thisInstant.position, timeStacker);
 		Color color = Color.Lerp(_prevInstant.color, _thisInstant.color, timeStacker);
+		Vector2 scale = Vector2.Lerp(_prevInstant.scale, _thisInstant.scale, timeStacker);
+		float rotation = Mathf.LerpAngle(_prevInstant.rotationDegrees, _thisInstant.rotationDegrees, timeStacker);
 
-		TriangleMesh mesh = (TriangleMesh)sLeaser.sprites[0];
-		// FSprite centroidMarker = sLeaser.sprites[1];
-		
-		mesh.MoveVertice(0, _owner.pos + position - camPos);
-		mesh.MoveVertice(1, _owner.pos + position + _Data.quad[1] - camPos);
-		mesh.MoveVertice(2, _owner.pos + position + _Data.quad[3] - camPos);
-		mesh.MoveVertice(3, _owner.pos + position + _Data.quad[2] - camPos);
-		mesh.element = element;
-		mesh.shader = shader;
-		for (int i = 0; i < 4; i++)
+		switch (_Data)
 		{
-			mesh.verticeColors[i] = color;
+		case SlideShowMeshData meshData:
+			TriangleMesh mesh = (TriangleMesh)sLeaser.sprites[0];
+			// FSprite centroidMarker = sLeaser.sprites[1];
+
+			mesh.MoveVertice(0, _owner.pos + position - camPos);
+			mesh.MoveVertice(1, _owner.pos + position + meshData.quad[1] - camPos);
+			mesh.MoveVertice(2, _owner.pos + position + meshData.quad[3] - camPos);
+			mesh.MoveVertice(3, _owner.pos + position + meshData.quad[2] - camPos);
+			mesh.element = element;
+			mesh.shader = shader;
+			for (int i = 0; i < 4; i++)
+			{
+				mesh.verticeColors[i] = color;
+			}
+			mesh.UVvertices[0] = element.uvBottomLeft;
+			mesh.UVvertices[1] = element.uvBottomRight;
+			mesh.UVvertices[3] = element.uvTopRight;
+			mesh.UVvertices[2] = element.uvTopLeft;
+			break;
+		case SlideShowRectData rectData:
+			FSprite sprite = sLeaser.sprites[0];
+			sprite.SetPosition(_owner.pos + rectData.p2 / 2f - camPos);
+			sprite.element = element;
+			sprite.color = color;
+			sprite.width = rectData.p2.x * scale.x;
+			sprite.height = rectData.p2.y * scale.y;
+			sprite.rotation = rotation;
+			break;
 		}
-		mesh.UVvertices[0] = element.uvBottomLeft;
-		mesh.UVvertices[1] = element.uvBottomRight;
-		mesh.UVvertices[3] = element.uvTopRight;
-		mesh.UVvertices[2] = element.uvTopLeft;
+
 
 		// Vector2 centroid = mesh.GetCentroid();
 		// centroidMarker.SetPosition(centroid);
@@ -129,10 +146,19 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 			new TriangleMesh.Triangle(0, 1, 2),
 			new TriangleMesh.Triangle(2, 1, 3)
 		};
-		TriangleMesh? mesh = new TriangleMesh("Futile_White", tris, true);
-		sprites[0] = mesh;
+		//TriangleMesh? mesh = new TriangleMesh("Futile_White", tris, true);
+		sprites[0] = _Data switch
+		{
+			SlideShowMeshData meshData => new TriangleMesh("Futile_White", tris, true),
+			SlideShowRectData rectData => new FSprite("Futile_White", true)
+			{
+				// anchorX = 0f,
+				// anchorY = 0f
+			},
+			_ => throw new ArgumentException($"Illegal ManagedData {_Data} ({_Data.GetType().FullName}) in slideshow UAD!")
+		};
 		// sprites[1] = new FSprite("Circle20");
-		__logger.LogWarning($"{_thisInstant}, {_prevInstant}");
+		//__logger.LogWarning($"{_thisInstant}, {_prevInstant}");
 		AddToContainer(
 			sLeaser,
 			rCam,

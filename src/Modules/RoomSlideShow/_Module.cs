@@ -41,7 +41,8 @@ public static class _Module
 	{
 		try
 		{
-			RegisterManagedObject<SlideShowUAD, SlideShowData, ManagedRepresentation>("SlideShow", RK_POM_CATEGORY);
+			RegisterManagedObject<SlideShowUAD, SlideShowMeshData, ManagedRepresentation>("SlideShow", RK_POM_CATEGORY);
+			RegisterManagedObject<SlideShowUAD, SlideShowRectData, ManagedRepresentation>("SlideShowRect", RK_POM_CATEGORY);
 		}
 		catch (Exception ex)
 		{

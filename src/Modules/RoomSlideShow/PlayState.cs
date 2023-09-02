@@ -35,12 +35,15 @@ internal sealed class PlayState
 	{
 		return new()
 		{
-			{ Channel.X, new SetInterpolation(InterpolationKind.No, new[] {Channel.X}) },
-			{ Channel.Y, new SetInterpolation(InterpolationKind.No, new[] {Channel.Y}) },
-			{ Channel.R, new SetInterpolation(InterpolationKind.No, new[] {Channel.R}) },
-			{ Channel.G, new SetInterpolation(InterpolationKind.No, new[] {Channel.G}) },
-			{ Channel.B, new SetInterpolation(InterpolationKind.No, new[] {Channel.B}) },
-			{ Channel.A, new SetInterpolation(InterpolationKind.No, new[] {Channel.A}) },
+			{ Channel.X, new (InterpolationKind.No, new[] {Channel.X}) },
+			{ Channel.Y, new (InterpolationKind.No, new[] {Channel.Y}) },
+			{ Channel.R, new (InterpolationKind.No, new[] {Channel.R}) },
+			{ Channel.G, new (InterpolationKind.No, new[] {Channel.G}) },
+			{ Channel.B, new (InterpolationKind.No, new[] {Channel.B}) },
+			{ Channel.A, new (InterpolationKind.No, new[] {Channel.A}) },
+			{ Channel.T, new (InterpolationKind.No, new[] {Channel.T}) },
+			{ Channel.H, new (InterpolationKind.No, new[] {Channel.H}) },
+			{ Channel.W, new (InterpolationKind.No, new[] {Channel.W}) },
 		};
 	}
 	private static Dictionary<Channel, KeyFrame> CreateDefaultKeyframes(int at)
@@ -53,6 +56,9 @@ internal sealed class PlayState
 			{ Channel.G, new(at, Channel.G, 1f)},
 			{ Channel.B, new(at, Channel.B, 1f)},
 			{ Channel.A, new(at, Channel.A, 1f)},
+			{ Channel.T, new(at, Channel.T, 1f)},
+			{ Channel.H, new(at, Channel.H, 1f)},
+			{ Channel.W, new(at, Channel.W, 1f)},
 		};
 	}
 	public void Update()
@@ -195,7 +201,11 @@ internal sealed class PlayState
 		ContainerCodes container = Container;
 		Vector2 position = new(GetChannelValue(Channel.X), GetChannelValue(Channel.Y));
 		Color color = new(GetChannelValue(Channel.R), GetChannelValue(Channel.G), GetChannelValue(Channel.B), GetChannelValue(Channel.A));
-		return new SlideShowInstant(elementName, shader, container, position, color);
+		float
+			width = GetChannelValue(Channel.W),
+			height = GetChannelValue(Channel.H),
+			rotation = GetChannelValue(Channel.T);
+		return new SlideShowInstant(elementName, shader, container, position, color, new(width, height), rotation);
 	}
 	sealed class NoActualFramesException : Exception
 	{

@@ -119,4 +119,35 @@ public static class RainWorldTools
 
 		return inverted != include;
 	}
+
+	/// <summary>
+	/// Calculates area of a mesh. Assumes the mesh is not self-intersecting!
+	/// </summary>
+	public static float GetArea(this TriangleMesh mesh)
+	{
+		float sum = 0f;
+		for (int i = 0; i < mesh.vertices.Length - 1; i++)
+		{
+			Vector2 thisVertex = mesh.vertices[i];
+			Vector2 nextVertex = mesh.vertices[i + 1];
+			sum += thisVertex.x * nextVertex.y - thisVertex.y * nextVertex.x;
+		}
+		sum /= 2f;
+		return sum;
+	}
+	public static Vector2 GetCentroid(this TriangleMesh mesh)
+	{
+		float area = mesh.GetArea();
+		Vector2 sum = Vector2.zero;
+		for (int i = 0; i < mesh.triangles.Length - 1; i++)
+		{
+			Vector2 thisVertex = mesh.vertices[i];
+			Vector2 nextVertex = mesh.vertices[i + 1];
+			float x = (thisVertex.x + nextVertex.x) * (thisVertex.x * nextVertex.y - nextVertex.x * thisVertex.y);
+			float y = (thisVertex.y + nextVertex.y) * (thisVertex.x * nextVertex.y - nextVertex.x * thisVertex.y);
+			sum += new Vector2(x, y);
+		}
+		Vector2 result = sum / (6f * area);
+		return result;
+	}
 }

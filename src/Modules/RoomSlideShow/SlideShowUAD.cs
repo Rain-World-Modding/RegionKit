@@ -28,7 +28,14 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 			Destroy();
 			throw;
 		}
-		_prevInstant = _thisInstant = new SlideShowInstant("Circle20", "Basic", ContainerCodes.Foreground, Vector2.zero, Color.white);
+		_prevInstant = _thisInstant = new SlideShowInstant(
+			"Circle20",
+			"Basic",
+			ContainerCodes.Foreground,
+			Vector2.zero,
+			Color.white,
+			new(1f, 1f),
+			0f);
 	}
 	public override void Update(bool eu)
 	{
@@ -79,6 +86,8 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		Color color = Color.Lerp(_prevInstant.color, _thisInstant.color, timeStacker);
 
 		TriangleMesh mesh = (TriangleMesh)sLeaser.sprites[0];
+		// FSprite centroidMarker = sLeaser.sprites[1];
+		
 		mesh.MoveVertice(0, _owner.pos + position - camPos);
 		mesh.MoveVertice(1, _owner.pos + position + _Data.quad[1] - camPos);
 		mesh.MoveVertice(2, _owner.pos + position + _Data.quad[3] - camPos);
@@ -93,6 +102,10 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		mesh.UVvertices[1] = element.uvBottomRight;
 		mesh.UVvertices[3] = element.uvTopRight;
 		mesh.UVvertices[2] = element.uvTopLeft;
+
+		// Vector2 centroid = mesh.GetCentroid();
+		// centroidMarker.SetPosition(centroid);
+		// centroidMarker.color = Color.red;
 
 		// mesh.color = color;
 		// mesh.alpha = color.a;
@@ -118,6 +131,7 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		};
 		TriangleMesh? mesh = new TriangleMesh("Futile_White", tris, true);
 		sprites[0] = mesh;
+		// sprites[1] = new FSprite("Circle20");
 		__logger.LogWarning($"{_thisInstant}, {_prevInstant}");
 		AddToContainer(
 			sLeaser,

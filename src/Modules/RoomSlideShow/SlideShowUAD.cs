@@ -86,46 +86,42 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		Color color = Color.Lerp(_prevInstant.color, _thisInstant.color, timeStacker);
 		Vector2 scale = Vector2.Lerp(_prevInstant.scale, _thisInstant.scale, timeStacker);
 		float rotation = Mathf.LerpAngle(_prevInstant.rotationDegrees, _thisInstant.rotationDegrees, timeStacker);
-
+		FSprite mainSprite = sLeaser.sprites[0];
+		mainSprite.element = element;
+		mainSprite.shader = shader;
+		mainSprite.color = color;
 		switch (_Data)
 		{
 		case SlideShowMeshData meshData:
-			TriangleMesh mesh = (TriangleMesh)sLeaser.sprites[0];
+			TriangleMesh mesh = (TriangleMesh)mainSprite;
 			// FSprite centroidMarker = sLeaser.sprites[1];
-
+			//todo: add rotation and scale?
 			mesh.MoveVertice(0, _owner.pos + position - camPos);
 			mesh.MoveVertice(1, _owner.pos + position + meshData.quad[1] - camPos);
 			mesh.MoveVertice(2, _owner.pos + position + meshData.quad[3] - camPos);
 			mesh.MoveVertice(3, _owner.pos + position + meshData.quad[2] - camPos);
-			mesh.element = element;
-			mesh.shader = shader;
-			for (int i = 0; i < 4; i++)
-			{
-				mesh.verticeColors[i] = color;
-			}
+
+			// for (int i = 0; i < 4; i++)
+			// {
+			// 	mesh.verticeColors[i] = color;
+			// }
 			mesh.UVvertices[0] = element.uvBottomLeft;
 			mesh.UVvertices[1] = element.uvBottomRight;
 			mesh.UVvertices[3] = element.uvTopRight;
 			mesh.UVvertices[2] = element.uvTopLeft;
 			break;
 		case SlideShowRectData rectData:
-			FSprite sprite = sLeaser.sprites[0];
-			sprite.SetPosition(_owner.pos + rectData.p2 / 2f - camPos);
-			sprite.element = element;
-			sprite.color = color;
-			sprite.width = rectData.p2.x * scale.x;
-			sprite.height = rectData.p2.y * scale.y;
-			sprite.rotation = rotation;
+			//FSprite sprite = sLeaser.sprites[0];
+			mainSprite.SetPosition(_owner.pos + rectData.p2 / 2f - camPos);
+			mainSprite.width = rectData.p2.x * scale.x;
+			mainSprite.height = rectData.p2.y * scale.y;
+			mainSprite.rotation = rotation;
 			break;
+		default:
+			__logger.LogError($"Invalid managedData in SlideShowUAD: {_Data.GetType()}");
+			this.Destroy();
+			return;
 		}
-
-
-		// Vector2 centroid = mesh.GetCentroid();
-		// centroidMarker.SetPosition(centroid);
-		// centroidMarker.color = Color.red;
-
-		// mesh.color = color;
-		// mesh.alpha = color.a;
 		if (!sLeaser.deleteMeNextFrame && (base.slatedForDeletetion || this.room != rCam.room))
 		{
 			sLeaser.CleanSpritesAndRemove();
@@ -149,7 +145,7 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		//TriangleMesh? mesh = new TriangleMesh("Futile_White", tris, true);
 		sprites[0] = _Data switch
 		{
-			SlideShowMeshData meshData => new TriangleMesh("Futile_White", tris, true),
+			SlideShowMeshData meshData => new TriangleMesh("Futile_White", tris, false),
 			SlideShowRectData rectData => new FSprite("Futile_White", true)
 			{
 				// anchorX = 0f,

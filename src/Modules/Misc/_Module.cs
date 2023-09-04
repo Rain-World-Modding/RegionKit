@@ -19,6 +19,7 @@ internal static class _Module
 		SuperstructureFusesHook.Apply();
 		MoreFadePalettes.Apply();
 		SlugcatRoomTemplates.Apply();
+		FadePaletteCombiner.Enable();
 	}
 	public static void Disable()
 	{
@@ -29,5 +30,6 @@ internal static class _Module
 		SuperstructureFusesHook.Undo();
 		MoreFadePalettes.Undo();
 		SlugcatRoomTemplates.Undo();
+		FadePaletteCombiner.Disable();
 	}
 }

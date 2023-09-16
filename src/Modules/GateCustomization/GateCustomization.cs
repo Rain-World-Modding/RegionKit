@@ -8,6 +8,13 @@ namespace RegionKit.Modules.GateCustomization;
 
 internal static class GateCustomization
 {
+	// Quick summary of how this works:
+	// I store the ManagedData of the PlacedOjbects in a CWT for each Gate.
+	// The Gate can then get the data and do whatever I need.
+	// Alot of the hooks just copies some of the code from the original but changes the position.
+	// Not whole methods are copied obviously, only the requred parts.
+	// Not sure if the way I coded this is the best but it works and all Rain World mods have some level of jank in the code.
+
 	public static void Enable()
 	{
 		On.RegionGate.ctor += RegionGate_ctor;
@@ -93,6 +100,8 @@ internal static class GateCustomization
 		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self);
 
 		// This code for the removal of doors was pretty much just copy pasted from CGGateCustomization
+		// Seems to work?
+
 		if (regionGateData.commonGateData != null)
 		{
 			if (regionGateData.commonGateData.GetValue<bool>("noDoor0"))
@@ -100,25 +109,13 @@ internal static class GateCustomization
 				self.doors[0].closeSpeed = 0f;
 				self.graphics.doorGraphs[0].lastClosedFac = self.doors[0].closedFac;
 				self.goalDoorPositions[0] = self.doors[0].closedFac;
-
-				if (self.washingCounter == 0)
-				{
-					//self.washingCounter = 200; 
-					//Debug.Log("WASHINGCOUNTER");
-				}
 			}
-			// WASHING THIN NOT RIGHT; PRÌNT ALOT
+
 			if (regionGateData.commonGateData.GetValue<bool>("noDoor2"))
 			{
 				self.doors[2].closeSpeed = 0f;
 				self.graphics.doorGraphs[2].lastClosedFac = self.doors[2].closedFac;
 				self.goalDoorPositions[2] = self.doors[2].closedFac;
-
-				if (self.washingCounter == 0)
-				{
-					//self.washingCounter = 200;
-					//Debug.Log("WASHINGCOUNTER");
-				}
 			}
 		}
 	}

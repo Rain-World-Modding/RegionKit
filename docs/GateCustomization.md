@@ -2,12 +2,13 @@
 GateCustomization allows you to create multiscreen gates along with adding a whole fleet of customizaton options.
 
 ## Usage
-To get started navigate to the `RegionKit-GateCustomization` category in the Dev Tools object page. The settings are divided into three different Placed Objects. As with alot of things in Rain World a reload is required for a lot of things to function properly.
+To get started navigate to the `RegionKit-GateCustomization` category in the Dev Tools object page. The settings are divided into three different Placed Objects. As with a lot of things in Rain World a reload is required for things to function properly.
 
 ### CommonGateData
 This Placed Object holds data that will be shared by both water and electric gates. **The position of this Placed Object is very important as it controls where the gate should be located.** 
 
 <details>
+<summary>Parameters</summary>
 
 `Left Door Lit`  
 `Middle Door Lit`  
@@ -30,6 +31,7 @@ Color options for the karma glyph.
 This Placed Object holds data that is only used for water gates.
 
 <details>
+<summary>Parameters</summary>
 
 `Water`  
 Controls if the water should be visible or not.
@@ -47,6 +49,7 @@ Controls properties of the heaters. `Nrml` if its normal. `Brokn` makes the heat
 This Placed Object holds data that is only used for electric gates.
 
 <details>
+<summary>Parameters</summary>
 
 `Battery Visible`  
 Controls if the battry should be visible or not.
@@ -72,7 +75,7 @@ If you have a multiscreen gate and look at the map you may notice that the karma
 ```
 GATE_XX_YY,tilePosX,tilePosY
 ```
-For the `tilePosX` and `tilePosY` the **CommonGateData** will have a little label with the corresponding x and y.
+For the `tilePosX` and `tilePosY` the **CommonGateData** will have a label with the corresponding x and y.
 
 Example modify file:
 ```

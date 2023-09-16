@@ -8,6 +8,7 @@ To get started navigate to the `RegionKit-GateCustomization` category in the Dev
 This Placed Object holds data that will be shared by both water and electric gates. **The position of this Placed Object is very important as it controls where the gate should be located.** 
 
 <details>
+<summary>Parameters</summary>
 
 `Left Door Lit`  
 `Middle Door Lit`  
@@ -30,6 +31,7 @@ Color options for the karma glyph.
 This Placed Object holds data that is only used for water gates.
 
 <details>
+<summary>Parameters</summary>
 
 `Water`  
 Controls if the water should be visible or not.
@@ -47,6 +49,7 @@ Controls properties of the heaters. `Nrml` if its normal. `Brokn` makes the heat
 This Placed Object holds data that is only used for electric gates.
 
 <details>
+<summary>Parameters</summary>
 
 `Battery Visible`  
 Controls if the battry should be visible or not.

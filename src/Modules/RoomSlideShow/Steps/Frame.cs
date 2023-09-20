@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Slideshow;
+namespace RegionKit.Modules.RoomSlideShow;
 
 internal sealed record Frame(int index, string elementName, int? ticksDuration, KeyFrame[] keyFramesHere) : PlaybackStep
 {

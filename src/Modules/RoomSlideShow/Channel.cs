@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Slideshow;
+namespace RegionKit.Modules.RoomSlideShow;
 
 /// <summary>
 /// Describes different available keyframe channels

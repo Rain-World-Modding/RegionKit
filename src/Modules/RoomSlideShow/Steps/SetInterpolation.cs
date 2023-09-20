@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Slideshow;
+namespace RegionKit.Modules.RoomSlideShow;
 
 internal sealed record SetInterpolation(Interpolator interpolator, InterpolationKind value, Channel[] channels) : PlaybackStep
 {

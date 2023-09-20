@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace RegionKit.Modules.Slideshow;
+namespace RegionKit.Modules.RoomSlideShow;
 
 internal class Playback
 {

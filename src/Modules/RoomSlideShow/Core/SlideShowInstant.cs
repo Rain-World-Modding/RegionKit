@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Slideshow;
+namespace RegionKit.Modules.RoomSlideShow;
 
 internal sealed record SlideShowInstant(
 	string elementName,

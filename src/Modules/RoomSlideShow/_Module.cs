@@ -1,6 +1,6 @@
 using IO = System.IO;
 
-namespace RegionKit.Modules.Slideshow;
+namespace RegionKit.Modules.RoomSlideShow;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Room Slideshow")]
 public static class _Module

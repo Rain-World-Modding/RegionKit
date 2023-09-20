@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Slideshow;
+namespace RegionKit.Modules.RoomSlideShow;
 
 public delegate float Interpolator(float from, float to, float amount01);
 

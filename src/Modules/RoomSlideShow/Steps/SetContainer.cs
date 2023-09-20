@@ -1,3 +1,3 @@
-namespace RegionKit.Modules.Slideshow;
+namespace RegionKit.Modules.RoomSlideShow;
 
 internal sealed record SetContainer(ContainerCodes newContainer) : PlaybackStep;

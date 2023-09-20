@@ -6,15 +6,22 @@ internal class Playback
 {
 	public readonly List<PlaybackStep> playbackSteps;
 	public readonly bool loop;
+	public readonly List<KeyFrame.Raw> endKeyFrames;
+	public readonly List<KeyFrame.Raw> startKeyFrames;
+
 	public readonly string id;
 
 	public Playback(
 		List<PlaybackStep> playbackSteps,
-		bool loop,
+		StartOfPlayback? start,
+		EndOfPlayback? end,
 		string id)
 	{
 		this.playbackSteps = playbackSteps;
+		this.startKeyFrames = start?.keyFrames ?? new();
+		(bool loop, List<KeyFrame.Raw> endFrames) = end ?? new EndOfPlayback(true, new());
 		this.loop = loop;
+		this.endKeyFrames = endFrames;
 		this.id = id;
 	}
 

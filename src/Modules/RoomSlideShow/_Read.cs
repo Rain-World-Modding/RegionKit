@@ -9,12 +9,13 @@ internal static class _Read
 	INTERPOLATE Linear [XY]
 	INTERPOLATE Quadratic [RGBA] // comment 2
 	CONTAINER Foreground
+	START [RB]=0
 	LizardHead0.1, 60; [RB]=0
 	Circle20
 	LizardHead0.2, 60; [R]=1
 	Circle20
 	LizardHead0.1, 60; [B]=1
-	LOOP
+	LOOP [RGB]=0.5
 	""";
 	private static Dictionary<TokenKind, System.Text.RegularExpressions.Regex> __tokenMatchers = new() {
 		{ TokenKind.Whitespace, new("(\\s+)") },
@@ -26,14 +27,17 @@ internal static class _Read
 		{ TokenKind.Semicolon, new("(;)") },
 		{ TokenKind.Number, new("([+-]?(\\d*[.])?\\d+)") },
 		{ TokenKind.Equals, new("(=)") },
+		{ TokenKind.Start, new("(START)") },
 		{ TokenKind.End, new("(END)") },
 		{ TokenKind.Loop, new("(LOOP)") },
+
 	};
 	private static TokenKind[] __TokenKindOrder =
 	{
 		TokenKind.Whitespace,
 		TokenKind.Comment,
 		TokenKind.Action,
+		TokenKind.Start,
 		TokenKind.End,
 		TokenKind.Loop,
 		TokenKind.Number,
@@ -47,7 +51,8 @@ internal static class _Read
 	public static Playback FromText(string id, string[] lines)
 	{
 		List<PlaybackStep> steps = new();
-		bool loop = true;
+		StartOfPlayback? start = null;
+		EndOfPlayback? end = null;
 		foreach (string line in lines)
 		{
 			//if (line.Trim().Length is 0 || line.StartsWith("//")) continue;
@@ -69,14 +74,19 @@ internal static class _Read
 					},
 					TokenKind.Word => new Frame(steps.Count, __ParseFrame(tokens)),
 					TokenKind.Comment => null,
-					TokenKind.End => new EndOfPlayback(false),
-					TokenKind.Loop => new EndOfPlayback(true),
+					TokenKind.Start => __ParseStartOfPlayback(tokens),
+					TokenKind.End => __ParseEndOfPlayback(tokens),
+					TokenKind.Loop => __ParseEndOfPlayback(tokens),
+					// TokenKind.Loop => new EndOfPlayback(true),
 					_ => throw token.UnexpectedTokenError()
 				};
 				if (stepToAdd is EndOfPlayback endOfPlayback)
 				{
-					loop = endOfPlayback.loop;
+					end = endOfPlayback;
 					break;
+				}
+				else if (stepToAdd is StartOfPlayback startOfPlayback) {
+					start = startOfPlayback;
 				}
 				else if (stepToAdd is not null)
 				{
@@ -89,9 +99,8 @@ internal static class _Read
 			}
 		}
 		__logger.LogDebug(steps.Select(x => x.ToString()).Stitch());
-		__logger.LogDebug($"loop {loop}");
 
-		return new(steps, loop, id);
+		return new(steps, start, end, id);
 	}
 	private static List<Token> __Tokenize(string text)
 	{
@@ -121,6 +130,59 @@ internal static class _Read
 		__logger.LogDebug($"tokenized {result.Select(x => x.ToString()).Stitch()}");
 		return result;
 	}
+	private static bool __ParseAndPushNextKeyframeDef(List<Token> tokens, ref int index, List<KeyFrame.Raw> keyFrames)
+	{
+		Token tok0 = tokens[index];
+		int increment = 1;
+		bool tokenIsChannel = tok0.kind is TokenKind.Channel;
+		if (tokenIsChannel)
+		{
+			if (tokens.Count - index < 3)
+			{
+				throw new ArgumentException($"Not enough stuff to complete channel assignment (must be [ABC]=1.234) starting at token index {index}");
+			}
+
+			increment = 3;
+			Token
+				tok1 = tokens[index + 1],
+				tok2 = tokens[index + 2];
+			if (tok1.kind is not TokenKind.Equals || tok2.kind is not TokenKind.Number)
+			{
+				throw new ArgumentException($"{tok1} {tok2} {tok2} not a valid channel assignment sequence (must be [ABC]=1.234)");
+			}
+			float value = tok2.GetNumber();
+			List<Channel> channels = tok0.GetChannels();
+			foreach (Channel channel in channels)
+			{
+				//keyFrames[channel] = new(channel, value);
+				keyFrames.Add(new(channel, value));
+			}
+		}
+		index += increment;
+		return tokenIsChannel;
+	}
+	private static EndOfPlayback __ParseEndOfPlayback(List<Token> tokens) {
+		if (tokens.Count < 1) throw new ArgumentException("Empty token list");
+		bool loop = tokens[0].kind is TokenKind.Loop;
+		int index = 1;
+		List<KeyFrame.Raw> keyFrames = new();
+		while (index < tokens.Count)
+		{
+			__ParseAndPushNextKeyframeDef(tokens, ref index, keyFrames);
+		}
+		return new(loop, keyFrames);
+	}
+	private static StartOfPlayback __ParseStartOfPlayback(List<Token> tokens) {
+		if (tokens.Count < 1) throw new ArgumentException("Empty token list");
+		int index = 1;
+		List<KeyFrame.Raw> keyFrames = new();
+		while (index < tokens.Count)
+		{
+			__ParseAndPushNextKeyframeDef(tokens, ref index, keyFrames);
+		}
+		return new(keyFrames);
+	}
+
 	private static SetContainer __ParseSetContainer(List<Token> tokens)
 	{
 		if (tokens.Count < 2) throw new ArgumentException("Missing Container code word");
@@ -170,32 +232,7 @@ internal static class _Read
 		}
 		while (index < tokens.Count)
 		{
-			Token tok0 = tokens[index];
-			int increment = 1;
-			if (tok0.kind is TokenKind.Channel)
-			{
-				if (tokens.Count - index < 3)
-				{
-					throw new ArgumentException($"Not enough stuff to complete channel assignment (must be [ABC]=1.234) starting at token index {index}");
-				}
-
-				increment = 3;
-				Token
-					tok1 = tokens[index + 1],
-					tok2 = tokens[index + 2];
-				if (tok1.kind is not TokenKind.Equals || tok2.kind is not TokenKind.Number)
-				{
-					throw new ArgumentException($"{tok1} {tok2} {tok2} not a valid channel assignment sequence (must be [ABC]=1.234)");
-				}
-				float value = tok2.GetNumber();
-				List<Channel> channels = tok0.GetChannels();
-				foreach (Channel channel in channels)
-				{
-					//keyFrames[channel] = new(channel, value);
-					keyFrames.Add(new(channel, value));
-				}
-			}
-			index += increment;
+			__ParseAndPushNextKeyframeDef(tokens, ref index, keyFrames);
 		}
 		return new(elementName, ticksDuration, keyFrames.ToArray());
 	}
@@ -209,6 +246,7 @@ internal static class _Read
 		Semicolon,
 		Equals,
 		Number,
+		Start,
 		End,
 		Loop,
 		Comment,

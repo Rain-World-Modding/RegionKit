@@ -28,7 +28,15 @@ internal sealed class PlayState
 		this.owner = owner;
 		this.autoLoop = autoLoop;
 		this.startKeyFrames = CreateDefaultKeyframes(0);
+		foreach (var kfraw in owner.startKeyFrames)
+		{
+			this.startKeyFrames[kfraw.channel] = new(0, kfraw);
+		}
 		this.endKeyFrames = CreateDefaultKeyframes(owner.playbackSteps.Count - 1);
+		foreach (var kfraw in owner.endKeyFrames)
+		{
+			this.endKeyFrames[kfraw.channel] = new(owner.playbackSteps.Count - 1, kfraw);
+		}
 		Reset();
 	}
 	private static Dictionary<Channel, SetInterpolation> CreateDefaultInterpolations()
@@ -187,7 +195,6 @@ internal sealed class PlayState
 	public float GetChannelValue(Channel channel)
 	{
 		SetInterpolation interpolationSetting = interpolationSettings[channel];
-		//a
 		KeyFrame lastKeyFrame = GetLastKeyFrame(channel);
 		KeyFrame upcomingKeyFrame = GetUpcomingKeyFrame(channel);
 		int ticksInTransitionSoFar = CountTickLengths(lastKeyFrame.atFrame, CurrentIndex) + this.TicksInCurrentFrame;

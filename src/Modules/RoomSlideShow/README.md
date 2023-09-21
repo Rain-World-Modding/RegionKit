@@ -43,7 +43,7 @@ There are following channels:
 - `W` and `H` - Sprite stretch. ONLY WORKS ON `SlideShowRect`! These are multipliers for sprite's width and height.
 - `T` - Sprite rotation (degrees). ONLY WORKS ON `SlideShowRect`!
 
-## Properties
+### Properties
 
 There are other sprite properties that can not be interpolated but are instead changed at a single point in time:
 
@@ -54,7 +54,7 @@ There are other sprite properties that can not be interpolated but are instead c
 
 All these can be added between or before frames.
 
-## Keyframes
+### Keyframes
 
 Keyframes are points for which you set channel values. Keyframes are attached to normal frames, or to the start or end of playback. Between keyframes values are interpolated (see **interpolators**).
 
@@ -76,7 +76,7 @@ LOOP [R]=0
 
 Important note: keyframes are attached to the BEGINNING of a frame.
 
-## Interpolators
+### Interpolators
 
 Interpolators are a settings that change how a channel's value moves from starting keyframe to the next keyframe.
 
@@ -85,7 +85,7 @@ There are following interpolators at the moment:
 - `No` - Value is a hard switch
 - `Linear` - Value slides between two points linearly
 
-## Playback
+### Playback
 
 Frames are played linearly. DELAY line sets default delay; individual frames can also override the delay.
 

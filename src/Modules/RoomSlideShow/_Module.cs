@@ -99,7 +99,7 @@ public static class _Module
 		IO.FileSystemWatcher? existingWatcher,
 		string name)
 	{
-        __logger.LogDebug($"Adding playback fromfile called {name}");
+        __logger.LogDebug($"Adding playback from file called {name}");
 		string[] lines = IO.File.ReadAllLines(file.FullName);
 		Playback playback = _Read.FromText(name, lines);
 		__playbacksById[name] = (playback, existingWatcher ?? __CreateWatcher(file, "w_" + name));

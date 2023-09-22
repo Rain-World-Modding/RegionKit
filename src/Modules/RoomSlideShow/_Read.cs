@@ -127,7 +127,7 @@ internal static class _Read
 		{
 			result.Add(new(TokenKind.Unrecognized, text[index..]));
 		}
-		__logger.LogDebug($"tokenized {result.Select(x => x.ToString()).Stitch()}");
+		//__logger.LogDebug($"tokenized {result.Select(x => x.ToString()).Stitch()}");
 		return result;
 	}
 	private static bool __ParseAndPushNextKeyframeDef(List<Token> tokens, ref int index, List<KeyFrame.Raw> keyFrames)
@@ -148,7 +148,7 @@ internal static class _Read
 				tok2 = tokens[index + 2];
 			if (tok1.kind is not TokenKind.Equals || tok2.kind is not TokenKind.Number)
 			{
-				throw new ArgumentException($"{tok1} {tok2} {tok2} not a valid channel assignment sequence (must be [ABC]=1.234)");
+				throw new ArgumentException($"{tok1} {tok2} {tok2} not a valid channel assignment sequence (must be '[ABC]', '=', '1.234')");
 			}
 			float value = tok2.GetNumber();
 			List<Channel> channels = tok0.GetChannels();
@@ -260,17 +260,17 @@ internal static class _Read
 		public List<Channel> GetChannels()
 		{
 			if (this.kind is not TokenKind.Channel) throw new ArgumentException($"{this} IS NOT A CHANNEL TOKEN");
-			__logger.LogDebug($"extracting channels from {this.value}");
+			//__logger.LogDebug($"extracting channels from {this.value}");
 			List<Channel> channels = new();
 			string tokenVal = this.value;
 			for (int i = 0; i < tokenVal.Length; i++)
 			{
 				string substring = tokenVal[i..(i + 1)];
-				__logger.LogDebug($"substring {substring}");
+				//__logger.LogDebug($"substring {substring}");
 				if (!Enum.TryParse(substring, out Channel channel)) throw new ArgumentException($"Unknown channel {substring}");
 				channels.Add(channel);
 			}
-			__logger.LogDebug(channels.Count);
+			//__logger.LogDebug(channels.Count);
 			return channels;
 		}
 		public float GetNumber()

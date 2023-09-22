@@ -103,12 +103,12 @@ public static class CollectionTools
 		dict[key] = val;
 		return true;
 	}
-	internal static bool TryRemove<Tk, Tv>(this IDictionary<Tk, Tv> dict, Tk key)
-	{
-		if (!dict.ContainsKey(key)) return false;
-		dict.Remove(key);
-		return true;
-	}
+	// internal static bool TryRemove<Tk, Tv>(this IDictionary<Tk, Tv> dict, Tk key)
+	// {
+	// 	if (!dict.ContainsKey(key)) return false;
+	// 	dict.Remove(key);
+	// 	return true;
+	// }
 	internal static bool IndexInRange(this object[] arr, int index) => index > -1 && index < arr.Length;
 
 	public static IEnumerable<int> Indices(this IList list)

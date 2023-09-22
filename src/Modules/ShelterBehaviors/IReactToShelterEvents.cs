@@ -1,6 +1,6 @@
 
 /// <summary>
-/// Interface used to notify <see cref="UpdatableAndDeletable"/>s about shelter door related events. Notifications are issued by an instance of <see cref="ShelterBehaviorManager"/> in the room.
+/// Interface used to notify <see cref="UpdatableAndDeletable"/>s about shelter door related events. Notifications are issued by an instance of <see cref="RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager"/> in the room.
 /// </summary>
 public interface IReactToShelterEvents
 {

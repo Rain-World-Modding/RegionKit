@@ -31,7 +31,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	/// <summary>
 	/// Global HTT override.
 	/// </summary>
-	public static bool Override_HTT => System.IO.File.Exists(AssetManager.ResolveFilePath("world/htt.txt"));
+	public static bool Override_HTT { get; internal set; }
 	private bool _htt;
 
 	// /// <summary>
@@ -500,7 +500,4 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	// 	this._noTriggers.Add((placedObject.data as PlacedObject.GridRectObjectData)!.Rect);
 	// }
 
-	/// <summary>
-	/// Displays a HTT tutorial message, then destroys itself.
-	/// </summary>
 }

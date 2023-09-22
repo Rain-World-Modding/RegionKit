@@ -152,7 +152,7 @@ public class CameraNoise : UpdatableAndDeletable, IDrawable
 		[FloatField("12alphafluke", 0f, 1f, 1f, 0.05f, displayName: "alpha fluke")]
 		public float alphafluke;
 		[StringField("13tags", "0", displayName: "tags")]
-		public string tags;
+		public string tags = "0";
 		public CameraNoiseData(PlacedObject owner) : base(owner, null)
 		{
 		}

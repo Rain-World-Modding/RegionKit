@@ -30,7 +30,7 @@ internal static class _Module
 			typeof(CGCosmeticLeaves), typeof(CosmeticLeavesObjectData), typeof(ManagedRepresentation)));
 
 		//needs graphics fix
-		//RegisterManagedObject(new ManagedObjectType("CGCosmeticWater", CG_POM_CATEGORY, typeof(CGCosmeticWater), typeof(CGCosmeticWater.CGCosmeticWaterData), typeof(ManagedRepresentation)));
+		RegisterManagedObject(new ManagedObjectType("CGCosmeticWater", CG_POM_CATEGORY, typeof(CGCosmeticWater), typeof(CGCosmeticWater.CGCosmeticWaterData), typeof(ManagedRepresentation)));
 
 
 		RegisterManagedObject(new ManagedObjectType("CGElectricArc", CG_POM_CATEGORY, typeof(CGElectricArc), typeof(CGElectricArcData), typeof(ManagedRepresentation)));

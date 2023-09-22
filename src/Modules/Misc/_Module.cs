@@ -20,6 +20,7 @@ internal static class _Module
 		MoreFadePalettes.Apply();
 		SlugcatRoomTemplates.Apply();
 		RainSong.Enable();
+		FadePaletteCombiner.Enable();
 	}
 	public static void Disable()
 	{
@@ -31,5 +32,6 @@ internal static class _Module
 		MoreFadePalettes.Undo();
 		SlugcatRoomTemplates.Undo();
 		RainSong.Disable();
+		FadePaletteCombiner.Disable();
 	}
 }

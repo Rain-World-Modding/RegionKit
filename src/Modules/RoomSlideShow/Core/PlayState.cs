@@ -96,7 +96,7 @@ internal sealed class PlayState
 				int ticksInCurrentFrame = TicksInCurrentFrame;
 				if (ticksInCurrentFrame > frameDuration)
 				{
-					__logger.LogDebug($"{ticksInCurrentFrame} exceeds {frame}'s duration {frameDuration}, advancing");
+					//__logger.LogDebug($"{ticksInCurrentFrame} exceeds {frame}'s duration {frameDuration}, advancing");
 					keepCycling = true;
 				}
 				break;

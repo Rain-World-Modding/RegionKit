@@ -35,7 +35,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 		catch (Exception ex) { LogFatal($"Caught error in init-orig: {ex}"); }
 		try
 		{
-
+			__SwitchToBepinexLogger(Logger);
 			if (!_modulesSetUp)
 			{
 				ScanAssemblyForModules(typeof(Mod).Assembly);

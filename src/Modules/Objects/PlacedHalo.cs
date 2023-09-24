@@ -26,7 +26,7 @@ namespace RegionKit.Modules.Objects
                 halo = new GHalo(g, 0);
                 reghalos.Set(halo, this);
             }
-            else Debug.LogWarning("Cached guards not found!");
+            else LogMessageWarning("Cached guards not found!");
             
         }
         public override void Update(bool eu)
@@ -52,7 +52,7 @@ namespace RegionKit.Modules.Objects
 		#region idrawable
         public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
         {
-            if (halo == null) Debug.LogWarning("HALO IS NULL!");
+            if (halo == null) LogMessageWarning("HALO IS NULL!");
             sLeaser.sprites = new FSprite[halo.totalSprites];
             halo.InitiateSprites(sLeaser, rCam);
             AddToContainer(sLeaser, rCam, null);

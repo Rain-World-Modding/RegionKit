@@ -59,20 +59,20 @@ public abstract class ParticleBehaviourProvider : ManagedData
 		public static void RegisterPModType<T>(string key)
 			where T : PBehaviourModule
 		{
-			if (string.IsNullOrEmpty(key)) { __logger.LogError("Can not register a null/empty key!"); return; }//throw new ArgumentException();
-			if (RegisteredDelegates.ContainsKey(key)) { __logger.LogError($"Duplicate key: {key}!"); return; }
+			if (string.IsNullOrEmpty(key)) { LogError("Can not register a null/empty key!"); return; }//throw new ArgumentException();
+			if (RegisteredDelegates.ContainsKey(key)) { LogError($"Duplicate key: {key}!"); return; }
 			RegisteredDelegates.Add
 				(key, new Func<GenericParticle, PBehaviourModule>
 				(x => { return (PBehaviourModule)Activator.CreateInstance(typeof(T), x); }));
 			try
 			{
 				RegisteredDelegates[key](new GenericParticle(default, default));
-				__logger.LogMessage($"Registered plain module: {key}.");
+				LogMessage($"Registered plain module: {key}.");
 			}
 			catch (Exception e)
 			{
 				RegisteredDelegates.Remove(key);
-				__logger.LogError($"Could not register {key}. Exception on test instantiate.\n{e}");
+				LogError($"Could not register {key}. Exception on test instantiate.\n{e}");
 			}
 		}
 		/// <summary>
@@ -86,11 +86,11 @@ public abstract class ParticleBehaviourProvider : ManagedData
 			{
 				del(new GenericParticle(default, default));
 				RegisteredDelegates.Add(key, del);
-				__logger.LogMessage($"Registered plain module: {key}");
+				LogMessage($"Registered plain module: {key}");
 			}
 			catch (Exception e)
 			{
-				__logger.LogError($"Error registering delegate {del} under {key}: exception on test instatiate.\n{e}");
+				LogError($"Error registering delegate {del} under {key}: exception on test instatiate.\n{e}");
 			}
 		}
 		/// <summary>

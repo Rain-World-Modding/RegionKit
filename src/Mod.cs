@@ -18,7 +18,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 	internal readonly List<ModuleInfo> _modules = new();
 	private bool _modulesSetUp = false;
 	private RainWorld? _rw;
-	internal static BepInEx.Logging.ManualLogSource __logger => __inst.Logger;
+	//internal static BepInEx.Logging.ManualLogSource __logger => __inst.Logger;
 	internal static RainWorld? __RW => __inst?._rw;
 	///<inheritdoc/>
 	public void OnEnable()
@@ -32,7 +32,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 	private void Init(On.RainWorld.orig_OnModsInit orig, RainWorld self)
 	{
 		try { orig(self); }
-		catch (Exception ex) { __logger.LogFatal($"Caught error in init-orig: {ex}"); }
+		catch (Exception ex) { LogFatal($"Caught error in init-orig: {ex}"); }
 		try
 		{
 
@@ -51,7 +51,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 		}
 		catch (Exception ex)
 		{
-			__logger.LogError($"Error on init: {ex}");
+			LogError($"Error on init: {ex}");
 		}
 	}
 
@@ -61,10 +61,10 @@ public class Mod : BepInEx.BaseUnityPlugin
 		{
 			if (!mod.ran_setup)
 			{
-				__logger.LogDebug($"setup {mod.name}");
+				LogDebug($"setup {mod.name}");
 				mod.setup?.Invoke();
 			}
-			__logger.LogDebug($"enable {mod.name}");
+			LogDebug($"enable {mod.name}");
 			mod.enable();
 		}
 		catch (Exception ex)
@@ -127,8 +127,8 @@ public class Mod : BepInEx.BaseUnityPlugin
 		types = asm.GetTypesSafe(out var err);
 		if (err is not null)
 		{
-			__logger.LogError(err);
-			__logger.LogError(err.InnerException);
+			LogError(err);
+			LogError(err.InnerException);
 		}
 		foreach (Type t in types)
 		{

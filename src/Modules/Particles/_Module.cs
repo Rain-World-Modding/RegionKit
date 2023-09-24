@@ -37,21 +37,21 @@ internal static class _Module
 			{
 				try
 				{
-					__logger.LogMessage($"Deserializing particle preset {fi.Name}...");
+					LogMessage($"Deserializing particle preset {fi.Name}...");
 					var PVS = Newtonsoft.Json.JsonConvert.DeserializeObject<ParticleVisualState>(System.IO.File.ReadAllText(file));
 					__namedPresets.Add(fi.Name[..^5], PVS);
 					foundany = true;
 				}
 				catch (Exception ex)
 				{
-					__logger.LogError($"RKParticles Could not deserialize a particle tag preset {fi.Name} {ex}");
+					LogError($"RKParticles Could not deserialize a particle tag preset {fi.Name} {ex}");
 				}
 			}
 		}
 		if (!foundany)
 		{
 
-			__logger.LogWarning("Found no particle presets");
+			LogWarning("Found no particle presets");
 		}
 
 

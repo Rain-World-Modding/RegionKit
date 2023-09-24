@@ -96,7 +96,7 @@ internal sealed class PlayState
 				int ticksInCurrentFrame = TicksInCurrentFrame;
 				if (ticksInCurrentFrame > frameDuration)
 				{
-					//__logger.LogDebug($"{ticksInCurrentFrame} exceeds {frame}'s duration {frameDuration}, advancing");
+					//LogDebug($"{ticksInCurrentFrame} exceeds {frame}'s duration {frameDuration}, advancing");
 					keepCycling = true;
 				}
 				break;
@@ -134,10 +134,10 @@ internal sealed class PlayState
 			var next = this.nextKeyFrames.Select(x => x.ToString()).Stitch();
 			return (prev, next);
 		}
-		// __logger.LogDebug($"update keyframes on index {this.CurrentIndex}");
+		// LogDebug($"update keyframes on index {this.CurrentIndex}");
 		// {
 		// 	(var prev, var next) = getDebugStuff();
-		// 	__logger.LogDebug($"PRE MODIFY\nprev: {prev}\nnext:{next}");
+		// 	LogDebug($"PRE MODIFY\nprev: {prev}\nnext:{next}");
 		// }
 		lastKeyFrames.Clear();
 		nextKeyFrames.Clear();
@@ -159,7 +159,7 @@ internal sealed class PlayState
 		}
 		// {
 		// 	(var prev, var next) = getDebugStuff();
-		// 	__logger.LogDebug($"POST MODIFY\nprev: {prev}\nnext:{next}");
+		// 	LogDebug($"POST MODIFY\nprev: {prev}\nnext:{next}");
 		// }
 	}
 	public void Reset()

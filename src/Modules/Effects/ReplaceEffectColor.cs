@@ -41,7 +41,7 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 			RoomSettings.RoomEffect effect = self.roomSettings.effects[k];
 			if (effect.type == ReplaceEffectColorA || effect.type == ReplaceEffectColorB)
 			{
-				__logger.LogDebug($"ReplaceEffectColor in room {self.abstractRoom.name}");
+				LogDebug($"ReplaceEffectColor in room {self.abstractRoom.name}");
 				self.AddObject(new ReplaceEffectColor(self, effect.type == ReplaceEffectColorB));
 			}
 		}

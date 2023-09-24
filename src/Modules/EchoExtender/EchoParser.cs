@@ -44,7 +44,7 @@ internal static class EchoParser
 		foreach (var regionInitials in Region.GetFullRegionOrder())
 		{
 			string convPath = AssetManager.ResolveFilePath($"world/{regionInitials}/echoConv.txt");
-			__logger.LogInfo($"[Echo Extender] Checking region {regionInitials} for Echo.");
+			LogInfo($"[Echo Extender] Checking region {regionInitials} for Echo.");
 			if (File.Exists(convPath))
 			{
 				string convText = File.ReadAllText(convPath);
@@ -53,20 +53,20 @@ internal static class EchoParser
 				EchoSettings settings = EchoSettings.FromFile(settingsPath, character);
 				if (!EchoIDExists(regionInitials))
 				{
-					__logger.LogDebug($"[Echo Extender] Registering new echo in {regionInitials}");
+					LogDebug($"[Echo Extender] Registering new echo in {regionInitials}");
 					__extendedEchoIDs.Add(new GhostWorldPresence.GhostID(regionInitials, true));
 					__echoConversations.Add(new Conversation.ID($"Ghost_{regionInitials}", true), convText);
-					__logger.LogInfo("[Echo Extender] Added conversation for echo in region " + regionInitials);
+					LogInfo("[Echo Extender] Added conversation for echo in region " + regionInitials);
 				}
 				else
 				{
-					__logger.LogWarning("[Echo Extender] An echo for this region already exists, skipping.");
+					LogWarning("[Echo Extender] An echo for this region already exists, skipping.");
 				}
 				__echoSettings.SetKey(GetEchoID(regionInitials), settings);
 			}
 			else
 			{
-				__logger.LogInfo("[Echo Extender] No conversation file found!");
+				LogInfo("[Echo Extender] No conversation file found!");
 			}
 		}
 	}
@@ -74,7 +74,7 @@ internal static class EchoParser
 
 	public static string ManageXOREncryption(string text, string path)
 	{
-		__logger.LogInfo("[Echo Extender] Managing XOR Encryption, only supports English so far");
+		LogInfo("[Echo Extender] Managing XOR Encryption, only supports English so far");
 		string xor = Custom.xorEncrypt(text, 54 + 1 + (int)InGameTranslator.LanguageID.English * 7);
 		if (xor.StartsWith("###ENCRYPTED")) return xor.Substring("###ENCRYPTED".Length);
 		File.WriteAllText(path, Custom.xorEncrypt("###ENCRYPTED" + text, 54 + 1 + (int)InGameTranslator.LanguageID.English * 7));

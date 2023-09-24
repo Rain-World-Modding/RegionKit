@@ -38,7 +38,7 @@ public class RoomParticleSystem : UpdatableAndDeletable
 		_delayRequestedByMe = Min(Min(IdealTotalBootUpFrames, TotalForceFrameLimit));
 		room.waitToEnterAfterFullyLoaded = Max(room.waitToEnterAfterFullyLoaded, _delayRequestedByMe);
 		_forceFramesMultiplier = (int)(BaseComfortableFpF / AverageComputeCost() / ((ComfortableParticleDensity > AverageDensity()) ? (1f) : (AverageDensity() / ComfortableParticleDensity)));
-		__logger.LogMessage($"{IdealTotalBootUpFrames}, {AverageLifetime()}, {_forceFramesMultiplier}");
+		LogMessage($"{IdealTotalBootUpFrames}, {AverageLifetime()}, {_forceFramesMultiplier}");
 	}
 	#region warmup setup;
 	//this section has settings for "warmup" = faking constant activity and making it look like particle system works offscreen constantly

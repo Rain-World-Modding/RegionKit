@@ -22,7 +22,7 @@ internal class CGGateCustomization : UpdatableAndDeletable, IDrawable
 
 		if (room.regionGate == null)
 		{
-			__logger.LogError("CGGateCustomization can't apply because gate is null!\nThis might be caused by an incompatibility with another mod");
+			LogError("CGGateCustomization can't apply because gate is null!\nThis might be caused by an incompatibility with another mod");
 			return;
 		}
 

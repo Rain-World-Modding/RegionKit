@@ -303,10 +303,10 @@ public static class ExtendedGates
 			}
 			else
 			{
-				__logger.LogError("[ExtendedGates] : failed to hook RegionGate.ctor");
+				LogError("[ExtendedGates] : failed to hook RegionGate.ctor");
 			}
 		}
-		catch (Exception e) { __logger.LogError("[ExtendedGates] : ERROR WHEN IL HOOKING RegionGate.ctor\n" + e); }
+		catch (Exception e) { LogError("[ExtendedGates] : ERROR WHEN IL HOOKING RegionGate.ctor\n" + e); }
 	}
 
 	private static void RegionGate_ctor(On.RegionGate.orig_ctor orig, Gate self, Room room)
@@ -398,7 +398,7 @@ public static class ExtendedGates
 				}
 				else
 				{
-					__logger.LogWarning($"[ExtendedGates] couldn't find gate atlas element [{element}] for lock [{self.requirement.value}], using default");
+					LogWarning($"[ExtendedGates] couldn't find gate atlas element [{element}] for lock [{self.requirement.value}], using default");
 					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol0");
 				}
 				self.symbolDirty = false;
@@ -420,7 +420,7 @@ public static class ExtendedGates
 			}
 			else
 			{
-				__logger.LogWarning($"[ExtendedGates] couldn't find map atlas element [{element}] for lock [{req.value}], using default");
+				LogWarning($"[ExtendedGates] couldn't find map atlas element [{element}] for lock [{req.value}], using default");
 				self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaNoRing-1");
 			}
 		}

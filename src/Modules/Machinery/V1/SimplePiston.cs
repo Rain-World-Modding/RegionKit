@@ -25,7 +25,7 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 	{
 		_PO = pobj;
 		this._assignedMData = assignedData;
-		__logger.LogDebug($"({rm.abstractRoom.name}): Created simplePiston" + assignedData == null ? "." : "as a part of an array.");
+		LogDebug($"({rm.abstractRoom.name}): Created simplePiston" + assignedData == null ? "." : "as a part of an array.");
 	}
 	///<inheritdoc/>
 	public override void Update(bool eu)

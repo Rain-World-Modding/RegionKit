@@ -42,7 +42,7 @@ internal static class RainSong
                     if (!rainSongDict.Keys.Contains(key))
                     {
                         rainSongDict.Add(key, songName);
-                        Debug.Log("RainSong:  Registered Rain Song named " + song);
+                        LogMessage("RainSong:  Registered Rain Song named " + song);
                     }
                 }
             }
@@ -59,7 +59,7 @@ internal static class RainSong
         MusicPlayer player = game.manager.musicPlayer;
         if (self.RainApproaching < 0.5f && player != null && game.cameras[0].room.roomSettings.DangerType != RoomRain.DangerType.None && player.song == null && !game.cameras[0].room.abstractRoom.name.Contains("GATE") && !game.Players[0].realizedCreature.dead && rainSongDict.TryGetValue(self.world.region.name.ToLower(), out string songName))
         {
-            Debug.Log("RainSong:  Playing end of cycle song");
+            LogMessage("RainSong:  Playing end of cycle song");
 			Song song = new(game.manager.musicPlayer, songName, MusicPlayer.MusicContext.StoryMode)
 			{
                 playWhenReady = true,

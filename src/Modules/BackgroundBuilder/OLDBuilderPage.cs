@@ -185,7 +185,7 @@ internal static class BuilderPage
 
 			if (type == Data.BackgroundTemplateType.AboveCloudsView)
 			{
-				Debug.Log("atcUI");
+				LogMessage("atcUI");
 				SpecificSettingsNode = new AboveCloudsUINode(owner, "atcUI", this, new Vector2(120f, 540f));
 			}
 
@@ -602,7 +602,7 @@ internal static class BuilderPage
 			}
 			if (aboveCloudsView != null && (type != BackgroundTemplateType.AboveCloudsView || refresh))
 			{
-				Debug.Log("removing acv");
+				LogMessage("removing acv");
 				aboveCloudsView.Destroy();
 				self.RemoveObject(aboveCloudsView);
 				aboveCloudsView = null;
@@ -610,7 +610,7 @@ internal static class BuilderPage
 
 			if (roofTopView != null && (type != Data.BackgroundTemplateType.RoofTopView || refresh))
 			{
-				Debug.Log("removing rtv");
+				LogMessage("removing rtv");
 				roofTopView.Destroy();
 				self.RemoveObject(roofTopView);
 				roofTopView = null;

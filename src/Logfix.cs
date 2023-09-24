@@ -1,3 +1,5 @@
+global using static RegionKit.Logfix;
+
 namespace RegionKit;
 
 internal static class Logfix
@@ -65,7 +67,7 @@ internal static class Logfix
 		}
 		__bufferedLogMessages.Enqueue(new(level, __GenerateLogString_Bepinex(level, data), DateTime.Now));
 	}
-	internal static string __GenerateLogString_Unity(BepInEx.Logging.LogLevel level, object data) => $"[POM/{level}] [{DateTime.UtcNow.TimeOfDay}] {data}";
+	internal static string __GenerateLogString_Unity(BepInEx.Logging.LogLevel level, object data) => $"[RK/{level}] [{DateTime.UtcNow.TimeOfDay}] {data}";
 	internal static string __GenerateLogString_Bepinex(BepInEx.Logging.LogLevel level, object data) => $"{data}";
 	internal delegate void LevelLogCallback(object data);
 	internal delegate void GeneralLogCallback(BepInEx.Logging.LogLevel level, object data);

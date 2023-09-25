@@ -18,12 +18,28 @@ public class Mod : BepInEx.BaseUnityPlugin
 	internal readonly List<ModuleInfo> _modules = new();
 	private bool _modulesSetUp = false;
 	private RainWorld? _rw;
-	internal static BepInEx.Logging.ManualLogSource __logger => __inst.Logger;
+	// internal static BepInEx.Logging.ManualLogSource __logger => __inst.Logger;
 	internal static RainWorld? __RW => __inst?._rw;
 	///<inheritdoc/>
+	private BepInEx.Configuration.ConfigEntry<bool>? _writeTraceConfig;
+	private BepInEx.Configuration.ConfigEntry<bool>? _writeCallSiteInfoConfig;
+	/// <inheritdoc/>
 	public void OnEnable()
 	{
-		__inst = this;
+
+		_writeTraceConfig = Config.Bind("main", "writeTrace", false, "Write additional spammy debug lines");
+		__writeTrace = _writeTraceConfig.Value;
+		_writeTraceConfig.SettingChanged += (sender, args) =>
+		{
+			__writeTrace = _writeTraceConfig.Value;
+		};
+		_writeCallSiteInfoConfig = Config.Bind("main", "writeCallsite", false, "Write information about method call site in all log entries");
+		__writeCallsiteInfo = _writeCallSiteInfoConfig.Value;
+		_writeCallSiteInfoConfig.SettingChanged += (sender, args) =>
+		{
+			__writeCallsiteInfo = _writeTraceConfig.Value;
+		};
+		Logfix.__SwitchToBepinexLogger(Logger);
 		On.RainWorld.OnModsInit += Init;
 		//Init();
 		TheRitual.Commence();
@@ -32,7 +48,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 	private void Init(On.RainWorld.orig_OnModsInit orig, RainWorld self)
 	{
 		try { orig(self); }
-		catch (Exception ex) { __logger.LogFatal($"Caught error in init-orig: {ex}"); }
+		catch (Exception ex) { LogFatal($"Caught error in init-orig: {ex}"); }
 		try
 		{
 
@@ -46,12 +62,12 @@ public class Mod : BepInEx.BaseUnityPlugin
 			}
 			_modulesSetUp = true;
 			_Assets.LoadResources();
-			
+
 			MossWaterUnlit.MossLoadResources(self);
 		}
 		catch (Exception ex)
 		{
-			__logger.LogError($"Error on init: {ex}");
+			LogError($"Error on init: {ex}");
 		}
 	}
 
@@ -61,10 +77,10 @@ public class Mod : BepInEx.BaseUnityPlugin
 		{
 			if (!mod.ran_setup)
 			{
-				__logger.LogDebug($"setup {mod.name}");
+				LogDebug($"setup {mod.name}");
 				mod.setup?.Invoke();
 			}
-			__logger.LogDebug($"enable {mod.name}");
+			LogDebug($"enable {mod.name}");
 			mod.enable();
 		}
 		catch (Exception ex)
@@ -127,8 +143,8 @@ public class Mod : BepInEx.BaseUnityPlugin
 		types = asm.GetTypesSafe(out var err);
 		if (err is not null)
 		{
-			__logger.LogError(err);
-			__logger.LogError(err.InnerException);
+			LogError(err);
+			LogError(err.InnerException);
 		}
 		foreach (Type t in types)
 		{

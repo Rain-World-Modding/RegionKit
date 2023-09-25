@@ -46,7 +46,7 @@ internal static class _CommonHooks
 		}
 		foreach ((Exception err, bool post) in errors)
 		{
-			__logger.LogError((post ? "Error in PostRoomLoad : " : "Error in PreRoomLoad : ") + err);
+			LogError((post ? "Error in PostRoomLoad : " : "Error in PreRoomLoad : ") + err);
 		}
 	}
 
@@ -70,7 +70,7 @@ internal static class _CommonHooks
 		}
 		if (lines.Count > 0) System.IO.File.AppendAllLines(path, lines);
 
-		foreach (Exception err in errors) __logger.LogError(("Error in RoomSettings_Save : ") + err);
+		foreach (Exception err in errors) LogError(("Error in RoomSettings_Save : ") + err);
 	}
 
 	//not a func for the sake of auto-generating arg names

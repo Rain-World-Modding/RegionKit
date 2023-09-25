@@ -59,7 +59,7 @@ internal static class BackgroundElementData
 				break;
 			}
 		}
-		catch (Exception e) { __logger.LogError($"BackgroundBuilder: error loading background element from string [{line}]\n{e}"); return false; }
+		catch (Exception e) { LogError($"BackgroundBuilder: error loading background element from string [{line}]\n{e}"); return false; }
 
 		if (array.Length > 2)
 		{ Array.Copy(array, 2, element.tags, 0, array.Length - 2); }

@@ -118,7 +118,7 @@ internal static class BetterClouds
 				}
 			}
 		}
-		catch (Exception e) { Debug.Log(e); }
+		catch (Exception e) { LogMessage(e); }
 	}
 
 	private static float LerpUnclamped(float a, float b, float t)

@@ -201,11 +201,11 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 				chunk2.vel = fastestChunk.Key.vel;
 			}
 
-			Debug.Log($"bodychunk pos");
+			LogMessage($"bodychunk pos");
 			int m = 0;
 			foreach (BodyChunk chunk in fastestChunk.Key.owner.bodyChunks)
 			{
-				Debug.Log($"[{m}] [{chunk.pos}] [{chunk.vel}]");
+				LogMessage($"[{m}] [{chunk.pos}] [{chunk.vel}]");
 				m++;
 			}
 		}*/

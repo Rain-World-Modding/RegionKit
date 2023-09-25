@@ -95,10 +95,10 @@ internal static class _Read
 			}
 			catch (Exception ex)
 			{
-				__logger.LogError($"{ex}");
+				LogError($"{ex}");
 			}
 		}
-		__logger.LogDebug(steps.Select(x => x.ToString()).Stitch());
+		LogDebug(steps.Select(x => x.ToString()).Stitch());
 
 		return new(steps, start, end, id);
 	}
@@ -127,7 +127,7 @@ internal static class _Read
 		{
 			result.Add(new(TokenKind.Unrecognized, text[index..]));
 		}
-		//__logger.LogDebug($"tokenized {result.Select(x => x.ToString()).Stitch()}");
+		//LogDebug($"tokenized {result.Select(x => x.ToString()).Stitch()}");
 		return result;
 	}
 	private static bool __ParseAndPushNextKeyframeDef(List<Token> tokens, ref int index, List<KeyFrame.Raw> keyFrames)
@@ -260,17 +260,17 @@ internal static class _Read
 		public List<Channel> GetChannels()
 		{
 			if (this.kind is not TokenKind.Channel) throw new ArgumentException($"{this} IS NOT A CHANNEL TOKEN");
-			//__logger.LogDebug($"extracting channels from {this.value}");
+			//LogDebug($"extracting channels from {this.value}");
 			List<Channel> channels = new();
 			string tokenVal = this.value;
 			for (int i = 0; i < tokenVal.Length; i++)
 			{
 				string substring = tokenVal[i..(i + 1)];
-				//__logger.LogDebug($"substring {substring}");
+				//LogDebug($"substring {substring}");
 				if (!Enum.TryParse(substring, out Channel channel)) throw new ArgumentException($"Unknown channel {substring}");
 				channels.Add(channel);
 			}
-			//__logger.LogDebug(channels.Count);
+			//LogDebug(channels.Count);
 			return channels;
 		}
 		public float GetNumber()

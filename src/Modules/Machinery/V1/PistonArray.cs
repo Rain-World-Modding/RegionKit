@@ -20,7 +20,7 @@ public class PistonArray : UpdatableAndDeletable
 	{
 		this._PO = obj;
 		this.room = rm;
-		__logger.LogDebug($"({rm.abstractRoom.name}): Creating piston array...");
+		LogDebug($"({rm.abstractRoom.name}): Creating piston array...");
 		_GeneratePistons();
 	}
 	///<inheritdoc/>

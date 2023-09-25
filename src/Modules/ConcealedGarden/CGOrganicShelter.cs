@@ -41,8 +41,8 @@ public static class CGOrganicShelter
 			this.room = room;
 			this.pObj = pObj;
 			this.data = (ManagedData)pObj.data;
-			//Debug.Log("Coordinator start");
-			//Debug.Log("Reading data");
+			//LogMessage("Coordinator start");
+			//LogMessage("Reading data");
 
 			this.rmin = data.GetValue<float>("rmin");
 			this.rmax = data.GetValue<float>("rmax");
@@ -60,7 +60,7 @@ public static class CGOrganicShelter
 			List<PlacedObject> locks = new List<PlacedObject>();
 			List<PlacedObject> linings = new List<PlacedObject>();
 
-			//Debug.Log("finding objects");
+			//LogMessage("finding objects");
 
 			foreach (var item in room.roomSettings.placedObjects)
 			{
@@ -69,7 +69,7 @@ public static class CGOrganicShelter
 			}
 
 
-			//Debug.Log("making locks");
+			//LogMessage("making locks");
 			lockPos = new Vector2[locks.Count];
 			lockTarget = new Vector2[locks.Count];
 			this.locks = new RootedPaart[locks.Count];
@@ -86,11 +86,11 @@ public static class CGOrganicShelter
 			// Corruption my old friend
 			// huh except I decided to make it more complicated lol
 			// Find affected tiles, store tiles and intensity and properties
-			//Debug.Log("parsing linings");
+			//LogMessage("parsing linings");
 			List<TileInterface> tiles = new List<TileInterface>();
 			for (int i = 0; i < linings.Count; i++)
 			{
-				//Debug.Log("and " + (i+1));
+				//LogMessage("and " + (i+1));
 				ManagedData lidata = ((ManagedData)linings[i].data);
 				float placerad = lidata.GetValue<Vector2>("size").magnitude;
 				float smin = lidata.GetValue<float>("sizemin");
@@ -133,13 +133,13 @@ public static class CGOrganicShelter
 					}
 				}
 			}
-			//Debug.Log("and done");
+			//LogMessage("and done");
 			linings.Clear();
 
-			//Debug.Log("sorting tiles");
+			//LogMessage("sorting tiles");
 			// Sort and align into long lines
 			tiles.Sort((a, b) => (a.tile.y - b.tile.y) * 1000 + a.tile.x - b.tile.x); // Sorted in Y then X, very important so I can make some assumptions later
-																					  //Debug.Log("making lines");
+																					  //LogMessage("making lines");
 			List<List<TileInterface>> lines = new List<List<TileInterface>>();
 			foreach (var tile in tiles)
 			{
@@ -160,12 +160,12 @@ public static class CGOrganicShelter
 			tiles.Clear(); // done with you
 
 			var oldstate = UnityEngine.Random.state;
-			//Debug.Log("spawning blobs");
+			//LogMessage("spawning blobs");
 			List<RootedPaart> blobs = new List<RootedPaart>();
 			// Fill these lines with blobs
 			foreach (var line in lines)
 			{
-				//Debug.Log("a");
+				//LogMessage("a");
 				int len = line.Count;
 				float avrDensity = line.Aggregate(0f, (f, t) => f + t.density) / len;
 				float avrMinSize = line.Aggregate(0f, (f, t) => f + t.smin) / len;
@@ -173,61 +173,61 @@ public static class CGOrganicShelter
 				UnityEngine.Random.InitState(line.Aggregate(0, (i, t) => i + t.seed));
 				//UnityEngine.Random.seed = line.Aggregate(0, (i, t) => i + t.seed);
 				int nodes = Mathf.FloorToInt(UnityEngine.Random.Range(0.5f, 1.5f) * len * avrDensity * 20f / (0.5f * avrMinSize + 0.5f * avrMaxSize));
-				//Debug.Log("b");
+				//LogMessage("b");
 				for (int i = 0; i < nodes; i++)
 				{
 					float factorAt = nodes > 1 ? (float)i / (nodes - 1) : 0;
 					TileInterface tileAtFactor;
 					Vector2 towardsEpicenter = Custom.PerpendicularVector(line[0].dir.ToVector2());
-					//Debug.Log("c");
+					//LogMessage("c");
 					if (len > 1)
 					{
 						int tileAt = Mathf.FloorToInt(factorAt * (len - 1));
-						//Debug.Log("d");
+						//LogMessage("d");
 						if (tileAt == len - 1) tileAt = len - 2;
 						float factorBetween = (factorAt * (len - 1)) - tileAt;
-						//Debug.Log("line.c is " + line.Count);
-						//Debug.Log("len is " + len);
-						//Debug.Log("tileat is " + tileAt);
+						//LogMessage("line.c is " + line.Count);
+						//LogMessage("len is " + len);
+						//LogMessage("tileat is " + tileAt);
 						tileAtFactor = line[tileAt] * (1 - factorBetween) + line[tileAt + 1] * (factorBetween); // SOME PROPER INTERPOLATION the way I like it
-																												//Debug.Log("e");
+																												//LogMessage("e");
 																												// this has flaws though
 						towardsEpicenter = (line[tileAt + 1].intensity - line[tileAt].intensity) * (line[tileAt + 1].tile - line[tileAt].tile).ToVector2() * (1 - factorBetween) * factorBetween;
-						//Debug.Log("f");
+						//LogMessage("f");
 						UnityEngine.Random.InitState(tileAtFactor.seed);
 						//UnityEngine.Random.seed = tileAtFactor.seed;
 						line[tileAt].seed++;
 					}
 					else
 					{
-						//Debug.Log("g");
+						//LogMessage("g");
 						tileAtFactor = line[0];
 						towardsEpicenter *= 0f;
-						//Debug.Log("h");
+						//LogMessage("h");
 						UnityEngine.Random.InitState(tileAtFactor.seed);
 						line[0].seed++;
 					}
 					//Debug.
-					//Debug.Log("j");
+					//LogMessage("j");
 					Vector2 widenUp = Vector2.zero; //Custom.PerpendicularVector(new IntVector2(-Mathf.Abs(line[0].dir.x), Mathf.Abs(line[0].dir.y)).ToVector2()) / 2f; // Used to widen up
 					Vector2 pos = new Vector2(10f, 10f) // center of tile
 						+ line[0].dir.ToVector2() * (10f - tileAtFactor.depth) // edge
 						+ Vector2.Lerp(line[0].tile.ToVector2() + widenUp, line.GetLastObject().tile.ToVector2() - widenUp, factorAt) * 20f //tile, this make assumptions on tile order
 						+ towardsEpicenter * 10f //skew
 						+ Custom.RNV() * tileAtFactor.spread; //spread
-															  //Debug.Log("k");
+															  //LogMessage("k");
 					blobs.Add(new RootedPaart(pos,
 						Mathf.Lerp(tileAtFactor.smin, tileAtFactor.smax, UnityEngine.Random.value),
 						UnityEngine.Random.value * 360f,
 						tileAtFactor.stiff,
 						UnityEngine.Random.value));
 				}
-				//Debug.Log("l");
+				//LogMessage("l");
 				line.Clear();
 			}
-			//Debug.Log("m");
+			//LogMessage("m");
 			lines.Clear();
-			//Debug.Log("blobs done");
+			//LogMessage("blobs done");
 			UnityEngine.Random.state = oldstate;
 
 			this.blobs = blobs.ToArray();
@@ -248,7 +248,7 @@ public static class CGOrganicShelter
 				this.closedFac = 0;// ((!room.game.setupValues.cycleStartUp) ? 1f : Mathf.InverseLerp(this.initialWait + this.openUpTicks, this.initialWait, (float)this.rainCycle.timer));
 				this.closeSpeed = -1f;
 			}
-			//Debug.Log("Coordinator done");
+			//LogMessage("Coordinator done");
 		}
 
 

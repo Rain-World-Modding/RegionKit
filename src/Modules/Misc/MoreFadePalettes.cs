@@ -63,7 +63,7 @@ internal static class MoreFadePalettes
 		{
 			rs.AllFadePalettes().RemoveAt(index);
 		}
-		Debug.Log($"removing at index {index}, count is now {rs.AllFadePalettes().Count()}");
+		LogMessage($"removing at index {index}, count is now {rs.AllFadePalettes().Count()}");
 	}
 
 	public static FadePalette GetParentFade(this RoomSettings rs, Room room)
@@ -110,7 +110,7 @@ internal static class MoreFadePalettes
 		{
 			IL.RoomCamera.ApplyFade += RoomCamera_ApplyFade;
 		}
-		catch (Exception e) { __logger.LogError($"[MoreFadePalettes] ApplyFade IL Failed!\n{e}"); }
+		catch (Exception e) { LogError($"[MoreFadePalettes] ApplyFade IL Failed!\n{e}"); }
 		//On.HUD.RoomTransition.PlayerEnterShortcut += nah not important enough for the hassle
 
 		On.RoomSettings.Load += RoomSettings_Load;
@@ -143,7 +143,7 @@ internal static class MoreFadePalettes
 			c.Emit(OpCodes.Ldarg_0);
 			c.EmitDelegate(ApplyMoreFades);
 		}
-		else { __logger.LogWarning("il hook for RoomCamera.ApplyFade failed"); }
+		else { LogWarning("il hook for RoomCamera.ApplyFade failed"); }
 	}
 
 	private static void ApplyMoreFades(RoomCamera self)
@@ -344,7 +344,7 @@ internal static class MoreFadePalettes
 
 		public void Signal(DevUISignalType type, DevUINode sender, string message)
 		{
-			Debug.Log("signalis");
+			LogMessage("signalis");
 			switch (sender.IDstring)
 			{
 			case "Add_New":

@@ -24,12 +24,14 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 			}
 			catch (Exception e) { __logger.LogError($"CGDrySpot waterfall hook failed!\n{e}"); }
 			On.Room.AddObject += Room_AddObject;
+			_CommonHooks.PostRoomLoad += _CommonHooks_PostRoomLoad;
 		}
 
 		public static void Undo()
 		{
 			WaterfallStrikeHook?.Undo();
 			On.Room.AddObject -= Room_AddObject;
+			_CommonHooks.PostRoomLoad -= _CommonHooks_PostRoomLoad;
 		}
 		public static float WaterFall_StrikeLevel_Hook(Func<WaterFall, float> orig, WaterFall self)
 		{
@@ -38,6 +40,20 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 			{ return self.room.waterObject.DetailedWaterLevel(self.pos.x); }
 
 			return orig(self);
+		}
+
+		private static void _CommonHooks_PostRoomLoad(Room self)
+		{
+			if (self.game == null)
+			{
+				foreach (PlacedObject pObj in self.roomSettings.placedObjects)
+				{
+					if (pObj.data is CGDrySpotData data)
+					{
+						UpdateRoomWaterTiles(data, self);
+					}
+				}
+			}
 		}
 
 		private static void Room_AddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
@@ -77,7 +93,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 	{
 		this.room = room;
 		this._pObj = pObj;
-		UpdateRoomWaterTiles();
+		UpdateRoomWaterTiles(_Data, room);
 	}
 
 	public override void Update(bool eu)
@@ -224,9 +240,9 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 
 
 	#region dynamicLevel
-	public void UpdateRoomWaterTiles()
+	public static void UpdateRoomWaterTiles(CGDrySpotData data, Room room)
 	{
-		IntRect rect = new IntRect((int)Math.Floor(_Data.Rect.left / 20f), (int)Math.Floor(_Data.Rect.bottom / 20f), (int)Math.Ceiling(_Data.Rect.right / 20f), Mathf.Max(room.defaultWaterLevel + 2, (int)Math.Ceiling(_Data.Rect.top / 20f)));
+		IntRect rect = new IntRect((int)Math.Floor(data.Rect.left / 20f), (int)Math.Floor(data.Rect.bottom / 20f), (int)Math.Ceiling(data.Rect.right / 20f), Mathf.Max(room.defaultWaterLevel + 2, (int)Math.Ceiling(data.Rect.top / 20f)));
 		foreach (IntVector2 pos in rect.ReturnTiles())
 		{
 			if (room.IsPositionInsideBoundries(pos))

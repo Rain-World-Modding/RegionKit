@@ -27,6 +27,30 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 		_CommonHooks.PostRoomLoad += PostRoomLoad;
 	}
 
+	private static void RoomCamera_ApplyEffectColorsToPaletteTexture(On.RoomCamera.orig_ApplyEffectColorsToPaletteTexture orig, RoomCamera self, ref Texture2D texture, int color1, int color2)
+	{
+		//unused attempt to make this into a sane hook
+		//unfortunately, when palettes are applied, RoomCamera.room is actually the previous room for some stupid reason
+		//so we'll just leave the jank UAD for now until I decide to set up some CWTs or smthn
+
+		orig(self, ref texture, color1, color2);
+		if (self.room?.roomSettings == null) return;
+		RoomSettings rs = self.room.roomSettings;
+		for (int i = 0; i < 2; i++)
+		{
+			bool colorA = i == 0;
+			RoomSettings.RoomEffect.Type type = colorA ? ReplaceEffectColorA : ReplaceEffectColorB;
+			
+			if (rs.IsEffectInRoom(type))
+			{
+				float a = rs.GetEffectAmount(type), clrar = rs.GetRedAmount(type), clrag = rs.GetGreenAmount(type), clrab = rs.GetBlueAmount(type);
+				var clrArA = new Color[] { new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a), new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a) };
+				texture.SetPixels(30, colorA ? 2 : 4, 2, 2, clrArA, 0);
+				texture.SetPixels(30, colorA ? 10 : 12, 2, 2, clrArA, 0);
+			}
+		}
+	}
+
 	internal static void Undo()
 	{
 		ColorRoomEffect.colorEffectTypes.Remove(ReplaceEffectColorA);
@@ -59,29 +83,25 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 			{
 				if (cam.room?.roomSettings is RoomSettings rs)
 				{
-					var flag = cam.paletteB > -1;
-					if (!_colorB && rs.IsEffectInRoom(ReplaceEffectColorA))
+					RoomSettings.RoomEffect.Type type = _colorB ? ReplaceEffectColorB : ReplaceEffectColorA;
+					if (rs.IsEffectInRoom(type))
 					{
-						float a = rs.GetEffectAmount(ReplaceEffectColorA), clrar = rs.GetRedAmount(ReplaceEffectColorA), clrag = rs.GetGreenAmount(ReplaceEffectColorA), clrab = rs.GetBlueAmount(ReplaceEffectColorA);
+						float a = rs.GetEffectAmount(type), clrar = rs.GetRedAmount(type), clrag = rs.GetGreenAmount(type), clrab = rs.GetBlueAmount(type);
 						var clrArA = new Color[] { new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a), new(clrar, clrag, clrab), new(clrar - a, clrag - a, clrab - a) };
-						cam.fadeTexA.SetPixels(30, 4, 2, 2, clrArA, 0);
-						cam.fadeTexA.SetPixels(30, 12, 2, 2, clrArA, 0);
-						if (flag)
+						cam.fadeTexA.SetPixels(30, _colorB ? 2 : 4, 2, 2, clrArA, 0);
+						cam.fadeTexA.SetPixels(30, _colorB ? 10 : 12, 2, 2, clrArA, 0);
+						if (cam.paletteB > -1)
 						{
-							cam.fadeTexB.SetPixels(30, 4, 2, 2, clrArA, 0);
-							cam.fadeTexB.SetPixels(30, 12, 2, 2, clrArA, 0);
+							cam.fadeTexB.SetPixels(30, _colorB ? 2 : 4, 2, 2, clrArA, 0);
+							cam.fadeTexB.SetPixels(30, _colorB ? 10 : 12, 2, 2, clrArA, 0);
 						}
-					}
-					else if (_colorB && rs.IsEffectInRoom(ReplaceEffectColorB))
-					{
-						float b = rs.GetEffectAmount(ReplaceEffectColorB), clrbr = rs.GetRedAmount(ReplaceEffectColorB), clrbg = rs.GetGreenAmount(ReplaceEffectColorB), clrbb = rs.GetBlueAmount(ReplaceEffectColorB);
-						var clrArB = new Color[] { new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b), new(clrbr, clrbg, clrbb), new(clrbr - b, clrbg - b, clrbb - b) };
-						cam.fadeTexA.SetPixels(30, 2, 2, 2, clrArB, 0);
-						cam.fadeTexA.SetPixels(30, 10, 2, 2, clrArB, 0);
-						if (flag)
+						foreach (RoomSettings.FadePalette fade in Misc.MoreFadePalettes.MoreFadeTextures(cam).Keys.ToList())
 						{
-							cam.fadeTexB.SetPixels(30, 2, 2, 2, clrArB, 0);
-							cam.fadeTexB.SetPixels(30, 10, 2, 2, clrArB, 0);
+							if (fade != null && fade.palette != -1)
+							{
+								Misc.MoreFadePalettes.MoreFadeTextures(cam)[fade].SetPixels(30, _colorB ? 2 : 4, 2, 2, clrArA, 0);
+								Misc.MoreFadePalettes.MoreFadeTextures(cam)[fade].SetPixels(30, _colorB ? 10 : 12, 2, 2, clrArA, 0);
+							}
 						}
 					}
 				}

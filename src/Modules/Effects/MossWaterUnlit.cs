@@ -102,7 +102,7 @@ namespace RegionKit.Modules.Effects
 			{
 				if (sLeaser.sprites.FirstOrDefault(x => x.data == mossSprite) is TriangleMesh mossMesh)
 				{
-					WaterTriangleMesh waterMesh = sLeaser.sprites[0] as WaterTriangleMesh;
+					WaterTriangleMesh waterMesh = (WaterTriangleMesh)sLeaser.sprites[0];
 					int offset = self.PreviousSurfacePoint(camPos.x - 30f);
 
 					// Calculate vertex positions and UVs

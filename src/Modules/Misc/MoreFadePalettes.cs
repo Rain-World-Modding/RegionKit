@@ -32,7 +32,7 @@ internal static class MoreFadePalettes
 
 	public static FadePalette GetMoreFade(this RoomSettings rs, int index)
 	{
-		if (index < 0) return null!;
+		if (index < 0) throw new IndexOutOfRangeException("Palette infex below zero");
 
 		if (rs.AllFadePalettes().Count > index && rs.AllFadePalettes()[index] != null)
 		{ return rs.AllFadePalettes()[index]; }
@@ -45,16 +45,24 @@ internal static class MoreFadePalettes
 
 	public static void SetMoreFade(this RoomSettings rs, int index, FadePalette palette)
 	{
+		if (index < 0) throw new IndexOutOfRangeException("Palette infex below zero");
 		if (rs.AllFadePalettes().Count > index)
-		{ rs.AllFadePalettes()[index] = palette; }
-
-		else { rs.AllFadePalettes().Add(palette); }
+		{
+			rs.AllFadePalettes()[index] = palette;
+		}
+		else
+		{
+			rs.AllFadePalettes().Add(palette);
+		}
 	}
 
 	public static void DeleteMoreFade(this RoomSettings rs, int index)
 	{
+		if (index < 0) throw new IndexOutOfRangeException("Palette infex below zero");
 		if (rs.AllFadePalettes().Count > index && index >= 0)
-		{ rs.AllFadePalettes().RemoveAt(index); }
+		{
+			rs.AllFadePalettes().RemoveAt(index);
+		}
 		Debug.Log($"removing at index {index}, count is now {rs.AllFadePalettes().Count()}");
 	}
 

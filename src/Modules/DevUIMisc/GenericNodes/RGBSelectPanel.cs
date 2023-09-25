@@ -4,58 +4,44 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 
 public class RGBSelectPanel : Panel, IDevUISignals
 {
-	public class ColorBox : DevUILabel
-	{
-		public ColorBox(DevUI owner, DevUINode parentNode, Vector2 pos, string idstring, float width, float height, Color color) : base(owner, idstring, parentNode, pos, width, "")
-		{
-			fSprites[0].scaleY = height;
-			fSprites[0].color = color;
-		}
-
-		public Color color
-		{
-			get => fSprites[0].color;
-			set => fSprites[0].color = value;
-		}
-	}
+	private GenericSlider[] RGBSliders;
+	private GenericSlider[] HSLSliders;
+	private StringControl Hex;
+	private ColorBox colorBox;
+	public Color actualValue = new(0f, 0f, 0f);
 
 	public RGBSelectPanel(DevUI owner, DevUINode parentNode, Vector2 pos, string idstring, string title, Color color)
 		: base(owner, idstring, parentNode, pos, new Vector2(305f, 200f), title)
 	{
-		this.idstring = idstring;
-		actualValue = color;
-		PlaceNodes();
-	}
-
-	public Color actualValue = new(0f, 0f, 0f);
-
-	public void PlaceNodes()
-	{
+		Hex = null!;
+		colorBox = null!;
 		RGBSliders = new GenericSlider[3];
 		HSLSliders = new GenericSlider[3];
+		//^ all set in PlaceNodes
+		this.idstring = idstring;
+		actualValue = color;
+		Vector2 elementPos = new Vector2(size.x - 185f, size.y - 25f);
+		AddSlider(ref RGBSliders[0], "R_RGB", " R", elementPos);
 
-		Vector2 pos = new Vector2(size.x - 185f, size.y - 25f);
-		AddSlider(ref RGBSliders[0], "R_RGB", " R", pos);
+		elementPos.y -= 20f;
+		AddSlider(ref RGBSliders[1], "G_RGB", " G", elementPos);
 
-		pos.y -= 20f;
-		AddSlider(ref RGBSliders[1], "G_RGB", " G", pos);
+		elementPos.y -= 20f;
+		AddSlider(ref RGBSliders[2], "B_RGB", " B", elementPos);
 
-		pos.y -= 20f;
-		AddSlider(ref RGBSliders[2], "B_RGB", " B", pos);
-
-		pos.y -= 40f;
-		Hex = new StringControl(owner, "HEX", this, pos + new Vector2(77f, 0f), 92f, "000000", StringControl.TextIsColor);
+		elementPos.y -= 40f;
+		Hex = new StringControl(owner, "HEX", this, elementPos + new Vector2(77f, 0f), 92f, "000000", StringControl.TextIsColor);
 		subNodes.Add(Hex);
-		subNodes.Add(new DevUILabel(owner, "HEX_LABEL", this, pos, 60f, "HEX"));
-		pos.y -= 40f;
+		subNodes.Add(new DevUILabel(owner, "HEX_LABEL", this, elementPos, 60f, "HEX"));
+		elementPos.y -= 40f;
 
-		AddSlider(ref HSLSliders[0], "H_HSL", " H", pos);
+		AddSlider(ref HSLSliders[0], "H_HSL", " H", elementPos);
 
-		pos.y -= 20f;
-		AddSlider(ref HSLSliders[1], "S_HSL", " S", pos);
+		elementPos.y -= 20f;
+		AddSlider(ref HSLSliders[1], "S_HSL", " S", elementPos);
 
-		pos.y -= 20f;
-		AddSlider(ref HSLSliders[2], "L_HSL", " L", pos);
+		elementPos.y -= 20f;
+		AddSlider(ref HSLSliders[2], "L_HSL", " L", elementPos);
 
 		colorBox = new ColorBox(owner, this, new Vector2(5f, size.y - 25f - 64f), "colorbox", 64f, 64f, actualValue);
 		subNodes.Add(colorBox);
@@ -129,16 +115,24 @@ public class RGBSelectPanel : Panel, IDevUISignals
 		Hex.Text = Hex.actualValue;
 		Hex.Refresh();
 	}
-
-	private GenericSlider[] RGBSliders;
-	private GenericSlider[] HSLSliders;
-	private StringControl Hex;
-	private ColorBox colorBox;
 	public override void Update()
 	{
 		base.Update();
 	}
+	public class ColorBox : DevUILabel
+	{
+		public ColorBox(DevUI owner, DevUINode parentNode, Vector2 pos, string idstring, float width, float height, Color color) : base(owner, idstring, parentNode, pos, width, "")
+		{
+			fSprites[0].scaleY = height;
+			fSprites[0].color = color;
+		}
 
+		public Color color
+		{
+			get => fSprites[0].color;
+			set => fSprites[0].color = value;
+		}
+	}
 	public string idstring;
 
 }

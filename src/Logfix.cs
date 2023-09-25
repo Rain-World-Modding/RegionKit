@@ -12,11 +12,11 @@ internal static class Logfix
 
 	internal static void LogTrace(
 		object data,
-		[System.Runtime.CompilerServices.CallerFilePath] string? _filepath = null,
-		[System.Runtime.CompilerServices.CallerLineNumber] int cln = 0,
-		[System.Runtime.CompilerServices.CallerMemberName] string? cmn = null)
+		[System.Runtime.CompilerServices.CallerFilePath] string? _callerFilePath = null,
+		[System.Runtime.CompilerServices.CallerLineNumber] int _callerLineNumber = 0,
+		[System.Runtime.CompilerServices.CallerMemberName] string? _callerMemberName = null)
 	{
-		__Impl_LogTrace(__WrapDataWithCSInfo(data, _filepath, cln, cmn));
+		__Impl_LogTrace(__WrapDataWithCSInfo(data, _callerFilePath, _callerLineNumber, _callerMemberName));
 	}
 	internal static LevelLogCallback __Impl_LogTrace { get; private set; } = (data) =>
 	{
@@ -25,66 +25,66 @@ internal static class Logfix
 	};
 	internal static void LogDebug(
 		object data,
-		[System.Runtime.CompilerServices.CallerFilePath] string? cfp = null,
-		[System.Runtime.CompilerServices.CallerLineNumber] int cln = 0,
-		[System.Runtime.CompilerServices.CallerMemberName] string? cmn = null)
+		[System.Runtime.CompilerServices.CallerFilePath] string? _callerFilePath = null,
+		[System.Runtime.CompilerServices.CallerLineNumber] int _callerLineNumber = 0,
+		[System.Runtime.CompilerServices.CallerMemberName] string? _callerMemberName = null)
 	{
-		__Impl_LogDebug(__WrapDataWithCSInfo(data, cfp, cln, cmn));
+		__Impl_LogDebug(__WrapDataWithCSInfo(data, _callerFilePath, _callerLineNumber, _callerMemberName));
 	}
 	internal static LevelLogCallback __Impl_LogDebug { get; private set; } = (data) => __DefaultImpl_Log(BepInEx.Logging.LogLevel.Debug, data);
 	internal static void LogInfo(
 		object data,
-		[System.Runtime.CompilerServices.CallerFilePath] string? cfp = null,
-		[System.Runtime.CompilerServices.CallerLineNumber] int cln = 0,
-		[System.Runtime.CompilerServices.CallerMemberName] string? cmn = null)
+		[System.Runtime.CompilerServices.CallerFilePath] string? _callerFilePath = null,
+		[System.Runtime.CompilerServices.CallerLineNumber] int _callerLineNumber = 0,
+		[System.Runtime.CompilerServices.CallerMemberName] string? _callerMemberName = null)
 	{
-		__Impl_LogInfo(__WrapDataWithCSInfo(data, cfp, cln, cmn));
+		__Impl_LogInfo(__WrapDataWithCSInfo(data, _callerFilePath, _callerLineNumber, _callerMemberName));
 	}
 	internal static LevelLogCallback __Impl_LogInfo { get; private set; } = (data) => __DefaultImpl_Log(BepInEx.Logging.LogLevel.Info, data);
 	internal static void LogMessage(
 		object data,
-		[System.Runtime.CompilerServices.CallerFilePath] string? cfp = null,
-		[System.Runtime.CompilerServices.CallerLineNumber] int cln = 0,
-		[System.Runtime.CompilerServices.CallerMemberName] string? cmn = null)
+		[System.Runtime.CompilerServices.CallerFilePath] string? _callerFilePath = null,
+		[System.Runtime.CompilerServices.CallerLineNumber] int _callerLineNumber = 0,
+		[System.Runtime.CompilerServices.CallerMemberName] string? _callerMemberName = null)
 	{
-		__Impl_LogMessage(__WrapDataWithCSInfo(data, cfp, cln, cmn));
+		__Impl_LogMessage(__WrapDataWithCSInfo(data, _callerFilePath, _callerLineNumber, _callerMemberName));
 	}
 	internal static LevelLogCallback __Impl_LogMessage { get; private set; } = (data) => __DefaultImpl_Log(BepInEx.Logging.LogLevel.Message, data);
 	internal static void LogWarning(
 		object data,
-		[System.Runtime.CompilerServices.CallerFilePath] string? cfp = null,
-		[System.Runtime.CompilerServices.CallerLineNumber] int cln = 0,
-		[System.Runtime.CompilerServices.CallerMemberName] string? cmn = null)
+		[System.Runtime.CompilerServices.CallerFilePath] string? _callerFilePath = null,
+		[System.Runtime.CompilerServices.CallerLineNumber] int _callerLineNumber = 0,
+		[System.Runtime.CompilerServices.CallerMemberName] string? _callerMemberName = null)
 	{
-		__Impl_LogWarning(__WrapDataWithCSInfo(data, cfp, cln, cmn));
+		__Impl_LogWarning(__WrapDataWithCSInfo(data, _callerFilePath, _callerLineNumber, _callerMemberName));
 	}
 	internal static LevelLogCallback __Impl_LogWarning { get; private set; } = (data) => __DefaultImpl_Log(BepInEx.Logging.LogLevel.Warning, data);
 	internal static void LogError(
 		object data,
-		[System.Runtime.CompilerServices.CallerFilePath] string? cfp = null,
-		[System.Runtime.CompilerServices.CallerLineNumber] int cln = 0,
-		[System.Runtime.CompilerServices.CallerMemberName] string? cmn = null)
+		[System.Runtime.CompilerServices.CallerFilePath] string? _callerFilePath = null,
+		[System.Runtime.CompilerServices.CallerLineNumber] int _callerLineNumber = 0,
+		[System.Runtime.CompilerServices.CallerMemberName] string? _callerMemberName = null)
 	{
-		__Impl_LogError(__WrapDataWithCSInfo(data, cfp, cln, cmn));
+		__Impl_LogError(__WrapDataWithCSInfo(data, _callerFilePath, _callerLineNumber, _callerMemberName));
 	}
 	internal static LevelLogCallback __Impl_LogError { get; private set; } = (data) => __DefaultImpl_Log(BepInEx.Logging.LogLevel.Error, data);
 	internal static void LogFatal(
 		object data,
-		[System.Runtime.CompilerServices.CallerFilePath] string? cfp = null,
-		[System.Runtime.CompilerServices.CallerLineNumber] int cln = 0,
-		[System.Runtime.CompilerServices.CallerMemberName] string? cmn = null)
+		[System.Runtime.CompilerServices.CallerFilePath] string? _callerFilePath = null,
+		[System.Runtime.CompilerServices.CallerLineNumber] int _callerLineNumber = 0,
+		[System.Runtime.CompilerServices.CallerMemberName] string? _callerMemberName = null)
 	{
-		__Impl_LogFatal(__WrapDataWithCSInfo(data, cfp, cln, cmn));
+		__Impl_LogFatal(__WrapDataWithCSInfo(data, _callerFilePath, _callerLineNumber, _callerMemberName));
 	}
 	internal static LevelLogCallback __Impl_LogFatal { get; private set; } = (data) => __DefaultImpl_Log(BepInEx.Logging.LogLevel.Fatal, data);
 	internal static void Log(
 		BepInEx.Logging.LogLevel level,
 		object data,
-		[System.Runtime.CompilerServices.CallerFilePath] string? cfp = null,
-		[System.Runtime.CompilerServices.CallerLineNumber] int cln = 0,
-		[System.Runtime.CompilerServices.CallerMemberName] string? cmn = null)
+		[System.Runtime.CompilerServices.CallerFilePath] string? _callerFilePath = null,
+		[System.Runtime.CompilerServices.CallerLineNumber] int _callerLineNumber = 0,
+		[System.Runtime.CompilerServices.CallerMemberName] string? _callerMemberName = null)
 	{
-		__Impl_Log(level, __WrapDataWithCSInfo(data, cfp, cln, cmn));
+		__Impl_Log(level, __WrapDataWithCSInfo(data, _callerFilePath, _callerLineNumber, _callerMemberName));
 	}
 	internal static GeneralLogCallback __Impl_Log { get; private set; } = __DefaultImpl_Log;
 
@@ -137,10 +137,10 @@ internal static class Logfix
 	}
 	internal static string __GenerateLogString_Unity(BepInEx.Logging.LogLevel level, object data) => $"[RK/{level}] [{DateTime.UtcNow.TimeOfDay}] {data}";
 	internal static string __GenerateLogString_Bepinex(BepInEx.Logging.LogLevel level, object data) => $"{data}";
-	private static object __WrapDataWithCSInfo(object data, string? cfp, int cln, string? cmn)
+	private static object __WrapDataWithCSInfo(object data, string? callerFilePath, int callerLineNumber, string? callerMemberName)
 	{
-		return __writeCallsiteInfo ? $"@ {cfp} : {cln} ({cmn}) : {data}" : data;
-		//return $"@ {cfp} : {cln} ({cmn}) : {data}";
+		return __writeCallsiteInfo ? $"@ {callerFilePath} : {callerLineNumber} ({callerMemberName}) : {data}" : data;
+		//return $"@ {_callerFilePath} : {_callerLineNumber} ({_callerMemberName}) : {data}";
 	}
 	internal delegate void LevelLogCallback(object data);
 	internal delegate void GeneralLogCallback(BepInEx.Logging.LogLevel level, object data);

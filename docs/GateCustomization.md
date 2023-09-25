@@ -1,5 +1,5 @@
 # GateCustomization
-GateCustomization allows you to create multiscreen gates along with adding a whole fleet of customizaton options.
+GateCustomization allows you to create multiscreen gates along with adding a whole fleet of customization options.
 
 ## Usage
 To get started navigate to the `RegionKit-GateCustomization` category in the Dev Tools object page. The settings are divided into three different Placed Objects. As with alot of things in Rain World a reload is required for a lot of things to function properly.
@@ -41,7 +41,7 @@ Allows you to disable the small bubbles that appear when a door is opening/closi
 
 `Left Heater`  
 `Right Heater`  
-Controls properties of the heaters. `Nrml` if its normal. `Brokn` makes the heater broken, meaning it will not produce any heat or steam. `Hiddn` makes the heater not visible.
+Controls properties of the heaters. `Nrml` if it's normal. `Brokn` makes the heater broken, meaning it will not produce any heat or steam. `Hiddn` makes the heater not visible.
 
 </details>
 

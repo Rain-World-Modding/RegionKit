@@ -57,7 +57,7 @@ internal static class RainSong
         orig.Invoke(self);
         RainWorldGame game = self.world.game;
         MusicPlayer player = game.manager.musicPlayer;
-        if (self.RainApproaching < 0.5f && player != null && game.cameras[0].room.roomSettings.DangerType != RoomRain.DangerType.None && player.song == null && !game.cameras[0].room.abstractRoom.name.Contains("GATE") && !game.Players[0].realizedCreature.dead && rainSongDict.TryGetValue(self.world.region.name.ToLower(), out string songName))
+        if (self.RainApproaching < 0.5f && player != null && game.cameras[0] != null && game.cameras[0].room.roomSettings.DangerType != RoomRain.DangerType.None && player.song == null && !game.cameras[0].room.abstractRoom.name.Contains("GATE") && game.Players.Count > 0 && !game.Players[0].realizedCreature.dead && self.world.region != null && rainSongDict.TryGetValue(self.world.region.name.ToLower(), out string songName))
         {
             Debug.Log("RainSong:  Playing end of cycle song");
 			Song song = new(game.manager.musicPlayer, songName, MusicPlayer.MusicContext.StoryMode)

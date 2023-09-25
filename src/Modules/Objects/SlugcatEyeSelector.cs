@@ -9,7 +9,7 @@ public class SlugcatEyeSelectorData : ManagedData
     public Vector2 size;
 
     [ExtEnumField<EyeMode>("eyeMode", nameof(EyeMode.Closed), new[] { nameof(EyeMode.Closed), nameof(EyeMode.Stunned), nameof(EyeMode.Dead), nameof(EyeMode.ReverseBlink), nameof(EyeMode.CustomBlink) }, displayName: "Eye Mode")]
-    public EyeMode mode;
+    public EyeMode mode = EyeMode.Closed;
 
     [FloatField("customFrequency", 0, 1, 0.5f, 0.01f, displayName: "Custom Frequency")]
     public float customFrequency;

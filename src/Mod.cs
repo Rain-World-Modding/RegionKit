@@ -7,17 +7,20 @@ namespace RegionKit;
 /// Main plugin class
 /// </summary>
 [BepInEx.BepInDependency("rwmodding.coreorg.pom", BepInEx.BepInDependency.DependencyFlags.HardDependency)]
-[BepInEx.BepInPlugin("rwmodding.coreorg.rk", "RegionKit", "3.10.1")]
+[BepInEx.BepInPlugin(MOD_GUID, MOD_FRIENDLYNAME, MOD_VERSION)]
 public class Mod : BepInEx.BaseUnityPlugin
 {
+	internal const string MOD_VERSION = "3.11.1";
+	internal const string MOD_FRIENDLYNAME = "RegionKit";
+	internal const string MOD_GUID = "rwmodding.coreorg.rk";
 	internal const string RK_POM_CATEGORY = "RegionKit";
-	private static Mod __inst = null!;
+	internal static Mod? __inst;
 	//private readonly List<ActionWithData> _enableDels = new();
-	private readonly List<ModuleInfo> _modules = new();
+	internal readonly List<ModuleInfo> _modules = new();
 	private bool _modulesSetUp = false;
-	private RainWorld _rw = null!;
+	private RainWorld? _rw;
 	internal static BepInEx.Logging.ManualLogSource __logger => __inst.Logger;
-	internal static RainWorld __RW => __inst._rw;
+	internal static RainWorld? __RW => __inst?._rw;
 	///<inheritdoc/>
 	public void OnEnable()
 	{
@@ -172,8 +175,8 @@ public class Mod : BepInEx.BaseUnityPlugin
 			Action?
 				tickDel = tick is System.Reflection.MethodInfo ntick ? (Action)Delegate.CreateDelegate(typeof(Action), ntick) : null,
 				setupDel = setup is System.Reflection.MethodInfo nset ? (Action)Delegate.CreateDelegate(typeof(Action), nset) : null;
-
 			_modules.Add(new(
+				t,
 				moduleAttr._moduleName ?? t.FullName,
 				enableDel,
 				disableDel,
@@ -196,19 +199,5 @@ public class Mod : BepInEx.BaseUnityPlugin
 			TryRegisterModule(nested);
 		}
 	}
-
-
-	internal record ModuleInfo(
-		string name,
-		Action enable,
-		Action disable,
-		Action? setup,
-		Action? tick,
-		int period)
-	{
-		internal bool errored;
-		internal int counter;
-		internal bool ran_setup;
-	};
 	#endregion
 }

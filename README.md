@@ -64,10 +64,13 @@ Our goal for region kit is to have a unified mod to hold objects, room effects, 
 - BackgroundBuilder
     - Allows custom AboveCloudsView backgrounds to be easily constructed and loaded for a room.
     - For instructions see [this file](./docs/BackgroundBuilder.md)
+- RoomSlideShow
+	- Allows adding simple animated objects to rooms (without gameplay effect).
+	- For instructions see [this file](./src/Modules/RoomSlideShow/README.md).
   
 ### Particle system
 
- RegionKit provides a general purpose particle system, featuring:
+RegionKit provides a general purpose particle system, featuring:
   - Use of arbitrary sprites
   - Controlled randomization of visuals and movement
   - Modularity: combine visuals, behaviour and modifiers in any way you like.
@@ -96,6 +99,7 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 	- Misc internal janitoring
 	- Placed Wormgrass
 	- Placed Waterfall
+	- RoomSlideShow
 
 - DeltaTime
 	- Initial versions

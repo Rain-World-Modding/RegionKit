@@ -51,7 +51,7 @@ public static class _Module
 			//new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.Loaded)), typeof(_Module).GetMethodAllContexts(nameof(Room_Loaded))),
 			//new Hook(typeof(GHalo).GetMethodAllContexts("get_Speed"), _mt.GetMethodAllContexts(nameof(halo_speed)))
 		};
-
+		WaterSpoutObjRep.Register();
 		PopupsMod.Register();
 
 		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", GAMEPLAY_POM_CATEGORY);
@@ -80,6 +80,7 @@ public static class _Module
 				new IntegerField("spriteindex", 0, 9, 9, displayName: "karma display"),
 				new StringField("spritename", "", "sprite name")
 			}, typeof(BigKarmaShrine.MarkSprite), "KarmaShrineSprite", GAMEPLAY_POM_CATEGORY);
+		RegisterEmptyObjectType<CustomWallMyceliaData, ManagedRepresentation>("CustomWallMycelia", RK_POM_CATEGORY);
 	}
 
 	internal static void Enable()
@@ -101,6 +102,7 @@ public static class _Module
 		ShortcutCannon.Apply();
 		SlugcatEyeSelector.Apply();
 		BigKarmaShrine.Apply();
+		CustomWallMycelia.Apply();
 	}
 
 	internal static void Disable()
@@ -120,6 +122,7 @@ public static class _Module
 		ShortcutCannon.Undo();
 		SlugcatEyeSelector.Undo();
 		BigKarmaShrine.Undo();
+		CustomWallMycelia.Undo();
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)

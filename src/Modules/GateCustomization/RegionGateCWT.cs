@@ -2,7 +2,7 @@
 
 namespace RegionKit.Modules.GateCustomization;
 
-public static class RegionGateCWT
+internal static class RegionGateCWT
 {
 	public class RegionGateData
 	{
@@ -18,14 +18,14 @@ public static class RegionGateCWT
 		}
 	}
 
-	private static readonly ConditionalWeakTable<RegionGate, RegionGateData> regionGateCWT = new ConditionalWeakTable<RegionGate, RegionGateData>();
+	private static readonly ConditionalWeakTable<RegionGate, RegionGateData> _regionGateCWT = new ConditionalWeakTable<RegionGate, RegionGateData>();
 
 	public static RegionGateData GetData(this RegionGate regionGate)
 	{
-		if (!regionGateCWT.TryGetValue(regionGate, out var regionGateData))
+		if (!_regionGateCWT.TryGetValue(regionGate, out var regionGateData))
 		{
 			regionGateData = new RegionGateData();
-			regionGateCWT.Add(regionGate, regionGateData);
+			_regionGateCWT.Add(regionGate, regionGateData);
 		}
 
 		return regionGateData;

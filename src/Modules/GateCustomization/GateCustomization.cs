@@ -1,7 +1,8 @@
 ﻿using System.IO;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using HeaterData = RegionKit.Modules.GateCustomization.GateDataRepresentations.HeaterData;
+using static RegionKit.Modules.GateCustomization.GateDataRepresentations;
+using static RegionKit.Modules.GateCustomization.RegionGateCWT;
 using Random = UnityEngine.Random;
 
 namespace RegionKit.Modules.GateCustomization;
@@ -9,10 +10,10 @@ namespace RegionKit.Modules.GateCustomization;
 internal static class GateCustomization
 {
 	// Quick summary of how this works:
-	// I store the ManagedData of the PlacedOjbects in a CWT for each Gate.
-	// The Gate can then get the data and do whatever I need.
-	// Alot of the hooks just copies some of the code from the original but changes the position.
-	// Not whole methods are copied obviously, only the requred parts.
+	// I store the ManagedData of the PlacedObjects in a CWT for each Gate.
+	// The Gate can then get the data without having to search for the PlacedObject.
+	// Alot of the hooks just copy some of the code from the original but changes the position of stuff.
+	// Not whole methods are copied obviously, only the required parts.
 	// Not sure if the way I coded this is the best but it works and all Rain World mods have some level of jank in the code.
 
 	public static void Enable()
@@ -82,13 +83,9 @@ internal static class GateCustomization
 	private static void RegionGate_ctor(On.RegionGate.orig_ctor orig, RegionGate self, Room room)
 	{
 		// Get data from the placed objects and store them into a CWT
-		RegionGateCWT.GetData(self).commonGateData = GetPlacedObjectData(room, "CommonGateData");
-		RegionGateCWT.GetData(self).waterGateData = GetPlacedObjectData(room, "WaterGateData");
-		RegionGateCWT.GetData(self).electricGateData = GetPlacedObjectData(room, "ElectricGateData");
-
-		//RegionGateCWT.GetData(self).commonGateData = GetCommonGateData(room);
-		//RegionGateCWT.GetData(self).waterGateData = GetWaterGateData(room);
-		//RegionGateCWT.GetData(self).electricGateData = GetElectricGateData(room);
+		self.GetData().commonGateData = GetPlacedObjectData(room, "CommonGateData");
+		self.GetData().waterGateData = GetPlacedObjectData(room, "WaterGateData");
+		self.GetData().electricGateData = GetPlacedObjectData(room, "ElectricGateData");
 
 		orig(self, room);
 	}
@@ -97,7 +94,7 @@ internal static class GateCustomization
 	{
 		orig(self, eu);
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self);
+		RegionGateData regionGateData = self.GetData();
 
 		// This code for the removal of doors was pretty much just copy pasted from CGGateCustomization
 		// Seems to work?
@@ -122,7 +119,7 @@ internal static class GateCustomization
 
 	private static void RegionGate_ChangeDoorStatus(On.RegionGate.orig_ChangeDoorStatus orig, RegionGate self, int door, bool open)
 	{
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self);
+		RegionGateData regionGateData = self.GetData();
 
 		if (regionGateData.commonGateData != null)
 		{
@@ -147,7 +144,7 @@ internal static class GateCustomization
 
 	private static bool RegionGate_AllPlayersThroughToOtherSide(On.RegionGate.orig_AllPlayersThroughToOtherSide orig, RegionGate self)
 	{
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self);
+		RegionGateData regionGateData = self.GetData();
 
 		if (regionGateData.commonGateData != null)
 		{
@@ -175,7 +172,7 @@ internal static class GateCustomization
 		// Also not sure if it's a good idea to not always call orig in this method but
 		// isn't it unavoidable to have to do it like this?
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self);
+		RegionGateData regionGateData = self.GetData();
 
 		if (regionGateData.commonGateData != null)
 		{
@@ -209,7 +206,7 @@ internal static class GateCustomization
 	{
 		orig(self, room);
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self);
+		RegionGateData regionGateData = self.GetData();
 
 		if (regionGateData.commonGateData != null)
 		{
@@ -233,7 +230,7 @@ internal static class GateCustomization
 	{
 		orig(self, room);
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self);
+		RegionGateData regionGateData = self.GetData();
 
 		if (regionGateData.commonGateData != null)
 		{
@@ -287,7 +284,7 @@ internal static class GateCustomization
 	{
 		orig(self, eu);
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self);
+		RegionGateData regionGateData = self.GetData();
 
 		if (regionGateData.electricGateData != null)
 		{
@@ -310,7 +307,7 @@ internal static class GateCustomization
 	{
 		orig(self, gate);
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(gate);
+		RegionGateData regionGateData = gate.GetData();
 
 		if (regionGateData != null && gate is WaterGate)
 		{
@@ -325,7 +322,6 @@ internal static class GateCustomization
 				{
 					// Should maybe create a new water class since the water covers the whole screen left to right
 
-					//self.water = new RegionGateWater(gate.room, regionGateData.waterGateData.GetTilePosition(gate.room).y + 33, regionGateData);
 					self.water = new Water(gate.room, regionGateData.waterGateData.GetTilePosition(gate.room).y + 33);
 					gate.room.drawableObjects.Add(self.water);
 					self.water.cosmeticLowerBorder = regionGateData.waterGateData.GetTilePosition(gate.room).y * 20 - 20f;
@@ -392,7 +388,7 @@ internal static class GateCustomization
 	{
 		orig(self);
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self.gate);
+		RegionGateData regionGateData = self.gate.GetData();
 
 		if (regionGateData.waterGateData != null)
 		{
@@ -424,11 +420,11 @@ internal static class GateCustomization
 	{
 		orig(self, sLeaser, rCam, timeStacker, camPos);
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self.gate);
+		RegionGateData regionGateData = self.gate.GetData();
 
 		if (self.gate is ElectricGate && regionGateData.electricGateData != null)
 		{
-			Vector2 electricGateDataPosition = regionGateData.electricGateData.GetPosition(self.gate.room, RegionGateCWT.SnapMode.NoSnap);
+			Vector2 electricGateDataPosition = regionGateData.electricGateData.GetPosition(self.gate.room, SnapMode.NoSnap);
 
 			if (regionGateData.electricGateData.GetValue<bool>("battery"))
 			{
@@ -499,7 +495,7 @@ internal static class GateCustomization
 	{
 		orig(self, rgGraphics, door);
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(rgGraphics.gate);
+		RegionGateData regionGateData = rgGraphics.gate.GetData();
 
 		if (regionGateData.commonGateData != null)
 		{
@@ -518,7 +514,7 @@ internal static class GateCustomization
 	{
 		orig(self, sLeaser, rCam);
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self.rgGraphics.gate);
+		RegionGateData regionGateData = self.rgGraphics.gate.GetData();
 
 		if (regionGateData.commonGateData != null)
 		{
@@ -544,7 +540,7 @@ internal static class GateCustomization
 	{
 		orig(self, sLeaser, rCam, timeStacker, camPos);
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self.rgGraphics.gate);
+		RegionGateData regionGateData = self.rgGraphics.gate.GetData();
 
 		if (regionGateData.commonGateData != null)
 		{
@@ -563,7 +559,7 @@ internal static class GateCustomization
 	{
 		orig(self, side, gate, requirement);
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(gate);
+		RegionGateData regionGateData = gate.GetData();
 
 		if (regionGateData.commonGateData != null)
 		{
@@ -578,7 +574,7 @@ internal static class GateCustomization
 	{
 		orig(self);
 
-		RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self.gate);
+		RegionGateData regionGateData = self.gate.GetData();
 
 		if (regionGateData.commonGateData != null)
 		{
@@ -605,6 +601,8 @@ internal static class GateCustomization
 		// This probably isn't the best way to implement this.
 		// I'd prefer if an external file wasn't required
 		// The better option would be to load the settings file manually?
+
+		// todo: Remove modify file, load settings file in Map.ctor I think
 
 		string path = AssetManager.ResolveFilePath("world/gates/gatemapinfo.txt");
 		if (!File.Exists(path))
@@ -635,7 +633,7 @@ internal static class GateCustomization
 
 	private static void IL_RegionGateGraphics_Update(ILContext il)
 	{
-		// This whole thing feels like a mess, should maybe rewrite it
+		// todo: This IL hook is a mess, maybe rewrite it
 
 		var cursor = new ILCursor(il);
 
@@ -675,7 +673,7 @@ internal static class GateCustomization
 
 		cursor.EmitDelegate<Func<RegionGateGraphics, int, FloatRect>>((self, l) =>
 		{
-			RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self.gate);
+			RegionGateData regionGateData = self.gate.GetData();
 
 			if (regionGateData.commonGateData != null)
 			{
@@ -707,7 +705,7 @@ internal static class GateCustomization
 
 		cursor.EmitDelegate<Func<RegionGateGraphics, bool>>((self) =>
 		{
-			RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self.gate);
+			RegionGateData regionGateData = self.gate.GetData();
 
 			if (regionGateData.waterGateData != null)
 			{
@@ -771,7 +769,7 @@ internal static class GateCustomization
 
 		cursor.EmitDelegate<Func<RegionGateGraphics, int, FloatRect>>((self, num4) =>
 		{
-			RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self.gate);
+			RegionGateData regionGateData = self.gate.GetData();
 
 			if (regionGateData.commonGateData != null)
 			{
@@ -822,7 +820,7 @@ internal static class GateCustomization
 
 		cursor.EmitDelegate<Func<RegionGateGraphics, Vector2>>((self) =>
 		{
-			RegionGateCWT.RegionGateData regionGateData = RegionGateCWT.GetData(self.gate);
+			RegionGateData regionGateData = self.gate.GetData();
 
 			if (regionGateData.commonGateData != null)
 			{
@@ -846,7 +844,7 @@ internal static class GateCustomization
 	/// </summary>
 	/// <param name="room"></param>
 	/// <param name="placedObjectName">The name of the <see cref="PlacedObject"/></param>
-	public static ManagedData GetPlacedObjectData(Room room, string placedObjectName)
+	public static ManagedData? GetPlacedObjectData(Room room, string placedObjectName)
 	{
 		for (int i = 0; i < room.roomSettings.placedObjects.Count; i++)
 		{

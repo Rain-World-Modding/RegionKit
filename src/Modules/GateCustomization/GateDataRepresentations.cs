@@ -13,7 +13,7 @@ internal static class GateDataRepresentations
 		Hiddn
 	}
 
-	internal abstract class GateDataRepresentation : ManagedRepresentation
+	internal abstract class GateDataRepresentation : ManagedRepresentation // This is a mess but I wanted dividers between the fields and this works I guess
 	{
 		protected int[] dividers = null;
 		public GateDataRepresentation(PlacedObject.Type type, ObjectsPage objPage, PlacedObject pObj) : base(type, objPage, pObj)
@@ -104,6 +104,7 @@ internal static class GateDataRepresentations
 
 		}
 	}
+
 	internal class CommonGateDataRepresentation : GateDataRepresentation
 	{
 		public CommonGateDataRepresentation(PlacedObject.Type type, ObjectsPage objPage, PlacedObject pObj) : base(type, objPage, pObj)
@@ -148,7 +149,6 @@ internal static class GateDataRepresentations
 				}
 
 				RegionGateCWT.GetData(owner.room.regionGate).commonGateData = pObj.data as ManagedData;
-				//RegionGateCWT.GetData(owner.room.regionGate).commonGateData = (ManagedData)pObj.data;
 			}
 		}
 
@@ -214,16 +214,11 @@ internal static class GateDataRepresentations
 	{
 		public ElectricGateDataRepresentation(PlacedObject.Type type, ObjectsPage objPage, PlacedObject pObj) : base(type, objPage, pObj)
 		{
-			//fSprites.Add(new FSprite("BatteryMeter", true));
-			//batteryMeterSprite = fSprites.Count - 1;
-
 			fSprites.Add(new FSprite("LampNumbers", true));
 			lampNumbersSprite = fSprites.Count - 1;
 
-			//fSprites[batteryMeterSprite].alpha = 0.4f;
 			fSprites[lampNumbersSprite].alpha = 0.4f;
 
-			//owner.placedObjectsContainer.AddChild(fSprites[batteryMeterSprite]);
 			owner.placedObjectsContainer.AddChild(fSprites[lampNumbersSprite]);
 		}
 
@@ -232,24 +227,6 @@ internal static class GateDataRepresentations
 			base.Refresh();
 
 			ManagedData data = pObj.data as ManagedData;
-
-			if (batteryMeterSprite > -1)
-			{
-				fSprites[batteryMeterSprite].x = owner.room.MiddleOfTile(pObj.pos - new Vector2(10f, 10f)).x - owner.room.game.cameras[0].pos.x + 10f;
-				fSprites[batteryMeterSprite].y = owner.room.MiddleOfTile(pObj.pos - new Vector2(10f, 10f)).y - owner.room.game.cameras[0].pos.y + 10f;
-
-				fSprites[batteryMeterSprite].x = pObj.pos.x - owner.room.game.cameras[0].pos.x;
-				fSprites[batteryMeterSprite].y = pObj.pos.y - owner.room.game.cameras[0].pos.y;
-
-				if (data.GetValue<bool>("battery"))
-				{
-					fSprites[batteryMeterSprite].alpha = 0.4f;
-				}
-				else
-				{
-					fSprites[batteryMeterSprite].alpha = 0.0f;
-				}
-			}
 
 			if (owner.room.regionGate != null)
 			{
@@ -305,7 +282,6 @@ internal static class GateDataRepresentations
 			base.MakeControls();
 		}
 
-		private int batteryMeterSprite = -1;
 		private int lampNumbersSprite = -1;
 	}
 }

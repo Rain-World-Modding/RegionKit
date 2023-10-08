@@ -54,6 +54,10 @@ This Placed Object holds data that is only used for electric gates.
 `Battery Visible`  
 Controls if the battry should be visible or not.
 
+`Left Steamer Broken`  
+`Right Steamer Broken`  
+Allows you to disable the electric steam for either side of the gate.
+
 `Lamp n Enabled`  
 Controls if lamp *n* should be enabled or not.
 

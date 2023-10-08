@@ -61,6 +61,9 @@ internal class _Module
 		{
 			new BooleanField("battery", true, displayName: "Battery Visible"),
 
+			new BooleanField("steamer0broken", false, displayName: "Left Steamer Broken"),
+			new BooleanField("steamer1broken", false, displayName: "Right Steamer Broken"),
+
 			new BooleanField("lamp0", true, displayName: "Lamp 0 Enabled"),
 			new BooleanField("lamp1", true, displayName: "Lamp 1 Enabled"),
 			new BooleanField("lamp2", true, displayName: "Lamp 2 Enabled"),

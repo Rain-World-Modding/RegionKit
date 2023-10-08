@@ -414,6 +414,20 @@ internal static class GateCustomization
 			IntVector2 gateTilePosition = regionGateData.commonGateData.GetTilePosition(self.gate.room);
 			self.steamLoop.pos = new Vector2(gateTilePosition.x + (self.gate.letThroughDir ? -5f : 4f) * 20f + 10f, gateTilePosition.y * 20f - 210f);
 		}
+
+		if (regionGateData.electricGateData != null)
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				if ((self.gate.letThroughDir ? 0 : 1) == i)
+				{
+					if (regionGateData.electricGateData.GetValue<bool>($"steamer{i}broken"))
+					{
+						self.electricSteam = -1f;
+					}
+				}
+			}
+		}
 	}
 
 	private static void RegionGateGraphics_DrawSprites(On.RegionGateGraphics.orig_DrawSprites orig, RegionGateGraphics self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)

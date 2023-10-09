@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.Eventing.Reader;
+using System.IO;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using static RegionKit.Modules.GateCustomization.GateDataRepresentations;
@@ -42,8 +43,10 @@ internal static class GateCustomization
 
 		On.HUD.Map.GateMarker.ctor += GateMarker_ctor;
 
+		IL.RegionGate.Update += IL_RegionGate_Update;
 		IL.RegionGateGraphics.Update += IL_RegionGateGraphics_Update;
 	}
+
 	public static void Disable()
 	{
 		On.RegionGate.ctor -= RegionGate_ctor;
@@ -70,6 +73,7 @@ internal static class GateCustomization
 
 		On.HUD.Map.GateMarker.ctor -= GateMarker_ctor;
 
+		IL.RegionGate.Update -= IL_RegionGate_Update;
 		IL.RegionGateGraphics.Update -= IL_RegionGateGraphics_Update;
 	}
 		
@@ -850,6 +854,59 @@ internal static class GateCustomization
 		cursor.Emit(OpCodes.Stloc_S, (byte)13);
 
 		#endregion
+	}
+
+	private static void IL_RegionGate_Update(ILContext il)
+	{
+		ILCursor cursor = new ILCursor(il);
+
+		ILLabel label = il.DefineLabel();
+
+		// Matches
+		// 168 if (this.mode == RegionGate.Mode.MiddleClosed)
+		cursor.GotoNext(MoveType.After,
+			x => x.MatchBrfalse(out label)
+			);
+
+		cursor.Emit(OpCodes.Ldarg_0);
+
+		cursor.EmitDelegate<Func<RegionGate, bool>>((self) =>
+		{
+			RegionGateData regionGateData = self.GetData();
+
+			if (regionGateData.commonGateData != null)
+			{
+				if (regionGateData.commonGateData.GetValue<bool>("singleUse"))
+				{
+					return self.GetData().used;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			return false;
+		});
+
+
+		cursor.Emit(OpCodes.Brtrue, label);
+
+
+		// Matches
+		// 178 if (this.startCounter > 60)
+		cursor.GotoNext(MoveType.After,
+			x => x.MatchLdarg(0),
+			x => x.MatchLdfld<RegionGate>(nameof(RegionGate.startCounter)),
+			x => x.MatchLdcI4(60),
+			x => x.MatchBle(out _)
+			);
+
+		cursor.Emit(OpCodes.Ldarg_0);
+
+		cursor.EmitDelegate<Action<RegionGate>>((self) =>
+		{
+			self.GetData().used = true;
+		});
 	}
 
 	// Dunno why I documented this function, wanted to try it I guess

@@ -10,6 +10,9 @@ This Placed Object holds data that will be shared by both water and electric gat
 <details>
 <summary>Parameters</summary>
 
+`Single Use`  
+If enabled, the gate will only be able to be used once per cycle, even if it has enough water/battery to open. Usefull in combination with `No Left Door` and `No Right Door`.
+
 `Left Door Lit`  
 `Middle Door Lit`  
 `Right Door Lit`  

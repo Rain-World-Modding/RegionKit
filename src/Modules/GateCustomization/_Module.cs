@@ -36,6 +36,8 @@ internal class _Module
 	{
 		RegisterGateDataManagedObjectType(new ManagedField[]
 		{
+			new BooleanField("singleUse", false, displayName: "Single Use"),
+
 			new BooleanField("door0Lit", false, displayName: "Left Door Lit"),
 			new BooleanField("door1Lit", false, displayName: "Middle Door Lit"),
 			new BooleanField("door2Lit", false, displayName: "Right Door Lit"),

@@ -10,6 +10,8 @@ internal static class RegionGateCWT
 		public ManagedData? waterGateData;
 		public ManagedData? electricGateData;
 
+		public bool used = false;
+
 		public RegionGateData()
 		{
 			commonGateData = null;

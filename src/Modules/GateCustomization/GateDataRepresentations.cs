@@ -154,7 +154,7 @@ internal static class GateDataRepresentations
 
 		protected override void MakeControls()
 		{
-			this.dividers = new int[] { 0, 3, 5 };
+			this.dividers = new int[] { 0, 3, 5, 6 };
 			base.MakeControls();
 		}
 

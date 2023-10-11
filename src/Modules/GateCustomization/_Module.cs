@@ -45,6 +45,8 @@ internal class _Module
 			new BooleanField("noDoor0", false, displayName: "No Left Door"),
 			new BooleanField("noDoor2", false, displayName: "No Right Door"),
 
+			new BooleanField("dontCutSong", false, displayName: "Dont Cut Song"),
+
 			new BooleanField("colorOverride", false, displayName: "Karma Glyph Color Override"),
 			new FloatField("hue", 0f, 1f, 0f, increment: 0.01f, displayName: "Hue"),
 			new FloatField("saturation", 0f, 1f, 1f, increment: 0.01f, displayName: "Saturation"),

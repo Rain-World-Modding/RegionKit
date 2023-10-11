@@ -118,6 +118,17 @@ internal static class GateCustomization
 				self.graphics.doorGraphs[2].lastClosedFac = self.doors[2].closedFac;
 				self.goalDoorPositions[2] = self.doors[2].closedFac;
 			}
+
+			if (regionGateData.commonGateData.GetValue<bool>("dontCutSong"))
+			{
+				if (self.startCounter == 60)
+				{
+					if (self.room.game.manager.musicPlayer != null && self.room.game.manager.musicPlayer.song is Music.GhostSong ghostSong)
+					{
+						ghostSong.stopAtGate = false;
+					}
+				}
+			}
 		}
 	}
 

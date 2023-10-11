@@ -22,6 +22,9 @@ Controls if the specified door should use the sun or shadow section of the curre
 `No Right Door`  
 Controls if you want to remove one or both of the side doors. This has basically the same functionality as CGGateCustomization.
 
+`Dont Cut Song`  
+If enabled the ghost music won't cut away when going through a gate. This has also the same functionality as CGGateCustomization.
+
 `Karma Glyph Color Override`  
 `Hue`  
 `Saturation`  

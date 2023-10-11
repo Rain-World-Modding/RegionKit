@@ -31,7 +31,7 @@ Color options for the karma glyph.
 </details>
 
 ### WaterGateData
-This Placed Object holds data that is only used for water gates.
+This Placed Object holds data that is only used for water gates. The position of this placed object controls the position of the water tank.
 
 <details>
 <summary>Parameters</summary>
@@ -49,7 +49,7 @@ Controls properties of the heaters. `Nrml` if it's normal. `Brokn` makes the hea
 </details>
 
 ### ElectricGateData
-This Placed Object holds data that is only used for electric gates.
+This Placed Object holds data that is only used for electric gates. The position of this placed object controls the location of the battery.
 
 <details>
 <summary>Parameters</summary>

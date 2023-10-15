@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using RegionKit.Modules.Effects;
+using RegionKit.Modules.GateCustomization;
 
 namespace RegionKit;
 /// <summary>
@@ -64,6 +65,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 			_Assets.LoadResources();
 
 			MossWaterUnlit.MossLoadResources(self);
+			GateCustomization.LoadShaders(self);
 		}
 		catch (Exception ex)
 		{

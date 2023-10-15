@@ -1,0 +1,48 @@
+{"frames": {
+
+"WaterTank.png":
+{
+	"frame": {"x":2,"y":2,"w":760,"h":300},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":760,"h":300},
+	"sourceSize": {"w":760,"h":300},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"DoorPositions.png":
+{
+	"frame": {"x":2,"y":304,"w":440,"h":220},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":440,"h":220},
+	"sourceSize": {"w":440,"h":220},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"LampNumbers.png":
+{
+	"frame": {"x":444,"y":304,"w":200,"h":140},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":140},
+	"sourceSize": {"w":200,"h":140},
+	"pivot": {"x":0.5,"y":0.5}
+},
+"BatteryMeter.png":
+{
+	"frame": {"x":2,"y":526,"w":408,"h":4},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":408,"h":4},
+	"sourceSize": {"w":408,"h":4},
+	"pivot": {"x":0.5,"y":0.5}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "GateCustomization.png",
+	"format": "RGBA8888",
+	"size": {"w":764,"h":532},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:31b8cb397ce6875eb867019194399419:fadded0e307f55efc155bfe8e38a5350:08c6b390fe065cc5976e680b5bdb04d6$"
+}
+}

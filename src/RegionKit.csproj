@@ -39,8 +39,6 @@
 	</ItemGroup>
 
 	<!-- Submodules. -->
-	<ItemGroup>
-	</ItemGroup>
 	<!-- Editorconfig -->
 	<ItemGroup>
 		<None Include="./.editorconfig" />
@@ -180,15 +178,10 @@
 	</ItemGroup>
 	<!-- Build event -->
 	<Target Name="BuildResultToModFolder" AfterTargets="Build">
-		<Message
-			Text="RK: Copying build result to mod folder"
-			Importance="high" />
-		<Copy SourceFiles="$(OutDir)$(ProjectName).dll" DestinationFolder="../mod/plugins" Retries="3"
-			RetryDelayMilliseconds="300" />
-		<Copy SourceFiles="$(OutDir)$(ProjectName).pdb" DestinationFolder="../mod/plugins" Retries="3"
-			RetryDelayMilliseconds="300" />
-		<Copy SourceFiles="$(OutDir)$(ProjectName).xml" DestinationFolder="../mod/plugins" Retries="3"
-			RetryDelayMilliseconds="300" />
+		<Message Text="RK: Copying build result to mod folder" Importance="high" />
+		<Copy SourceFiles="$(OutDir)$(ProjectName).dll" DestinationFolder="../mod/plugins" Retries="3" RetryDelayMilliseconds="300" />
+		<Copy SourceFiles="$(OutDir)$(ProjectName).pdb" DestinationFolder="../mod/plugins" Retries="3" RetryDelayMilliseconds="300" />
+		<Copy SourceFiles="$(OutDir)$(ProjectName).xml" DestinationFolder="../mod/plugins" Retries="3" RetryDelayMilliseconds="300" />
 		<!-- <Copy
 			SourceFiles="$(TargetPath)"
 			DestinationFolder="../mod/plugins"
@@ -200,14 +193,8 @@
 		
 	</Target>
 	<Target Name="CopyTo" AfterTargets="BuildResultToModFolder" Condition="'$(RWMods_RK)'!=''"> 
-		<Message
-			Text="RK: Buildcopy from [ $(TargetPath) ] to [ $(RWMods_RK) ] - @(_CopyItems)"
-			Importance="high" />
+		<Message Text="RK: Buildcopy from [ $(TargetPath) ] to [ $(RWMods_RK) ] - @(_CopyItems)" Importance="high" />
 		<Delete Files="$(RWMods_RK)/**" />
-		<Copy
-			SourceFiles="@(_CopyItems)"
-			DestinationFolder="$(RWMods_RK)/%(RecursiveDir)"
-			Retries="3"
-			RetryDelayMilliseconds="300" />
+		<Copy SourceFiles="@(_CopyItems)" DestinationFolder="$(RWMods_RK)/%(RecursiveDir)" Retries="3" RetryDelayMilliseconds="300" />
 	</Target>
 </Project>

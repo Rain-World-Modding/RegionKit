@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using DevInterface;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -8,12 +10,16 @@ namespace RegionKit.Modules.IndividualPlacedObjectViewer;
 internal static class IndividualPlacedObjectViewer
 {
 	private static readonly ConditionalWeakTable<ObjectsPage, ObjectsPageData> objectsPageCWT = new ConditionalWeakTable<ObjectsPage, ObjectsPageData>();
+	private const int MaxPlacedObjectsPerPage = 21;
 
 	private class ObjectsPageData
 	{
 		public bool isInIndividualMode = false;
 		public List<int> visiblePlacedObjects = new List<int>();
 		public int page = 0;
+		public int typePage = 0;
+
+		public PlacedObject.Type? type = null;
 
 		public ObjectsPageData() { }
 	}
@@ -74,11 +80,50 @@ internal static class IndividualPlacedObjectViewer
 			self.Refresh();
 		}
 
+		if (sender.IDstring.Contains("Placed_Object_Off_Button_"))
+		{
+			int.TryParse(sender.IDstring[25..], out int placedObjectIndex);
+			self.GetData().visiblePlacedObjects.Remove(placedObjectIndex);
+
+			self.Refresh();
+		}
+
+		if (sender.IDstring.Contains("Placed_Object_On_Button_"))
+		{
+			int.TryParse(sender.IDstring[24..], out int placedObjectIndex);
+			if (!self.GetData().visiblePlacedObjects.Contains(placedObjectIndex))
+			{
+				self.GetData().visiblePlacedObjects.Add(placedObjectIndex);
+			}
+
+			self.Refresh();
+		}
+
+		if (sender.IDstring == "Select_All_Button")
+		{
+			self.GetData().visiblePlacedObjects.Clear();
+
+			for (int i = 0; i < self.RoomSettings.placedObjects.Count; i++)
+			{
+				if (self.RoomSettings.placedObjects[i].type == self.GetData().type || self.GetData().type == null)
+				{
+					self.GetData().visiblePlacedObjects.Add(i);
+				}
+			}
+			self.Refresh();
+		}
+
+		if (sender.IDstring == "Deselect_All_Button")
+		{
+			self.GetData().visiblePlacedObjects.Clear();
+			self.Refresh();
+		}
+
 		if (sender.IDstring == "Prev_Page_Button") 
 		{ 
 			self.GetData().page--;
 
-			int numberOfPages = self.RoomSettings.placedObjects.Count / 24 + 1;
+			int numberOfPages = self.RoomSettings.placedObjects.Count / MaxPlacedObjectsPerPage + 1;
 			if (self.GetData().page < 0) self.GetData().page += numberOfPages;
 			self.GetData().page %= numberOfPages;
 
@@ -88,9 +133,64 @@ internal static class IndividualPlacedObjectViewer
 		{
 			self.GetData().page++;
 
-			int numberOfPages = self.RoomSettings.placedObjects.Count / 24 + 1;
+			int numberOfPages = self.RoomSettings.placedObjects.Count / MaxPlacedObjectsPerPage + 1;
 			if (self.GetData().page < 0) self.GetData().page += numberOfPages;
 			self.GetData().page %= numberOfPages;
+
+			self.Refresh();
+		}
+
+		if (sender.IDstring == "Types_Prev_Page_Button")
+		{
+			self.GetData().typePage--;
+
+			List<PlacedObject.Type> roomPlacedObjectTypes = new List<PlacedObject.Type>();
+
+			for (int i = 0; i < self.RoomSettings.placedObjects.Count; i++)
+			{
+				if (!roomPlacedObjectTypes.Contains(self.RoomSettings.placedObjects[i].type))
+				{
+					roomPlacedObjectTypes.Add(self.RoomSettings.placedObjects[i].type);
+				}
+			}
+
+			int numberOfPages = roomPlacedObjectTypes.Count / 4 + 1;
+			if (self.GetData().typePage < 0) self.GetData().typePage += numberOfPages;
+			self.GetData().typePage %= numberOfPages;
+
+			self.Refresh();
+		}
+		if (sender.IDstring == "Types_Next_Page_Button")
+		{
+			self.GetData().typePage++;
+
+			List<PlacedObject.Type> roomPlacedObjectTypes = new List<PlacedObject.Type>();
+
+			for (int i = 0; i < self.RoomSettings.placedObjects.Count; i++)
+			{
+				if (!roomPlacedObjectTypes.Contains(self.RoomSettings.placedObjects[i].type))
+				{
+					roomPlacedObjectTypes.Add(self.RoomSettings.placedObjects[i].type);
+				}
+			}
+
+			int numberOfPages = roomPlacedObjectTypes.Count / 4 + 1;
+			if (self.GetData().typePage < 0) self.GetData().typePage += numberOfPages;
+			self.GetData().typePage %= numberOfPages;
+
+			self.Refresh();
+		}
+
+		if (sender.IDstring[0..10] == "View_Type_")
+		{
+			if(sender.IDstring == "View_Type_All")
+			{
+				self.GetData().type = null;
+			}
+			else
+			{
+				self.GetData().type = new PlacedObject.Type(sender.IDstring[10..]);
+			}
 
 			self.Refresh();
 		}
@@ -127,21 +227,63 @@ internal static class IndividualPlacedObjectViewer
 			{
 				PlacedObjectsPanel panel = new PlacedObjectsPanel(self.owner, "All_Objects_Panel", self, new Vector2(1050f, 40f), new Vector2(300f, 600f), "Placed Objects");
 
-				panel.subNodes.Add(new Panel.HorizontalDivider(self.owner, "Divider", panel, panel.size.y - 80f));
-
-				int numberOfPages = self.RoomSettings.placedObjects.Count / 24 + 1;
-
-				panel.subNodes.Add(new Button(self.owner, "Prev_Page_Button", panel, new Vector2(5f, panel.size.y - 100), 100f, "Prev Page"));
-				panel.subNodes.Add(new Button(self.owner, "Next_Page_Button", panel, new Vector2(195f, panel.size.y - 100), 100f, "Next Page"));
+				// Get all different types of placed objects.
+				List<PlacedObject.Type> roomPlacedObjectTypes = new List<PlacedObject.Type>();
 
 				for (int i = 0; i < self.RoomSettings.placedObjects.Count; i++)
 				{
-					if(i/24 == self.GetData().page)
+					if (!roomPlacedObjectTypes.Contains(self.RoomSettings.placedObjects[i].type))
 					{
-						panel.subNodes.Add(new Button(self.owner, $"Placed_Object_Button_{i}", panel, new Vector2(5f, panel.size.y - 140f - 20f * (i%24)), 290, $"{i} {self.RoomSettings.placedObjects[i].type.ToString()}"));
-
+						roomPlacedObjectTypes.Add(self.RoomSettings.placedObjects[i].type);
 					}
+				}
 
+				panel.subNodes.Add(new Button(self.owner, "Types_Prev_Page_Button", panel, new Vector2(5f, panel.size.y - 20f), 100f, "Prev Page"));
+				panel.subNodes.Add(new Button(self.owner, "Types_Next_Page_Button", panel, new Vector2(195f, panel.size.y - 20f), 100f, "Next Page"));
+
+
+				int j2 = 1;
+
+				if (self.GetData().typePage == 0) 
+				{
+					panel.subNodes.Add(new Button(self.owner, "View_Type_All", panel, new Vector2(5f, panel.size.y - 60f), 290f, "All"));
+				}
+				for (int i = 0; i < roomPlacedObjectTypes.Count; i++)
+				{
+					if(j2 / 4 == self.GetData().typePage)
+					{
+						panel.subNodes.Add(new Button(self.owner, "View_Type_" + roomPlacedObjectTypes[i].ToString(), panel, new Vector2(5f, panel.size.y - 60f - 20f * (j2 % 4)), 290f, roomPlacedObjectTypes[i].ToString()));
+					}
+					j2++;
+				}
+				// Pages for those??
+
+
+				panel.subNodes.Add(new Panel.HorizontalDivider(self.owner, "Divider", panel, panel.size.y - 120f));
+
+				//int numberOfPages = self.RoomSettings.placedObjects.Count / MaxPlacedObjectsPerPage + 1;
+
+				panel.subNodes.Add(new Button(self.owner, "Prev_Page_Button", panel, new Vector2(5f, panel.size.y - 140f), 100f, "Prev Page"));
+				panel.subNodes.Add(new Button(self.owner, "Next_Page_Button", panel, new Vector2(195f, panel.size.y - 140f), 100f, "Next Page"));
+
+				panel.subNodes.Add(new Button(self.owner, "Select_All_Button", panel, new Vector2(5f, panel.size.y - 180f), 100f, "Select All"));
+				panel.subNodes.Add(new Button(self.owner, "Deselect_All_Button", panel, new Vector2(110f, panel.size.y - 180f), 100f, "Deselect All"));
+
+				int j = 0; 
+				for (int i = 0; i < self.RoomSettings.placedObjects.Count; i++)
+				{
+					if(self.GetData().type == null || self.RoomSettings.placedObjects[i].type == self.GetData().type)
+					{
+						if (j / MaxPlacedObjectsPerPage == self.GetData().page)
+						{
+							panel.subNodes.Add(new Button(self.owner, $"Placed_Object_Button_{i}", panel, new Vector2(5f, panel.size.y - 200f - 20f * (j % MaxPlacedObjectsPerPage)), 248f, $"{i} {self.RoomSettings.placedObjects[i].type.ToString()}"));
+
+							panel.subNodes.Add(new Button(self.owner, $"Placed_Object_Off_Button_{i}", panel, new Vector2(279f, panel.size.y - 200f - 20f * (j % MaxPlacedObjectsPerPage)), 16f, " -"));
+							panel.subNodes.Add(new Button(self.owner, $"Placed_Object_On_Button_{i}", panel, new Vector2(258f, panel.size.y - 200f - 20f * (j % MaxPlacedObjectsPerPage)), 16f, " +"));
+						}
+
+						j++;
+					}
 				}
 
 				self.tempNodes.Add(panel);

@@ -39,15 +39,19 @@ internal static class IndividualPlacedObjectViewer
 	{
 		On.DevInterface.ObjectsPage.ctor += ObjectsPage_ctor;
 		On.DevInterface.ObjectsPage.Signal += ObjectsPage_Signal;
+		On.DevInterface.ObjectsPage.RemoveObject += ObjectsPage_RemoveObject;
+
+		On.DevInterface.PlacedObjectRepresentation.Update += PlacedObjectRepresentation_Update;
 
 		IL.DevInterface.ObjectsPage.Refresh += IL_ObjectsPage_Refresh;
 	}
-
 
 	public static void Disable()
 	{
 		On.DevInterface.ObjectsPage.ctor -= ObjectsPage_ctor;
 		On.DevInterface.ObjectsPage.Signal -= ObjectsPage_Signal;
+
+		On.DevInterface.PlacedObjectRepresentation.Update -= PlacedObjectRepresentation_Update;
 
 		IL.DevInterface.ObjectsPage.Refresh -= IL_ObjectsPage_Refresh;
 	}
@@ -184,9 +188,40 @@ internal static class IndividualPlacedObjectViewer
 		else if (type == DevUISignalType.Create)
 		{
 			// todo: change this so it doesnt remove all objects from selection
-			objectsPageData.visiblePlacedObjectsIndexes.Clear();
+			//objectsPageData.visiblePlacedObjectsIndexes.Clear();
 			objectsPageData.visiblePlacedObjectsIndexes.Add(self.RoomSettings.placedObjects.Count - 1);
 			self.Refresh();
+		}
+	}
+
+	private static void ObjectsPage_RemoveObject(On.DevInterface.ObjectsPage.orig_RemoveObject orig, ObjectsPage self, PlacedObjectRepresentation objRep)
+	{
+		int placedObjectIndex = self.RoomSettings.placedObjects.IndexOf(objRep.pObj);
+
+		orig(self, objRep);
+
+		self.GetData().visiblePlacedObjectsIndexes.Remove(placedObjectIndex);
+		for (int i = 0; i < self.GetData().visiblePlacedObjectsIndexes.Count; i++)
+		{
+			if (self.GetData().visiblePlacedObjectsIndexes[i] >= placedObjectIndex)
+			{
+				self.GetData().visiblePlacedObjectsIndexes[i]--;
+			}
+		}
+
+		self.Refresh();
+	}
+
+	private static void PlacedObjectRepresentation_Update(On.DevInterface.PlacedObjectRepresentation.orig_Update orig, PlacedObjectRepresentation self)
+	{
+		// This is in the update because of LightFixtures & MultiplayerItems making everything hard.
+		orig(self);
+
+		if (!int.TryParse(self.fLabels[0].text.Split(' ')[0], out _) 
+			&& (self.Page is ObjectsPage)
+			&& (self.Page as ObjectsPage).GetData().isInIndividualMode) 
+		{ 
+			self.fLabels[0].text = self.RoomSettings.placedObjects.IndexOf(self.pObj) + " " + self.fLabels[0].text; 
 		}
 	}
 
@@ -256,7 +291,9 @@ internal static class IndividualPlacedObjectViewer
 					{
 						if (placedObjectListIndex / MaxPlacedObjectsPerPage == objectsPageData.placedObjectsPage)
 						{
-							panel.subNodes.Add(new Button(self.owner, $"Placed_Object_Button_{i}", panel, new Vector2(5f, panel.size.y - 200f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 248f, $"{i} {self.RoomSettings.placedObjects[i].type.ToString()}"));
+							string test = "";
+							if (objectsPageData.visiblePlacedObjectsIndexes.Contains(i)) test = "> ";
+							panel.subNodes.Add(new Button(self.owner, $"Placed_Object_Button_{i}", panel, new Vector2(5f, panel.size.y - 200f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 248f, $"{i} {test}{self.RoomSettings.placedObjects[i].type.ToString()}"));
 
 							panel.subNodes.Add(new Button(self.owner, $"Placed_Object_Off_Button_{i}", panel, new Vector2(279f, panel.size.y - 200f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 16f, " -"));
 							panel.subNodes.Add(new Button(self.owner, $"Placed_Object_On_Button_{i}", panel, new Vector2(258f, panel.size.y - 200f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 16f, " +"));

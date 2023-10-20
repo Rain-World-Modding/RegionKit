@@ -14,7 +14,7 @@ internal static class _Assets
 	internal static void LoadResources(/* On.RainWorld.orig_OnModsInit orig, RainWorld self */)
 	{
 		// orig(self);
-		__logger.LogMessage($"Assets module loading atlases from assetpath assets/regionkit");
+		LogMessage($"Assets module loading atlases from assetpath assets/regionkit");
 
 		foreach (string? dir in new[] { "", "sprites", /* "littleplanet", "extendedgates" */ })
 		{
@@ -25,7 +25,7 @@ internal static class _Assets
 				System.IO.FileInfo fi = new(f);
 				if (fi.Extension is ".png")
 				{
-					//__logger.LogMessage($"Assets module Found an image: {f}");
+					//LogMessage($"Assets module Found an image: {f}");
 					//FAtlasManager..LoadImage("");
 					atlasname = fi.Name[..^fi.Extension.Length];
 					Futile.atlasManager.LoadAtlasOrImage($"{fdir}/{atlasname}");
@@ -40,7 +40,7 @@ internal static class _Assets
 					using System.IO.Stream?
 						slicerstream = slicerfile.Exists ? slicerfile.OpenRead() : null,
 						metastream = metafile.Exists ? metafile.OpenRead() : null;
-					__logger.LogDebug($"Assets module loading png {pngstream.Length}, slicer {slicerstream?.Length ?? -1}, meta {metastream?.Length ?? -1}");
+					LogDebug($"Assets module loading png {pngstream.Length}, slicer {slicerstream?.Length ?? -1}, meta {metastream?.Length ?? -1}");
 					LoadCustomAtlas(atlasname, pngstream, slicerstream, metastream);
 #endif
 					//fi.AppendText();
@@ -50,7 +50,7 @@ internal static class _Assets
 				}
 				catch (Exception ex)
 				{
-					__logger.LogError($"Assets module Failed to load atlas {atlasname} : {ex}");
+					LogError($"Assets module Failed to load atlas {atlasname} : {ex}");
 				}
 				//if (fi.)
 			}
@@ -103,9 +103,9 @@ internal static class _Assets
 	// 		}
 	// 		catch (Exception ex)
 	// 		{
-	// 			__logger.LogError($"Problem loading LittlePlanet atlases {ex}");
+	// 			LogError($"Problem loading LittlePlanet atlases {ex}");
 	// 		}
-	// 	__logger.LogInfo("Loading additional EG resources");
+	// 	LogInfo("Loading additional EG resources");
 
 
 	// }
@@ -187,10 +187,10 @@ internal static class _Assets
 			// Done
 			if (Futile.atlasManager.DoesContainAtlas(atlasName))
 			{
-				__logger.LogInfo("Single-image atlas '" + atlasName + "' being replaced.");
+				LogInfo("Single-image atlas '" + atlasName + "' being replaced.");
 				Futile.atlasManager.ActuallyUnloadAtlasOrImage(atlasName); // Unload previous version if present
 			}
-			if (Futile.atlasManager._allElementsByName.Remove(atlasName)) __logger.LogInfo("Element '" + atlasName + "' being replaced with new one from atlas " + atlasName);
+			if (Futile.atlasManager._allElementsByName.Remove(atlasName)) LogInfo("Element '" + atlasName + "' being replaced with new one from atlas " + atlasName);
 			FAtlasManager._nextAtlasIndex++; // is this guy even used
 			Futile.atlasManager.AddAtlas(fatlas); // Simple
 			return fatlas;
@@ -261,7 +261,7 @@ internal static class _Assets
 			// remove duplicated elements and add atlas
 			foreach (FAtlasElement fae in fatlas._elements)
 			{
-				if (Futile.atlasManager._allElementsByName.Remove(fae.name)) __logger.LogInfo("Element '" + fae.name + "' being replaced with new one from atlas " + atlasName);
+				if (Futile.atlasManager._allElementsByName.Remove(fae.name)) LogInfo("Element '" + fae.name + "' being replaced with new one from atlas " + atlasName);
 			}
 			FAtlasManager._nextAtlasIndex++;
 			Futile.atlasManager.AddAtlas(fatlas);
@@ -277,7 +277,7 @@ internal static class _Assets
 			if (isFullReplacement)
 			{
 				// Done, we're good, unload the old and load the new
-				__logger.LogInfo("Atlas '" + atlasName + "' being fully replaced with custom one");
+				LogInfo("Atlas '" + atlasName + "' being fully replaced with custom one");
 				Futile.atlasManager.ActuallyUnloadAtlasOrImage(atlasName); // Unload previous version if present
 				FAtlasManager._nextAtlasIndex++;
 				Futile.atlasManager.AddAtlas(fatlas); // Simple
@@ -288,7 +288,7 @@ internal static class _Assets
 				// partially unload the old
 				foreach (FAtlasElement fae in fatlas._elements)
 				{
-					if (Futile.atlasManager._allElementsByName.Remove(fae.name)) __logger.LogInfo("Element '" + fae.name + "' being replaced with new one from atlas " + atlasName);
+					if (Futile.atlasManager._allElementsByName.Remove(fae.name)) LogInfo("Element '" + fae.name + "' being replaced with new one from atlas " + atlasName);
 				}
 				// load the new with a salted name
 				do
@@ -309,10 +309,10 @@ internal static class _Assets
 	{
 		if (System.IO.File.Exists(AssetManager.ResolveFilePath(path + ".txt")))
 		{
-			__logger.LogDebug(path + " loading as atlas");
+			LogDebug(path + " loading as atlas");
 			return man.LoadAtlas(path);
 		}
-		__logger.LogDebug(path + "loading as single image");
+		LogDebug(path + "loading as single image");
 		return man.LoadImage(path);
 	}
 	public static void Disable()

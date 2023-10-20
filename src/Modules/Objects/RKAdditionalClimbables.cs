@@ -35,7 +35,7 @@ internal static class RKAdditionalClimbables
 			c.Emit(OpCodes.Add);
 		}
 		else
-			__logger.LogError("Couldn't ILHook ClimbableVinesSystem.OverlappingSegment!");
+			LogError("Couldn't ILHook ClimbableVinesSystem.OverlappingSegment!");
 	}
 
 	private static void Player_MovementUpdate(On.Player.orig_MovementUpdate orig, Player self, bool eu)
@@ -62,8 +62,8 @@ internal static class RKAdditionalClimbables
 			c.EmitDelegate((bool flag, MoreSlugcats.Yeek yeek) => JumpAllowed(flag, (yeek.grabbedBy[0].grabber as Player)!));
 			count++;
 		}
-		if (count == 0) __logger.LogError("Couldn't ILHook Yeek.Update!"); 
-		else if (count != 3) __logger.LogError("Couldn't ILHook Yeek.Update!");
+		if (count == 0) LogError("Couldn't ILHook Yeek.Update!"); 
+		else if (count != 3) LogError("Couldn't ILHook Yeek.Update!");
 	}
 
 	private static bool JumpAllowed(bool flag, Player player)
@@ -125,7 +125,7 @@ internal static class RKAdditionalClimbables
 			c.EmitDelegate(JumpAllowed);
 		}
 		else
-			__logger.LogError("Couldn't ILHook Player.Jump!");
+			LogError("Couldn't ILHook Player.Jump!");
 	}
 
 	private static void PlayerUpdateAnimation(ILContext il)
@@ -148,7 +148,7 @@ internal static class RKAdditionalClimbables
 			});
 		}
 		else
-			__logger.LogError("Couldn't ILHook Player.UpdateAnimation! (part 1)");
+			LogError("Couldn't ILHook Player.UpdateAnimation! (part 1)");
 		if (c.TryGotoNext(MoveType.After,
 			x => x.MatchLdsfld<SoundID>("Leaves")))
 		{
@@ -161,7 +161,7 @@ internal static class RKAdditionalClimbables
 			});
 		}
 		else
-			__logger.LogError("Couldn't ILHook Player.UpdateAnimation! (part 2)");
+			LogError("Couldn't ILHook Player.UpdateAnimation! (part 2)");
 	}
 
 	private static void ClimbableVineRendererAIMapReady(On.MoreSlugcats.ClimbableVineRenderer.orig_AIMapReady orig, MoreSlugcats.ClimbableVineRenderer self)

@@ -49,7 +49,7 @@ namespace RegionKit.Modules.Objects
 				if (shift is { x: 0f, y: 0f }) continue;
 				foreach (var chunk in po.bodyChunks) chunk.pos += shift;
 				if (po.graphicsModule is not null) po.graphicsModule.Reset();
-				__logger.LogDebug("tp! " + po.firstChunk.pos);
+				LogDebug("tp! " + po.firstChunk.pos);
 			}
 		}
 	}

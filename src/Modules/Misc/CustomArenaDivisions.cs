@@ -63,12 +63,12 @@ public static class CustomArenaDivisions
 
 	public static void LogError(string message)
 	{
-		__logger.LogError("Region-Kit:CustomArenaDivisions - " + message);
+		LogError("Region-Kit:CustomArenaDivisions - " + message);
 	}
 
 	public static void Log(string message)
 	{
-		__logger.LogMessage("Region-Kit:CustomArenaDivisions - " + message);
+		LogMessage("Region-Kit:CustomArenaDivisions - " + message);
 	}
 	#endregion hooksAndLogs
 

@@ -21,7 +21,7 @@ internal static class BackgroundUpdates
 	private static Vector2 BackgroundSceneElement_DrawPos(On.BackgroundScene.BackgroundSceneElement.orig_DrawPos orig, BackgroundScene.BackgroundSceneElement self, Vector2 camPos, float hDisplace)
 	{
 		if (Input.GetKeyDown("v"))
-		{ Debug.Log($"name is [{GetSpriteOfElement(self)?._atlas.name}] and pos is {orig(self, camPos, hDisplace)} and depth is {self.depth}"); }
+		{ LogMessage($"name is [{GetSpriteOfElement(self)?._atlas.name}] and pos is {orig(self, camPos, hDisplace)} and depth is {self.depth}"); }
 		Vector2 offset = new Vector2();
 		return orig(self, camPos, hDisplace) - offset;
 	}
@@ -38,7 +38,7 @@ internal static class BackgroundUpdates
 
 		if (self.CData().DepthUpdate)
 		{
-			Debug.Log("updating depth");
+			LogMessage("updating depth");
 			self.CData().DepthUpdate = false;
 			FNode? otherNode = null;
 			bool otherNodeFound = false;

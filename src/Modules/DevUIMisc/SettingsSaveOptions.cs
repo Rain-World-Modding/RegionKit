@@ -38,9 +38,9 @@ internal class SettingsSaveOptions
 			if (DevUIUtils.URoomSettings.PathToSpecificSettings(settingsSaveOptionsMenu.modNames[subbuttonid], self.RoomSettings.name, out string filePath, slugName: DevUIUtils.URoomSettings.UsingSpecificSlugcatName(self.owner)))
 			{
 				self.RoomSettings.filePath = filePath;
-				Debug.Log($"new filepath is [{filePath}]");
-				Debug.Log(subbuttonid);
-				Debug.Log(settingsSaveOptionsMenu.modNames[subbuttonid]);
+				LogMessage($"new filepath is [{filePath}]");
+				LogMessage(subbuttonid);
+				LogMessage(settingsSaveOptionsMenu.modNames[subbuttonid]);
 				settingsSaveOptionsMenu.RefreshPathLabel();
 			}
 
@@ -97,7 +97,7 @@ internal class SettingsSaveOptions
 				subNodes.Remove(SettingsPathLabel);
 				SettingsPathLabel.ClearSprites();
 				SettingsPathLabel = null;
-				Debug.Log("removed settingspath");
+				LogMessage("removed settingspath");
 			}
 
 			string settingsPath = "Settings Path: " + RoomSettings.filePath.ToLower();
@@ -106,7 +106,7 @@ internal class SettingsSaveOptions
 
 			DevUIUtils.UPath.TryCropToSubstringRight(settingsPath, "streamingassets", out settingsPath);
 
-			Debug.Log("adding settingspath\n" + settingsPath);
+			LogMessage("adding settingspath\n" + settingsPath);
 			SettingsPathLabel = new DevUILabel(owner, "Settings_Path", this, new Vector2(1330f - 6f * settingsPath.Length, 20f), 20f + 6f * settingsPath.Length, settingsPath);
 
 			subNodes.Add(SettingsPathLabel);

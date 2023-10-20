@@ -29,7 +29,7 @@ internal static class CGNoLurkArea
 				{
 					if (RWCustom.Custom.DistLess(lurkPos, item.pos, ((CGNoLurkAreaData)item.data).handle.magnitude))
 					{
-						//Debug.LogError("NO LURK");
+						//LogMessageError("NO LURK");
 						return -100000f;
 					}
 				}

@@ -148,7 +148,7 @@ public class BackgroundPage : Page
 
 			else if (sender.IDstring == "Save")
 			{
-				Debug.Log($"\n\nBACKGROUND OUTPUT\n\n{RoomSettings.BackgroundData().Serialize()}\n\n");
+				LogMessage($"\n\nBACKGROUND OUTPUT\n\n{RoomSettings.BackgroundData().Serialize()}\n\n");
 			}
 		}
 

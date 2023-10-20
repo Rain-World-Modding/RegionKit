@@ -36,7 +36,7 @@ namespace RegionKit.Modules.Effects
 		{
 			if (!loaded)
 			{
-				Debug.Log("entered loading / loading status: " + loaded);
+				LogMessage("entered loading / loading status: " + loaded);
 				loaded = true;
 				AssetBundle mossBundle;
 
@@ -83,7 +83,7 @@ namespace RegionKit.Modules.Effects
 						tris[triIndex++] = new TriangleMesh.Triangle(i, i + 1 + vertsPerColumn, i + vertsPerColumn);
 					}
 				}
-				Debug.Log("got here");
+				LogMessage("got here");
 				sLeaser.sprites[index] = new TriangleMesh("Futile_White", tris, true)
 				{
 					data = mossSprite,

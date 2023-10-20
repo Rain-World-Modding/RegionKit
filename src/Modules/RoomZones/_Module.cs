@@ -21,7 +21,7 @@ public static class _Module
 		// 	{
 		// 		if (uad is IRoomZone zone && zone.PointInZone(self.mainBodyChunk.pos))
 		// 		{
-		// 			__logger.LogDebug($"im in!!! {zone.Tag}");
+		// 			LogDebug($"im in!!! {zone.Tag}");
 		// 		}
 
 		// 	}

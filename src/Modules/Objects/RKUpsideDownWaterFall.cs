@@ -96,7 +96,7 @@ internal class UpsideDownWaterFallObject : UpdatableAndDeletable, IDrawable
         if (room.waterInverted is true)
 		{
             Destroy();
-			Debug.Log("UpsideDownWaterFall object doesn't support InvertedWater!");
+			LogMessage("UpsideDownWaterFall object doesn't support InvertedWater!");
         }
     }
 

@@ -22,7 +22,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 				WaterfallStrikeHook = new Hook(typeof(WaterFall).GetProperty("strikeLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetGetMethod(),
 						WaterFall_StrikeLevel_Hook);
 			}
-			catch (Exception e) { __logger.LogError($"CGDrySpot waterfall hook failed!\n{e}"); }
+			catch (Exception e) { LogError($"CGDrySpot waterfall hook failed!\n{e}"); }
 			On.Room.AddObject += Room_AddObject;
 			_CommonHooks.PostRoomLoad += _CommonHooks_PostRoomLoad;
 		}
@@ -78,7 +78,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 					}
 				}
 			}
-			catch (Exception e) { Debug.LogException(e); } //is no big deal, would rather a stray particle than a crash
+			catch (Exception e) { LogError(e); } //is no big deal, would rather a stray particle than a crash
 		}
 
 	}
@@ -415,7 +415,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 				{
 					if (array.Length == num + i)
 					{
-						Debug.LogError("CGDrySpot data uses old format - consider updating with the new settings");
+						LogError("CGDrySpot data uses old format - consider updating with the new settings");
 						break;
 					}
 
@@ -426,7 +426,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 					}
 					catch (Exception)
 					{
-						Debug.LogError("Error parsing field " + fields[i].key + " from managed data type for " + owner.type.ToString() + "\nMaybe there's a version missmatch between the settings and the running version of the mod.");
+						LogError("Error parsing field " + fields[i].key + " from managed data type for " + owner.type.ToString() + "\nMaybe there's a version missmatch between the settings and the running version of the mod.");
 					}
 				}
 			}

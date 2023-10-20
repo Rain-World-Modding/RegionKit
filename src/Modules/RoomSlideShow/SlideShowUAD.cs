@@ -24,7 +24,7 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		}
 		catch (Exception ex)
 		{
-			__logger.LogError($"Error constructing slideshow UAD {ex} destroying itself");
+			LogError($"Error constructing slideshow UAD {ex} destroying itself");
 			Destroy();
 		}
 		_prevInstant = _thisInstant = new SlideShowInstant(
@@ -50,7 +50,7 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 		}
 		catch (Exception ex)
 		{
-			__logger.LogError($"Error on slideshow uad update {ex}, deleting itself");
+			LogError($"Error on slideshow uad update {ex}, deleting itself");
 			Destroy();
 		}
 	}
@@ -118,7 +118,7 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 			mainSprite.rotation = rotation;
 			break;
 		default:
-			__logger.LogError($"Invalid managedData in SlideShowUAD: {_Data.GetType()}");
+			LogError($"Invalid managedData in SlideShowUAD: {_Data.GetType()}");
 			this.Destroy();
 			return;
 		}
@@ -154,7 +154,7 @@ public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 			_ => throw new ArgumentException($"Illegal ManagedData {_Data} ({_Data.GetType().FullName}) in slideshow UAD!")
 		};
 		// sprites[1] = new FSprite("Circle20");
-		//__logger.LogWarning($"{_thisInstant}, {_prevInstant}");
+		//LogWarning($"{_thisInstant}, {_prevInstant}");
 		AddToContainer(
 			sLeaser,
 			rCam,

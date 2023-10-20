@@ -28,7 +28,7 @@ public static class _Module
 			}
 			catch (Exception ex)
 			{
-				__logger.LogError($"Error adding playback {name}, full filepath {filename}:\n{ex}");
+				LogError($"Error adding playback {name}, full filepath {filename}:\n{ex}");
 			}
 		}
 	}
@@ -46,7 +46,7 @@ public static class _Module
 		}
 		catch (Exception ex)
 		{
-			__logger.LogError(ex);
+			LogError(ex);
 		}
 	}
 
@@ -57,7 +57,7 @@ public static class _Module
 		string watcherId
 		)
 	{
-        __logger.LogDebug($"Creating watcher for file {file.FullName}");
+        LogDebug($"Creating watcher for file {file.FullName}");
 		IO.FileSystemWatcher watcher = new(file.DirectoryName)
 		{
 			NotifyFilter = IO.NotifyFilters.LastWrite,
@@ -67,24 +67,24 @@ public static class _Module
 		};
 		IO.FileSystemEventHandler handlerReadPlayback = (sender, args) =>
 		{
-            __logger.LogDebug($"Watcher {watcherId} start read event");
+            LogDebug($"Watcher {watcherId} start read event");
 			try
 			{
 				IO.FileInfo file = new(args.FullPath);
 				__ReadAndRegisterFromFile(file, watcher, file.Name[0..^file.Extension.Length]);
-                __logger.LogDebug($"Watcher {watcherId} read event success");
+                LogDebug($"Watcher {watcherId} read event success");
 			}
 			catch (Exception ex)
 			{
-				__logger.LogError($"Error reading slideshow playback from watcher {watcherId} (args '{args.ChangeType}' '{args.Name}' '{args.FullPath}' ):\n{ex}");
+				LogError($"Error reading slideshow playback from watcher {watcherId} (args '{args.ChangeType}' '{args.Name}' '{args.FullPath}' ):\n{ex}");
 			}
 		};
 		IO.FileSystemEventHandler handlerRemovePlayback = (sender, args) =>
 		{
-            __logger.LogDebug($"Watcher {watcherId} start clear event");
+            LogDebug($"Watcher {watcherId} start clear event");
 		    //IO.FileInfo file = new(args.FullPath);
 		    __playbacksById.TryRemove(file.Name, out (Playback, IO.FileSystemWatcher?) popped);
-            __logger.LogDebug($"Watcher {watcherId} clear event success {popped}");
+            LogDebug($"Watcher {watcherId} clear event success {popped}");
 		};
 
 
@@ -99,7 +99,7 @@ public static class _Module
 		IO.FileSystemWatcher? existingWatcher,
 		string name)
 	{
-        __logger.LogDebug($"Adding playback from file called {name}");
+        LogDebug($"Adding playback from file called {name}");
 		string[] lines = IO.File.ReadAllLines(file.FullName);
 		Playback playback = _Read.FromText(name, lines);
 		__playbacksById[name] = (playback, existingWatcher ?? __CreateWatcher(file, "w_" + name));

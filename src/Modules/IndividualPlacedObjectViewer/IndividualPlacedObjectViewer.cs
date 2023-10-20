@@ -1,39 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using DevInterface;
+﻿using DevInterface;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 
 namespace RegionKit.Modules.IndividualPlacedObjectViewer;
 
-internal static class IndividualPlacedObjectViewer
+internal static partial class IndividualPlacedObjectViewer
 {
-	private static readonly ConditionalWeakTable<ObjectsPage, ObjectsPageData> objectsPageCWT = new ConditionalWeakTable<ObjectsPage, ObjectsPageData>();
-	private const int MaxPlacedObjectsPerPage = 16;
-
-	private class ObjectsPageData
-	{
-		public bool isInIndividualMode = false;
-		public List<int> visiblePlacedObjectsIndexes = new List<int>();
-		public int placedObjectsPage = 0;
-		public int typePage = 0;
-
-		public PlacedObject.Type? sortingType = null;
-
-		public ObjectsPageData() { }
-	}
-
-	private static ObjectsPageData GetData(this ObjectsPage objectsPage)
-	{
-		if (!objectsPageCWT.TryGetValue(objectsPage, out var objectsPageData))
-		{
-			objectsPageData = new ObjectsPageData();
-			objectsPageCWT.Add(objectsPage, objectsPageData);
-		}
-
-		return objectsPageData;
-	}
+	public const int MaxPlacedObjectsPerPage = 16;
 
 	public static void Enable()
 	{
@@ -50,6 +23,7 @@ internal static class IndividualPlacedObjectViewer
 	{
 		On.DevInterface.ObjectsPage.ctor -= ObjectsPage_ctor;
 		On.DevInterface.ObjectsPage.Signal -= ObjectsPage_Signal;
+		On.DevInterface.ObjectsPage.RemoveObject -= ObjectsPage_RemoveObject;
 
 		On.DevInterface.PlacedObjectRepresentation.Update -= PlacedObjectRepresentation_Update;
 
@@ -69,10 +43,24 @@ internal static class IndividualPlacedObjectViewer
 
 		ObjectsPageData objectsPageData = self.GetData();
 
+		// :rivglape:
 		if (sender.IDstring == "Switch_Mode_Button")
 		{
 			objectsPageData.isInIndividualMode = !objectsPageData.isInIndividualMode;
 
+			if (objectsPageData.isInIndividualMode)
+			{
+				objectsPageData.placedObjectsPanel = new PlacedObjectsPanel(self, self.owner, "All_Objects_Panel", self, new Vector2(1050f, 40f), new Vector2(300f, 620f), "Placed Objects Browser");
+				self.subNodes.Add(objectsPageData.placedObjectsPanel);
+			}
+			else if (objectsPageData.placedObjectsPanel != null)
+			{
+				objectsPageData.placedObjectsPanel.ClearSprites();
+				self.subNodes.Remove(objectsPageData.placedObjectsPanel);
+				objectsPageData.placedObjectsPanel = null;
+			}
+
+			objectsPageData.placedObjectsPanel?.RefreshButtons();
 			self.Refresh();
 		}
 		else if (sender.IDstring.Contains("Placed_Object_Button_"))
@@ -142,6 +130,7 @@ internal static class IndividualPlacedObjectViewer
 			if (objectsPageData.placedObjectsPage < 0) objectsPageData.placedObjectsPage += numberOfPages;
 			objectsPageData.placedObjectsPage %= numberOfPages;
 
+			objectsPageData.placedObjectsPanel?.RefreshButtons();
 			self.Refresh();
 		}
 		else if (sender.IDstring == "Types_Prev_Page_Button" || sender.IDstring == "Types_Next_Page_Button")
@@ -170,6 +159,7 @@ internal static class IndividualPlacedObjectViewer
 			if (objectsPageData.typePage < 0) objectsPageData.typePage += numberOfPages;
 			objectsPageData.typePage %= numberOfPages;
 
+			objectsPageData.placedObjectsPanel?.RefreshButtons();
 			self.Refresh();
 		}
 		else if (sender.IDstring[0..10] == "View_Type_")
@@ -183,13 +173,13 @@ internal static class IndividualPlacedObjectViewer
 				objectsPageData.sortingType = new PlacedObject.Type(sender.IDstring[10..]);
 			}
 
+			objectsPageData.placedObjectsPanel?.RefreshButtons();
 			self.Refresh();
 		}
 		else if (type == DevUISignalType.Create)
 		{
-			// todo: change this so it doesnt remove all objects from selection
-			//objectsPageData.visiblePlacedObjectsIndexes.Clear();
 			objectsPageData.visiblePlacedObjectsIndexes.Add(self.RoomSettings.placedObjects.Count - 1);
+			objectsPageData.placedObjectsPanel?.RefreshButtons();
 			self.Refresh();
 		}
 	}
@@ -209,6 +199,7 @@ internal static class IndividualPlacedObjectViewer
 			}
 		}
 
+		self.GetData().placedObjectsPanel?.RefreshButtons();
 		self.Refresh();
 	}
 
@@ -243,72 +234,6 @@ internal static class IndividualPlacedObjectViewer
 				{ 
 					self.CreateObjRep(self.RoomSettings.placedObjects[i].type, self.RoomSettings.placedObjects[i]); 
 				}
-			}
-
-			if (objectsPageData.isInIndividualMode)
-			{
-				PlacedObjectsPanel panel = new PlacedObjectsPanel(self.owner, "All_Objects_Panel", self, new Vector2(1050f, 40f), new Vector2(300f, 620f), "Placed Objects Browser");
-
-				// Get all different types of placed objects.
-				List<PlacedObject.Type> roomPlacedObjectTypes = new List<PlacedObject.Type>();
-				for (int i = 0; i < self.RoomSettings.placedObjects.Count; i++)
-				{
-					if (!roomPlacedObjectTypes.Contains(self.RoomSettings.placedObjects[i].type))
-					{
-						roomPlacedObjectTypes.Add(self.RoomSettings.placedObjects[i].type);
-					}
-				}
-
-				panel.subNodes.Add(new DevUILabel(self.owner, "Label", panel, new Vector2(5f, panel.size.y - 20f), 290f, "View by type"));
-
-				panel.subNodes.Add(new Button(self.owner, "Types_Prev_Page_Button", panel, new Vector2(5f, panel.size.y - 40f), 100f, "Prev Page"));
-				panel.subNodes.Add(new Button(self.owner, "Types_Next_Page_Button", panel, new Vector2(195f, panel.size.y - 40f), 100f, "Next Page"));
-
-				if (objectsPageData.typePage == 0) 
-				{
-					panel.subNodes.Add(new Button(self.owner, "View_Type_All", panel, new Vector2(5f, panel.size.y - 80f), 290f, "All"));
-				}
-
-				for (int i = 0; i < roomPlacedObjectTypes.Count; i++)
-				{
-					if ((i + 1) / 8 == objectsPageData.typePage)
-					{
-						panel.subNodes.Add(new Button(self.owner, "View_Type_" + roomPlacedObjectTypes[i].ToString(), panel, new Vector2(5f, panel.size.y - 80f - 20f * ((i + 1) % 8)), 290f, roomPlacedObjectTypes[i].ToString()));
-					}
-				}
-
-				panel.subNodes.Add(new Panel.HorizontalDivider(self.owner, "Divider", panel, panel.size.y - 220f));
-
-				panel.subNodes.Add(new DevUILabel(self.owner, "Label", panel, new Vector2(5f, panel.size.y - 240f), 290f, "Placed Objects"));
-
-				panel.subNodes.Add(new Button(self.owner, "Prev_Page_Button", panel, new Vector2(5f, panel.size.y - 260f), 100f, "Prev Page"));
-				panel.subNodes.Add(new Button(self.owner, "Next_Page_Button", panel, new Vector2(195f, panel.size.y - 260f), 100f, "Next Page"));
-
-				panel.subNodes.Add(new Button(self.owner, "Select_All_Button", panel, new Vector2(5f, panel.size.y - 300f), 100f, "Select All"));
-				panel.subNodes.Add(new Button(self.owner, "Deselect_All_Button", panel, new Vector2(110f, panel.size.y - 300), 100f, "Deselect All"));
-
-				// Display buttons for all placed objects
-				int placedObjectListIndex = 0; 
-				for (int i = 0; i < self.RoomSettings.placedObjects.Count; i++)
-				{
-					if (objectsPageData.sortingType == null || self.RoomSettings.placedObjects[i].type == objectsPageData.sortingType)
-					{
-						if (placedObjectListIndex / MaxPlacedObjectsPerPage == objectsPageData.placedObjectsPage)
-						{
-							string test = "";
-							if (objectsPageData.visiblePlacedObjectsIndexes.Contains(i)) test = "> ";
-							panel.subNodes.Add(new Button(self.owner, $"Placed_Object_Button_{i}", panel, new Vector2(5f, panel.size.y - 320f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 248f, $"{i} {test}{self.RoomSettings.placedObjects[i].type.ToString()}"));
-
-							panel.subNodes.Add(new Button(self.owner, $"Placed_Object_Off_Button_{i}", panel, new Vector2(279f, panel.size.y - 320f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 16f, " -"));
-							panel.subNodes.Add(new Button(self.owner, $"Placed_Object_On_Button_{i}", panel, new Vector2(258f, panel.size.y - 320f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 16f, " +"));
-						}
-
-						placedObjectListIndex++;
-					}
-				}
-
-				self.tempNodes.Add(panel);
-				self.subNodes.Add(panel);
 			}
 		});
 	}

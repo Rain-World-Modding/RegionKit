@@ -8,6 +8,8 @@ internal class PlacedObjectsPanel : Panel, IDevUISignals
 	private ObjectsPage objectsPage;
 	private List<DevUINode> tempNodes;
 
+	private Dictionary<int, Button> placedObjectToggleButtons;
+
 	public PlacedObjectsPanel(ObjectsPage objectsPage, DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, Vector2 size, string title) : base(owner, IDstring, parentNode, pos, size, title)
 	{
 		this.objectsPage = objectsPage;
@@ -63,6 +65,8 @@ internal class PlacedObjectsPanel : Panel, IDevUISignals
 	{
 		ObjectsPageData objectsPageData = objectsPage.GetData();
 
+		placedObjectToggleButtons = new Dictionary<int, Button>();
+
 		int placedObjectListIndex = 0;
 		for (int i = 0; i < RoomSettings.placedObjects.Count; i++)
 		{
@@ -70,17 +74,16 @@ internal class PlacedObjectsPanel : Panel, IDevUISignals
 			{
 				if (placedObjectListIndex / MaxPlacedObjectsPerPage == objectsPageData.placedObjectsPage)
 				{
-					string selectedString = "";
-					if (objectsPageData.visiblePlacedObjectsIndexes.Contains(i)) selectedString = "> ";
-
-					subNodes.Add(new Button(owner, $"Placed_Object_Button_{i}", this, new Vector2(5f, size.y - 320f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 248f, $"{i} {selectedString}{RoomSettings.placedObjects[i].type.ToString()}"));
+					subNodes.Add(new Button(owner, $"Placed_Object_Button_{i}", this, new Vector2(5f, size.y - 320f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 269f, $"{i} {RoomSettings.placedObjects[i].type.ToString()}"));
 					tempNodes.Add(subNodes[subNodes.Count - 1]);
 
-					subNodes.Add(new Button(owner, $"Placed_Object_Off_Button_{i}", this, new Vector2(279f, size.y - 320f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 16f, " -"));
+					string toggleButtonText = " +";
+					if (objectsPageData.visiblePlacedObjectsIndexes.Contains(i)) toggleButtonText = " -";
+
+					subNodes.Add(new Button(owner, $"Placed_Object_Toggle_Button_{i}", this, new Vector2(279f, size.y - 320f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 16f, toggleButtonText));
 					tempNodes.Add(subNodes[subNodes.Count - 1]);
 
-					subNodes.Add(new Button(owner, $"Placed_Object_On_Button_{i}", this, new Vector2(258f, size.y - 320f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 16f, " +"));
-					tempNodes.Add(subNodes[subNodes.Count - 1]);
+					placedObjectToggleButtons.Add(i, subNodes[subNodes.Count - 1] as Button);
 				}
 
 				placedObjectListIndex++;
@@ -108,5 +111,17 @@ internal class PlacedObjectsPanel : Panel, IDevUISignals
 	{
 		Debug.Log("Button " + sender.IDstring + " was pressed!");
 		objectsPage.Signal(DevUISignalType.ButtonClick, sender, "");
+
+		foreach (var item in placedObjectToggleButtons)
+		{
+			if (objectsPage.GetData().visiblePlacedObjectsIndexes.Contains(item.Key))
+			{
+				item.Value.Text = " -";
+			}
+			else
+			{
+				item.Value.Text = " +";
+			}
+		}
 	}
 }

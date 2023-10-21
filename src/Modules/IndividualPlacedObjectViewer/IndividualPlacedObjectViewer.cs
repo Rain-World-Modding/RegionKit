@@ -73,23 +73,18 @@ internal static partial class IndividualPlacedObjectViewer
 				self.Refresh();
 			}
 		}
-		else if (sender.IDstring.Contains("Placed_Object_On_Button_"))
+		else if (sender.IDstring.Contains("Placed_Object_Toggle_Button_"))
 		{
-			if (int.TryParse(sender.IDstring[24..], out int placedObjectIndex))
+			if (int.TryParse(sender.IDstring[28..], out int placedObjectIndex))
 			{
 				if (!objectsPageData.visiblePlacedObjectsIndexes.Contains(placedObjectIndex))
 				{
 					objectsPageData.visiblePlacedObjectsIndexes.Add(placedObjectIndex);
 				}
-
-				self.Refresh();
-			}
-		}
-		else if (sender.IDstring.Contains("Placed_Object_Off_Button_"))
-		{
-			if (int.TryParse(sender.IDstring[25..], out int placedObjectIndex))
-			{
-				objectsPageData.visiblePlacedObjectsIndexes.Remove(placedObjectIndex);
+				else
+				{
+					objectsPageData.visiblePlacedObjectsIndexes.Remove(placedObjectIndex);
+				}
 
 				self.Refresh();
 			}

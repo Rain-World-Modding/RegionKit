@@ -74,7 +74,10 @@ internal class PlacedObjectsPanel : Panel, IDevUISignals
 			{
 				if (placedObjectListIndex / MaxPlacedObjectsPerPage == objectsPageData.placedObjectsPage)
 				{
-					subNodes.Add(new Button(owner, $"Placed_Object_Button_{i}", this, new Vector2(5f, size.y - 320f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 269f, $"{i} {RoomSettings.placedObjects[i].type.ToString()}"));
+					subNodes.Add(new Button(owner, $"Placed_Object_Button_{i}", this, new Vector2(5f, size.y - 320f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 209f, $"{i} {RoomSettings.placedObjects[i].type.ToString()}"));
+					tempNodes.Add(subNodes[subNodes.Count - 1]);
+
+					subNodes.Add(new Button(owner, $"Duplicate_Object_Button_{i}", this, new Vector2(219f, size.y - 320f - 20f * (placedObjectListIndex % MaxPlacedObjectsPerPage)), 55f, "Duplicate"));
 					tempNodes.Add(subNodes[subNodes.Count - 1]);
 
 					string toggleButtonText = " +";

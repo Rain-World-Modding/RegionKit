@@ -1,4 +1,5 @@
-﻿using DevInterface;
+﻿using System.Text.RegularExpressions;
+using DevInterface;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 
@@ -72,6 +73,27 @@ internal static partial class IndividualPlacedObjectViewer
 
 				self.Refresh();
 			}
+		}
+		else if (sender.IDstring.Contains("Duplicate_Object_Button_"))
+		{
+			if (int.TryParse(sender.IDstring[24..], out int placedObjectIndex))
+			{
+				PlacedObject placedObject = new PlacedObject(PlacedObject.Type.None, null);
+
+				placedObject.FromString(new string[] { self.RoomSettings.placedObjects[placedObjectIndex].type.ToString(), "0", "0", self.RoomSettings.placedObjects[placedObjectIndex].data?.ToString().Trim() });
+				
+				placedObject.pos = self.owner.game.cameras[0].pos + new Vector2(200f, 200f);
+				self.RoomSettings.placedObjects.Insert(placedObjectIndex + 1, placedObject);
+
+				// View the new duplicate
+				objectsPageData.visiblePlacedObjectsIndexes.Clear();
+				objectsPageData.visiblePlacedObjectsIndexes.Add(placedObjectIndex + 1);
+
+				// Refresh stuff
+				objectsPageData.placedObjectsPanel?.RefreshButtons();
+				self.Refresh();
+			}
+
 		}
 		else if (sender.IDstring.Contains("Placed_Object_Toggle_Button_"))
 		{

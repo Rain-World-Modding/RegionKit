@@ -17,18 +17,20 @@ internal class PlacedObjectsPanel : Panel, IDevUISignals
 
 		subNodes.Add(new DevUILabel(objectsPage.owner, "Label", this, new Vector2(5f, size.y - 20f), 290f, "View by type"));
 		
-		subNodes.Add(new Button(objectsPage.owner, "Types_Prev_Page_Button", this, new Vector2(5f, size.y - 40f), 100f, "Prev Page"));
+		subNodes.Add(new Button(objectsPage.owner, "Types_Prev_Page_Button", this, new Vector2(5f, size.y - 40f), 100f, "Previous Page"));
 		subNodes.Add(new Button(objectsPage.owner, "Types_Next_Page_Button", this, new Vector2(195f, size.y - 40f), 100f, "Next Page"));
 
 		subNodes.Add(new HorizontalDivider(objectsPage.owner, "Divider", this, size.y - 220f));
 
 		subNodes.Add(new DevUILabel(objectsPage.owner, "Label", this, new Vector2(5f, size.y - 240f), 290f, "Placed Objects"));
 
-		subNodes.Add(new Button(objectsPage.owner, "Prev_Page_Button", this, new Vector2(5f, size.y - 260f), 100f, "Prev Page"));
+		subNodes.Add(new Button(objectsPage.owner, "Prev_Page_Button", this, new Vector2(5f, size.y - 260f), 100f, "Previous Page"));
 		subNodes.Add(new Button(objectsPage.owner, "Next_Page_Button", this, new Vector2(195f, size.y - 260f), 100f, "Next Page"));
 
 		subNodes.Add(new Button(objectsPage.owner, "Select_All_Button", this, new Vector2(5f, size.y - 300f), 100f, "Select All"));
 		subNodes.Add(new Button(objectsPage.owner, "Deselect_All_Button", this, new Vector2(110f, size.y - 300), 100f, "Deselect All"));
+		
+		subNodes.Add(new Button(objectsPage.owner, "Sort_Objects_Button", this, new Vector2(235f, size.y - 300), 60f, "Sort"));
 
 		RefreshButtons();
 	}

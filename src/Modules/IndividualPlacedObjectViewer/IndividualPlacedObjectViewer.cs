@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 using DevInterface;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -83,11 +84,9 @@ internal static partial class IndividualPlacedObjectViewer
 				placedObject.FromString(new string[] { self.RoomSettings.placedObjects[placedObjectIndex].type.ToString(), "0", "0", self.RoomSettings.placedObjects[placedObjectIndex].data?.ToString().Trim() });
 				
 				placedObject.pos = self.owner.game.cameras[0].pos + new Vector2(200f, 200f);
-				self.RoomSettings.placedObjects.Insert(placedObjectIndex + 1, placedObject);
+				self.RoomSettings.placedObjects.Add(placedObject);
 
-				// View the new duplicate
-				objectsPageData.visiblePlacedObjectsIndexes.Clear();
-				objectsPageData.visiblePlacedObjectsIndexes.Add(placedObjectIndex + 1);
+				objectsPageData.visiblePlacedObjectsIndexes.Add(self.RoomSettings.placedObjects.Count - 1);
 
 				// Refresh stuff
 				objectsPageData.placedObjectsPanel?.RefreshButtons();
@@ -129,6 +128,18 @@ internal static partial class IndividualPlacedObjectViewer
 		{
 			objectsPageData.visiblePlacedObjectsIndexes.Clear();
 
+			self.Refresh();
+		}
+		else if (sender.IDstring == "Sort_Objects_Button")
+		{
+			self.RoomSettings.placedObjects.Sort((PlacedObject p1, PlacedObject p2) =>
+			{
+				return string.Compare(p1.ToString(), p2.ToString());
+			});
+
+			objectsPageData.visiblePlacedObjectsIndexes.Clear();
+
+			objectsPageData.placedObjectsPanel?.RefreshButtons();
 			self.Refresh();
 		}
 		else if (sender.IDstring == "Prev_Page_Button" || sender.IDstring == "Next_Page_Button") 

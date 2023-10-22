@@ -22,7 +22,7 @@ internal static partial class IndividualPlacedObjectViewer
 
 	public static ObjectsPageData GetData(this ObjectsPage objectsPage)
 	{
-		if (!objectsPageCWT.TryGetValue(objectsPage, out var objectsPageData))
+		if (!objectsPageCWT.TryGetValue(objectsPage, out ObjectsPageData objectsPageData))
 		{
 			objectsPageData = new ObjectsPageData();
 			objectsPageCWT.Add(objectsPage, objectsPageData);

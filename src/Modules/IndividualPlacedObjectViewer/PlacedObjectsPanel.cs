@@ -5,6 +5,9 @@ namespace RegionKit.Modules.IndividualPlacedObjectViewer;
 
 internal class PlacedObjectsPanel : Panel, IDevUISignals
 {
+	public const int MaxPlacedObjectsPerPage = 16;
+	public const int MaxTypesPerPage = 8;
+
 	private ObjectsPage objectsPage;
 	private List<DevUINode> tempNodes;
 
@@ -14,6 +17,7 @@ internal class PlacedObjectsPanel : Panel, IDevUISignals
 	{
 		this.objectsPage = objectsPage;
 		tempNodes = new List<DevUINode>();
+		placedObjectToggleButtons = new Dictionary<int, Button>();
 
 		subNodes.Add(new DevUILabel(objectsPage.owner, "Label", this, new Vector2(5f, size.y - 20f), 290f, "View by type"));
 		
@@ -27,15 +31,17 @@ internal class PlacedObjectsPanel : Panel, IDevUISignals
 		subNodes.Add(new Button(objectsPage.owner, "Prev_Page_Button", this, new Vector2(5f, size.y - 260f), 100f, "Previous Page"));
 		subNodes.Add(new Button(objectsPage.owner, "Next_Page_Button", this, new Vector2(195f, size.y - 260f), 100f, "Next Page"));
 
-		subNodes.Add(new Button(objectsPage.owner, "Select_All_Button", this, new Vector2(5f, size.y - 300f), 100f, "Select All"));
-		subNodes.Add(new Button(objectsPage.owner, "Deselect_All_Button", this, new Vector2(110f, size.y - 300), 100f, "Deselect All"));
+		subNodes.Add(new Button(objectsPage.owner, "Select_All_Button", this, new Vector2(5f, size.y - 300f), 70f, "Select All"));
+		subNodes.Add(new Button(objectsPage.owner, "Deselect_All_Button", this, new Vector2(80f, size.y - 300), 70f, "Deselect All"));
 		
-		subNodes.Add(new Button(objectsPage.owner, "Sort_Objects_Button", this, new Vector2(235f, size.y - 300), 60f, "Sort"));
+		subNodes.Add(new Button(objectsPage.owner, "Delete_Selected_Button", this, new Vector2(195f, size.y - 300), 100f, "Delete Selected"));
+
+		subNodes.Add(new Button(objectsPage.owner, "Sort_Objects_Button", this, new Vector2(155f, size.y - 300), 35f, "Sort"));
 
 		RefreshButtons();
 	}
 
-	private void RefreshTypeBrowser()
+	private void RefreshTypesList()
 	{
 		ObjectsPageData objectsPageData = objectsPage.GetData();
 
@@ -55,15 +61,15 @@ internal class PlacedObjectsPanel : Panel, IDevUISignals
 		}
 		for (int i = 0; i < roomPlacedObjectTypes.Count; i++)
 		{
-			if ((i + 1) / 8 == objectsPageData.typePage)
+			if ((i + 1) / MaxTypesPerPage == objectsPageData.typePage)
 			{
-				subNodes.Add(new Button(owner, "View_Type_" + roomPlacedObjectTypes[i].ToString(), this, new Vector2(5f, size.y - 80f - 20f * ((i + 1) % 8)), 290f, roomPlacedObjectTypes[i].ToString()));
+				subNodes.Add(new Button(owner, "View_Type_" + roomPlacedObjectTypes[i].ToString(), this, new Vector2(5f, size.y - 80f - 20f * ((i + 1) % MaxTypesPerPage)), 290f, roomPlacedObjectTypes[i].ToString()));
 				tempNodes.Add(subNodes[subNodes.Count - 1]);
 			}
 		}
 	}
 
-	private void RefreshPlacedObjectsBrowser()
+	private void RefreshPlacedObjectsList()
 	{
 		ObjectsPageData objectsPageData = objectsPage.GetData();
 
@@ -108,13 +114,12 @@ internal class PlacedObjectsPanel : Panel, IDevUISignals
 		}
 		tempNodes = new List<DevUINode>();
 
-		RefreshTypeBrowser();
-		RefreshPlacedObjectsBrowser();
+		RefreshTypesList();
+		RefreshPlacedObjectsList();
 	}
 
 	public void Signal(DevUISignalType type, DevUINode sender, string message)
 	{
-		Debug.Log("Button " + sender.IDstring + " was pressed!");
 		objectsPage.Signal(DevUISignalType.ButtonClick, sender, "");
 
 		foreach (var item in placedObjectToggleButtons)

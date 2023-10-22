@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
 using DevInterface;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -8,8 +7,6 @@ namespace RegionKit.Modules.IndividualPlacedObjectViewer;
 
 internal static partial class IndividualPlacedObjectViewer
 {
-	public const int MaxPlacedObjectsPerPage = 16;
-
 	public static void Enable()
 	{
 		On.DevInterface.ObjectsPage.ctor += ObjectsPage_ctor;
@@ -52,7 +49,7 @@ internal static partial class IndividualPlacedObjectViewer
 
 			if (objectsPageData.isInIndividualMode)
 			{
-				objectsPageData.placedObjectsPanel = new PlacedObjectsPanel(self, self.owner, "All_Objects_Panel", self, new Vector2(1050f, 40f), new Vector2(300f, 620f), "Placed Objects Browser");
+				objectsPageData.placedObjectsPanel = new PlacedObjectsPanel(self, self.owner, "All_Objects_Panel", self, new Vector2(1050f, 40f), new Vector2(300f, 620f), "Placed Objects");
 				self.subNodes.Add(objectsPageData.placedObjectsPanel);
 			}
 			else if (objectsPageData.placedObjectsPanel != null)
@@ -81,7 +78,7 @@ internal static partial class IndividualPlacedObjectViewer
 			{
 				PlacedObject placedObject = new PlacedObject(PlacedObject.Type.None, null);
 
-				placedObject.FromString(new string[] { self.RoomSettings.placedObjects[placedObjectIndex].type.ToString(), "0", "0", self.RoomSettings.placedObjects[placedObjectIndex].data?.ToString().Trim() });
+				placedObject.FromString(new string[] { self.RoomSettings.placedObjects[placedObjectIndex].type.ToString(), "0", "0", self.RoomSettings.placedObjects[placedObjectIndex].data.ToString().Trim() });
 				
 				placedObject.pos = self.owner.game.cameras[0].pos + new Vector2(200f, 200f);
 				self.RoomSettings.placedObjects.Add(placedObject);
@@ -132,14 +129,55 @@ internal static partial class IndividualPlacedObjectViewer
 		}
 		else if (sender.IDstring == "Sort_Objects_Button")
 		{
+			List<PlacedObject> visibleObjects = new List<PlacedObject>();
+
+			for (int i = 0; i < objectsPageData.visiblePlacedObjectsIndexes.Count; i++)
+			{
+				visibleObjects.Add(self.RoomSettings.placedObjects[objectsPageData.visiblePlacedObjectsIndexes[i]]);
+			}
+
 			self.RoomSettings.placedObjects.Sort((PlacedObject p1, PlacedObject p2) =>
 			{
-				return string.Compare(p1.ToString(), p2.ToString());
+				return string.Compare(p1.type.ToString(), p2.type.ToString());
 			});
 
 			objectsPageData.visiblePlacedObjectsIndexes.Clear();
 
+			for (int i = 0; i < visibleObjects.Count; i++)
+			{
+				objectsPageData.visiblePlacedObjectsIndexes.Add(self.RoomSettings.placedObjects.IndexOf(visibleObjects[i]));
+			}
+
 			objectsPageData.placedObjectsPanel?.RefreshButtons();
+			self.Refresh();
+		}
+		else if (sender.IDstring == "Delete_Selected_Button")
+		{
+			ConfirmDeletionPanel confirmPanel = new ConfirmDeletionPanel(self.owner, "Confirm_Deletion_Panel", self, new Vector2(600f, 400f), new Vector2(120f, 85f), "Delete Selected");
+			self.subNodes.Add(confirmPanel);
+			self.tempNodes.Add(confirmPanel);
+		}
+		else if (sender.IDstring == "Confirm_Delete_Button")
+		{
+			List<PlacedObject> objectsToDelete = new List<PlacedObject>();
+
+			for (int i = 0; i < objectsPageData.visiblePlacedObjectsIndexes.Count; i++)
+			{
+				objectsToDelete.Add(self.RoomSettings.placedObjects[objectsPageData.visiblePlacedObjectsIndexes[i]]);
+			}
+
+			foreach (PlacedObject placedObject in objectsToDelete)
+			{
+				self.RoomSettings.placedObjects.Remove(placedObject);
+			}
+
+			objectsPageData.visiblePlacedObjectsIndexes.Clear();
+
+			objectsPageData.placedObjectsPanel?.RefreshButtons();
+			self.Refresh();
+		}
+		else if (sender.IDstring == "Cancel_Delete_Button")
+		{
 			self.Refresh();
 		}
 		else if (sender.IDstring == "Prev_Page_Button" || sender.IDstring == "Next_Page_Button") 
@@ -153,7 +191,7 @@ internal static partial class IndividualPlacedObjectViewer
 				objectsPageData.placedObjectsPage++;
 			}
 
-			int numberOfPages = self.RoomSettings.placedObjects.Count / MaxPlacedObjectsPerPage + 1;
+			int numberOfPages = self.RoomSettings.placedObjects.Count / PlacedObjectsPanel.MaxPlacedObjectsPerPage + 1;
 
 			if (objectsPageData.placedObjectsPage < 0) objectsPageData.placedObjectsPage += numberOfPages;
 			objectsPageData.placedObjectsPage %= numberOfPages;
@@ -182,7 +220,7 @@ internal static partial class IndividualPlacedObjectViewer
 				}
 			}
 
-			int numberOfPages = roomPlacedObjectTypes.Count / 8 + 1;
+			int numberOfPages = roomPlacedObjectTypes.Count / PlacedObjectsPanel.MaxTypesPerPage + 1;
 
 			if (objectsPageData.typePage < 0) objectsPageData.typePage += numberOfPages;
 			objectsPageData.typePage %= numberOfPages;

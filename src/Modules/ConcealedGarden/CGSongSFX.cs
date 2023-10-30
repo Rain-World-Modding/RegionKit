@@ -13,7 +13,7 @@ public class CGSongSFX : Music.Song
 		this.stopAtDeath = true;
 		this.fadeInTime = 120f;
 		base.Loop = true;
-		Debug.Log("Created CGSongSFX for " + title);
+		LogMessage("Created CGSongSFX for " + title);
 	}
 
 	public override void Update()
@@ -30,7 +30,7 @@ public class CGSongSFX : Music.Song
 				this.destroyCounter++;
 			if (this.destroyCounter == 150)
 			{
-				Debug.Log("Destroyed CGSongSFX");
+				LogMessage("Destroyed CGSongSFX");
 				base.FadeOut(400f);
 			}
 		}

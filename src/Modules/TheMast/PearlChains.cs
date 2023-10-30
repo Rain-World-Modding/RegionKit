@@ -99,7 +99,7 @@ namespace RegionKit.Modules.TheMast
 				}
 				catch (Exception e)
 				{
-					__logger.LogError(new Exception("Failed to load PearlChain", e));
+					LogError(new Exception("Failed to load PearlChain", e));
 					apo = null;
 				}
 			}
@@ -428,8 +428,8 @@ namespace RegionKit.Modules.TheMast
 				}
 				if (witnesses > 0)
 				{
-					__logger.LogMessage($"pearl chain theft noticed by {witnesses} scavengers!");
-					if (witnesses == 4) __logger.LogWarning("Good luck.");
+					LogMessage($"pearl chain theft noticed by {witnesses} scavengers!");
+					if (witnesses == 4) LogWarning("Good luck.");
 				}
 			}
 
@@ -593,7 +593,7 @@ namespace RegionKit.Modules.TheMast
 					}
 					else
 					{
-						__logger.LogMessage("Pearl chain spawned broken!");
+						LogMessage("Pearl chain spawned broken!");
 						length = -1f;
 						anchorPos = topPearlPos;
 					}

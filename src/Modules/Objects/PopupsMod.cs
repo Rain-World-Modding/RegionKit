@@ -94,7 +94,7 @@ internal static class PopupsMod
 
 		public virtual void Consume()
 		{
-			Debug.Log("CONSUMED: PopupObject");
+			LogMessage("CONSUMED: PopupObject");
 			if (data.GetValue<int>("cooldown") != 0 && room.world.game.session is StoryGameSession)
 			{
 				(room.world.game.session as StoryGameSession)!.saveState.ReportConsumedItem(room.world, false, room.abstractRoom.index, placedObjectIndex, data.GetValue<int>("cooldown"));

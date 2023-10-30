@@ -183,7 +183,7 @@ internal static class DevUIUtils
 					Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 				}
 			}
-			catch { Debug.Log("Couldn't create directory"); }
+			catch { LogMessage("Couldn't create directory"); }
 
 			if (Directory.Exists(Path.GetDirectoryName(filePath)))
 			{

@@ -277,7 +277,7 @@ public class ClimbableRope : UpdatableAndDeletable, IClimbableVine, IDrawable
 			// Crawl near the top if on narrow terrain
 			if (p.input[0].y == 1 && ropeindexFloat * conRad < 40f && ((this.room.aimap.getAItile(p.bodyChunks[0].pos).narrowSpace) || this.room.aimap.getAItile(p.bodyChunks[1].pos).narrowSpace))
 			{
-				Debug.Log("ClimbableRope: Player crawl off");
+				LogMessage("ClimbableRope: Player crawl off");
 				this.playerCrawlingOff = true;
 				this.recentlyCrawledOff.Add(p);
 			}

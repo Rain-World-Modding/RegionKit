@@ -108,7 +108,7 @@ public static class ColorRoomEffect
 			});
 		}
 		else
-			__logger.LogError("Couldn't ILHook RoomSettings.RoomEffect.FromString!");
+			LogError("Couldn't ILHook RoomSettings.RoomEffect.FromString!");
 	}
 
 	private static void RoomEffectToString(ILContext il)
@@ -135,7 +135,7 @@ public static class ColorRoomEffect
 			});
 		}
 		else
-			__logger.LogError("Couldn't ILHook RoomSettings.RoomEffect.ToString!");
+			LogError("Couldn't ILHook RoomSettings.RoomEffect.ToString!");
 	}
 
 	private static void EffectPanelCtor(On.DevInterface.EffectPanel.orig_ctor orig, EffectPanel self, DevUI owner, DevUINode parentNode, Vector2 pos, RoomSettings.RoomEffect effect)

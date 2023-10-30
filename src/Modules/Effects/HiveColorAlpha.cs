@@ -19,7 +19,7 @@ public class HiveColorAlpha : UpdatableAndDeletable
 		{
 			if (self.roomSettings.effects[k].type == _Enums.HiveColorAlpha)
 			{
-				__logger.LogDebug($"HiveColorAlpha in room {self.abstractRoom.name}");
+				LogDebug($"HiveColorAlpha in room {self.abstractRoom.name}");
 				self.AddObject(new HiveColorAlpha(self));
 			}
 		}

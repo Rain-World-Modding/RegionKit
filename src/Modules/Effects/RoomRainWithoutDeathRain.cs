@@ -14,6 +14,7 @@ namespace RegionKit.Modules.Effects
 			_CommonHooks.PostRoomLoad += _CommonHooks_PostRoomLoad;
 			On.RoomRain.Update += RoomRain_Update;
 			On.RoomRain.ThrowAroundObjects += RoomRain_ThrowAroundObjects;
+			On.Water.DetailedWaterLevel += Water_DetailedWaterLevel;
 		}
 
 
@@ -22,6 +23,16 @@ namespace RegionKit.Modules.Effects
 			_CommonHooks.PostRoomLoad -= _CommonHooks_PostRoomLoad;
 			On.RoomRain.Update -= RoomRain_Update;
 			On.RoomRain.ThrowAroundObjects -= RoomRain_ThrowAroundObjects;
+			On.Water.DetailedWaterLevel -= Water_DetailedWaterLevel;
+		}
+
+		private static float Water_DetailedWaterLevel(On.Water.orig_DetailedWaterLevel orig, Water self, float horizontalPosition)
+		{
+			float o = orig(self, horizontalPosition);
+			if (self.room != null && self.room.PixelHeight + 500f < o - 20f)
+			{ return float.PositiveInfinity; }
+
+			return o;
 		}
 
 		private static void RoomRain_ThrowAroundObjects(On.RoomRain.orig_ThrowAroundObjects orig, RoomRain self)

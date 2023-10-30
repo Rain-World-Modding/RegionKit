@@ -31,7 +31,7 @@ public abstract class ZoneBase<TC, TD> : UpdatableAndDeletable, IRoomZone
 		SyncColliderToData();
 		if (NeedToUpdateTileCache)
 		{
-			__logger.LogDebug("rebuilding tilecache");
+			LogDebug("rebuilding tilecache");
 			_c_affectedTiles.Clear();
 			BuildTileCache();
 		}

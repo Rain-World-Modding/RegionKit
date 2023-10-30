@@ -25,7 +25,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 		this.room = rm;
 		_assignedCustomizerData = assignedData;
 		//PetrifiedWood.WriteLine($"Cog created in {rm.abstractRoom?.name}");
-		__logger.LogDebug($"({rm.abstractRoom.name}): Created a Cog.");
+		LogDebug($"({rm.abstractRoom.name}): Created a Cog.");
 	}
 	///<inheritdoc/>
 	public override void Update(bool eu)

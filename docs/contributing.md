@@ -32,3 +32,13 @@ internal static class _Module
 }
 ```
 All methods passed to RegionKitModuleAttribute be of form `void ()` - void return type and no arguments passed.
+
+## Logging
+
+Please don't use `UnityEngine.Debug`. We have a logger in `src/Logfix.cs`, you can use static members from there like this:
+
+```cs
+LogMessage("Something is happening!")
+LogError("Something bad is happening!")
+LogTrace("Something insignificant is happening!")
+```

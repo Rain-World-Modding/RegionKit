@@ -165,6 +165,9 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 	- Arid Barrens Code
 	- Original ColoredLightBeam
 
+- Isbjorn52
+	- Gate Customization
+
 **Initial ExtendedGates authors**: Henpemaz (code); Mehri'Kairotep, Thalber, LB/M4rbleL1ne and Nautillo (spritework).
 
 ## Download

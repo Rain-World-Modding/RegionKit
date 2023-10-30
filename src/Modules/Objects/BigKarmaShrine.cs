@@ -102,7 +102,7 @@ internal class BigKarmaShrine : UpdatableAndDeletable
 			c.EmitDelegate(ChangeFrameRate);
 		}
 		else
-		{ __logger.LogWarning("il hook to RawUpdate failed"); }
+		{ LogWarning("il hook to RawUpdate failed"); }
 	}
 
 	public static float ChangeFrameRate(float originalFPS)
@@ -170,7 +170,7 @@ internal class BigKarmaShrine : UpdatableAndDeletable
 
 			room.game.cameras[0].hud.karmaMeter.reinforceAnimation = 1;
 			exSlowdown = Data.GetValue<bool>("superslow");
-			Debug.Log($"exSlowdown: {exSlowdown}");
+			LogMessage($"exSlowdown: {exSlowdown}");
 
 			addKarma = false;
 			room.PlaySound(SoundID.SB_A14, 0f, 1f, 1f);

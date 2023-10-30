@@ -98,7 +98,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	{
 		if (_debug && Input.GetKey("l"))
 		{
-			__logger.LogDebug("Shelterbehaviormanager " + str);
+			LogDebug("Shelterbehaviormanager " + str);
 		}
 	}
 	/// <summary>
@@ -106,7 +106,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	/// </summary>
 	public ShelterBehaviorManager(Room instance, PlacedObject pObj)
 	{
-		__logger.LogDebug($"Creating a shelter manager in room {instance.abstractRoom.name}");
+		LogDebug($"Creating a shelter manager in room {instance.abstractRoom.name}");
 		this.room = instance;
 		this._pObj = pObj;
 		//this._data = (pObj.data as ManagedData)!;
@@ -168,7 +168,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 		if (!_manData.isConsumable) return;
 		if (this._isConsumed) return;
 		this._isConsumed = true;
-		Debug.Log($"CONSUMED: Consumable Shelter in room {room.abstractRoom.name})");
+		LogMessage($"CONSUMED: Consumable Shelter in room {room.abstractRoom.name})");
 		if (room.world.game.session is StoryGameSession)
 		{
 			int minCycles = _manData.consumableCdMin;
@@ -242,7 +242,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 		{
 			_closing = true;
 			float speed = 1f / (float)_manData.framesToWin;
-			__logger.LogDebug($"ShelterBehaviorManager: Main door closing! {speed}");
+			LogDebug($"ShelterBehaviorManager: Main door closing! {speed}");
 			//todo: are you sure it's frames to sleep?
 			//room.shelterDoor.closeSpeed = speed;
 			foreach (IReactToShelterEvents sub in _subscribers)
@@ -279,9 +279,9 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 		if (_manData.animateWater && _brokenWaterLevel != null)
 		{
 			room.AddWater(); // animate water level
-			__logger.LogError("added watre");
+			LogError("added watre");
 		}
-		__logger.LogMessage("Shelterbehaviormanager CLOSE");
+		LogMessage("Shelterbehaviormanager CLOSE");
 	}
 
 	/// <summary>
@@ -300,7 +300,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 	{
 		if (_cachedOldSpawnPos is not IntVector2 actualPos)
 		{
-			__logger.LogDebug($"{room.abstractRoom.name} shelterman Trying to undo hack when there is no hack");
+			LogDebug($"{room.abstractRoom.name} shelterman Trying to undo hack when there is no hack");
 			return;
 		}
 		room.shelterDoor.playerSpawnPos = actualPos;
@@ -362,7 +362,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 			//if (door == room.shelterDoor) continue;
 			if (door.closeSpeed <= 0f && _closing)
 			{
-				__logger.LogDebug($"{door.GetHashCode()} closing secondary {room.shelterDoor.closeSpeed}");
+				LogDebug($"{door.GetHashCode()} closing secondary {room.shelterDoor.closeSpeed}");
 				door.Close();
 				door.closeSpeed = room.shelterDoor.closeSpeed;
 			}
@@ -393,7 +393,7 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 		this._hiddenVanillaDoor = true;
 		if (_customDoors.Count is 0)
 		{
-			__logger.LogDebug($"Moving vanilla door {room.shelterDoor.GetHashCode()} away");
+			LogDebug($"Moving vanilla door {room.shelterDoor.GetHashCode()} away");
 			room.shelterDoor.pZero = new(-20000, -20000);
 			for (int i = 0; i < room.shelterDoor.closeTiles.Length; i++)
 			{
@@ -403,12 +403,12 @@ public class ShelterBehaviorManager : UpdatableAndDeletable, INotifyWhenRoomIsRe
 		}
 		else
 		{
-			__logger.LogDebug($"Switching main door {room.shelterDoor.GetHashCode()} to another");
+			LogDebug($"Switching main door {room.shelterDoor.GetHashCode()} to another");
 			room.shelterDoor.Destroy();
 			room.CleanOutObjectNotInThisRoom(room.shelterDoor);
 			room.shelterDoor = _customDoors[0];
 			_customDoors.RemoveAt(0);
-			__logger.LogDebug(room.shelterDoor.GetHashCode());
+			LogDebug(room.shelterDoor.GetHashCode());
 		}
 
 	}

@@ -17,6 +17,8 @@ internal static class GateCustomization
 	// Not whole methods are copied obviously, only the required parts.
 	// Not sure if the way I coded this is the best but it works and all Rain World mods have some level of jank in the code.
 
+	private static bool shadersLoaded = false;
+	
 	public static void Enable()
 	{
 		On.RegionGate.ctor += RegionGate_ctor;
@@ -79,9 +81,14 @@ internal static class GateCustomization
 		
 	public static void LoadShaders(RainWorld rainWorld)
 	{
-		// Custom shaders
-		AssetBundle assetBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/gatecustomization"));
-		rainWorld.Shaders["ColoredSprite2Lit"] = FShader.CreateShader("ColoredSprite2Lit", assetBundle.LoadAsset<Shader>("Assets/ColoredSprite2Lit.shader"));
+		if (!shadersLoaded)
+		{
+			// Custom shaders
+			AssetBundle assetBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/gatecustomization"));
+			rainWorld.Shaders["ColoredSprite2Lit"] = FShader.CreateShader("ColoredSprite2Lit", assetBundle.LoadAsset<Shader>("Assets/ColoredSprite2Lit.shader"));
+
+			shadersLoaded = true;
+		}
 	}
 
 	private static void RegionGate_ctor(On.RegionGate.orig_ctor orig, RegionGate self, Room room)

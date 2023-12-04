@@ -334,9 +334,6 @@ public static class ExtendedGates
 			self.karmaRequirements[1] = MoreSlugcats.MoreSlugcatsEnums.GateRequirement.OELock;
 		}
 
-		//we actually want all (most) custom gates to be overwritten by orig when applicable
-		orig(self);
-
 		//guard clause, stop crashing when there are no locks!
 		for (int i = 0; i < self.karmaRequirements.Length; i++)
 		{
@@ -350,6 +347,9 @@ public static class ExtendedGates
 				if (alt.index != -1) { self.karmaRequirements[i] = alt; }
 			}
 		}
+
+		//we actually want all (most) custom gates to be overwritten by orig when applicable
+		orig(self);
 	}
 
 	/// <summary>

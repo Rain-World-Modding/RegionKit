@@ -188,6 +188,7 @@ public static class _Module
 		if (!EchoParser.__extendedEchoIDs.Contains(self.worldGhost.ghostID)) return;
 		var settings = EchoParser.__echoSettings[self.worldGhost.ghostID];
 		self.scale = settings.EchoSizeMultiplier * 0.75f;
+		self.rags.conRad = 30f * self.scale;
 		self.defaultFlip = settings.DefaultFlip;
 	}
 }

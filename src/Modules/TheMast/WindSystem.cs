@@ -303,32 +303,38 @@ namespace RegionKit.Modules.TheMast
 			public override void FromString(string s)
 			{
 				base.FromString(s);
-				string[] array = Regex.Split(s, "~");
-				if (array.Length >= 7 && float.TryParse(array[6], out float velocity))
+				if (unrecognizedAttributes.Length >= 1 && float.TryParse(unrecognizedAttributes[0], out float velocity))
 					this.velocity = velocity;
 				try
 				{
-					if (array.Length >= 8)
+					if (unrecognizedAttributes.Length >= 2)
 					{
-						AffectGroup ag = (AffectGroup)Enum.Parse(typeof(AffectGroup), array[7]);
+						AffectGroup ag = (AffectGroup)Enum.Parse(typeof(AffectGroup), unrecognizedAttributes[1]);
 						affectGroup = ag;
 					}
 				}
-				catch (ArgumentException) { }
+				catch (Exception) { }
 				try
 				{
-					if (array.Length >= 9)
+					if (unrecognizedAttributes.Length >= 3)
 					{
-						VertGroup ag = (VertGroup)Enum.Parse(typeof(VertGroup), array[8]);
+						VertGroup ag = (VertGroup)Enum.Parse(typeof(VertGroup), unrecognizedAttributes[2]);
 						vertGroup = ag;
 					}
 				}
-				catch (ArgumentException) { }
+				catch (Exception) { }
 			}
 
 			public override string ToString()
 			{
-				return string.Concat(base.ToString(), "~", velocity.ToString(), "~", affectGroup.ToString(), "~", vertGroup.ToString());
+				if (unrecognizedAttributes.Length < 3)
+				{ unrecognizedAttributes = new string[3]; }
+
+				unrecognizedAttributes[0] = velocity.ToString();
+				unrecognizedAttributes[1] = affectGroup.ToString();
+				unrecognizedAttributes[2] = vertGroup.ToString();
+
+				return base.ToString();
 			}
 		}
 

@@ -3,20 +3,57 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BepInEx;
-
-
-
+using EffExt;
 
 namespace RegionKit.Modules.Effects
 {
-	internal class MossWaterUnlit
+	// By ASlightlyOvergrownCactus
+	// Called before MossWaterRGB's Load Resources
+	internal static class MossWaterRGBBuilder
 	{
-		// By ASlightlyOvergrownCactus
-		public static readonly object mossSprite = new();
+		internal static void __RegisterBuilder()
+		{
+			try
+			{
+				LogMessage("Loading builder");
+				EffectDefinitionBuilder builder = new EffectDefinitionBuilder("MossWaterRGB");
+				builder
+					.AddFloatField("Red", 0, 255, 1, 25)
+					.AddFloatField("Green", 0, 255, 1, 77)
+					.AddFloatField("Blue", 0, 255, 1, 51)
+					.SetUADFactory((room, data, firstTimeRealized) => new MossWaterUAD(data))
+					.SetCategory("POMEffectsExamples")
+					.Register();
+			}
+			catch (Exception ex)
+			{
+				LogWarning($"Error on eff MossWaterRGB init {ex}");
+			}
+		}
+	}
+
+	internal class MossWaterUAD : UpdatableAndDeletable
+	{
+		public EffectExtraData EffectData { get; }
+
+		public MossWaterUAD(EffectExtraData effectData)
+		{
+			EffectData = effectData;
+		}
+	}
+		internal class MossWaterRGB : UpdatableAndDeletable
+	{
+		public static readonly object mossRGBSprite = new();
 		static bool loaded = false;
-		public static AssetBundle mossBundle;
 		const int vertsPerColumn = 64;
+		private EffectExtraData data;
+		private Color color;
+
+		public MossWaterRGB(EffectExtraData data) 
+		{
+		this.data = data;
+			color = new Color(0, 0, 0);
+		}
 		internal static void Apply()
 		{
 			On.Water.InitiateSprites += Water_InitiateSprites;
@@ -24,14 +61,12 @@ namespace RegionKit.Modules.Effects
 			On.Water.AddToContainer += Water_AddToContainer;
 		}
 
-		internal static void Undo() 
+		internal static void Undo()
 		{
 			On.Water.InitiateSprites -= Water_InitiateSprites;
 			On.Water.DrawSprites -= Water_DrawSprites;
 			On.Water.AddToContainer -= Water_AddToContainer;
 		}
-
-
 
 		public static void MossLoadResources(RainWorld rw)
 		{
@@ -39,20 +74,29 @@ namespace RegionKit.Modules.Effects
 			{
 				LogMessage("entered loading / loading status: " + loaded);
 				loaded = true;
-
-				mossBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/liquidshaderpack"));
-
-				rw.Shaders["MossWater"] = FShader.CreateShader("MossWater", mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/MossWater.shader"));
+				if (MossWaterUnlit.mossBundle != null)
+				rw.Shaders["MossWaterRGB"] = FShader.CreateShader("MossWaterRGB", MossWaterUnlit.mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/MossWater.shader"));
+				else
+				{
+					LogMessage("MossWaterRGB must be loaded after MossWaterUnlit!");
+				}
 			}
+		}
+
+		public override void Update(bool eu)
+		{
+			color.r = data.GetInt("Red");
+			color.g = data.GetInt("Green");
+			color.b = data.GetInt("Blue");
 		}
 
 		private static void Water_AddToContainer(On.Water.orig_AddToContainer orig, Water self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
 		{
 			orig(self, sLeaser, rCam, newContatiner);
 
-			if (self.room.roomSettings.GetEffect(_Enums.MossWater) != null)
+			if (self.room.roomSettings.GetEffect(_Enums.MossWaterRGB) != null)
 			{
-				if (sLeaser.sprites.FirstOrDefault(x => x.data == mossSprite) is TriangleMesh mossMesh)
+				if (sLeaser.sprites.FirstOrDefault(x => x.data == mossRGBSprite) is TriangleMesh mossMesh)
 				{
 					rCam.ReturnFContainer("Water").AddChild(mossMesh);
 					mossMesh.MoveBehindOtherNode(sLeaser.sprites[1]);
@@ -65,7 +109,7 @@ namespace RegionKit.Modules.Effects
 
 			orig(self, sLeaser, rCam);
 			int index = 0;
-			if (self.room.roomSettings.GetEffect(_Enums.MossWater) != null)
+			if (self.room.roomSettings.GetEffect(_Enums.MossWaterRGB) != null)
 			{
 				index = sLeaser.sprites.Length;
 				Array.Resize(ref sLeaser.sprites, sLeaser.sprites.Length + 1);
@@ -86,8 +130,8 @@ namespace RegionKit.Modules.Effects
 				LogMessage("got here");
 				sLeaser.sprites[index] = new TriangleMesh("Futile_White", tris, true)
 				{
-					data = mossSprite,
-					shader = self.room.game.rainWorld.Shaders["MossWater"]
+					data = mossRGBSprite,
+					shader = self.room.game.rainWorld.Shaders["MossWaterRGB"]
 				};
 
 				self.AddToContainer(sLeaser, rCam, null);
@@ -98,9 +142,9 @@ namespace RegionKit.Modules.Effects
 		{
 			orig(self, sLeaser, rCam, timeStacker, camPos);
 
-			if (self.room.roomSettings.GetEffect(_Enums.MossWater) != null)
+			if (self.room.roomSettings.GetEffect(_Enums.MossWaterRGB) != null)
 			{
-				if (sLeaser.sprites.FirstOrDefault(x => x.data == mossSprite) is TriangleMesh mossMesh)
+				if (sLeaser.sprites.FirstOrDefault(x => x.data == mossRGBSprite) is TriangleMesh mossMesh)
 				{
 					WaterTriangleMesh waterMesh = (WaterTriangleMesh)sLeaser.sprites[0];
 					int offset = self.PreviousSurfacePoint(camPos.x - 30f);
@@ -122,6 +166,5 @@ namespace RegionKit.Modules.Effects
 				}
 			}
 		}
-
 	}
 }

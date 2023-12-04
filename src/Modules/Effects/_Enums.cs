@@ -54,5 +54,9 @@ public static class _Enums
 	/// <summary>
 	/// Effect category
 	/// </summary>
+	public static RoomSettings.RoomEffect.Type MossWaterRGB = new(nameof(MossWaterRGB), true);
+	/// <summary>
+	/// Effect category
+	/// </summary>
 	public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKit = new(nameof(RegionKit), true);
 }

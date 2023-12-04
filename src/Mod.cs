@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using RegionKit.Modules.Effects;
 using RegionKit.Modules.GateCustomization;
+using EffExt;
 
 namespace RegionKit;
 /// <summary>
@@ -27,7 +28,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 	/// <inheritdoc/>
 	public void OnEnable()
 	{
-
+		
 		_writeTraceConfig = Config.Bind("main", "writeTrace", false, "Write additional spammy debug lines");
 		__writeTrace = _writeTraceConfig.Value;
 		_writeTraceConfig.SettingChanged += (sender, args) =>
@@ -41,6 +42,9 @@ public class Mod : BepInEx.BaseUnityPlugin
 			__writeCallsiteInfo = _writeTraceConfig.Value;
 		};
 		Logfix.__SwitchToBepinexLogger(Logger);
+		MossWaterRGBBuilder.__RegisterBuilder();
+
+
 		On.RainWorld.OnModsInit += Init;
 		//Init();
 		TheRitual.Commence();
@@ -65,6 +69,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 			_Assets.LoadResources();
 
 			MossWaterUnlit.MossLoadResources(self);
+			MossWaterRGB.MossLoadResources(self);
 			GateCustomization.LoadShaders(self);
 		}
 		catch (Exception ex)

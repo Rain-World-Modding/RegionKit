@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using EffExt;
@@ -52,7 +53,7 @@ namespace RegionKit.Modules.Effects
 		public MossWaterRGB(EffectExtraData data) 
 		{
 		this.data = data;
-			color = new Color(0, 0, 0);
+			color = new Color(0, 0, 0); // Checked already, this line doesnt affect the color of the shadee, so the issue isnt from here.
 		}
 		internal static void Apply()
 		{
@@ -75,7 +76,7 @@ namespace RegionKit.Modules.Effects
 				LogMessage("entered loading / loading status: " + loaded);
 				loaded = true;
 				if (MossWaterUnlit.mossBundle != null)
-				rw.Shaders["MossWaterRGB"] = FShader.CreateShader("MossWaterRGB", MossWaterUnlit.mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/MossWater.shader"));
+				rw.Shaders["MossWaterRGB"] = FShader.CreateShader("MossWaterRGB", MossWaterUnlit.mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/MossWaterRGB.shader"));
 				else
 				{
 					LogMessage("MossWaterRGB must be loaded after MossWaterUnlit!");
@@ -85,9 +86,10 @@ namespace RegionKit.Modules.Effects
 
 		public override void Update(bool eu)
 		{
-			color.r = data.GetInt("Red");
-			color.g = data.GetInt("Green");
-			color.b = data.GetInt("Blue");
+			color.r = data.GetFloat("Red");
+			color.g = data.GetFloat("Green");
+			color.b = data.GetFloat("Blue");
+			Shader.SetGlobalColor("_InputColorMoss", new Color(25f / 255f, 77f / 255f, 51f / 255f, 1f));
 		}
 
 		private static void Water_AddToContainer(On.Water.orig_AddToContainer orig, Water self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
@@ -148,7 +150,6 @@ namespace RegionKit.Modules.Effects
 				{
 					WaterTriangleMesh waterMesh = (WaterTriangleMesh)sLeaser.sprites[0];
 					int offset = self.PreviousSurfacePoint(camPos.x - 30f);
-
 					// Calculate vertex positions and UVs
 					for (int column = 0; column <= self.pointsToRender; column++)
 					{

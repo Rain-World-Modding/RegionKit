@@ -21,6 +21,7 @@ public static class _Module
 		RoomRainWithoutDeathRain.Apply();
 		MossWaterUnlit.Apply();
 		MossWaterRGB.Apply();
+		TestEffect.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -35,6 +36,7 @@ public static class _Module
 		RoomRainWithoutDeathRain.Undo();
 		MossWaterUnlit.Undo();
 		MossWaterRGB.Undo();
+		TestEffect.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -52,6 +54,7 @@ public static class _Module
 			type == _Enums.HiveColorAlpha ||
 			type == _Enums.MossWater ||
 			//type == _Enums.MossWaterRGB ||
+			type == _Enums.TestEffect ||
 			type == EchoExtender._Enums.EchoPresenceOverride)
 			res = _Enums.RegionKit;
 		return res;

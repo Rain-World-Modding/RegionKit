@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using EffExt;
+using RegionKit.Modules.Objects;
 
 namespace RegionKit.Modules.Effects
 {
@@ -36,10 +37,30 @@ namespace RegionKit.Modules.Effects
 	internal class MossWaterUAD : UpdatableAndDeletable
 	{
 		public EffectExtraData EffectData { get; }
+		public Color color;
+		public MossWaterRGB mossWaterRGB;
 
 		public MossWaterUAD(EffectExtraData effectData)
 		{
 			EffectData = effectData;
+			color = Color.green;
+			mossWaterRGB = new MossWaterRGB();
+		}
+
+		public override void Update(bool eu)
+		{
+			color.r = EffectData.GetFloat("Red") / 255f;
+			color.g = EffectData.GetFloat("Green") / 255f;
+			color.b = EffectData.GetFloat("Blue") / 255f;
+			if (mossWaterRGB != null )
+			{
+				mossWaterRGB.SetColor(color);
+			}
+		}
+
+		public Color GetColor()
+		{
+			return color;
 		}
 	}
 		internal class MossWaterRGB : UpdatableAndDeletable
@@ -47,13 +68,11 @@ namespace RegionKit.Modules.Effects
 		public static readonly object mossRGBSprite = new();
 		static bool loaded = false;
 		const int vertsPerColumn = 64;
-		private EffectExtraData data;
-		private Color color;
 
-		public MossWaterRGB(EffectExtraData data) 
+		// The constructor is never ran!
+		public MossWaterRGB() 
 		{
-		this.data = data;
-			color = new Color(0, 0, 0); // Checked already, this line doesnt affect the color of the shadee, so the issue isnt from here.
+
 		}
 		internal static void Apply()
 		{
@@ -69,6 +88,11 @@ namespace RegionKit.Modules.Effects
 			On.Water.AddToContainer -= Water_AddToContainer;
 		}
 
+		public void SetColor(Color color)
+		{
+			Shader.SetGlobalColor("_InputColorMoss", color);
+		}
+
 		public static void MossLoadResources(RainWorld rw)
 		{
 			if (!loaded)
@@ -76,20 +100,15 @@ namespace RegionKit.Modules.Effects
 				LogMessage("entered loading / loading status: " + loaded);
 				loaded = true;
 				if (MossWaterUnlit.mossBundle != null)
-				rw.Shaders["MossWaterRGB"] = FShader.CreateShader("MossWaterRGB", MossWaterUnlit.mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/MossWaterRGB.shader"));
+				{
+					rw.Shaders["MossWaterRGB"] = FShader.CreateShader("MossWaterRGB", MossWaterUnlit.mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/MossWaterRGB.shader"));
+					Shader.SetGlobalColor("_InputColorMoss", Color.green);
+				}
 				else
 				{
 					LogMessage("MossWaterRGB must be loaded after MossWaterUnlit!");
 				}
 			}
-		}
-
-		public override void Update(bool eu)
-		{
-			color.r = data.GetFloat("Red");
-			color.g = data.GetFloat("Green");
-			color.b = data.GetFloat("Blue");
-			Shader.SetGlobalColor("_InputColorMoss", new Color(25f / 255f, 77f / 255f, 51f / 255f, 1f));
 		}
 
 		private static void Water_AddToContainer(On.Water.orig_AddToContainer orig, Water self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)

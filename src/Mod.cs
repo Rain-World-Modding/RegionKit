@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using RegionKit.Modules.Effects;
 using RegionKit.Modules.GateCustomization;
-using EffExt;
 
 namespace RegionKit;
 /// <summary>
@@ -42,8 +41,6 @@ public class Mod : BepInEx.BaseUnityPlugin
 			__writeCallsiteInfo = _writeTraceConfig.Value;
 		};
 		Logfix.__SwitchToBepinexLogger(Logger);
-
-
 		On.RainWorld.OnModsInit += Init;
 		//Init();
 		TheRitual.Commence();

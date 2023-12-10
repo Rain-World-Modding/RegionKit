@@ -24,7 +24,7 @@ namespace RegionKit.Modules.Effects
 					.AddFloatField("Green", 0, 255, 1, 77)
 					.AddFloatField("Blue", 0, 255, 1, 51)
 					.SetUADFactory((room, data, firstTimeRealized) => new MossWaterUAD(data))
-					.SetCategory("POMEffectsExamples")
+					.SetCategory("RegionKit")
 					.Register();
 			}
 			catch (Exception ex)
@@ -38,13 +38,35 @@ namespace RegionKit.Modules.Effects
 	{
 		public EffectExtraData EffectData { get; }
 		public Color color;
-		public MossWaterRGB mossWaterRGB;
+		public static MossWaterRGB mossWaterRGB;
+		
 
 		public MossWaterUAD(EffectExtraData effectData)
 		{
 			EffectData = effectData;
 			color = Color.green;
 			mossWaterRGB = new MossWaterRGB();
+			
+		}
+
+		internal static void Apply()
+		{
+			On.RoomCamera.ChangeRoom += RoomCamera_ChangeRoom;
+		}
+
+		internal static void Undo()
+		{
+			On.RoomCamera.ChangeRoom -= RoomCamera_ChangeRoom;
+		}
+
+
+		private static void RoomCamera_ChangeRoom(On.RoomCamera.orig_ChangeRoom orig, RoomCamera self, Room newRoom, int cameraPosition)
+		{
+			orig(self, newRoom, cameraPosition);
+			if (mossWaterRGB != null)
+			{
+				mossWaterRGB = new MossWaterRGB();
+			}
 		}
 
 		public override void Update(bool eu)
@@ -52,7 +74,9 @@ namespace RegionKit.Modules.Effects
 			color.r = EffectData.GetFloat("Red") / 255f;
 			color.g = EffectData.GetFloat("Green") / 255f;
 			color.b = EffectData.GetFloat("Blue") / 255f;
-			if (mossWaterRGB != null )
+
+
+			if (mossWaterRGB != null && room.BeingViewed)
 			{
 				mossWaterRGB.SetColor(color);
 			}
@@ -69,7 +93,6 @@ namespace RegionKit.Modules.Effects
 		static bool loaded = false;
 		const int vertsPerColumn = 64;
 
-		// The constructor is never ran!
 		public MossWaterRGB() 
 		{
 
@@ -114,7 +137,6 @@ namespace RegionKit.Modules.Effects
 		private static void Water_AddToContainer(On.Water.orig_AddToContainer orig, Water self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
 		{
 			orig(self, sLeaser, rCam, newContatiner);
-
 			if (self.room.roomSettings.GetEffect(_Enums.MossWaterRGB) != null)
 			{
 				if (sLeaser.sprites.FirstOrDefault(x => x.data == mossRGBSprite) is TriangleMesh mossMesh)

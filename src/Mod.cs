@@ -42,7 +42,6 @@ public class Mod : BepInEx.BaseUnityPlugin
 			__writeCallsiteInfo = _writeTraceConfig.Value;
 		};
 		Logfix.__SwitchToBepinexLogger(Logger);
-		MossWaterRGBBuilder.__RegisterBuilder();
 
 
 		On.RainWorld.OnModsInit += Init;
@@ -68,9 +67,9 @@ public class Mod : BepInEx.BaseUnityPlugin
 			_modulesSetUp = true;
 			_Assets.LoadResources();
 
+			MossWaterRGBBuilder.__RegisterBuilder();
 			MossWaterUnlit.MossLoadResources(self);
 			MossWaterRGB.MossLoadResources(self);
-			TestEffect.LoadResources(self);
 			GateCustomization.LoadShaders(self);
 		}
 		catch (Exception ex)

@@ -21,7 +21,6 @@ public static class _Module
 		RoomRainWithoutDeathRain.Apply();
 		MossWaterUnlit.Apply();
 		MossWaterRGB.Apply();
-		MossWaterUAD.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -36,7 +35,6 @@ public static class _Module
 		RoomRainWithoutDeathRain.Undo();
 		MossWaterUnlit.Undo();
 		MossWaterRGB.Undo();
-		MossWaterUAD.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 

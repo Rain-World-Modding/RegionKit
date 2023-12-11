@@ -20,9 +20,10 @@ namespace RegionKit.Modules.Effects
 				LogMessage("Loading builder");
 				EffectDefinitionBuilder builder = new EffectDefinitionBuilder("MossWaterRGB");
 				builder
-					.AddFloatField("Red", 0, 255, 1, 25)
-					.AddFloatField("Green", 0, 255, 1, 77)
 					.AddFloatField("Blue", 0, 255, 1, 51)
+					.AddFloatField("Green", 0, 255, 1, 77)
+					.AddFloatField("Red", 0, 255, 1, 25)
+					.AddFloatField("Height", 0, 1, 0.01f, 1)
 					.SetUADFactory((room, data, firstTimeRealized) => new MossWaterUAD(data))
 					.SetCategory("RegionKit")
 					.Register();
@@ -38,35 +39,17 @@ namespace RegionKit.Modules.Effects
 	{
 		public EffectExtraData EffectData { get; }
 		public Color color;
-		public static MossWaterRGB mossWaterRGB;
+		public float height;
+		public MossWaterRGB mossWaterRGB;
 		
 
 		public MossWaterUAD(EffectExtraData effectData)
 		{
 			EffectData = effectData;
 			color = Color.green;
+			height = 1;
 			mossWaterRGB = new MossWaterRGB();
 			
-		}
-
-		internal static void Apply()
-		{
-			On.RoomCamera.ChangeRoom += RoomCamera_ChangeRoom;
-		}
-
-		internal static void Undo()
-		{
-			On.RoomCamera.ChangeRoom -= RoomCamera_ChangeRoom;
-		}
-
-
-		private static void RoomCamera_ChangeRoom(On.RoomCamera.orig_ChangeRoom orig, RoomCamera self, Room newRoom, int cameraPosition)
-		{
-			orig(self, newRoom, cameraPosition);
-			if (mossWaterRGB != null)
-			{
-				mossWaterRGB = new MossWaterRGB();
-			}
 		}
 
 		public override void Update(bool eu)
@@ -74,24 +57,20 @@ namespace RegionKit.Modules.Effects
 			color.r = EffectData.GetFloat("Red") / 255f;
 			color.g = EffectData.GetFloat("Green") / 255f;
 			color.b = EffectData.GetFloat("Blue") / 255f;
+			height = EffectData.GetFloat("Height");
 
 
 			if (mossWaterRGB != null && room.BeingViewed)
 			{
-				mossWaterRGB.SetColor(color);
+				mossWaterRGB.SetValues(color, room, height);
 			}
-		}
-
-		public Color GetColor()
-		{
-			return color;
 		}
 	}
 		internal class MossWaterRGB : UpdatableAndDeletable
 	{
 		public static readonly object mossRGBSprite = new();
 		static bool loaded = false;
-		const int vertsPerColumn = 64;
+		const int vertsPerColumn = 128;
 
 		public MossWaterRGB() 
 		{
@@ -111,9 +90,16 @@ namespace RegionKit.Modules.Effects
 			On.Water.AddToContainer -= Water_AddToContainer;
 		}
 
-		public void SetColor(Color color)
+		public void SetValues(Color color, Room room, float height)
 		{
 			Shader.SetGlobalColor("_InputColorMoss", color);
+			float width = room.roomSettings.GetEffectAmount(_Enums.MossWaterRGB);
+			if (width > 0)
+			{
+				width *= Mathf.Lerp(0.05f, 5f, width);
+			}
+			Shader.SetGlobalFloat("_InputWidthMoss", width);
+			Shader.SetGlobalFloat("_InputHeightMoss", height);
 		}
 
 		public static void MossLoadResources(RainWorld rw)

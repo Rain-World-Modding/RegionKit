@@ -65,8 +65,10 @@ public class Mod : BepInEx.BaseUnityPlugin
 			_Assets.LoadResources();
 
 			MossWaterRGBBuilder.__RegisterBuilder();
+			IceWaterBuilder.__RegisterBuilder();
 			MossWaterUnlit.MossLoadResources(self);
 			MossWaterRGB.MossLoadResources(self);
+
 			GateCustomization.LoadShaders(self);
 		}
 		catch (Exception ex)

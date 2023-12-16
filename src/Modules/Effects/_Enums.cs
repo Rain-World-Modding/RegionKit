@@ -58,5 +58,9 @@ public static class _Enums
 	/// <summary>
 	/// Effect category
 	/// </summary>
+	public static RoomSettings.RoomEffect.Type IceWater = new(nameof(IceWater), true);
+	/// <summary>
+	/// Effect category
+	/// </summary>
 	public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKit = new(nameof(RegionKit), true);
 }

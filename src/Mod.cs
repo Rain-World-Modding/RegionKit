@@ -27,7 +27,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 	/// <inheritdoc/>
 	public void OnEnable()
 	{
-
+		
 		_writeTraceConfig = Config.Bind("main", "writeTrace", false, "Write additional spammy debug lines");
 		__writeTrace = _writeTraceConfig.Value;
 		_writeTraceConfig.SettingChanged += (sender, args) =>
@@ -64,7 +64,11 @@ public class Mod : BepInEx.BaseUnityPlugin
 			_modulesSetUp = true;
 			_Assets.LoadResources();
 
+			MossWaterRGBBuilder.__RegisterBuilder();
+			IceWaterBuilder.__RegisterBuilder();
 			MossWaterUnlit.MossLoadResources(self);
+			MossWaterRGB.MossLoadResources(self);
+
 			GateCustomization.LoadShaders(self);
 		}
 		catch (Exception ex)

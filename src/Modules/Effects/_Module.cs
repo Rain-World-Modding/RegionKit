@@ -20,6 +20,8 @@ public static class _Module
 		HiveColorAlpha.Apply();
 		RoomRainWithoutDeathRain.Apply();
 		MossWaterUnlit.Apply();
+		MossWaterRGB.Apply();
+		IceWater.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -33,6 +35,8 @@ public static class _Module
 		HiveColorAlpha.Undo();
 		RoomRainWithoutDeathRain.Undo();
 		MossWaterUnlit.Undo();
+		MossWaterRGB.Undo();
+		IceWater.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 

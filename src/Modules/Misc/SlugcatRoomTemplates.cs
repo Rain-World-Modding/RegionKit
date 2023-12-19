@@ -63,7 +63,7 @@ internal static class SlugcatRoomTemplates
 				string path = AssetManager.ResolveFilePath(
 			$"World{Path.DirectorySeparatorChar}{region.name}{Path.DirectorySeparatorChar}{self.name}-{playerChar.value}.txt"
 			);
-				LogMessage($"path is [{path}, exists? {File.Exists(path)}]");
+				LogTrace($"path is [{path}, exists? {File.Exists(path)}]");
 				if (File.Exists(path)) self.filePath = path;
 			});
 		}

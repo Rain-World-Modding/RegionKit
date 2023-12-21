@@ -20,6 +20,13 @@ namespace RegionKit.Modules.Machinery;
 public static class _Module
 {
 	private const string MACHINERY_POM_CATEGORY = RK_POM_CATEGORY + "-Machinery";
+	private static List<Hook> __machineryHooks = new();
+	internal static readonly Dictionary<int, V1.RoomPowerManager> __managersByRoomHash = new Dictionary<int, V1.RoomPowerManager>();
+	internal static readonly Dictionary<OscillationMode, Func<float, float>> __defaultOscillators = new() {
+		{ OscillationMode.Sinal, Mathf.Sin },
+		{ OscillationMode.Cosinal, Mathf.Cos },
+		{ OscillationMode.Sinal, (x) => Mathf.Pow(Mathf.Sin(x), 3f) },
+	};
 	public static void Setup()
 	{
 		RegisterMPO();
@@ -33,8 +40,6 @@ public static class _Module
 	{
 		foreach (var hk in __machineryHooks) if (!hk.IsApplied) hk.Apply();
 	}
-
-	private static List<Hook> __machineryHooks = null!;
 
 	/// <summary>
 	/// Undoes hooks.
@@ -102,27 +107,4 @@ public static class _Module
 		RegisterManagedObject<V2.SinglePistonController, V2.SinglePistonControllerData, ManagedRepresentation>("V2SinglePiston", MACHINERY_POM_CATEGORY);
 		RegisterManagedObject<V2.PistonArrayController, V2.PistonArrayControllerData, ManagedRepresentation>("V2PistonArray", MACHINERY_POM_CATEGORY);
 	}
-	internal static readonly Dictionary<int, V1.RoomPowerManager> __managersByRoomHash = new Dictionary<int, V1.RoomPowerManager>();
 }
-
-/// <summary>
-/// Machinery operation modes.
-/// </summary>
-public enum OperationMode
-{
-	///<inheritdoc/>
-	Sinal = 2,
-	///<inheritdoc/>
-	Cosinal = 4,
-}
-/// <summary>
-/// Used as filter for <see cref="V1.MachineryCustomizer"/>
-/// </summary>
-public enum MachineryID
-{
-	///<inheritdoc/>
-	Piston,
-	///<inheritdoc/>
-	Cog
-}
-

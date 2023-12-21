@@ -2,11 +2,10 @@ namespace RegionKit.Modules.Machinery.V2;
 
 public class POMOscillationProvider : ManagedData, IOscillationProvider
 {
-
 	[IntegerField("00tag", -100, 100, 0, displayName: "tag")]
 	public int tag;
-	[EnumField<OperationMode>("01mode", OperationMode.Sinal, displayName: "Operation mode")]
-	public OperationMode opmode;
+	[EnumField<OscillationMode>("01mode", OscillationMode.Sinal, displayName: "Operation mode")]
+	public OscillationMode opmode;
 
 	[FloatField("02amp", 0f, 120f, 20f, increment: 1f, displayName: "Amplitude", control: ManagedFieldWithPanel.ControlType.text)]
 	public float amplitude = 20f;
@@ -17,11 +16,9 @@ public class POMOscillationProvider : ManagedData, IOscillationProvider
 	public POMOscillationProvider(PlacedObject owner) : base(owner, null)
 	{
 	}
-
 	public int Tag => tag;
-
 	public OscillationParams OscillationForNew()
 	{
-		return new(0f, amplitude, frequency, phase, opmode switch { OperationMode.Sinal => Mathf.Sin, OperationMode.Cosinal => Mathf.Cos, _ => throw new ArgumentException($"Invalid enum value {(int)opmode}") });
+		return new(0f, amplitude, frequency, phase, _Module.__defaultOscillators[opmode]);
 	}
 }

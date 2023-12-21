@@ -5,8 +5,8 @@ namespace RegionKit.Modules.Machinery.V1;
 public class PistonData : BaseMachineryData
 {
 	#pragma warning disable 1591
-	[EnumField<OperationMode>("1opmode", OperationMode.Sinal, displayName: "Operation mode")]
-	public OperationMode opmode;
+	[EnumField<OscillationMode>("1opmode", OscillationMode.Sinal, displayName: "Operation mode")]
+	public OscillationMode opmode;
 	[FloatField("6rot", -180f, 180f, 0f, increment: 1f, displayName: "Direction", control: ManagedFieldWithPanel.ControlType.slider)]
 	public float rotation = 0f;
 	[FloatField("3amp", 0f, 120f, 20f, increment: 1f, displayName: "Amplitude", control: ManagedFieldWithPanel.ControlType.text)]

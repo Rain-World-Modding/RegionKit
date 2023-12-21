@@ -96,6 +96,9 @@ public static class _Module
 		RegisterEmptyObjectType<V1.MachineryCustomizer, ManagedRepresentation>("MachineryCustomizer", MACHINERY_POM_CATEGORY);
 		RegisterManagedObject<V1.SimpleCog, V1.SimpleCogData, ManagedRepresentation>("SimpleCog", MACHINERY_POM_CATEGORY);
 		RegisterManagedObject<V1.RoomPowerManager, V1.PowerManagerData, ManagedRepresentation>("PowerManager", MACHINERY_POM_CATEGORY, true);
+
+		RegisterEmptyObjectType<V2.POMVisualsProvider, ManagedRepresentation>("V2MachineryVisuals", MACHINERY_POM_CATEGORY);
+		RegisterManagedObject<V2.SinglePistonController, V2.SinglePistonControllerData, ManagedRepresentation>("V2SinglePiston", MACHINERY_POM_CATEGORY);
 	}
 	internal static readonly Dictionary<int, V1.RoomPowerManager> __managersByRoomHash = new Dictionary<int, V1.RoomPowerManager>();
 }

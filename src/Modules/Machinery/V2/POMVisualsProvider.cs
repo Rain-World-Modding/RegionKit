@@ -44,9 +44,4 @@ public class POMVisualsProvider : ManagedData, IVisualsProvider
 			anchorY,
 			addedRotation);
 	}
-	public override void SetValue<T>(string fieldName, T value)
-	{
-		base.SetValue(fieldName, value);
-		LogTrace($"Machinery visuals updated {fieldName} to {value}");
-	}
 }

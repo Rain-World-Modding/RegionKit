@@ -9,13 +9,13 @@ namespace RegionKit.Modules.Machinery;
 /// </summary>
 public struct OscillationParams
 {
-	public readonly float baseValue;
+	public float baseValue;
 	///<inheritdoc/>
-	public readonly float amplitude;
+	public float amplitude;
 	///<inheritdoc/>
-	public readonly float frequency;
+	public float frequency;
 	///<inheritdoc/>
-	public readonly float phase;
+	public float phase;
 	///<inheritdoc/>
 	public Func<float, float> Oscillator => _oscillator ?? UnityEngine.Mathf.Sin;
 	private Func<float, float>? _oscillator;

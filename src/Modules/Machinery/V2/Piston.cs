@@ -1,6 +1,6 @@
 namespace RegionKit.Modules.Machinery.V2;
 
-internal class Piston : UpdatableAndDeletable, IDrawable
+public class Piston : UpdatableAndDeletable, IDrawable
 {
 	public float lastLifetime;
 	public float lifetime;
@@ -9,7 +9,7 @@ internal class Piston : UpdatableAndDeletable, IDrawable
 	public PartVisuals visuals;
 	public Vector2 pos;
 	public float rotDeg;
-	private ContainerCodes lastContainer;
+	private ContainerCodes _lastContainer;
 	public Piston(Func<float>? getSpeed)
 	{
 		this.getSpeed = getSpeed;
@@ -58,12 +58,12 @@ internal class Piston : UpdatableAndDeletable, IDrawable
 		sprite.color = visuals.color;
 		sprite.anchorX = visuals.anchorX;
 		sprite.anchorY = visuals.anchorY;
-		if (lastContainer != visuals.container)
+		if (_lastContainer != visuals.container)
 		{
 			LogTrace("switching piston container");
 			AddToContainer(sLeaser, rCam, rCam.ReturnFContainer(visuals.container));
 		}
-		lastContainer = visuals.container;
+		_lastContainer = visuals.container;
 		if (!sLeaser.deleteMeNextFrame && (base.slatedForDeletetion || this.room != rCam.room))
 		{
 			sLeaser.CleanSpritesAndRemove();

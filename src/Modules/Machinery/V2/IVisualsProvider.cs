@@ -7,6 +7,7 @@ public interface IVisualsProvider
 
 	internal class Default : IVisualsProvider
 	{
+		public readonly static Default one = new();
 		public int Tag => int.MinValue;
 
 		public PartVisuals VisualsForNew()

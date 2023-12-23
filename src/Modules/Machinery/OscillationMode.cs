@@ -11,7 +11,7 @@ namespace RegionKit.Modules.Machinery;
 /// </summary>
 public enum OscillationMode
 {
-	///<inheritdoc/>
+	None,
 	Sinal,
 	Cosinal,
 	SinalCubed,

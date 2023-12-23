@@ -23,9 +23,10 @@ public static class _Module
 	private static List<Hook> __machineryHooks = new();
 	internal static readonly Dictionary<int, V1.RoomPowerManager> __managersByRoomHash = new Dictionary<int, V1.RoomPowerManager>();
 	internal static readonly Dictionary<OscillationMode, Func<float, float>> __defaultOscillators = new() {
+		{ OscillationMode.None, (x) => 0f },
 		{ OscillationMode.Sinal, Mathf.Sin },
 		{ OscillationMode.Cosinal, Mathf.Cos },
-		{ OscillationMode.Sinal, (x) => Mathf.Pow(Mathf.Sin(x), 3f) },
+		{ OscillationMode.SinalCubed, (x) => Mathf.Pow(Mathf.Sin(x), 3f) },
 	};
 	public static void Setup()
 	{
@@ -103,8 +104,9 @@ public static class _Module
 		RegisterManagedObject<V1.RoomPowerManager, V1.PowerManagerData, ManagedRepresentation>("PowerManager", MACHINERY_POM_CATEGORY, true);
 
 		RegisterEmptyObjectType<V2.POMVisualsProvider, ManagedRepresentation>("V2MachineryVisuals", MACHINERY_POM_CATEGORY);
-		RegisterEmptyObjectType<V2.POMOscillationProvider, ManagedRepresentation>("V2OscillationProvider", MACHINERY_POM_CATEGORY);
+		RegisterEmptyObjectType<V2.POMOscillationProvider, ManagedRepresentation>("V2MachineryOscillation", MACHINERY_POM_CATEGORY);
 		RegisterManagedObject<V2.SinglePistonController, V2.SinglePistonControllerData, ManagedRepresentation>("V2SinglePiston", MACHINERY_POM_CATEGORY);
 		RegisterManagedObject<V2.PistonArrayController, V2.PistonArrayControllerData, ManagedRepresentation>("V2PistonArray", MACHINERY_POM_CATEGORY);
+		RegisterManagedObject<V2.SingleWheelController, V2.SingleWheelControllerData, ManagedRepresentation>("V2SingleWheel", MACHINERY_POM_CATEGORY);
 	}
 }

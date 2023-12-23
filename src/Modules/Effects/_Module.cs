@@ -21,6 +21,15 @@ public static class _Module
 		RoomRainWithoutDeathRain.Apply();
 		MossWaterUnlit.Apply();
 		MossWaterRGB.Apply();
+
+		RainWorld rainworld = CRW;
+		MossWaterRGBBuilder.__RegisterBuilder();
+		IceWaterBuilder.__RegisterBuilder();
+		MossWaterUnlit.MossLoadResources(rainworld);
+		MossWaterRGB.MossLoadResources(rainworld);
+
+
+
 		IceWater.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}

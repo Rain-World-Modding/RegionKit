@@ -1,14 +1,8 @@
 namespace RegionKit.Modules.Iggy;
 
-public class Message
+public record Message(DateTime expiration, string text, bool uninterruptable)
 {
-	public DateTime expiration;
-	public string text;
 	public bool Expired => expiration < DateTime.Now;
 
-	public Message(TimeSpan life, string text)
-	{
-		this.expiration = DateTime.Now + life;
-		this.text = text;
-	}
+	public Message(TimeSpan length, string text, bool uninterruptable) : this(DateTime.Now + length, text, uninterruptable) { }
 }

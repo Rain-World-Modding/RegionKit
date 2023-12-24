@@ -16,12 +16,14 @@ public static class _Module
 	public static void Enable()
 	{
 		On.DevInterface.Page.ctor += __SpawnDevIggy;
+		On.DevInterface.DevUI.ctor += __ShowIggyHelp;
 		On.DevInterface.DevUI.Update += __TrackRightClicks;
 		On.DevInterface.DevUINode.Update += __SignalRightClick;
 	}
 	public static void Disable()
 	{
 		On.DevInterface.Page.ctor -= __SpawnDevIggy;
+		On.DevInterface.DevUI.ctor -= __ShowIggyHelp;
 		On.DevInterface.DevUI.Update -= __TrackRightClicks;
 		On.DevInterface.DevUINode.Update -= __SignalRightClick;
 	}
@@ -31,7 +33,7 @@ public static class _Module
 		{
 			__requestedToolTips.Sort((a, b) => b.priority - a.priority);
 			var item = __requestedToolTips[0];
-			__messageSystem.DisplayNow(TimeSpan.FromSeconds(5), item.text);
+			__messageSystem.PlayMessageNow(new(TimeSpan.FromSeconds(5), item.text, false));
 		}
 		__requestedToolTips.Clear();
 		__messageSystem.Update();
@@ -123,7 +125,11 @@ public static class _Module
 	};
 	#endregion
 	#region hooks
-
+	public static void __ShowIggyHelp(On.DevInterface.DevUI.orig_ctor orig, DevInterface.DevUI self, RainWorldGame rwg)
+	{
+		orig(self, rwg);
+		__messageSystem.PlayMessageNow(new(TimeSpan.FromSeconds(20), "Right click an element, and I will try to decribe it.", false));
+	}
 	public static void __SignalRightClick(On.DevInterface.DevUINode.orig_Update orig, DevInterface.DevUINode self)
 	{
 		orig(self);

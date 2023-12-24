@@ -2,8 +2,14 @@ namespace RegionKit.Modules.Iggy;
 
 public class MessageSystem
 {
-	public readonly static string[] randomHints = new[] { "I haven't implemented actual help requests yet", "DevInterface Signals suck", "Clean yo shoes" };
-	public readonly static TimeSpan displayPassiveHintAfter = TimeSpan.FromSeconds(15);
+	public readonly static string[] randomHints = new[] { 
+		"Right click an element, and I will try to describe it.",
+		"Clicking on overlapping UI elements clicks all of them. Space your panels out to avoid unwanted input.",
+		"When you exit the room with devtools on, the screen does not automatically clear itself. Close and reopen it to clear.",
+		"Devtools Triggers tab is by far the most underused. Very few mods added anything to it.",
+		"The default color scheme of Dev Tools is hard on the eyes. There is a workshop mod called Legible Devtools that makes things blue." //todo: add more hints
+		};
+	public readonly static TimeSpan maxIdleTime = TimeSpan.FromSeconds(10);
 	public readonly static TimeSpan hintDuration = TimeSpan.FromSeconds(10);
 	public Message? currentMessage;
 	public DateTime lastMessageWasOver;
@@ -16,7 +22,7 @@ public class MessageSystem
 	{
 		if (currentMessage is null)
 		{
-			if (DateTime.Now - lastMessageWasOver > displayPassiveHintAfter)
+			if (DateTime.Now - lastMessageWasOver > maxIdleTime)
 			{
 
 				string hint = randomHints.RandomOrDefault()!;
@@ -37,8 +43,8 @@ public class MessageSystem
 		lastMessageWasOver = DateTime.Now;
 	}
 
-	public void DisplayNow(TimeSpan howLong, string text)
+	public void DisplayNow(TimeSpan howLong, string? text)
 	{
-		currentMessage = new(howLong, text);
+		currentMessage = new(howLong, text ?? "NULL");
 	}
 }

@@ -2,7 +2,7 @@ using DevInterface;
 
 namespace RegionKit.Modules.Iggy;
 
-public class Iggy : DevInterface.Panel
+public class Iggy : DevInterface.Panel, IGiveAToolTip
 {
 	public const float FACE_H = 100f;
 	public const float PADDING = 5f;
@@ -19,6 +19,12 @@ public class Iggy : DevInterface.Panel
 	public Message? currentlyShowing;
 
 	public readonly List<(FLabel, Vector2)> speech = new();
+
+	int IGiveAToolTip.ToolTipPriority => 100;
+
+	string IGiveAToolTip.ToolTip => "This is me, dumbass.";
+
+	bool IGeneralMouseOver.MouseOverMe => MouseOver;
 
 	public Iggy(
 		DevUI owner,

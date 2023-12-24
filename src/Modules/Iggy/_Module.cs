@@ -5,8 +5,11 @@ namespace RegionKit.Modules.Iggy;
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), nameof(Update), tickPeriod: 10, moduleName: "Iggy")]
 public static class _Module
 {
-	public static System.Runtime.CompilerServices.ConditionalWeakTable<DevInterface.Page, DevInterface.Panel> __iggys = new() { };
-	public static MessageSystem __messageSystem = new();
+	internal static System.Runtime.CompilerServices.ConditionalWeakTable<DevInterface.Page, DevInterface.Panel> __iggys = new() { };
+	internal static MessageSystem __messageSystem = new();
+	internal static bool __IggyCollapsed = false;
+	internal static Vector2 __IggyPos = new(100f, 100f);
+	
 	public static void Setup() { }
 	public static void Enable()
 	{
@@ -33,8 +36,7 @@ public static class _Module
 		Iggy iggy = new Iggy(
 			owner,
 			IDstring + "_Iggy",
-			self,
-			new(100f, 100f));
+			self);
 		self.subNodes.Add(iggy);
 		__iggys.Add(self, iggy);
 	}

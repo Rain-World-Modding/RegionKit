@@ -7,7 +7,8 @@ public class MessageSystem
 		"Clicking on overlapping UI elements clicks all of them. Space your panels out to avoid unwanted input.",
 		"When you exit the room with devtools on, the screen does not automatically clear itself. Close and reopen it to clear.",
 		"Devtools Triggers tab is by far the most underused. Very few mods added anything to it.",
-		"The default color scheme of Dev Tools is hard on the eyes. There is a workshop mod called Legible Devtools that makes things blue." //todo: add more hints
+		"The default color scheme of Dev Tools is hard on the eyes. There is a workshop mod called Legible Devtools that makes things blue.",
+		"Black goo effect is on by default in a new editor project for a reason. The slop hides unnecessary detail in the walls."
 		};
 	public readonly static TimeSpan maxIdleTime = TimeSpan.FromSeconds(10);
 	public readonly static TimeSpan hintDuration = TimeSpan.FromSeconds(10);

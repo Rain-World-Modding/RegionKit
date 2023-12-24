@@ -20,11 +20,9 @@ public class Iggy : DevInterface.Panel, IGiveAToolTip
 
 	public readonly List<(FLabel, Vector2)> speech = new();
 
-	int IGiveAToolTip.ToolTipPriority => 100;
-
-	string IGiveAToolTip.ToolTip => "This is me, dumbass.";
-
 	bool IGeneralMouseOver.MouseOverMe => MouseOver;
+
+	public ToolTip toolTip => new("This is me, dummy.", 1, this);
 
 	public Iggy(
 		DevUI owner,

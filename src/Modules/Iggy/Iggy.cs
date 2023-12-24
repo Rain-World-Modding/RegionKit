@@ -4,7 +4,7 @@ namespace RegionKit.Modules.Iggy;
 
 public class Iggy : DevInterface.Panel, IGiveAToolTip
 {
-	public const float FACE_H = 100f;
+	public const float FACE_H = 90f;
 	public const float PADDING = 5f;
 	public const float EXTRA_TOP_PADDING = 7.5f;
 	public const float LINE_SPACING = 2f;
@@ -16,15 +16,17 @@ public class Iggy : DevInterface.Panel, IGiveAToolTip
 	public readonly static Vector2 TOTALSIZE = new(SIZE_X, SIZE_Y);
 	public readonly static Color iggyColor = new Color(1f, 0.8f, 0.3f);
 	public FSprite face;
-
 	public Message? currentlyShowing;
-
+	public DateTime lastFrameOver;
+	public int currentFrame = 0;
+	public int maxFrames = 111;
+	public readonly static TimeSpan frameDuration = TimeSpan.FromMilliseconds(166.0);
+	public const string SPRITE_NAMEBASE = "iggymod";
+	public const string NUMBER_FORMAT = "D4";
 	public readonly List<(FLabel, Vector2)> speech = new();
-
 	bool IGeneralMouseOver.MouseOverMe => MouseOver;
-
 	public ToolTip toolTip => new("This is me, dummy.", 1, this);
-
+	public string GetCurrentFaceElement => SPRITE_NAMEBASE + (currentFrame + 1).ToString(NUMBER_FORMAT);
 	public Iggy(
 		DevUI owner,
 		string IDstring,
@@ -38,10 +40,11 @@ public class Iggy : DevInterface.Panel, IGiveAToolTip
 	{
 		face = new("assets/regionkit/clippy");
 		face.height = FACE_H;
-		face.scaleX = face.scaleY;
-		face.anchorX = face.anchorY = 0f;
+		face.scaleX = face.scaleY * -1f;
+		face.anchorX = 1f;
+		face.anchorY = 0f;
 		this.fSprites.Add(face);
-
+		lastFrameOver = DateTime.Now;
 		if (owner != null)
 		{
 			Futile.stage.AddChild(face);
@@ -75,6 +78,15 @@ public class Iggy : DevInterface.Panel, IGiveAToolTip
 		currentlyShowing = _Module.__messageSystem.currentMessage;
 		_Module.__IggyCollapsed = collapsed;
 		_Module.__IggyPos = pos;
+		if (DateTime.Now - lastFrameOver > frameDuration)
+		{
+			currentFrame++;
+			if (currentFrame >= maxFrames)
+			{
+				currentFrame = 0;
+			}
+		}
+		face.element = Futile.atlasManager.GetElementWithName(GetCurrentFaceElement);
 		//fSprites[0].color = new Color(0.3f, 0.3f, 0.3f).Deviation(new Color(0.1f, 0.1f, 0.1f));
 	}
 	public override void Refresh()

@@ -81,6 +81,8 @@ public static class _Module
 				new StringField("spritename", "", "sprite name")
 			}, typeof(BigKarmaShrine.MarkSprite), "KarmaShrineSprite", GAMEPLAY_POM_CATEGORY);
 		RegisterEmptyObjectType<CustomWallMyceliaData, ManagedRepresentation>("CustomWallMycelia", RK_POM_CATEGORY);
+
+		RegisterManagedObject<GuardProtectNode, GuardProtectData, GuardProtectRepresentation>("GuardProtectNode", GAMEPLAY_POM_CATEGORY);
 	}
 
 	internal static void Enable()
@@ -103,6 +105,7 @@ public static class _Module
 		SlugcatEyeSelector.Apply();
 		BigKarmaShrine.Apply();
 		CustomWallMycelia.Apply();
+		GuardProtectNode.Apply();
 	}
 
 	internal static void Disable()
@@ -123,6 +126,7 @@ public static class _Module
 		SlugcatEyeSelector.Undo();
 		BigKarmaShrine.Undo();
 		CustomWallMycelia.Undo();
+		GuardProtectNode.Undo();
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)

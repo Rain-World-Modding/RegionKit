@@ -47,7 +47,7 @@ public static class _Module
 		IGiveAToolTip ttp => ttp.ToolTip,
 		DevInterface.AddObjectButton objButton => $"This button will add an {objButton.type} object to your room.",
 		DevInterface.AddEffectButton effButton => $"This button will add an {effButton.type} effect to your room.",
-		DevInterface.RoomPanel roomPanel => $"This panel controls basic settings for room {roomPanel.roomRep.room.name}.",
+		DevInterface.RoomPanel roomPanel => $"This panel is a tile map for room {roomPanel.roomRep.room.name}. The room is on layer {roomPanel.layer}. Small letters on sticks are creatures. Squares below are dens.",
 		DevInterface.EffectPanel effPanel => $"This panel controls amount (and maybe other settings) for effect {effPanel.effect.type} in this room, inherited: {effPanel.effect.inherited}. POM effect: {EffExt.Eff.TryGetEffectDefinition(effPanel.effect.type, out _)}",
 		_ => $"This is a {node.GetType().FullName}. Its ID string is {node.IDstring}."
 	};

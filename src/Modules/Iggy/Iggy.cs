@@ -4,7 +4,7 @@ namespace RegionKit.Modules.Iggy;
 
 public class Iggy : DevInterface.Panel, IGiveAToolTip
 {
-	public const float FACE_H = 90f;
+	public const float FACE_H = 180f;
 	public const float PADDING = 5f;
 	public const float EXTRA_TOP_PADDING = 7.5f;
 	public const float LINE_SPACING = 2f;
@@ -20,8 +20,8 @@ public class Iggy : DevInterface.Panel, IGiveAToolTip
 	public DateTime lastFrameOver;
 	public int currentFrame = 0;
 	public int maxFrames = 111;
-	public readonly static TimeSpan frameDuration = TimeSpan.FromMilliseconds(166.0);
-	public const string SPRITE_NAMEBASE = "iggymod";
+	public readonly static TimeSpan frameDuration = TimeSpan.FromMilliseconds(25.0);
+	public const string SPRITE_NAMEBASE = "iggymod"; //Animation was made by MerFaruk
 	public const string NUMBER_FORMAT = "D4";
 	public readonly List<(FLabel, Vector2)> speech = new();
 	bool IGeneralMouseOver.MouseOverMe => MouseOver;
@@ -72,10 +72,13 @@ public class Iggy : DevInterface.Panel, IGiveAToolTip
 		base.Update();
 		if (currentlyShowing != _Module.__messageSystem.currentMessage)
 		{
+			LogTrace("Iggy needs to change speech labels...");
 			SetText(_Module.__messageSystem.currentMessage?.text);
 			AlignText();
+			currentlyShowing = _Module.__messageSystem.currentMessage;
+			LogTrace("Speech labels changed");
 		}
-		currentlyShowing = _Module.__messageSystem.currentMessage;
+
 		_Module.__IggyCollapsed = collapsed;
 		_Module.__IggyPos = pos;
 		if (DateTime.Now - lastFrameOver > frameDuration)
@@ -85,6 +88,7 @@ public class Iggy : DevInterface.Panel, IGiveAToolTip
 			{
 				currentFrame = 0;
 			}
+			lastFrameOver = DateTime.Now;
 		}
 		face.element = Futile.atlasManager.GetElementWithName(GetCurrentFaceElement);
 		//fSprites[0].color = new Color(0.3f, 0.3f, 0.3f).Deviation(new Color(0.1f, 0.1f, 0.1f));
@@ -107,21 +111,29 @@ public class Iggy : DevInterface.Panel, IGiveAToolTip
 
 	private void AlignText()
 	{
+		// LogTrace($"Begin align lines");
 		foreach ((FLabel label, Vector2 pos) in speech)
 		{
-			label.SetPosition(absPos + pos + UNSCRUNGLE_PIXEL_BOUNDARIES);
+			Vector2 newPosition = absPos + pos + UNSCRUNGLE_PIXEL_BOUNDARIES;
+			label.SetPosition(newPosition);
+			// LogTrace($"<{label.text}>, {newPosition}");
 			label.isVisible = !collapsed;
 			label.color = iggyColor;
 		}
+		// LogTrace($"End align lines");
 	}
 	public void SetText(string? text)
 	{
 		ClearText();
-		if (text is null) return;
+		if (text is null)
+		{
+			LogTrace("Text received is null");
+			return;
+		}
 		FFont fFont = Futile.atlasManager.GetFontWithName(Custom.GetFont());
 		float lineHeight = fFont.LineHeight();
 		float maxCharWidth = 5.5f;//fFont.maxCharWidth;
-		int maxLines = Mathf.FloorToInt((SIZE_Y - PADDING * 2f - FACE_H) / lineHeight);
+		int maxLines = Mathf.FloorToInt((SIZE_Y - PADDING * 2f - (FACE_H / 2f) /*thanks futile for making the sprite's visible size half of what it was meant to be*/) / lineHeight);
 		int charsPerLine = Mathf.FloorToInt(LINE_MAX_LENGTH / maxCharWidth);
 		Vector2 labelPos = new Vector2(PADDING, SIZE_Y - PADDING - EXTRA_TOP_PADDING);
 		List<string> lines = text.SplitAndRemoveEmpty("\n").ToList();
@@ -149,6 +161,7 @@ public class Iggy : DevInterface.Panel, IGiveAToolTip
 		}
 		foreach ((FLabel label, Vector2 pos) in speech)
 		{
+			// LogTrace($"Adding line {label} at internal pos {pos}");
 			fLabels.Add(label);
 			Futile.stage.AddChild(label);
 		}

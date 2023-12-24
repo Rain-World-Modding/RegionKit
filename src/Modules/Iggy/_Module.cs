@@ -5,6 +5,7 @@ public static class _Module
 {
 	internal static System.Runtime.CompilerServices.ConditionalWeakTable<DevInterface.Page, DevInterface.Panel> __iggys = new() { };
 	internal static System.Runtime.CompilerServices.ConditionalWeakTable<DevInterface.DevUI, DTRightClickTracker> __devUIRMB = new();
+	internal static System.Runtime.CompilerServices.ConditionalWeakTable<DevInterface.DevUINode, Func<ToolTip>> __attachedToolTips = new();
 	internal static MessageSystem __messageSystem = new();
 	internal static List<ToolTip> __requestedToolTips = new();
 	internal static bool __IggyCollapsed = false;
@@ -37,6 +38,7 @@ public static class _Module
 	}
 	#endregion
 	#region methods
+
 	internal static void __DevUIElementReceivedRMB(DevInterface.DevUINode node)
 	{
 		if (!__requestedToolTips.Any(tt => tt.source == node)) __requestedToolTips.Add(__GetTooltip(node));
@@ -45,11 +47,8 @@ public static class _Module
 	{
 		//todo: cover more vanilla shit
 		IGiveAToolTip givesAToolTip => givesAToolTip.toolTip,
+		_ when __attachedToolTips.TryGetValue(node, out Func<ToolTip> ttf) => ttf(),
 		_ when __GetSpecialHardcodedTooltip(node) is ToolTip tt => tt,
-		// DevInterface.AddObjectButton objButton => $"This button will add an {objButton.type} object to your room.",
-		// DevInterface.AddEffectButton effButton => $"This button will add an {effButton.type} effect to your room.",
-		// DevInterface.RoomPanel roomPanel => $"This panel is a tile map for room {roomPanel.roomRep.room.name}. The room is on layer {roomPanel.layer}. Small letters on sticks are creatures. Squares below are dens.",
-		// DevInterface.EffectPanel effPanel => $"This panel controls amount (and maybe other settings) for effect {effPanel.effect.type} in this room, inherited: {effPanel.effect.inherited}. POM effect: {EffExt.Eff.TryGetEffectDefinition(effPanel.effect.type, out _)}",
 		_ => new($"This is a {node.GetType().FullName}. Its ID string is {node.IDstring}.", 0, node)
 	};
 	internal static ToolTip? __GetSpecialHardcodedTooltip(DevInterface.DevUINode node)
@@ -114,14 +113,7 @@ public static class _Module
 
 		return result;
 	}
-	// internal static int __GetTooltipPriority(DevInterface.DevUINode node) => node switch
-	// {
-	// 	IGiveAToolTip ttp => ttp.ToolTipPriority,
-	// 	DevInterface.Button => 10,
-	// 	DevInterface.Slider => 10,
-	// 	DevInterface.Panel => 5,
-	// 	_ => 0
-	// };
+
 	internal static bool __IsThisBeingHovered(DevInterface.DevUINode node) => node switch
 	{
 		IGeneralMouseOver igmo => igmo.MouseOverMe,
@@ -130,7 +122,6 @@ public static class _Module
 		_ => false,
 	};
 	#endregion
-
 	#region hooks
 
 	public static void __SignalRightClick(On.DevInterface.DevUINode.orig_Update orig, DevInterface.DevUINode self)
@@ -167,7 +158,6 @@ public static class _Module
 		__iggys.Add(self, iggy);
 	}
 	#endregion
-
 	internal class DTRightClickTracker
 	{
 		public bool rmbDown;

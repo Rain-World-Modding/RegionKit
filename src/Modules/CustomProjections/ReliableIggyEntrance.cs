@@ -93,8 +93,7 @@ public class ReliableEntranceData : ManagedData
 internal class ReliableEntranceRep : ManagedRepresentation
 {
 	List<FSprite> sprites = new();
-
-	ReliableEntranceData data;
+	readonly ReliableEntranceData data;
 
 	public ReliableEntranceRep(PlacedObject.Type placedType, DevInterface.ObjectsPage objPage, PlacedObject pObj) : base(placedType, objPage, pObj)
 	{

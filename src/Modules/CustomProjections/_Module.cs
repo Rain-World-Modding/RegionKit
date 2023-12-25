@@ -8,16 +8,19 @@ public static class _Module
 	internal static void Setup()
 	{
 		RegisterManagedObject<ReliableIggyEntrance, ReliableEntranceData, ReliableEntranceRep>("ReliableIggyEntrance", OVERSEER_POM_CATEGORY);
+		RegisterManagedObject<CustomDoorPointer, DoorPointerData, DoorPointerRep>("ReliableDoorPointer", OVERSEER_POM_CATEGORY);
 	}
 
 	internal static void Enable()
 	{
 		CustomProjections.Apply();
 		ReliableIggyEntrance.Apply();
+		CustomDoorPointer.Apply();
 	}
 	internal static void Disable()
 	{
 		CustomProjections.Undo();
 		ReliableIggyEntrance.Undo();
+		CustomDoorPointer.Undo();
 	}
 }

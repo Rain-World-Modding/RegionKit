@@ -10,9 +10,9 @@ namespace RegionKit.Modules.CustomProjections;
 
 internal static class CustomProjections
 {
-	private static ConditionalWeakTable<OverseerImage, StrongBox<string>> _RNDName = new();
+	private static ConditionalWeakTable<IOwnAHoloImage, StrongBox<string>> _RNDName = new();
 
-	public static StrongBox<string> RNDName(this OverseerImage p) => _RNDName.GetValue(p, _ => new("RND_PROJ"));
+	public static StrongBox<string> RNDName(this IOwnAHoloImage p) => _RNDName.GetValue(p, _ => new("RND_PROJ"));
 
 	public static Dictionary<string, List<OverseerImage.ImageID>> Registry = new();
 
@@ -31,9 +31,9 @@ internal static class CustomProjections
 					{
 						if (!Registry.ContainsKey(filename))
 						{ Registry[filename] = new(); }
+
 						var r = new OverseerImage.ImageID(line.Trim(), true);
 						Registry[filename].Add(r);
-						LogMessage($"new is [{r}] with index [{r.index}]");
 					}
 				}
 			}
@@ -78,29 +78,29 @@ internal static class CustomProjections
 	{
 		orig(self, sLeaser, rCam, timeStacker, camPos, partPos, headPos, useFade, popOut, useColor);
 
-		if (!self.isAdvertisement)
+		if (self.isAdvertisement) return;
+
+		if (self.showRandomFlickerImage)
 		{
-			if (self.showRandomFlickerImage && self.hologram is OverseerImage owner && owner.RNDName().Value != "RND_PROJ" && Futile.atlasManager.DoesContainElementWithName(owner.RNDName().Value))
+			if (self.imageOwner.RNDName().Value != "RND_PROJ" && Futile.atlasManager.DoesContainElementWithName(self.imageOwner.RNDName().Value))
+			{ sLeaser.sprites[self.firstSprite].element = Futile.atlasManager.GetElementWithName(self.imageOwner.RNDName().Value); }
+		}
+
+		else if (self.imageOwner.CurrImage.Index >= 25)
+		{
+			foreach (string image in Registry.Keys)
 			{
-				sLeaser.sprites[self.firstSprite].element = Futile.atlasManager.GetElementWithName(owner.RNDName().Value);
-			}
-			else if (self.imageOwner.CurrImage.Index >= 25)
-			{
-				foreach (string image in Registry.Keys)
+				if (!Registry[image].Contains(self.imageOwner.CurrImage)) continue;
+
+				if (Futile.atlasManager.DoesContainElementWithName(image))
+				{ sLeaser.sprites[self.firstSprite].element = Futile.atlasManager.GetElementWithName(image); }
+
+				if (Registry[image].IndexOf(self.imageOwner.CurrImage) >= 0)
 				{
-					if (Registry[image].Contains(self.imageOwner.CurrImage))
-					{
-						if (Futile.atlasManager.DoesContainElementWithName(image))
-						{ sLeaser.sprites[self.firstSprite].element = Futile.atlasManager.GetElementWithName(image); }
-
-						if (Registry[image].IndexOf(self.imageOwner.CurrImage) >= 0)
-						{
-							sLeaser.sprites[self.firstSprite].color = new(sLeaser.sprites[self.firstSprite].color.r, sLeaser.sprites[self.firstSprite].color.g, Registry[image].IndexOf(self.imageOwner.CurrImage) / 25f);
-						}
-
-						break;
-					}
+					var color = sLeaser.sprites[self.firstSprite].color;
+					sLeaser.sprites[self.firstSprite].color = new(color.r, color.g, Registry[image].IndexOf(self.imageOwner.CurrImage) / 25f);
 				}
+				break;
 			}
 		}
 	}
@@ -108,9 +108,9 @@ internal static class CustomProjections
 	private static void HoloImage_InitiateSprites(On.OverseerHolograms.OverseerImage.HoloImage.orig_InitiateSprites orig, OverseerImage.HoloImage self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 		orig(self, sLeaser, rCam);
-		if (self.hologram is OverseerImage owner && owner.RNDName().Value != "RND_PROJ" && Futile.atlasManager.DoesContainElementWithName(owner.RNDName().Value))
+		if (self.imageOwner.RNDName().Value != "RND_PROJ" && Futile.atlasManager.DoesContainElementWithName(self.imageOwner.RNDName().Value))
 		{
-			sLeaser.sprites[self.firstSprite].element = Futile.atlasManager.GetElementWithName(owner.RNDName().Value);
+			sLeaser.sprites[self.firstSprite].element = Futile.atlasManager.GetElementWithName(self.imageOwner.RNDName().Value);
 		}
 	}
 
@@ -125,6 +125,9 @@ internal static class CustomProjections
 			self.LoadFile(image);
 			processedImages.Add(image);
 		}
+
+		if (imageOwner.RNDName().Value != "RND_PROJ")
+		{ self.LoadFile(imageOwner.RNDName().Value); }
 	}
 
 	private static void OverseerImage_ctor(ILContext il)
@@ -150,10 +153,9 @@ internal static class CustomProjections
 						ProjectionData data = ProcessProjectionFile(File.ReadAllLines(fileName));
 						if (data.images.Count > 0)
 						{ data.CopyData(self); }
+
 						else
-						{
-							LogMessage("OverseerProjection has no images!");
-						}
+						{ LogMessage("OverseerProjection has no images!"); }
 					}
 				
 				});
@@ -170,9 +172,7 @@ internal static class CustomProjections
 		public List<OverseerImage.ImageID> images = new();
 		public string RND_Name = "RND_PROJ";
 
-		public ProjectionData()
-		{
-		}
+		public ProjectionData() { }
 
 		public void CopyData(OverseerImage self)
 		{
@@ -187,18 +187,10 @@ internal static class CustomProjections
 	{
 		ProjectionData data = new();
 
-		//check each line in room_PROJ.txt individually
 		foreach (string text in lines)
 		{
-			//if the line is a vanilla ImageID enum, then add that to the list
-
 			if (new OverseerImage.ImageID(text).index != -1)
-			{
-				LogMessage("reading line " + text);
-				data.images.Add(new OverseerImage.ImageID(text));
-			}
-
-			//if the formatting is correct, set timeOnEachImage to the value specified
+			{ data.images.Add(new OverseerImage.ImageID(text)); }
 
 			string[] array = text.Split(':');
 
@@ -224,5 +216,4 @@ internal static class CustomProjections
 		}
 		return data;
 	}
-
 }

@@ -16,6 +16,7 @@ internal static class OverseerRecolor
 		var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 		ColorHook = new Hook(typeof(OverseerGraphics).GetProperty(nameof(OverseerGraphics.MainColor), flags).GetGetMethod(), OverseerGraphics_MainColor_Get);
 	}
+
 	public static void Undo()
 	{
 		On.OverseerAbstractAI.ctor -= OverseerAbstractAI_ctor;

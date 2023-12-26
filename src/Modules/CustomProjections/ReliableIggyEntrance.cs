@@ -102,7 +102,6 @@ internal class ReliableEntranceRep : ManagedRepresentation
 		ResizeSprites(1);
 	}
 
-
 	public void ResizeSprites(int newCount)
 	{
 		for (int i = sprites.Count; i < newCount; i++)

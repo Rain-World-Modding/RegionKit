@@ -31,8 +31,7 @@ public class CustomDoorPointer : ReliableIggyDirection
 
 		if (c.TryGotoNext(MoveType.After,
 			x => x.MatchLdfld<OverseerCommunicationModule>(nameof(OverseerCommunicationModule.currentConcernWeight)),
-			x => x.MatchLdcR4(0.98f)
-			))
+			x => x.MatchLdcR4(0.98f)))
 		{
 			c.Emit(OpCodes.Ldarg_0);
 			c.EmitDelegate((float orig, OverseerCommunicationModule self) => (self.forcedDirectionToGive is CustomDoorPointer dp) ? dp.data.ConcernWeight : orig);
@@ -203,10 +202,9 @@ public class DoorPointerRep : ManagedRepresentation
 	{
 		if (data.Exit < 0)
 		{ data.Exit = owner.room.abstractRoom.exits - 1; }
+
 		if (data.Exit >= owner.room.abstractRoom.exits)
-		{
-			data.Exit = 0;
-		}
+		{ data.Exit = 0; }
 
 		base.Refresh();
 

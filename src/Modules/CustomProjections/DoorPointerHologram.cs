@@ -45,7 +45,6 @@ public class DoorPointerHologram : OverseerHologram.DoorPointer
 		base.Update(eu);
 		if (direction == null || direction.room != overseer.room)
 		{
-			Debug.Log("De-relevanting this beautiful object");
 			stillRelevant = false;
 			return;
 		}

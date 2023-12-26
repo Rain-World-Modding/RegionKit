@@ -72,9 +72,13 @@ internal class OverseerProperties
 			{ guideColor = result; }
 			break;
 
-		case "overseersColorOverride":
-			if (line.Length >= 3 && TryParseOverseerColor(line[1], out var result2) && float.TryParse(line[2], out var num))
-			{ overseerColorChances[result2] = num; }
+		default:
+			if (line[0].StartsWith("overseersColorOverride"))
+			{
+				int start = line[0].IndexOf('(') + 1, end = line[0].IndexOf(')');
+				if (start != -1 && start < end && TryParseOverseerColor(line[0].Substring(start, end - start), out var result2) && float.TryParse(line[1], out var num))
+				{ overseerColorChances[result2] = num; }
+			}
 			break;
 		}
 	}
@@ -137,7 +141,7 @@ internal class OverseerProperties
 
 	public Color GetOverseerColor(int id) => overseerColorLookup[id];
 
-	public static bool BaseIndex(int num) => num <= (ModManager.MSC ? 2 : 6) && num >= 0;
+	public static bool BaseIndex(int num) => num <= (ModManager.MSC ? 2 : 5) && num >= 0;
 
 	public static List<Color> BaseGameColors => new()
 	{

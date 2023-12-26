@@ -16,11 +16,15 @@ public static class _Module
 		CustomProjections.Apply();
 		ReliableIggyEntrance.Apply();
 		CustomDoorPointer.Apply();
+		OverseerProperties.Apply();
+		PointerHooks.Apply();
 	}
 	internal static void Disable()
 	{
 		CustomProjections.Undo();
 		ReliableIggyEntrance.Undo();
 		CustomDoorPointer.Undo();
+		OverseerProperties.Undo();
+		PointerHooks.Undo();
 	}
 }

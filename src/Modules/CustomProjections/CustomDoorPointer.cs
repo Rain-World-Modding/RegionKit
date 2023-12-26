@@ -78,7 +78,7 @@ public class CustomDoorPointer : ReliableIggyDirection
 		this.room = room;
 	}
 
-	public new DoorPointerData data => pObj.data as DoorPointerData;
+	public new DoorPointerData data => (pObj.data as DoorPointerData)!;
 
 	public override void Update(bool eu)
 	{
@@ -145,7 +145,7 @@ public class CustomDoorPointer : ReliableIggyDirection
 		}
 	}
 
-	public new void Activate(Overseer guide)
+	public new void Activate(Overseer guide) //if you remove guide make sure to update
 	{
 		hasBeenActivated = true;
 		if (data.CyclesToShow > 0)

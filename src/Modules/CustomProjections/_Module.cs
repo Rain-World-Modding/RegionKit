@@ -18,6 +18,7 @@ public static class _Module
 		CustomDoorPointer.Apply();
 		OverseerProperties.Apply();
 		PointerHooks.Apply();
+		OverseerRecolor.Apply();
 	}
 	internal static void Disable()
 	{
@@ -26,5 +27,6 @@ public static class _Module
 		CustomDoorPointer.Undo();
 		OverseerProperties.Undo();
 		PointerHooks.Undo();
+		OverseerRecolor.Undo();
 	}
 }

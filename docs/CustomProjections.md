@@ -26,7 +26,7 @@ The vanilla projections are taken from `Projections\STR_PROJ.png` and their name
 New projection images can be added by including a .png file in the `Projections` folder as well as a .txt with the same name, to define the names of each image included on the .png.  
 The .png file should be a 1,000 x 1,000 image, consisting of a grid of 5 x 5 smaller images that are 200 x 200.  
 The .txt file should list all of the image names reading from left to right, bottom to top.
-here is an ![example png](ONH_PROJ.png)  and an ![example txt](ONH_PROJ.txt)  
+here is an [example png](ONH_PROJ.png)  and an [example txt](ONH_PROJ.txt)  
 
 Below are a couple example _proj.txt files
 

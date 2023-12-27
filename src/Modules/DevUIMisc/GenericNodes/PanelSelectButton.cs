@@ -4,9 +4,22 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 
 public class PanelSelectButton : Button, IDevUISignals
 {
-	public PanelSelectButton(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width, string text, 
-		string[] values, string panelName)
-		: base(owner, IDstring, parentNode, pos, width, text)
+	public PanelSelectButton(
+		DevUI owner,
+		string IDstring,
+		DevUINode parentNode,
+		Vector2 pos,
+		float width,
+		string text,
+		string[] values,
+		string panelName)
+		: base(
+			owner,
+			IDstring,
+			parentNode,
+			pos,
+			width,
+			text)
 	{
 		this.values = values;
 		itemSelectPanel = null;

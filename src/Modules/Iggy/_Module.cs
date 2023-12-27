@@ -48,7 +48,7 @@ public static class _Module
 	internal static ToolTip __GetTooltip(DevInterface.DevUINode node) => node switch
 	{
 		//todo: cover more vanilla shit
-		IGiveAToolTip givesAToolTip => givesAToolTip.toolTip,
+		IGiveAToolTip givesAToolTip when givesAToolTip.ToolTip is ToolTip tt => tt,
 		_ when __attachedToolTips.TryGetValue(node, out Func<ToolTip> ttf) => ttf(),
 		_ when __GetSpecialHardcodedTooltip(node) is ToolTip tt => tt,
 		_ => new($"This is a {node.GetType().FullName}. Its ID string is {node.IDstring}.", 0, node)

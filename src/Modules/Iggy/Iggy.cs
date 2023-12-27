@@ -25,7 +25,7 @@ public class Iggy : DevInterface.Panel, IGiveAToolTip
 	public const string NUMBER_FORMAT = "D4";
 	public readonly List<(FLabel, Vector2)> speech = new();
 	bool IGeneralMouseOver.MouseOverMe => MouseOver;
-	public ToolTip toolTip => new("This is me, dummy.", 1, this);
+	public ToolTip? ToolTip => new("This is me, dummy.", 1, this);
 	public string GetCurrentFaceElement => SPRITE_NAMEBASE + (currentFrame + 1).ToString(NUMBER_FORMAT);
 	public Iggy(
 		DevUI owner,

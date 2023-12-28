@@ -7,7 +7,7 @@ namespace RegionKit.Modules.Objects;
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "MiscObjects")]
 public static class _Module
 {
-	public const string OBJECTS_POM_CATEGORY = RK_POM_CATEGORY + "-MISCOBJECTS";
+	public const string OBJECTS_POM_CATEGORY = RK_POM_CATEGORY + "-MiscObjects";
 	public const string GAMEPLAY_POM_CATEGORY = RK_POM_CATEGORY + "-Gameplay";
 	public const string DECORATIONS_POM_CATEGORY = RK_POM_CATEGORY + "-Decorations";
 	private static List<Hook> __objectHooks = new();
@@ -80,7 +80,9 @@ public static class _Module
 				new IntegerField("spriteindex", 0, 9, 9, displayName: "karma display"),
 				new StringField("spritename", "", "sprite name")
 			}, typeof(BigKarmaShrine.MarkSprite), "KarmaShrineSprite", GAMEPLAY_POM_CATEGORY);
-		RegisterEmptyObjectType<CustomWallMyceliaData, ManagedRepresentation>("CustomWallMycelia", RK_POM_CATEGORY);
+		RegisterEmptyObjectType<CustomWallMyceliaData, ManagedRepresentation>("CustomWallMycelia", DECORATIONS_POM_CATEGORY);
+
+		RegisterManagedObject<GuardProtectNode, GuardProtectData, GuardProtectRepresentation>("GuardProtectNode", GAMEPLAY_POM_CATEGORY);
 	}
 
 	internal static void Enable()
@@ -103,6 +105,7 @@ public static class _Module
 		SlugcatEyeSelector.Apply();
 		BigKarmaShrine.Apply();
 		CustomWallMycelia.Apply();
+		GuardProtectNode.Apply();
 	}
 
 	internal static void Disable()
@@ -123,6 +126,7 @@ public static class _Module
 		SlugcatEyeSelector.Undo();
 		BigKarmaShrine.Undo();
 		CustomWallMycelia.Undo();
+		GuardProtectNode.Undo();
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)

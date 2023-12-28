@@ -5,7 +5,7 @@ namespace RegionKit.Modules.GateCustomization;
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "GateCustomization")]
 internal class _Module
 {
-	public const string GATE_CUSTOMIZATION_POM_CATEGORY = RK_POM_CATEGORY + "-GateCustomization";
+	public const string GATE_CUSTOMIZATION_POM_CATEGORY = Objects._Module.OBJECTS_POM_CATEGORY;
 
 	// Had to make a new function for this becasue when I used RegisterEmptyObject with a ManagedData class the
 	// order of the fields was not correct (think it sorted them alphabetically?).

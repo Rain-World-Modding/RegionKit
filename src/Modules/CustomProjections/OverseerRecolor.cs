@@ -36,7 +36,7 @@ internal static class OverseerRecolor
 
 		sLeaser.sprites[0].color = color;
 		sLeaser.sprites[0].shader = rCam.game.rainWorld.Shaders["HKHoloGrid"];
-		Shader.SetGlobalVector("_HKHoloGridColor", color;
+		Shader.SetGlobalVector("_HKHoloGridColor", color);
 
 		for (int i = 1; i < sLeaser.sprites.Length; i++)
 		{ sLeaser.sprites[i].color = color; }

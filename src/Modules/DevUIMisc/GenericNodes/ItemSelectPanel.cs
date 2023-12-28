@@ -46,7 +46,7 @@ public class ItemSelectPanel : Panel, IDevUISignals, Modules.Iggy.IGiveAToolTip
 		while (num < items.Length && num < currentOffset + perpage)
 		{
 			Button currentOption = new Button(owner, idstring + "Button99289_" + items[num], this, new Vector2(5f + intVector.x * (buttonWidth + 5f), size.y - 25f - 20f * intVector.y), buttonWidth, items[num]);
-			string currentItem = items[num]
+			string currentItem = items[num];
 			API.Iggy.AddTooltip(currentOption, () => new($"Select {currentItem}", 10, currentOption));
 			subNodes.Add(currentOption);
 			intVector.y++;

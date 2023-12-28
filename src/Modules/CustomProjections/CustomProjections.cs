@@ -16,6 +16,12 @@ internal static class CustomProjections
 
 	public static Dictionary<string, List<OverseerImage.ImageID>> Registry = new();
 
+	public static void RefreshRegistry() 
+	{ 
+		ClearRegistry(); 
+		BuildRegistry(); 
+	}
+
 	public static void BuildRegistry()
 	{
 		Registry = new();
@@ -189,6 +195,9 @@ internal static class CustomProjections
 
 		foreach (string text in lines)
 		{
+			if (new OverseerImage.ImageID(text).index == -1)
+			{ RefreshRegistry(); }
+
 			if (new OverseerImage.ImageID(text).index != -1)
 			{ data.images.Add(new OverseerImage.ImageID(text)); }
 

@@ -12,6 +12,7 @@ internal static class OverseerRecolor
 	{
 		On.OverseerAbstractAI.ctor += OverseerAbstractAI_ctor;
 		On.OverseerAbstractAI.SetAsPlayerGuide += OverseerAbstractAI_SetAsPlayerGuide;
+		On.HologramLight.InitiateSprites += HologramLight_InitiateSprites;
 
 		var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 		ColorHook = new Hook(typeof(OverseerGraphics).GetProperty(nameof(OverseerGraphics.MainColor), flags).GetGetMethod(), OverseerGraphics_MainColor_Get);
@@ -21,7 +22,24 @@ internal static class OverseerRecolor
 	{
 		On.OverseerAbstractAI.ctor -= OverseerAbstractAI_ctor;
 		On.OverseerAbstractAI.SetAsPlayerGuide -= OverseerAbstractAI_SetAsPlayerGuide;
+		On.HologramLight.InitiateSprites -= HologramLight_InitiateSprites;
 		ColorHook?.Undo();
+	}
+
+	private static void HologramLight_InitiateSprites(On.HologramLight.orig_InitiateSprites orig, HologramLight self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
+	{
+		orig(self, sLeaser, rCam);
+
+		if ((self.overseer.abstractCreature.abstractAI as OverseerAbstractAI)?.ownerIterator == 1) return;
+
+		Color color = (self.overseer.graphicsModule as OverseerGraphics)!.MainColor;
+
+		sLeaser.sprites[0].color = color;
+		sLeaser.sprites[0].shader = rCam.game.rainWorld.Shaders["HKHoloGrid"];
+		Shader.SetGlobalVector("_HKHoloGridColor", color;
+
+		for (int i = 1; i < sLeaser.sprites.Length; i++)
+		{ sLeaser.sprites[i].color = color; }
 	}
 
 	private static void OverseerAbstractAI_SetAsPlayerGuide(On.OverseerAbstractAI.orig_SetAsPlayerGuide orig, OverseerAbstractAI self, int ownerOverride)

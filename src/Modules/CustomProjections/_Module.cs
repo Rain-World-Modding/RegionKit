@@ -9,6 +9,7 @@ public static class _Module
 	{
 		RegisterManagedObject<ReliableIggyEntrance, ReliableEntranceData, ReliableEntranceRep>("ReliableIggyEntrance", OVERSEER_POM_CATEGORY);
 		RegisterManagedObject<CustomDoorPointer, DoorPointerData, DoorPointerRep>("ReliableDoorPointer", OVERSEER_POM_CATEGORY);
+		LoadShaders();
 	}
 
 	internal static void Enable()
@@ -28,5 +29,10 @@ public static class _Module
 		OverseerProperties.Undo();
 		PointerHooks.Undo();
 		OverseerRecolor.Undo();
+	}
+
+	public static void LoadShaders()
+	{
+		rainWorld.Shaders["HKHoloGrid"] = FShader.CreateShader("HKHoloGrid", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/hkhologrid")).LoadAsset<Shader>("Assets/HKHoloGrid.shader"));
 	}
 }

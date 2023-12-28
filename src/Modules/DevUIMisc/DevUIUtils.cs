@@ -196,7 +196,11 @@ internal static class DevUIUtils
 
 	}
 
-	public static void SendSignal(this DevUINode devUINode, DevUISignalType signalType, DevUINode sender, string message)
+	public static void SendSignal(
+		this DevUINode devUINode,
+		DevUISignalType signalType,
+		DevUINode sender,
+		string message)
 	{
 		while (devUINode != null)
 		{

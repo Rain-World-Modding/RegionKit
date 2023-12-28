@@ -66,7 +66,6 @@ public static class _Module
 				switchPageButton.Refresh();
 			}
 		}
-
 		if (self is MapPage or BackgroundPage)
 		{ settingsSaveOptionsMenu = null; return; }
 

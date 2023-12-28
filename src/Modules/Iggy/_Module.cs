@@ -101,6 +101,7 @@ public static class _Module
 			DevInterface.StandardEventPanel => new("This event doesn't have any extra options", 5, node), //event type
 			DevInterface.Panel panel => panel.IDstring switch
 			{
+				"Palette_Panel" => new("Select room's primary and fade palette", 5, node),
 				"Effects_Panel" => new("Select effects to add to your room. Effects in blue are inherited from a template, effects in green are local. No duplicates. Press again to remove effect.", 5, node), //effects menu
 				"Objects_Panel" => new("Select special objects to decorate your room. Objects can't be inherited. Duplicates allowed. Delete by dragging to the trash bin (bottom left)", 5, node), //objects menu
 				"Sounds_Panel" => new("Select ambient sounds to add to the room. Select the type on top before spawning sounds. All sounds except spot can be inherited.", 5, node), //sounds menu

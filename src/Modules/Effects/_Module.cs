@@ -24,7 +24,7 @@ public static class _Module
 
 		RainWorld rainworld = CRW;
 		MossWaterRGBBuilder.__RegisterBuilder();
-		IceWaterBuilder.__RegisterBuilder();
+		//IceWaterBuilder.__RegisterBuilder();
 		MossWaterUnlit.MossLoadResources(rainworld);
 		MossWaterRGB.MossLoadResources(rainworld);
 

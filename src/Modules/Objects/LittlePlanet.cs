@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using DevInterface;
 
@@ -16,19 +17,22 @@ public class LittlePlanet : CosmeticSprite
 	private float _alpha, _speed;
 	private readonly float[] _lastRot = new float[4], _rot = new float[4], _rotSpeed = new float[4] { -1f, .5f, -.25f, .125f }, _lastScaleX = new float[3], _scaleX = new float[3];
 	private readonly bool[] _increaseRad = new bool[3];
+	private readonly PlacedObject _pObj;
 
-	private PlacedObject PObj { get; init; }
-
-	private LittlePlanetData Data => (PObj.data as LittlePlanetData)!;
+	private LittlePlanetData Data
+	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		get => (_pObj.data as LittlePlanetData)!;
+	}
 
 	///<inheritdoc/>
 	public LittlePlanet(Room room, PlacedObject placedObj)
 	{
 		this.room = room;
-		PObj = placedObj;
+		_pObj = placedObj;
 		pos = placedObj.pos;
 		lastPos = pos;
-		_underWaterMode = room.GetTilePosition(PObj.pos).y < room.defaultWaterLevel;
+		_underWaterMode = room.GetTilePosition(pos).y < room.defaultWaterLevel;
 		_color = Data.Color;
 		_baseRad = Data.Rad;
 		_alpha = Data.alpha;
@@ -38,49 +42,60 @@ public class LittlePlanet : CosmeticSprite
 	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
-		pos = PObj.pos;
-		_underWaterMode = room.GetTilePosition(PObj.pos).y < room.defaultWaterLevel;
+		pos = _pObj.pos;
+		_underWaterMode = room.GetTilePosition(pos).y < room.defaultWaterLevel;
 		_color = Data.Color;
 		_alpha = Data.alpha;
 		_speed = Data.speed;
+		var speed = _speed;
 		base.Update(eu);
-		for (var i = 0; i < 4; i++)
+		var temp = _rot;
+		for (var i = 0; i < temp.Length; i++)
 		{
-			_lastRot[i] = _rot[i];
-			_rot[i] += _rotSpeed[i] * _speed;
+			_lastRot[i] = temp[i];
+			temp[i] += _rotSpeed[i] * speed;
+			if (temp[i] >= 360f)
+			{
+				temp[i] -= 360f;
+				_lastRot[i] -= 360f;
+			}
+			else if (temp[i] <= -360f)
+			{
+				temp[i] += 360f;
+				_lastRot[i] += 360f;
+			}
 		}
-		for (var i = 0; i < 3; i++)
+		temp = _scaleX;
+		for (var i = 0; i < temp.Length; i++)
 		{
-			_lastScaleX[i] = _scaleX[i];
-			_scaleX[i] += (_increaseRad[i] ? .02f : -.02f) * _speed;
+			_lastScaleX[i] = temp[i];
+			temp[i] += (_increaseRad[i] ? .02f : -.02f) * speed;
 		}
 	}
 
 	///<inheritdoc/>
 	public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
-		const string RING = "assets/regionkit/sprites/littleplanetring";
-		const string PLANET = "assets/regionkit/sprites/littleplanet";
-		sLeaser.sprites = new FSprite[6]
+		const string RING = "assets/regionkit/sprites/littleplanetring", PLANET = "assets/regionkit/sprites/littleplanet";
+		Dictionary<string, FShader> shaders = rCam.game.rainWorld.Shaders;
+		FShader hologram = shaders["Hologram"], ls = shaders[(!_underWaterMode) ? "FlatLight" : "UnderWaterLight"];
+		sLeaser.sprites = new FSprite[]
 		{
 			new("Futile_White")
 			{
-				shader = rCam.game.rainWorld.Shaders[(!_underWaterMode) ? "FlatLight" : "UnderWaterLight"],
+				shader = ls,
 				scale = _baseRad / 6f
 			},
-			new(PLANET) { shader = rCam.game.rainWorld.Shaders["Hologram"] },
-			new(RING) { shader = rCam.game.rainWorld.Shaders["Hologram"] },
-			new(RING) { shader = rCam.game.rainWorld.Shaders["Hologram"] },
-			new(RING) { shader = rCam.game.rainWorld.Shaders["Hologram"] },
+			new(PLANET) { shader = hologram, scale = _baseRad / 400f - _baseRad / 1600f },
+			new(RING) { shader = hologram, scale = _baseRad / 400f * 2f },
+			new(RING) { shader = hologram, scale = _baseRad / 400f * 3f },
+			new(RING) { shader = hologram, scale = _baseRad / 400f * 4f },
 			new("Futile_White")
 			{
-				shader = rCam.game.rainWorld.Shaders[(!_underWaterMode) ? "FlatLight" : "UnderWaterLight"],
+				shader = ls,
 				scale = _baseRad / 24f
 			}
 		};
-		for (var i = 1; i < sLeaser.sprites.Length - 1; i++)
-			sLeaser.sprites[i].scale = _baseRad / 400f * i;
-		sLeaser.sprites[1].scale -= sLeaser.sprites[1].scale / 4f;
 		AddToContainer(sLeaser, rCam, null!);
 	}
 
@@ -88,49 +103,81 @@ public class LittlePlanet : CosmeticSprite
 	public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		var sPos = Vector2.Lerp(lastPos, pos, timeStacker);
-		var sRot = new[]
+		float[] lRot = _lastRot, rot = _rot, lSclx = _lastScaleX, sclX = _scaleX;
+		var sRot = new SRot()
 		{
-			Mathf.Lerp(_lastRot[0], _rot[0], timeStacker),
-			Mathf.Lerp(_lastRot[1], _rot[1], timeStacker),
-			Mathf.Lerp(_lastRot[2], _rot[2], timeStacker),
-			Mathf.Lerp(_lastRot[3], _rot[3], timeStacker)
+			A = Mathf.Lerp(lRot[0], rot[0], timeStacker),
+			B = Mathf.Lerp(lRot[1], rot[1], timeStacker),
+			C = Mathf.Lerp(lRot[2], rot[2], timeStacker),
+			D = Mathf.Lerp(lRot[3], rot[3], timeStacker)
 		};
-		var sScaleX = new[]
+		float bRd = _baseRad / 400f, sn0 = Mathf.Sin(Mathf.Lerp(lSclx[0], sclX[0], timeStacker) * Mathf.PI) * bRd;
+		var sScaleX = new SScaleX()
 		{
-			_baseRad / 400f * 2f * Mathf.Sin(Mathf.Lerp(_lastScaleX[0], _scaleX[0], timeStacker) * Mathf.PI),
-			_baseRad / 400f * 3f * Mathf.Cos(Mathf.Lerp(_lastScaleX[1], _scaleX[1], timeStacker) * Mathf.PI),
-			_baseRad / 400f * 4f * Mathf.Sin(Mathf.Lerp(_lastScaleX[0], _scaleX[0], timeStacker) * Mathf.PI)
+			A = sn0 * 2f,
+			B = bRd * 3f * Mathf.Cos(Mathf.Lerp(lSclx[1], sclX[1], timeStacker) * Mathf.PI),
+			C = sn0 * 4f
 		};
-		foreach (FSprite? s in sLeaser.sprites)
+		FSprite[] sprites = sLeaser.sprites;
+		float x = sPos.x - camPos.x, y = sPos.y - camPos.y;
+		for (var i = 0; i < sprites.Length; i++)
 		{
-			s.x = sPos.x - camPos.x;
-			s.y = sPos.y - camPos.y;
+			FSprite s = sprites[i];
+			s.x = x;
+			s.y = y;
 			s.alpha = _alpha;
 		}
-		for (var i = 1; i < sLeaser.sprites.Length - 1; i++)
-			sLeaser.sprites[i].rotation = sRot[i - 1];
-		for (var i = 2; i < sLeaser.sprites.Length - 1; i++)
+		for (var i = 1; i < sprites.Length - 1; i++)
+			sprites[i].rotation = sRot[i - 1];
+		for (var i = 2; i < sprites.Length - 1; i++)
 		{
-			sLeaser.sprites[i].scaleX = sScaleX[i - 2];
-			if (sLeaser.sprites[i].scaleX >= _baseRad / 400f * i)
+			sprites[i].scaleX = sScaleX[i - 2];
+			if (sprites[i].scaleX >= bRd * i)
 				_increaseRad[i - 2] = false;
-			else if (sLeaser.sprites[i].scaleX <= 0f)
+			else if (sprites[i].scaleX <= 0f)
 				_increaseRad[i - 2] = true;
 		}
-		sLeaser.sprites[0].alpha /= 2f;
-		sLeaser.sprites[0].shader = rCam.game.rainWorld.Shaders[(!_underWaterMode) ? "FlatLight" : "UnderWaterLight"];
-		sLeaser.sprites[5].shader = rCam.game.rainWorld.Shaders[(!_underWaterMode) ? "FlatLight" : "UnderWaterLight"];
-		for (var i = 0; i < sLeaser.sprites.Length; i++)
-			sLeaser.sprites[i].color = _color;
+		sprites[0].alpha /= 2f;
+		FShader lShader = rCam.game.rainWorld.Shaders[(!_underWaterMode) ? "FlatLight" : "UnderWaterLight"];
+		sprites[0].shader = lShader;
+		sprites[5].shader = lShader;
+		for (var i = 0; i < sprites.Length; i++)
+			sprites[i].color = _color;
 		base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
 	}
 
 	///<inheritdoc/>
 	public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContainer)
 	{
-		newContainer ??= rCam.ReturnFContainer("GrabShaders");
-		sLeaser.sprites.RemoveFromContainer();
-		newContainer.AddChild(sLeaser.sprites);
+		newContainer = rCam.ReturnFContainer("GrabShaders");
+		FSprite[] sprs = sLeaser.sprites;
+		for (var i = 0; i < sprs.Length; i++)
+		{
+			sprs[i].RemoveFromContainer();
+			newContainer.AddChild(sprs[i]);
+		}
+	}
+
+	private ref struct SRot
+	{
+		public float A, B, C, D;
+
+		public readonly float this[int index]
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => index == 0 ? A : (index == 1 ? B : (index == 2 ? C : D));
+		}
+	}
+
+	private ref struct SScaleX
+	{
+		public float A, B, C;
+
+		public readonly float this[int index]
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => index == 0 ? A : (index == 1 ? B : C);
+		}
 	}
 
 	/// <summary>
@@ -138,9 +185,7 @@ public class LittlePlanet : CosmeticSprite
 	/// </summary>
 	public class LittlePlanetData : PlacedObject.ResizableObjectData
 	{
-		internal float _red = 1f;
-		internal float _green = 1f;
-		internal float _blue = 1f;
+		internal float _red = 1f, _green = 1f, _blue = 1f;
 		/// <summary>
 		/// Sprite alpha
 		/// </summary>
@@ -156,7 +201,9 @@ public class LittlePlanet : CosmeticSprite
 		/// </summary>
 		public Color Color
 		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => new(_red, _green, _blue);
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set
 			{
 				_red = value.r;
@@ -185,7 +232,7 @@ public class LittlePlanet : CosmeticSprite
 		}
 
 		///<inheritdoc/>
-		public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs($"{BaseSaveString()}~Color(~{_red}~{_green}~{_blue}~)~Alpha:~{alpha}~{_panelPos.x}~{_panelPos.y}~Speed:~{speed}", "~", unrecognizedAttributes);
+		public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs(SaveState.SetCustomData(this, $"{BaseSaveString()}~Color(~{_red}~{_green}~{_blue}~)~Alpha:~{alpha}~{_panelPos.x}~{_panelPos.y}~Speed:~{speed}"), "~", unrecognizedAttributes);
 	}
 }
 
@@ -194,12 +241,17 @@ public class LittlePlanet : CosmeticSprite
 /// </summary>
 public class LittlePlanetRepresentation : ResizeableObjectRepresentation
 {
-	internal class LittlePlanetControlPanel : Panel, IDevUISignals
+	private sealed class LittlePlanetControlPanel : Panel, IDevUISignals
 	{
-		public class ControlSlider : Slider
+		private sealed class ControlSlider : Slider
 		{
-			private LittlePlanet.LittlePlanetData Data => ((parentNode.parentNode as LittlePlanetRepresentation)!.pObj.data as LittlePlanet.LittlePlanetData)!;
+			private LittlePlanet.LittlePlanetData Data
+			{
+				[MethodImpl(MethodImplOptions.AggressiveInlining)]
+				get => ((parentNode.parentNode as LittlePlanetRepresentation)!.pObj.data as LittlePlanet.LittlePlanetData)!;
+			}
 
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public ControlSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title) : base(owner, IDstring, parentNode, pos, title, false, 110f) { }
 
 			public override void Refresh()
@@ -259,14 +311,15 @@ public class LittlePlanetRepresentation : ResizeableObjectRepresentation
 
 		public LittlePlanetControlPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new(250f, 105f), "Little Planet")
 		{
-			subNodes.Add(new ControlSlider(owner, "ColorR_Slider", this, new(5f, 85f), "Red: "));
-			subNodes.Add(new ControlSlider(owner, "ColorG_Slider", this, new(5f, 65f), "Green: "));
-			subNodes.Add(new ControlSlider(owner, "ColorB_Slider", this, new(5f, 45f), "Blue: "));
-			subNodes.Add(new ControlSlider(owner, "Alpha_Slider", this, new(5f, 25f), "Alpha: "));
-			subNodes.Add(new ControlSlider(owner, "Speed_Slider", this, new(5f, 5f), "Speed: "));
+			List<DevUINode> sb = subNodes;
+			sb.Add(new ControlSlider(owner, "ColorR_Slider", this, new(5f, 85f), "Red: "));
+			sb.Add(new ControlSlider(owner, "ColorG_Slider", this, new(5f, 65f), "Green: "));
+			sb.Add(new ControlSlider(owner, "ColorB_Slider", this, new(5f, 45f), "Blue: "));
+			sb.Add(new ControlSlider(owner, "Alpha_Slider", this, new(5f, 25f), "Alpha: "));
+			sb.Add(new ControlSlider(owner, "Speed_Slider", this, new(5f, 5f), "Speed: "));
 		}
 
-		public void Signal(DevUISignalType type, DevUINode sender, string message) { }
+		void IDevUISignals.Signal(DevUISignalType type, DevUINode sender, string message) { }
 	}
 
 	private readonly int _linePixelSpriteIndex;
@@ -289,23 +342,10 @@ public class LittlePlanetRepresentation : ResizeableObjectRepresentation
 	{
 		base.Refresh();
 		MoveSprite(_linePixelSpriteIndex, absPos);
-		fSprites[_linePixelSpriteIndex].scaleY = _panel.pos.magnitude;
-		fSprites[_linePixelSpriteIndex].rotation = AimFromOneVectorToAnother(absPos, _panel.absPos);
-		(pObj.data as LittlePlanet.LittlePlanetData)!._panelPos = _panel.pos;
-	}
-}
-
-internal static class LittlePlanetExtensions
-{
-	internal static void AddChild(this FContainer self, params FNode[] nodes)
-	{
-		foreach (FNode node in nodes)
-			self.AddChild(node);
-	}
-
-	internal static void RemoveFromContainer(this FNode[] self)
-	{
-		foreach (FNode node in self)
-			node.RemoveFromContainer();
+		FSprite spr = fSprites[_linePixelSpriteIndex];
+		Vector2 panelPos = _panel.pos;
+		spr.scaleY = panelPos.magnitude;
+		spr.rotation = AimFromOneVectorToAnother(absPos, _panel.absPos);
+		(pObj.data as LittlePlanet.LittlePlanetData)!._panelPos = panelPos;
 	}
 }

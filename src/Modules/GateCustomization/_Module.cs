@@ -5,7 +5,7 @@ namespace RegionKit.Modules.GateCustomization;
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "GateCustomization")]
 internal class _Module
 {
-	public const string GATE_CUSTOMIZATION_POM_CATEGORY = RK_POM_CATEGORY + "-GateCustomization";
+	public const string GATE_CUSTOMIZATION_POM_CATEGORY = Objects._Module.OBJECTS_POM_CATEGORY;
 
 	// Had to make a new function for this becasue when I used RegisterEmptyObject with a ManagedData class the
 	// order of the fields was not correct (think it sorted them alphabetically?).
@@ -82,7 +82,7 @@ internal class _Module
 			new FloatField("batterySaturation", 0f, 1f, 1f, increment: 0.01f, displayName: "Saturation"),
 			new FloatField("batteryLightness", 0f, 1f, 0.5f, increment: 0.01f, displayName: "Lightness")
 		}, typeof(ElectricGateDataRepresentation), "ElectricGateData", GATE_CUSTOMIZATION_POM_CATEGORY);
-
+		GateCustomization.LoadShaders(CRW);
 	}
 
 	public static void Enable()

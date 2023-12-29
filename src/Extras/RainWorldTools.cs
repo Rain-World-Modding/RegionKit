@@ -52,6 +52,22 @@ public static class RainWorldTools
 			if (rm.updateList[i] is T t) yield return t;
 		}
 	}
+
+	internal static D? FindPlacedObjectData<D>(this RoomSettings roomSettings)
+	{
+		for (int i = 0; i < roomSettings.placedObjects.Count; i++)
+		{
+			if (roomSettings.placedObjects[i]?.data is D d) return d;
+		}
+		return default;
+	}
+	internal static IEnumerable<D> FindAllPlacedObjectsData<D>(this RoomSettings roomSettings)
+	{
+		for (int i = 0; i < roomSettings.placedObjects.Count; i++)
+		{
+			if (roomSettings.placedObjects[i]?.data is D d) yield return d;
+		}
+	}
 	public static IEnumerable<IntVector2> ReturnTiles(this IntRect ir)
 	{
 		for (int i = ir.left; i <= ir.right; i++)
@@ -118,6 +134,13 @@ public static class RainWorldTools
 		}
 
 		return inverted != include;
+	}
+
+	public static bool TryGetElementWithName(this FAtlasManager manager, string elementName, out FAtlasElement? result)
+	{
+		bool has = manager.DoesContainElementWithName(elementName);
+		result = has ? manager.GetElementWithName(elementName) : null;
+		return has;
 	}
 
 	/// <summary>

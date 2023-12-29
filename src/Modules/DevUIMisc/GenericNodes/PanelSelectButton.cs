@@ -1,12 +1,26 @@
 ﻿using DevInterface;
+using RegionKit.Modules.Iggy;
 
 namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 
-public class PanelSelectButton : Button, IDevUISignals
+public class PanelSelectButton : Button, IDevUISignals, Modules.Iggy.IGiveAToolTip
 {
-	public PanelSelectButton(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width, string text, 
-		string[] values, string panelName)
-		: base(owner, IDstring, parentNode, pos, width, text)
+	public PanelSelectButton(
+		DevUI owner,
+		string IDstring,
+		DevUINode parentNode,
+		Vector2 pos,
+		float width,
+		string text,
+		string[] values,
+		string panelName)
+		: base(
+			owner,
+			IDstring,
+			parentNode,
+			pos,
+			width,
+			text)
 	{
 		this.values = values;
 		itemSelectPanel = null;
@@ -74,4 +88,10 @@ public class PanelSelectButton : Button, IDevUISignals
 	public float panelButtonWidth = 145f;
 
 	public int panelColumns = 2;
+
+	public string itemDescription = "item";
+
+	ToolTip? IGiveAToolTip.ToolTip => new($"Open a panel to select one {itemDescription}", 5, this);
+
+	bool IGeneralMouseOver.MouseOverMe => MouseOver;
 }

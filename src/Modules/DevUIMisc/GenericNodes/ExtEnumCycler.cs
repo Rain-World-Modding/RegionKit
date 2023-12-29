@@ -1,19 +1,47 @@
 ﻿using DevInterface;
+using RegionKit.Modules.Iggy;
 
 namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 
-public class ExtEnumCycler<T> : Button where T : ExtEnum<T>
+public class ExtEnumCycler<T> : Button, Modules.Iggy.IGiveAToolTip where T : ExtEnum<T>
 {
 	public T Type;
-	public ExtEnumCycler(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width, T defaultValue, string title = "Title", bool label = true) : base(owner, IDstring, parentNode, pos, width, "")
+	public string? toolTipTextOverride;
+
+	public ExtEnumCycler(
+		DevUI owner,
+		string IDstring,
+		DevUINode parentNode,
+		Vector2 pos,
+		float width,
+		T defaultValue,
+		string title = "Title",
+		bool label = true) : base(
+			owner,
+			IDstring,
+			parentNode,
+			pos,
+			width,
+			"")
 	{
 		Type = defaultValue;
 		if (label)
 		{ subNodes.Add(new DevUILabel(owner, title + "_label", this, new Vector2(-50f, 0f), 40f, title)); }
 	}
 
-	public ExtEnumCycler(PositionedDevUINode inheritNode, float width, T defaultValue, string title = "Title", bool label = true)
-		: base(inheritNode.owner, inheritNode.IDstring, inheritNode.parentNode, inheritNode.pos, width, "")
+	public ExtEnumCycler(
+		PositionedDevUINode inheritNode,
+		float width,
+		T defaultValue,
+		string title = "Title",
+		bool label = true)
+		: base(
+			inheritNode.owner,
+			inheritNode.IDstring,
+			inheritNode.parentNode,
+			inheritNode.pos,
+			width,
+			"")
 	{
 		Type = defaultValue;
 		if (label)
@@ -55,4 +83,7 @@ public class ExtEnumCycler<T> : Button where T : ExtEnum<T>
 		int i = (Type.Index + 1) % ExtEnum<T>.values.Count;
 		return ExtEnum<T>.values.GetEntry(i);
 	}
+	ToolTip? IGiveAToolTip.ToolTip => new($"{toolTipTextOverride ?? "Selects one option from ExtEnum."} EE type {typeof(T).Name}. Currently selected {Type}. {ExtEnum<T>.values.Count} total options.", 10, this);
+
+	bool IGeneralMouseOver.MouseOverMe => MouseOver;
 }

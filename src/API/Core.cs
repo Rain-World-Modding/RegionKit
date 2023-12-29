@@ -12,7 +12,7 @@ public static class Core
 	public static IEnumerable<RegionKit.ModuleInfo>? TryGetLoadedModules()
 	{
 		ThrowIfModNotInitialized();
-		return RegionKit.Mod.__inst._modules;
+		return RegionKit.Mod.__inst?._modules;
 	}
 	public const string VERSION = MOD_VERSION;
 	public const string GUID = MOD_GUID;

@@ -56,12 +56,12 @@ public struct EchoSettings
 	internal static EchoSettings GetDefault(SlugcatStats.Name name) => new()
 	{
 		EchoRoom = "",
-		EchoSizeMultiplier = 0f,
+		EchoSizeMultiplier = 1f,
 		EffectRadius = 4f,
 		MinimumKarma = -1,
 		MinimumKarmaCap = 0,
 		RequirePriming = (name == SlugcatStats.Name.Red)? PrimingKind.No : (name == MscNames.Saint)? PrimingKind.Saint : PrimingKind.Yes,
-		EchoSong = "",
+		EchoSong = "NA_32 - Else1",
 		SpawnOnDifficulty = true,
 		DefaultFlip = 0f
 	};
@@ -81,6 +81,9 @@ public struct EchoSettings
 
 		LogMessage("[Echo Extender] Found settings file: " + path);
 		string[] rows = File.ReadAllLines(path);
+
+		settings.SpawnOnDifficulty = !rows.Any(x => x.ToLower().Contains("spawnondifficulty")); //kinda hacky, but necessary
+
 		foreach (string row in ProcessSlugcatConditions(rows, name))
 		{
 

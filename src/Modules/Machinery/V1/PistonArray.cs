@@ -61,9 +61,9 @@ public class PistonArray : UpdatableAndDeletable
 		return res;
 	}
 
-	private OperationMode _OperModeByIndex(int index)
+	private OscillationMode _OperModeByIndex(int index)
 	{
-		return OperationMode.Sinal;
+		return OscillationMode.Sinal;
 		//return (index % 2 == 0) ? OperationMode.Cosinal : OperationMode.Sinal;
 	}
 	private Vector2 _PosByIndex(int index)

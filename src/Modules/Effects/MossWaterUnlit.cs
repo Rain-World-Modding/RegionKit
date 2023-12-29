@@ -15,6 +15,7 @@ namespace RegionKit.Modules.Effects
 		// By ASlightlyOvergrownCactus
 		public static readonly object mossSprite = new();
 		static bool loaded = false;
+		public static AssetBundle mossBundle;
 		const int vertsPerColumn = 64;
 		internal static void Apply()
 		{
@@ -38,7 +39,6 @@ namespace RegionKit.Modules.Effects
 			{
 				LogMessage("entered loading / loading status: " + loaded);
 				loaded = true;
-				AssetBundle mossBundle;
 
 				mossBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/liquidshaderpack"));
 

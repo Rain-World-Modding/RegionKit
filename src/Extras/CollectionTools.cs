@@ -109,7 +109,7 @@ public static class CollectionTools
 	// 	dict.Remove(key);
 	// 	return true;
 	// }
-	internal static bool IndexInRange(this object[] arr, int index) => index > -1 && index < arr.Length;
+	internal static bool IndexInRange<T>(this T[] arr, int index) => index > -1 && index < arr.Length;
 
 	public static IEnumerable<int> Indices(this IList list)
 	{

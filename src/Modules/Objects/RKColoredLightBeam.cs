@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using DevInterface;
 
@@ -91,10 +92,11 @@ public class ColoredLightBeam : LightBeam
 		}
 	}
 
-	internal class ColoredLightBeamData : LightBeamData
+	internal sealed class ColoredLightBeamData : LightBeamData
 	{
 		public ColorType colorType;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ColoredLightBeamData(PlacedObject owner) : base(owner) { }
 
 		public override void FromString(string s)
@@ -106,9 +108,9 @@ public class ColoredLightBeam : LightBeam
 			SaveUtils.PopulateUnrecognizedStringAttrs(array, 16);
 		}
 
-		public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs(string.Concat(
+		public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs(SaveState.SetCustomData(this, string.Concat(
 			BaseSaveString() + string.Format(CultureInfo.InvariantCulture, "~{0}~{1}~{2}~{3}~{4}~{5}", panelPos.x, panelPos.y, alpha, colorA, colorB, sun ? "1" : "0"),
-			string.Format(CultureInfo.InvariantCulture, "~{0}~{1}~{2}~{3}", blinkType, blinkRate, nightLight ? "1" : "0", colorType)),
+			string.Format(CultureInfo.InvariantCulture, "~{0}~{1}~{2}~{3}", blinkType, blinkRate, nightLight ? "1" : "0", colorType))),
 			"~", unrecognizedAttributes);
 
 		public enum ColorType
@@ -120,7 +122,7 @@ public class ColoredLightBeam : LightBeam
 	}
 }
 
-internal class ColoredLightBeamRepresentation : LightBeamRepresentation
+internal sealed class ColoredLightBeamRepresentation : LightBeamRepresentation
 {
 	public ColoredLightBeamRepresentation(DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj) : base(owner, IDstring, parentNode, pObj) 
 	{

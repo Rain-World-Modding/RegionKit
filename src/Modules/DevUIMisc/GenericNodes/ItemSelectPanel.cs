@@ -1,11 +1,27 @@
 ﻿using DevInterface;
+using RegionKit.Modules.Iggy;
 
 namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 
-public class ItemSelectPanel : Panel, IDevUISignals
+public class ItemSelectPanel : Panel, IDevUISignals, Modules.Iggy.IGiveAToolTip
 {
-	public ItemSelectPanel(DevUI owner, DevUINode parentNode, Vector2 pos, string[] items, string idstring, string title, Vector2 size = default, float buttonWidth = 145f, int columns = 2)
-		: base(owner, idstring, parentNode, pos, size == default ? new Vector2(305f, 420f) : size, title)
+	public ItemSelectPanel(
+		DevUI owner,
+		DevUINode parentNode,
+		Vector2 pos,
+		string[] items,
+		string idstring,
+		string title,
+		Vector2 size = default,
+		float buttonWidth = 145f,
+		int columns = 2)
+		: base(
+			owner,
+			idstring,
+			parentNode,
+			pos,
+			size == default ? new Vector2(305f, 420f) : size,
+			title)
 	{
 		this.items = items;
 		this.idstring = idstring;
@@ -16,8 +32,6 @@ public class ItemSelectPanel : Panel, IDevUISignals
 		perpage = (int)((this.size.y - 60f) / 20f * columns);
 		PopulateItems(currentOffset);
 	}
-
-
 	public void PopulateItems(int offset)
 	{
 		currentOffset = offset;
@@ -31,7 +45,10 @@ public class ItemSelectPanel : Panel, IDevUISignals
 		int num = currentOffset;
 		while (num < items.Length && num < currentOffset + perpage)
 		{
-			subNodes.Add(new Button(owner, idstring + "Button99289_" + items[num], this, new Vector2(5f + intVector.x * (buttonWidth + 5f), size.y - 25f - 20f * intVector.y), buttonWidth, items[num]));
+			Button currentOption = new Button(owner, idstring + "Button99289_" + items[num], this, new Vector2(5f + intVector.x * (buttonWidth + 5f), size.y - 25f - 20f * intVector.y), buttonWidth, items[num]);
+			string currentItem = items[num];
+			API.Iggy.AddTooltip(currentOption, () => new($"Select {currentItem}", 10, currentOption));
+			subNodes.Add(currentOption);
 			intVector.y++;
 			if (intVector.y >= (int)Mathf.Floor(perpage / columns))
 			{
@@ -107,4 +124,11 @@ public class ItemSelectPanel : Panel, IDevUISignals
 	private int currentOffset;
 
 	private string[] items;
+
+	//iggy
+	public string? toolTipTextOverride;
+
+	ToolTip? IGiveAToolTip.ToolTip => new(toolTipTextOverride ?? "Select one item from the options", 5, this);
+
+	bool IGeneralMouseOver.MouseOverMe => MouseOver;
 }

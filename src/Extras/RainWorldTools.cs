@@ -52,6 +52,22 @@ public static class RainWorldTools
 			if (rm.updateList[i] is T t) yield return t;
 		}
 	}
+
+	internal static D? FindPlacedObjectData<D>(this RoomSettings roomSettings)
+	{
+		for (int i = 0; i < roomSettings.placedObjects.Count; i++)
+		{
+			if (roomSettings.placedObjects[i]?.data is D d) return d;
+		}
+		return default;
+	}
+	internal static IEnumerable<D> FindAllPlacedObjectsData<D>(this RoomSettings roomSettings)
+	{
+		for (int i = 0; i < roomSettings.placedObjects.Count; i++)
+		{
+			if (roomSettings.placedObjects[i]?.data is D d) yield return d;
+		}
+	}
 	public static IEnumerable<IntVector2> ReturnTiles(this IntRect ir)
 	{
 		for (int i = ir.left; i <= ir.right; i++)
@@ -118,5 +134,43 @@ public static class RainWorldTools
 		}
 
 		return inverted != include;
+	}
+
+	public static bool TryGetElementWithName(this FAtlasManager manager, string elementName, out FAtlasElement? result)
+	{
+		bool has = manager.DoesContainElementWithName(elementName);
+		result = has ? manager.GetElementWithName(elementName) : null;
+		return has;
+	}
+
+	/// <summary>
+	/// Calculates area of a mesh. Assumes the mesh is not self-intersecting!
+	/// </summary>
+	public static float GetArea(this TriangleMesh mesh)
+	{
+		float sum = 0f;
+		for (int i = 0; i < mesh.vertices.Length - 1; i++)
+		{
+			Vector2 thisVertex = mesh.vertices[i];
+			Vector2 nextVertex = mesh.vertices[i + 1];
+			sum += thisVertex.x * nextVertex.y - thisVertex.y * nextVertex.x;
+		}
+		sum /= 2f;
+		return sum;
+	}
+	public static Vector2 GetCentroid(this TriangleMesh mesh)
+	{
+		float area = mesh.GetArea();
+		Vector2 sum = Vector2.zero;
+		for (int i = 0; i < mesh.triangles.Length - 1; i++)
+		{
+			Vector2 thisVertex = mesh.vertices[i];
+			Vector2 nextVertex = mesh.vertices[i + 1];
+			float x = (thisVertex.x + nextVertex.x) * (thisVertex.x * nextVertex.y - nextVertex.x * thisVertex.y);
+			float y = (thisVertex.y + nextVertex.y) * (thisVertex.x * nextVertex.y - nextVertex.x * thisVertex.y);
+			sum += new Vector2(x, y);
+		}
+		Vector2 result = sum / (6f * area);
+		return result;
 	}
 }

@@ -44,7 +44,7 @@ public class CameraNoise : UpdatableAndDeletable, IDrawable
 		{
 			return;
 		}
-		__logger.LogDebug("generating cameranoise sprites");
+		LogDebug("generating cameranoise sprites");
 		var area = resolution.x * resolution.y;
 		const float PARTICLES_PER_PIXEL = 0.0005f;
 		if (sLeaser.sprites is FSprite[] sprites)
@@ -152,7 +152,7 @@ public class CameraNoise : UpdatableAndDeletable, IDrawable
 		[FloatField("12alphafluke", 0f, 1f, 1f, 0.05f, displayName: "alpha fluke")]
 		public float alphafluke;
 		[StringField("13tags", "0", displayName: "tags")]
-		public string tags;
+		public string tags = "0";
 		public CameraNoiseData(PlacedObject owner) : base(owner, null)
 		{
 		}

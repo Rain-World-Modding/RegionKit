@@ -55,7 +55,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		// room done loading, speed up
 		if (loadingState != LoadingState.Done)
 		{
-			Debug.Log("LifeSimProjection not yet loaded by AIMapReady, increasing loading rate");
+			LogMessage("LifeSimProjection not yet loaded by AIMapReady, increasing loading rate");
 			ticksPerUpdate = 100;
 		}
 	}
@@ -88,7 +88,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 					if (candidate != null)
 					{
 						candidate.hovered++;
-						// Debug.Log("LifeSimProjection: HOVERED");
+						// LogMessage("LifeSimProjection: HOVERED");
 					}
 				}
 			}
@@ -135,7 +135,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		}
 		if (currentX == gridWidth)
 		{
-			//Debug.Log("LifeSimProjection: Generation " + generation + " done");
+			//LogMessage("LifeSimProjection: Generation " + generation + " done");
 			this.generation++;
 			currentX = 0;
 			currentY = 0;
@@ -158,22 +158,22 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 				maxX = Mathf.Max(maxX, rect.right + 1);
 				maxY = Mathf.Max(maxY, rect.top + 1);
 				this.rectangles.Add(new Rect(rect.left * 20f, rect.bottom * 20f, (rect.Width + 1) * 20f, (rect.Height + 1) * 20f));
-				Debug.Log("LifeSimProjection: rect.left is " + rect.left);
-				Debug.Log("LifeSimProjection: rect.bottom is " + rect.bottom);
-				Debug.Log("LifeSimProjection: rect.Width is " + rect.Width);
-				Debug.Log("LifeSimProjection: rect.Height is " + rect.Height);
+				LogMessage("LifeSimProjection: rect.left is " + rect.left);
+				LogMessage("LifeSimProjection: rect.bottom is " + rect.bottom);
+				LogMessage("LifeSimProjection: rect.Width is " + rect.Width);
+				LogMessage("LifeSimProjection: rect.Height is " + rect.Height);
 
 			}
 
 			this.rootX = minX;
 			this.rootY = minY;
-			Debug.Log("LifeSimProjection: rootX is " + rootX);
-			Debug.Log("LifeSimProjection: rootY is " + rootY);
+			LogMessage("LifeSimProjection: rootX is " + rootX);
+			LogMessage("LifeSimProjection: rootY is " + rootY);
 
 			gridWidth = (maxX - minX) / 2;
 			gridHeight = (maxY - minY) / 2;
-			Debug.Log("LifeSimProjection: gridWidth is " + gridWidth);
-			Debug.Log("LifeSimProjection: gridHeight is " + gridHeight);
+			LogMessage("LifeSimProjection: gridWidth is " + gridWidth);
+			LogMessage("LifeSimProjection: gridHeight is " + gridHeight);
 
 
 			grid = new Tile[gridWidth, gridHeight];
@@ -181,7 +181,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 			currentX = 0;
 			currentY = 0;
 			loadingState++;
-			Debug.Log("LifeSimProjection: Load setup done");
+			LogMessage("LifeSimProjection: Load setup done");
 			break;
 		case LoadingState.Create:
 			while (currentX < gridWidth && toLoad > 0)
@@ -195,7 +195,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 						if (rect.Contains(new Vector2(tilex * 20, tiley * 20)))
 						{
 							grid[currentX, currentY] = new Tile(this, tilecount, currentX, currentY);
-							// Debug.Log("LifeSimProjection: Tile added in " + currentX + " - " + currentY);
+							// LogMessage("LifeSimProjection: Tile added in " + currentX + " - " + currentY);
 							tilecount++;
 							break;
 						}
@@ -211,7 +211,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 			}
 			if (currentX == gridWidth)
 			{
-				Debug.Log("LifeSimProjection: Load create done");
+				LogMessage("LifeSimProjection: Load create done");
 				loadingState++;
 				currentX = 0;
 				currentY = 0;
@@ -237,7 +237,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 			}
 			if (currentX == gridWidth)
 			{
-				Debug.Log("LifeSimProjection: Load map done");
+				LogMessage("LifeSimProjection: Load map done");
 				loadingState++;
 				currentX = 0;
 				currentY = 0;
@@ -253,11 +253,11 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 	{
 		if (loadingState != LoadingState.Done)
 		{
-			Debug.Log("LifeSimProjection not yet loaded by InitiateSprites, force-loading");
+			LogMessage("LifeSimProjection not yet loaded by InitiateSprites, force-loading");
 			ticksPerUpdate = int.MaxValue;
 			LoadSomeTiles();
 		}
-		Debug.Log("LifeSimProjection: Initializing " + tilecount + " sprites");
+		LogMessage("LifeSimProjection: Initializing " + tilecount + " sprites");
 		FSprite[] sprites = new FSprite[tilecount];
 		for (int i = 0; i < tilecount; i++)
 		{
@@ -386,7 +386,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 
 		internal void Tick(CGLifeSimProjection lifeSimProjection, int generation)
 		{
-			// Debug.Log("LifeSimProjection: tile " + index + " ticked");
+			// LogMessage("LifeSimProjection: tile " + index + " ticked");
 			this.generation = generation;
 			this.lastAlive = this.alive;
 			noTickCount = 0;
@@ -416,7 +416,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 
 		private void Death(CGLifeSimProjection lifeSimProjection)
 		{
-			//Debug.Log("LifeSimProjection: Death");
+			//LogMessage("LifeSimProjection: Death");
 			alive = false;
 			needGraphicalChange = true;
 			noChangeCount = 0;
@@ -425,7 +425,7 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 
 		private void Birth(CGLifeSimProjection lifeSimProjection)
 		{
-			//Debug.Log("LifeSimProjection: Birth!");
+			//LogMessage("LifeSimProjection: Birth!");
 			alive = true;
 			hovered = 0;
 			needGraphicalChange = true;

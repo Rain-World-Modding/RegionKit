@@ -11,12 +11,12 @@ internal class ModifySettingsGenerator
 	{
 		if (SettingsSaveOptions.settingsSaveOptionsMenu is null) { return; }
 
-		Debug.Log("\n----Creating modify file----");
+		LogMessage("\n----Creating modify file----");
 		string filePath = URoomSettings.DefaultSettingsLocation(self, self.room.roomSettings, true);
 
 		if (File.Exists(filePath))
 		{ originalS = new RoomSettingsStruct(File.ReadAllLines(filePath)); }
-		else { Debug.Log("Failed to find original settings, aborting"); return; }
+		else { LogMessage("Failed to find original settings, aborting"); return; }
 
 		newS = new RoomSettingsStruct(SaveTemp(self));
 
@@ -35,16 +35,16 @@ internal class ModifySettingsGenerator
 			{ modifyDirectory = true; }
 
 			if (!modifyDirectory)
-			{ Debug.Log($"Failed to find modify directory, aborting\n{filePath}"); return; }
+			{ LogMessage($"Failed to find modify directory, aborting\n{filePath}"); return; }
 		}
-		else { Debug.Log("can't find new settings, aborting"); return; }
+		else { LogMessage("can't find new settings, aborting"); return; }
 
 		try
 		{
 			if (!Directory.Exists(Path.GetDirectoryName(filePath)))
 			{ Directory.CreateDirectory(Path.GetDirectoryName(filePath)); }
 		}
-		catch (Exception ex) { Debug.Log($"Failed to create directory, aborting\n{filePath}\n{ex}"); return; }
+		catch (Exception ex) { LogMessage($"Failed to create directory, aborting\n{filePath}\n{ex}"); return; }
 
 		File.WriteAllText(filePath, mergeS.ToString());
 	}
@@ -70,7 +70,7 @@ internal class ModifySettingsGenerator
 
 			return result;
 		}
-		catch (Exception ex) { Debug.Log(ex); return new string[0]; }
+		catch (Exception ex) { LogMessage(ex); return new string[0]; }
 	}
 
 	public void Compare()
@@ -203,7 +203,7 @@ internal class ModifySettingsGenerator
 
 			foreach (string line in file)
 			{
-				Debug.Log($"reading line {line}");
+				LogMessage($"reading line {line}");
 				string[] splitLine = Regex.Split(line, ": ");
 				if (splitLine.Length < 2)
 				{ continue; }

@@ -56,6 +56,7 @@ public static class _Module
 	{
 		// Hooking code goose hre
 		On.AbstractCreature.RealizeInRoom += CreatureShuffleHook;
+		ShelterBehaviorManager.Override_HTT = System.IO.File.Exists(AssetManager.ResolveFilePath("world/htt.txt"));
 	}
 
 	internal static void Disable()

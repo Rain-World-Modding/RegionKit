@@ -3,7 +3,7 @@
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Room zones")]
 public static class _Module
 {
-	public const string ZONES_POM_CATEGORY = Objects._Module.GAMEPLAY_POM_CATEGORY;
+	public const string ZONES_POM_CATEGORY = Objects._Module.OBJECTS_POM_CATEGORY;
 	public static List<GameObject> colliderHolders = new();
 	public static void Setup()
 	{
@@ -21,7 +21,7 @@ public static class _Module
 		// 	{
 		// 		if (uad is IRoomZone zone && zone.PointInZone(self.mainBodyChunk.pos))
 		// 		{
-		// 			__logger.LogDebug($"im in!!! {zone.Tag}");
+		// 			LogDebug($"im in!!! {zone.Tag}");
 		// 		}
 
 		// 	}

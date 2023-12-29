@@ -52,7 +52,7 @@ public class MachineryCustomizer : ManagedData
 		other.anchorY = anchorY;
 		try { other.element = Futile.atlasManager.GetElementWithName(elementName); }
 		catch { other.element = Futile.atlasManager.GetElementWithName("pixel"); }
-		try { other.shader = __RW.Shaders[shaderName]; }
+		try { other.shader = __RW?.Shaders[shaderName]; }
 		catch { other.shader = FShader.defaultShader; }
 	}
 	/// <summary>

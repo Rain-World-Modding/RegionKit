@@ -18,7 +18,7 @@ internal static class SlugcatRoomTemplates
 			IL.Region.ReloadRoomSettingsTemplate += Region_ReloadRoomSettingsTemplate;
 			IL.RoomSettings.ctor += RoomSettings_ctor;
 		}
-		catch (Exception e) { __logger.LogError($"[SlugcatRoomTemplates] IL hooks failed!\n{e}"); }
+		catch (Exception e) { LogError($"[SlugcatRoomTemplates] IL hooks failed!\n{e}"); }
 	}
 	public static void Undo()
 	{
@@ -63,7 +63,7 @@ internal static class SlugcatRoomTemplates
 				string path = AssetManager.ResolveFilePath(
 			$"World{Path.DirectorySeparatorChar}{region.name}{Path.DirectorySeparatorChar}{self.name}-{playerChar.value}.txt"
 			);
-				Debug.Log($"path is [{path}, exists? {File.Exists(path)}]");
+				LogTrace($"path is [{path}, exists? {File.Exists(path)}]");
 				if (File.Exists(path)) self.filePath = path;
 			});
 		}

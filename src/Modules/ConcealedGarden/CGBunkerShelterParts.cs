@@ -111,7 +111,7 @@ internal static class CGBunkerShelterParts
 			}
 
 			this.AddToContainer(sLeaser, rCam, rCam.ReturnFContainer("Foreground"));
-			//Debug.LogError("Flaps initiated, with " + sLeaser.sprites.Length + " sprites");
+			//LogMessageError("Flaps initiated, with " + sLeaser.sprites.Length + " sprites");
 		}
 
 		public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
@@ -119,14 +119,14 @@ internal static class CGBunkerShelterParts
 			base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
 			Vector2 start = new Vector2(rect.left * 20 - camPos.x + data.offsetX, rect.bottom * 20 - camPos.y + data.offsetY);
 
-			//Debug.Log("rendering flaps at " + start);
+			//LogMessage("rendering flaps at " + start);
 			float factor = Mathf.Lerp(lastClosedFactor, closedFactor, timeStacker);
 			float easedFactor =
 				  0.15f * Mathf.Pow(Mathf.InverseLerp(0, 0.2f, factor), 2f)
 				+ 0.7f * Mathf.InverseLerp(0.2f, 0.8f, factor)
 				+ 0.15f * Mathf.Pow(Mathf.InverseLerp(0.8f, 1, factor), 0.5f);
 			float depth = data.GetValue<float>("dpt") / 30f;
-			//Debug.Log("rendering flaps at " + depth);
+			//LogMessage("rendering flaps at " + depth);
 			float depthStep = 1f / 30f;
 			float heightStep = 20f - 1f / height;
 

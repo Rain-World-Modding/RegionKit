@@ -5,7 +5,7 @@ namespace RegionKit.Modules.ConcealedGarden;
 
 internal static class CGNoLurkArea
 {
-	public static ManagedObjectType noLurkType;
+	public static ManagedObjectType? noLurkType;
 
 	public static void Apply()
 	{
@@ -22,14 +22,14 @@ internal static class CGNoLurkArea
 		if (testLurkPos.room == self.lizard.abstractCreature.pos.room)
 		{
 			Vector2 lurkPos = self.lizard.room.MiddleOfTile(testLurkPos);
-			PlacedObject.Type nolurktype = noLurkType.GetObjectType();
+			PlacedObject.Type? nolurktype = noLurkType?.GetObjectType();
 			foreach (var item in self.lizard.room.roomSettings.placedObjects)
 			{
 				if (item.active && item.type == nolurktype)
 				{
 					if (RWCustom.Custom.DistLess(lurkPos, item.pos, ((CGNoLurkAreaData)item.data).handle.magnitude))
 					{
-						//Debug.LogError("NO LURK");
+						//LogMessageError("NO LURK");
 						return -100000f;
 					}
 				}

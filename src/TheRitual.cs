@@ -13,5 +13,6 @@ public static class TheRitual
 				throw new Joar();
 			}
 		}
+		if (UnityEngine.Random.value < 0.05) throw new Joar();
 	}
 }

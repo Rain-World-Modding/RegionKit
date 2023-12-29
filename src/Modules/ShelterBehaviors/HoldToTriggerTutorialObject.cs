@@ -63,7 +63,7 @@ public class HoldToTriggerTutorialObject : UpdatableAndDeletable
 	/// </summary>
 	public void Consume()
 	{
-		Debug.Log("CONSUMED: HoldToTriggerTutorialObject ;)");
+		LogMessage("CONSUMED: HoldToTriggerTutorialObject ;)");
 		if (room.world.game.session is StoryGameSession)
 		{
 			(room.world.game.session as StoryGameSession)!.saveState.ReportConsumedItem(room.world, false, room.abstractRoom.index, this._placedObjectIndex, (_placedObject.data as HoldToTriggerTutorialData)!.cooldown);

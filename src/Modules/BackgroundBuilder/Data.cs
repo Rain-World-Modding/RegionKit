@@ -171,7 +171,7 @@ internal static class Data
 						break;
 					}
 				}
-				catch (Exception e) { __logger.LogError($"BackgroundBuilder: error loading line [{line}]\n{e}"); }
+				catch (Exception e) { LogError($"BackgroundBuilder: error loading line [{line}]\n{e}"); }
 			}
 			realData.LoadData(lines);
 			return true;
@@ -280,7 +280,7 @@ internal static class Data
 					}
 					catch (BackgroundBuilderException bgex)
 					{
-						__logger.LogError($"Could not create custom background element: {bgex}");
+						LogError($"Could not create custom background element: {bgex}");
 					}
 				}
 			}
@@ -451,8 +451,8 @@ internal static class Data
 
 			foreach (DistantCloud cloud in (Scene?.clouds ?? new()).Where(x => x is DistantCloud))
 			{
-				Debug.Log("\nCLOUD DEPTHS\nshouldn't go in background file, but useful for positioning\n");
-				Debug.Log($"distantCloud: {cloud.pos.x}, {cloud.pos.y}, {cloud.depth}, {cloud.distantCloudDepth}");
+				LogMessage("\nCLOUD DEPTHS\nshouldn't go in background file, but useful for positioning\n");
+				LogMessage($"distantCloud: {cloud.pos.x}, {cloud.pos.y}, {cloud.depth}, {cloud.distantCloudDepth}");
 			}
 
 			return string.Join("\n", lines) + "\n\n" + base.Serialize();

@@ -405,7 +405,7 @@ internal class CGCosmeticLeaves : UpdatableAndDeletable, IDrawable
 #pragma warning restore 0649
 		public CosmeticLeavesObjectData(PlacedObject owner) : base(owner, new ManagedField[] {
 				new Vector2Field("00ha", new Vector2(0, 100), Vector2Field.VectorReprType.line),
-				new DrivenVector2Field("00hb", "00ha", new Vector2(-200, 0)),
+				new DrivenVector2Field("00hb", "00ha", new Vector2(-15, 0)),
 				new EnumField<CosmeticLeavesColor>("01ct", CosmeticLeavesColor.EffectColor1, displayName:"Color Type"),
 			})
 		{ }

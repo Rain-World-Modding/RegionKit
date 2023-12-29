@@ -25,7 +25,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 		this.room = rm;
 		_assignedCustomizerData = assignedData;
 		//PetrifiedWood.WriteLine($"Cog created in {rm.abstractRoom?.name}");
-		__logger.LogDebug($"({rm.abstractRoom.name}): Created a Cog.");
+		LogDebug($"({rm.abstractRoom.name}): Created a Cog.");
 	}
 	///<inheritdoc/>
 	public override void Update(bool eu)
@@ -70,17 +70,7 @@ public class SimpleCog : UpdatableAndDeletable, IDrawable
 		get
 		{
 			var res = Lerp(0f, _CogData.baseAngVel, room.ElectricPower);
-			Func<float, float> targetFunc;
-			switch (_CogData.opmode)
-			{
-			default:
-			case OperationMode.Sinal:
-				targetFunc = Sin;
-				break;
-			case OperationMode.Cosinal:
-				targetFunc = Cos;
-				break;
-			}
+			Func<float, float> targetFunc = _Module.__defaultOscillators[_CogData.opmode];
 			res += _CogData.angVelShiftAmp * targetFunc(_lt * _CogData.angVelShiftFrq);
 			res = Lerp(0f, res, room.ElectricPower);
 			return res;

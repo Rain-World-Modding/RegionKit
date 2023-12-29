@@ -183,7 +183,7 @@ internal static class DevUIUtils
 					Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 				}
 			}
-			catch { Debug.Log("Couldn't create directory"); }
+			catch { LogMessage("Couldn't create directory"); }
 
 			if (Directory.Exists(Path.GetDirectoryName(filePath)))
 			{
@@ -196,7 +196,11 @@ internal static class DevUIUtils
 
 	}
 
-	public static void SendSignal(this DevUINode devUINode, DevUISignalType signalType, DevUINode sender, string message)
+	public static void SendSignal(
+		this DevUINode devUINode,
+		DevUISignalType signalType,
+		DevUINode sender,
+		string message)
 	{
 		while (devUINode != null)
 		{

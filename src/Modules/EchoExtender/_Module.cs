@@ -55,7 +55,7 @@ public static class _Module
 
 	private static void StoryGameSessionOnCtor(On.StoryGameSession.orig_ctor orig, StoryGameSession self, SlugcatStats.Name savestatenumber, RainWorldGame game)
 	{
-		__logger.LogInfo("[Echo Extender] Loading Echoes from Region Mods...");
+		LogInfo("[Echo Extender] Loading Echoes from Region Mods...");
 		EchoParser.LoadAllRegions(savestatenumber);
 		orig(self, savestatenumber, game);
 	}
@@ -121,19 +121,19 @@ public static class _Module
 		bool SODcondition = settings.SpawnOnDifficulty;
 		bool karmaCondition = settings.KarmaCondition(karma, karmacap);
 		bool karmaCapCondition = settings.MinimumKarmaCap <= karmacap;
-		__logger.LogInfo($"[Echo Extender] Getting echo conditions for {ghostid}");
-		//__logger.LogInfo($"[Echo Extender] Using difficulty {__slugcatNumber} ({__slugcatNumber?.Index})");
-		__logger.LogInfo($"[Echo Extender] Spawn On Difficulty : {(SODcondition ? "Met" : "Not Met")}");
-		__logger.LogInfo($"[Echo Extender] Minimum Karma : {(karmaCondition ? "Met" : "Not Met")} [Required: {(settings.MinimumKarma == -1 ? "Dynamic" : settings.MinimumKarma.ToString())}, Having: {karma}]");
-		__logger.LogInfo($"[Echo Extender] Minimum Karma Cap : {(karmaCapCondition ? "Met" : "Not Met")} [Required: {settings.MinimumKarmaCap}, Having: {karmacap}]");
+		LogInfo($"[Echo Extender] Getting echo conditions for {ghostid}");
+		//LogInfo($"[Echo Extender] Using difficulty {__slugcatNumber} ({__slugcatNumber?.Index})");
+		LogInfo($"[Echo Extender] Spawn On Difficulty : {(SODcondition ? "Met" : "Not Met")}");
+		LogInfo($"[Echo Extender] Minimum Karma : {(karmaCondition ? "Met" : "Not Met")} [Required: {(settings.MinimumKarma == -1 ? "Dynamic" : settings.MinimumKarma.ToString())}, Having: {karma}]");
+		LogInfo($"[Echo Extender] Minimum Karma Cap : {(karmaCapCondition ? "Met" : "Not Met")} [Required: {settings.MinimumKarmaCap}, Having: {karmacap}]");
 		EchoSettings.PrimingKind prime = settings.RequirePriming;
 		bool primedCond = prime switch
 		{
 			EchoSettings.PrimingKind.Yes => ghostpreviouslyencountered == 1,
 			_ => ghostpreviouslyencountered != 2
 		};
-		__logger.LogInfo($"[Echo Extender] Primed : {(primedCond ? "Met" : "Not Met")} [Required: {(prime)}, Having {ghostpreviouslyencountered}]");
-		__logger.LogInfo($"[Echo Extender] Spawning Echo : {primedCond && SODcondition && karmaCondition && karmaCapCondition}");
+		LogInfo($"[Echo Extender] Primed : {(primedCond ? "Met" : "Not Met")} [Required: {(prime)}, Having {ghostpreviouslyencountered}]");
+		LogInfo($"[Echo Extender] Spawning Echo : {primedCond && SODcondition && karmaCondition && karmaCapCondition}");
 		return
 			primedCond &&
 			SODcondition &&
@@ -150,7 +150,7 @@ public static class _Module
 		}
 		foreach (string line in ProcessSlugcatConditions(Regex.Split(EchoParser.__echoConversations[self.id], "(\r|\n)+"), self.ghost.room.game.StoryCharacter))
 		{
-			__logger.LogDebug($"[Echo Extender] Processing line {line}");
+			LogDebug($"[Echo Extender] Processing line {line}");
 			if (line.All(c => char.IsSeparator(c) || c == '\n' || c == '\r')) continue;
 			self.events.Add(new Conversation.TextEvent(self, 0, line, 0));
 		}
@@ -177,8 +177,8 @@ public static class _Module
 		{
 			self.ghostRoom = world.GetAbstractRoom(EchoParser.__echoSettings[ghostid].EchoRoom);
 			self.songName = EchoParser.__echoSettings[ghostid].EchoSong;
-			__logger.LogInfo($"[Echo Extender] Set Song: {self.songName}");
-			__logger.LogInfo($"[Echo Extender] Set Room {self.ghostRoom?.name}");
+			LogInfo($"[Echo Extender] Set Song: {self.songName}");
+			LogInfo($"[Echo Extender] Set Room {self.ghostRoom?.name}");
 		}
 	}
 
@@ -188,6 +188,7 @@ public static class _Module
 		if (!EchoParser.__extendedEchoIDs.Contains(self.worldGhost.ghostID)) return;
 		var settings = EchoParser.__echoSettings[self.worldGhost.ghostID];
 		self.scale = settings.EchoSizeMultiplier * 0.75f;
+		self.rags.conRad = 30f * self.scale;
 		self.defaultFlip = settings.DefaultFlip;
 	}
 }

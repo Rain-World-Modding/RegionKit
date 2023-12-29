@@ -56,12 +56,12 @@ public struct EchoSettings
 	internal static EchoSettings GetDefault(SlugcatStats.Name name) => new()
 	{
 		EchoRoom = "",
-		EchoSizeMultiplier = 0f,
+		EchoSizeMultiplier = 1f,
 		EffectRadius = 4f,
 		MinimumKarma = -1,
 		MinimumKarmaCap = 0,
 		RequirePriming = (name == SlugcatStats.Name.Red)? PrimingKind.No : (name == MscNames.Saint)? PrimingKind.Saint : PrimingKind.Yes,
-		EchoSong = "",
+		EchoSong = "NA_32 - Else1",
 		SpawnOnDifficulty = true,
 		DefaultFlip = 0f
 	};
@@ -75,12 +75,15 @@ public struct EchoSettings
 
 		if (!File.Exists(path))
 		{
-			__logger.LogError("[Echo Extender] No settings file found! Using default");
+			LogError("[Echo Extender] No settings file found! Using default");
 			return settings;
 		}
 
-		__logger.LogMessage("[Echo Extender] Found settings file: " + path);
+		LogMessage("[Echo Extender] Found settings file: " + path);
 		string[] rows = File.ReadAllLines(path);
+
+		settings.SpawnOnDifficulty = !rows.Any(x => x.ToLower().Contains("spawnondifficulty")); //kinda hacky, but necessary
+
 		foreach (string row in ProcessSlugcatConditions(rows, name))
 		{
 
@@ -124,7 +127,7 @@ public struct EchoSettings
 					settings.MinimumKarmaCap = intval;
 					break;
 				case "difficulties":
-					__logger.LogWarning($"[Echo Extender] 'difficulties' is obsolete! New format is [({trimmed})SpawnOnDifficulty]");
+					LogWarning($"[Echo Extender] 'difficulties' is obsolete! New format is [({trimmed})SpawnOnDifficulty]");
 					if(RainWorldTools.StringMatchesSlugcat(trimmed,name)) settings.SpawnOnDifficulty = true;
 					//settings.SpawnOnDifficulty = split[1].Split(',').Select(s => new SlugcatStats.Name(s.Trim(), false)).ToArray();
 					break;
@@ -139,13 +142,13 @@ public struct EchoSettings
 					settings.DefaultFlip = floatval;
 					break;
 				default:
-					__logger.LogWarning($"[Echo Extender] Setting '{pass.Trim().ToLower()}' not found! Skipping : " + row);
+					LogWarning($"[Echo Extender] Setting '{pass.Trim().ToLower()}' not found! Skipping : " + row);
 					break;
 				}
 			}
 			catch (Exception ex)
 			{
-				__logger.LogWarning($"[Echo Extender] Failed to parse line \"{row}\" : {ex}");
+				LogWarning($"[Echo Extender] Failed to parse line \"{row}\" : {ex}");
 			}
 		}
 
@@ -159,7 +162,7 @@ public struct EchoSettings
 		var mymin = MinimumKarma;
 		if (MinimumKarma == -1)
 		{
-			__logger.LogMessage($"[Echo Extender] checking dynamic karma: {mymin}, {karma}, {karmaCap}");
+			LogMessage($"[Echo Extender] checking dynamic karma: {mymin}, {karma}, {karmaCap}");
 			switch (karmaCap)
 			{
 			case 4:

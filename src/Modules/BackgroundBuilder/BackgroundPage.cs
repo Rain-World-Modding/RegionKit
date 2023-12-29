@@ -76,13 +76,20 @@ public class BackgroundPage : Page
 		subNodes.Add(new GenericSlider(owner, "YOffset", this, new Vector2(120f, 640f), "YOffset", true, 60f, RoomSettings.BackgroundData().roomOffset.y, stringWidth: 32) { minValue = -5000, maxValue = 5000, defaultValue = RoomSettings.parent.BackgroundData().roomOffset.y });
 
 		backgroundSave = new PanelSelectButton(owner, "BackgroundSave", this, new Vector2(260f, 620f), 30f, "...", backgroundSaves(), "Select Background") { panelPos = new Vector2(420f, 190f) };
+		backgroundSave.itemDescription = "background file to save to/load from";
 		subNodes.Add(backgroundSave);
 
-		saveName = new BackgroundFileStringControl(owner, "saveName", this, new Vector2(120f, 620f), 128f, RoomSettings.BackgroundData().backgroundName, BackgroundFileStringControl.TextIsValidBackground);
+		saveName = new BackgroundFileStringControl(owner, "saveName", this, new Vector2(120f, 620f), 128f, RoomSettings.BackgroundData().backgroundName, BackgroundFileStringControl.TextIsValidBackground)
+		{
+			toolTipTextOverride = "Input the name of the background file to save/load"
+		};
 		subNodes.Add(saveName);
 		//subNodes.Add(new Button(owner, "refresh", this, new Vector2(300f, 620f), 60f, "refresh"));
 
-		subNodes.Add(new Button(owner, "Load", this, new Vector2(120f, 600f), 60f, "Load"));
+		Button buttonLoad = new Button(owner, "Load", this, new Vector2(120f, 600f), 60f, "Load");
+		API.Iggy.AddTooltip(buttonLoad, () => new("Load background scene setup from file", 10, buttonLoad));
+		subNodes.Add(buttonLoad);
+
 
 		//subNodes.Add(new Button(owner, "Save", this, new Vector2(200f, 600f), 60f, "Save"));
 
@@ -142,13 +149,13 @@ public class BackgroundPage : Page
 
 			else if (sender.IDstring == "Load")
 			{
-				RoomSettings.BackgroundData().FromName(saveName.actualValue, owner.game.GetStorySession.saveStateNumber);
+				RoomSettings.BackgroundData().FromName(saveName.actualValue, owner.game.GetStorySession?.saveStateNumber ?? SlugcatStats.Name.White);
 				SwitchRoomBackground(owner.room, RoomSettings.BackgroundData().type, true);
 			}
 
 			else if (sender.IDstring == "Save")
 			{
-				Debug.Log($"\n\nBACKGROUND OUTPUT\n\n{RoomSettings.BackgroundData().Serialize()}\n\n");
+				LogMessage($"\n\nBACKGROUND OUTPUT\n\n{RoomSettings.BackgroundData().Serialize()}\n\n");
 			}
 		}
 
@@ -234,9 +241,28 @@ public class BackgroundPage : Page
 
 
 
-	public class BackgroundFileStringControl : StringControl
+	public class BackgroundFileStringControl : StringControl, Modules.Iggy.IGiveAToolTip
 	{
-		public BackgroundFileStringControl(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width, string text, IsTextValid del) : base(owner, IDstring, parentNode, pos, width, text, del)
+		public string? toolTipTextOverride;
+		Iggy.ToolTip? Iggy.IGiveAToolTip.ToolTip => new(toolTipTextOverride ?? "Input a value as a string", 10, this);
+
+		bool Iggy.IGeneralMouseOver.MouseOverMe => MouseOver;
+
+		public BackgroundFileStringControl(
+			DevUI owner,
+			string IDstring,
+			DevUINode parentNode,
+			Vector2 pos,
+			float width,
+			string text,
+			IsTextValid del) : base(
+				owner,
+				IDstring,
+				parentNode,
+				pos,
+				width,
+				text,
+				del)
 		{
 		}
 
@@ -289,7 +315,7 @@ public class BackgroundPage : Page
 			subNodes.Add(label);
 			ppos.x += 140f;
 
-			select = new PanelSelectButton(owner, "Asset_Select", this, ppos, 30f, "...", ElementNames().ToArray(), "Select Element") 
+			select = new PanelSelectButton(owner, "Asset_Select", this, ppos, 30f, "...", ElementNames().ToArray(), "Select Element")
 			{ panelPos = new Vector2(420f, -200f), panelSize = new Vector2(280f, 420f), panelButtonWidth = 240f, panelColumns = 1 };
 			subNodes.Add(select);
 		}

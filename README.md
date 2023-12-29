@@ -64,10 +64,16 @@ Our goal for region kit is to have a unified mod to hold objects, room effects, 
 - BackgroundBuilder
     - Allows custom AboveCloudsView backgrounds to be easily constructed and loaded for a room.
     - For instructions see [this file](./docs/BackgroundBuilder.md)
+- Custom Projections
+    - Allows custom overseer projections to be created and defined, as well as being able to modify overseer appearance and behaviors.
+    - For instructions see [this file](./docs/CustomProjections.md)
+- RoomSlideShow
+	- Allows adding simple animated objects to rooms (without gameplay effect).
+	- For instructions see [this file](./src/Modules/RoomSlideShow/README.md).
   
 ### Particle system
 
- RegionKit provides a general purpose particle system, featuring:
+RegionKit provides a general purpose particle system, featuring:
   - Use of arbitrary sprites
   - Controlled randomization of visuals and movement
   - Modularity: combine visuals, behaviour and modifiers in any way you like.
@@ -96,6 +102,7 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 	- Misc internal janitoring
 	- Placed Wormgrass
 	- Placed Waterfall
+	- RoomSlideShow
 
 - DeltaTime
 	- Initial versions
@@ -123,6 +130,7 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 	- SettingsSave for Specific Slugs
 	- BackgroundBuilder
 	- Many object fixes
+	- Custom Projections
 
 - Henpemaz
 	- Placed Objects Manager Framework
@@ -160,6 +168,9 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 - Dracentis
 	- Arid Barrens Code
 	- Original ColoredLightBeam
+
+- Isbjorn52
+	- Gate Customization
 
 **Initial ExtendedGates authors**: Henpemaz (code); Mehri'Kairotep, Thalber, LB/M4rbleL1ne and Nautillo (spritework).
 

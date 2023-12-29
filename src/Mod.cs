@@ -1,8 +1,4 @@
-﻿using System.Reflection;
-using RegionKit.Modules.Effects;
-using RegionKit.Modules.GateCustomization;
-
-namespace RegionKit;
+﻿namespace RegionKit;
 /// <summary>
 /// Main plugin class
 /// </summary>
@@ -64,8 +60,6 @@ public class Mod : BepInEx.BaseUnityPlugin
 			}
 			_modulesSetUp = true;
 			_Assets.LoadResources();
-
-			GateCustomization.LoadShaders(self);
 		}
 		catch (Exception ex)
 		{

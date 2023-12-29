@@ -82,7 +82,7 @@ internal class _Module
 			new FloatField("batterySaturation", 0f, 1f, 1f, increment: 0.01f, displayName: "Saturation"),
 			new FloatField("batteryLightness", 0f, 1f, 0.5f, increment: 0.01f, displayName: "Lightness")
 		}, typeof(ElectricGateDataRepresentation), "ElectricGateData", GATE_CUSTOMIZATION_POM_CATEGORY);
-
+		GateCustomization.LoadShaders(CRW);
 	}
 
 	public static void Enable()

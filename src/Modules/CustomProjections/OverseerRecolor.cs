@@ -56,7 +56,7 @@ internal static class OverseerRecolor
 
 		if (!OverseerProperties.BaseIndex(id))
 		{
-			if (OverseerProperties.GetOverseerProperties(self.overseer.room.world.region).overseerColorLookup.TryGetValue(id, out var color))
+			if (OverseerProperties.GetOverseerProperties(self.OwnerRoom?.world.region).overseerColorLookup.TryGetValue(id, out var color))
 			{ return color; }
 		}
 		return orig(self);

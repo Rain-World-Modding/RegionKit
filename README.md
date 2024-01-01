@@ -172,6 +172,10 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 - Isbjorn52
 	- Gate Customization
 
+- Xan
+	- Superstructure Fuses depth fix
+ 	- Shader stencil buffer enabler
+
 **Initial ExtendedGates authors**: Henpemaz (code); Mehri'Kairotep, Thalber, LB/M4rbleL1ne and Nautillo (spritework).
 
 ## Download

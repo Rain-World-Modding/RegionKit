@@ -14,7 +14,7 @@ namespace RegionKit.Modules.ShaderTools {
 
 		/// <summary>
 		/// Requests that the stencil buffer is enabled, setting the depth bit count of the main screen's render texture to 24 bits.
-		/// Once at least one mod calls this, it will be permanently enabled and 
+		/// Once at least one mod calls this, it will be permanently enabled. 
 		/// </summary>
 		public static void RequestStencilBuffer() {
 			if (!_hasStencilBuffer && Futile.screen != null) {

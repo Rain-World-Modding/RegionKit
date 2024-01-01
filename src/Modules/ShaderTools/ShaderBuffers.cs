@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace RegionKit.Modules.ShaderTools {
@@ -15,6 +15,13 @@ namespace RegionKit.Modules.ShaderTools {
 			On.FScreen.ctor += OnConstructingFScreen;
 			On.FScreen.ReinitRenderTexture += OnReinitializeRT;
 			_hasStencilBuffer = true;
+			if (Futile.screen != null) {
+				RenderTexture rt = Futile.screen.renderTexture;
+				if (rt.depth < DEPTH_AND_STENCIL_BUFFER_BITS) {
+					// Use this check in case another mod happens to enable the 32 bit buffer for whatever reason.
+					rt.depth = DEPTH_AND_STENCIL_BUFFER_BITS;
+				}
+			}
 		}
 
 		internal static void Uninitialize() {

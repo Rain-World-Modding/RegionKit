@@ -35,12 +35,14 @@ namespace RegionKit.Modules.ShaderTools {
 		
 		private static void OnReinitializeRT(On.FScreen.orig_ReinitRenderTexture originalMethod, FScreen @this, int displayWidth) {
 			originalMethod(@this, displayWidth);
-			@this.renderTexture.depth = _hasStencilBuffer ? DEPTH_AND_STENCIL_BUFFER_BITS : @this.renderTexture.depth;
+			// Use this check in case another mod happens to enable the 32 bit buffer for whatever reason.
+			@this.renderTexture.depth = (_hasStencilBuffer && @this.renderTexture.depth < DEPTH_AND_STENCIL_BUFFER_BITS) ? DEPTH_AND_STENCIL_BUFFER_BITS : @this.renderTexture.depth;
 		}
 
 		private static void OnConstructingFScreen(On.FScreen.orig_ctor originalCtor, FScreen @this, FutileParams futileParams) {
 			originalCtor(@this, futileParams);
-			@this.renderTexture.depth = _hasStencilBuffer ? DEPTH_AND_STENCIL_BUFFER_BITS : @this.renderTexture.depth;
+			// Use this check in case another mod happens to enable the 32 bit buffer for whatever reason.
+			@this.renderTexture.depth = (_hasStencilBuffer && @this.renderTexture.depth < DEPTH_AND_STENCIL_BUFFER_BITS) ? DEPTH_AND_STENCIL_BUFFER_BITS : @this.renderTexture.depth;
 		}
 
 	}

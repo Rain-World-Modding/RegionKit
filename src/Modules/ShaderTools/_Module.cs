@@ -1,4 +1,6 @@
-﻿namespace RegionKit.Modules.ShaderTools {
+﻿using System;
+
+namespace RegionKit.Modules.ShaderTools {
 	[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Shader Tools")]
 	public static class _Module {
 		/// <summary>

@@ -10,27 +10,26 @@ namespace RegionKit.Modules.ShaderTools {
 		private const int DEPTH_AND_STENCIL_BUFFER_BITS = 24;
 		
 		private static bool _hasStencilBuffer = false;
-		private static bool _initialized = false;
 
-		/// <summary>
-		/// Requests that the stencil buffer is enabled, setting the depth bit count of the main screen's render texture to 24 bits.
-		/// Once at least one mod calls this, it will be permanently enabled. 
-		/// </summary>
-		public static void RequestStencilBuffer() {
-			if (!_hasStencilBuffer && Futile.screen != null) {
-				_hasStencilBuffer = true;
+		internal static void Initialize() {
+			On.FScreen.ctor += OnConstructingFScreen;
+			On.FScreen.ReinitRenderTexture += OnReinitializeRT;
+			_hasStencilBuffer = true;
+			if (Futile.screen != null) {
 				RenderTexture rt = Futile.screen.renderTexture;
 				if (rt.depth < DEPTH_AND_STENCIL_BUFFER_BITS) {
+					// Use this check in case another mod happens to enable the 32 bit buffer for whatever reason.
 					rt.depth = DEPTH_AND_STENCIL_BUFFER_BITS;
 				}
 			}
 		}
 
-		internal static void Initialize() {
-			if (_initialized) return;
-			_initialized = true;
-			On.FScreen.ctor += OnConstructingFScreen;
-			On.FScreen.ReinitRenderTexture += OnReinitializeRT;
+		internal static void Uninitialize() {
+			On.FScreen.ctor -= OnConstructingFScreen;
+			On.FScreen.ReinitRenderTexture -= OnReinitializeRT;
+			// DO NOT set rt.depth = 0 here or you will brick any mods that (sensibly) expect their changes to the value to be kept.
+			// Let RW wipe it on its own when it rebuilds the RT.
+			_hasStencilBuffer = false;
 		}
 		
 		private static void OnReinitializeRT(On.FScreen.orig_ReinitRenderTexture originalMethod, FScreen @this, int displayWidth) {

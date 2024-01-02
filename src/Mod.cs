@@ -1,4 +1,8 @@
-﻿namespace RegionKit;
+﻿using RegionKit.Modules.Effects;
+using RegionKit.Modules.GateCustomization;
+using RegionKit.Modules.RoomSlideShow;
+
+namespace RegionKit;
 /// <summary>
 /// Main plugin class
 /// </summary>
@@ -66,7 +70,6 @@ public class Mod : BepInEx.BaseUnityPlugin
 			MossWaterUnlit.MossLoadResources(self);
 			MossWaterRGB.MossLoadResources(self);
 			MurkyWater.MurkyWaterLoadResources(self);
-
 			GateCustomization.LoadShaders(self);
 		}
 		catch (Exception ex)

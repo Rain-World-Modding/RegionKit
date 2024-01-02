@@ -1,4 +1,5 @@
 ﻿using DevInterface;
+using RegionKit.Modules.ShaderTools;
 
 namespace RegionKit.Modules.Effects;
 
@@ -32,7 +33,6 @@ public static class _Module
 
 		IceWater.Apply();
 		MurkyWater.Apply();
-		ShaderBuffers.Initialize();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -49,7 +49,6 @@ public static class _Module
 		MossWaterRGB.Undo();
 		IceWater.Undo();
 		MurkyWater.Undo();
-		ShaderBuffers.Uninitialize();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 

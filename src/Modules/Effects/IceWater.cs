@@ -35,7 +35,7 @@ namespace RegionKit.Modules.Effects
 
 	}
 
-	internal class IceWaterUAD : UpdatableAndDeletable
+	 internal class IceWaterUAD : UpdatableAndDeletable
 	{
 		public EffectExtraData EffectData { get; }
 		public Color color;

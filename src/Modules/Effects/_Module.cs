@@ -28,6 +28,7 @@ public static class _Module
 		//IceWaterBuilder.__RegisterBuilder();
 		MossWaterUnlit.MossLoadResources(rainworld);
 		MossWaterRGB.MossLoadResources(rainworld);
+		MurkyWater.MurkyWaterLoadResources(rainworld);
 
 
 

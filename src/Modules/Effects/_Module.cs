@@ -22,6 +22,8 @@ public static class _Module
 		MossWaterUnlit.Apply();
 		MossWaterRGB.Apply();
 		IceWater.Apply();
+		MurkyWater.Apply();
+		ShaderBuffers.Initialize();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -37,6 +39,8 @@ public static class _Module
 		MossWaterUnlit.Undo();
 		MossWaterRGB.Undo();
 		IceWater.Undo();
+		MurkyWater.Undo();
+		ShaderBuffers.Uninitialize();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -53,6 +57,7 @@ public static class _Module
 			type == _Enums.PWMalfunction ||
 			type == _Enums.HiveColorAlpha ||
 			type == _Enums.MossWater ||
+			type == _Enums.MurkyWater ||
 			type == EchoExtender._Enums.EchoPresenceOverride)
 			res = _Enums.RegionKit;
 		return res;

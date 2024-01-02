@@ -68,6 +68,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 			IceWaterBuilder.__RegisterBuilder();
 			MossWaterUnlit.MossLoadResources(self);
 			MossWaterRGB.MossLoadResources(self);
+			MurkyWater.MurkyWaterLoadResources(self);
 
 			GateCustomization.LoadShaders(self);
 		}

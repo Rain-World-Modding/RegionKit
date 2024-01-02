@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace RegionKit.Modules.ShaderTools {
@@ -19,6 +19,7 @@ namespace RegionKit.Modules.ShaderTools {
 				RenderTexture rt = Futile.screen.renderTexture;
 				if (rt.depth < DEPTH_AND_STENCIL_BUFFER_BITS) {
 					// Use this check in case another mod happens to enable the 32 bit buffer for whatever reason.
+					rt.Release();
 					rt.depth = DEPTH_AND_STENCIL_BUFFER_BITS;
 				}
 			}
@@ -34,14 +35,24 @@ namespace RegionKit.Modules.ShaderTools {
 		
 		private static void OnReinitializeRT(On.FScreen.orig_ReinitRenderTexture originalMethod, FScreen @this, int displayWidth) {
 			originalMethod(@this, displayWidth);
+			@this.renderTexture.Release();
 			// Use this check in case another mod happens to enable the 32 bit buffer for whatever reason.
-			@this.renderTexture.depth = (_hasStencilBuffer && @this.renderTexture.depth < DEPTH_AND_STENCIL_BUFFER_BITS) ? DEPTH_AND_STENCIL_BUFFER_BITS : @this.renderTexture.depth;
+			int newDepth = (_hasStencilBuffer && @this.renderTexture.depth < DEPTH_AND_STENCIL_BUFFER_BITS) ? DEPTH_AND_STENCIL_BUFFER_BITS : @this.renderTexture.depth;
+			if (@this.renderTexture.depth != newDepth) {
+				@this.renderTexture.Release();
+				@this.renderTexture.depth = newDepth;
+			}			
 		}
 
 		private static void OnConstructingFScreen(On.FScreen.orig_ctor originalCtor, FScreen @this, FutileParams futileParams) {
 			originalCtor(@this, futileParams);
 			// Use this check in case another mod happens to enable the 32 bit buffer for whatever reason.
-			@this.renderTexture.depth = (_hasStencilBuffer && @this.renderTexture.depth < DEPTH_AND_STENCIL_BUFFER_BITS) ? DEPTH_AND_STENCIL_BUFFER_BITS : @this.renderTexture.depth;
+			int newDepth = (_hasStencilBuffer && @this.renderTexture.depth < DEPTH_AND_STENCIL_BUFFER_BITS) ? DEPTH_AND_STENCIL_BUFFER_BITS : @this.renderTexture.depth;
+			if (@this.renderTexture.depth != newDepth)
+			{
+				@this.renderTexture.Release();
+				@this.renderTexture.depth = newDepth;
+			}
 		}
 
 	}

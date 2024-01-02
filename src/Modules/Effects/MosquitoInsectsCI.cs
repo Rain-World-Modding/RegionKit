@@ -26,6 +26,8 @@ internal static class MosquitoInsectsCI
 		_CommonHooks.PostRoomLoad -= PostRoomLoad;
 	}
 
+	internal static void Dispose() => MosquitoInsect.__mosTp = null;
+
 	private static CosmeticInsect.Type InsectCoordinatorRoomEffectToInsectType(On.InsectCoordinator.orig_RoomEffectToInsectType orig, RoomSettings.RoomEffect.Type type)
 	{
 		return type == _Enums.MosquitoInsects ? _Enums.MosquitoInsect : orig(type);
@@ -38,17 +40,19 @@ internal static class MosquitoInsectsCI
 
 	private static void PostRoomLoad(Room self)
 	{
-		for (var i = 0; i < self.roomSettings.effects.Count; i++)
+		List<RoomSettings.RoomEffect> efs = self.roomSettings.effects;
+		for (var i = 0; i < efs.Count; i++)
 		{
-			RoomSettings.RoomEffect ef = self.roomSettings.effects[i];
+			RoomSettings.RoomEffect ef = efs[i];
 			if (ef.type == _Enums.MosquitoInsects)
 			{
-				if (self.insectCoordinator == null)
+				if (self.insectCoordinator is null)
 				{
 					self.insectCoordinator = new(self);
 					self.AddObject(self.insectCoordinator);
 				}
 				self.insectCoordinator.AddEffect(ef);
+				break;
 			}
 		}
 	}
@@ -60,26 +64,26 @@ internal static class MosquitoInsectsCI
 
 	private static bool InsectCoordinatorTileLegalForInsect(On.InsectCoordinator.orig_TileLegalForInsect orig, CosmeticInsect.Type type, Room room, Vector2 testPos)
 	{
-		var res = orig(type, room, testPos);
 		if (type == _Enums.MosquitoInsect)
-			res = !room.GetTile(testPos).DeepWater;
-		return res;
+			return !room.GetTile(testPos).DeepWater;
+		return orig(type, room, testPos);
 	}
 
 	private static void InsectCoordinatorCreateInsect(On.InsectCoordinator.orig_CreateInsect orig, InsectCoordinator self, CosmeticInsect.Type type, Vector2 pos, InsectCoordinator.Swarm swarm)
 	{
 		if (type == _Enums.MosquitoInsect)
 		{
-			if (!InsectCoordinator.TileLegalForInsect(type, self.room, pos) || self.room.world.rainCycle.TimeUntilRain < UnityEngine.Random.Range(1200, 1600))
+			Room rm = self.room;
+			if (!InsectCoordinator.TileLegalForInsect(type, rm, pos) || rm.world.rainCycle.TimeUntilRain < UnityEngine.Random.Range(1200, 1600))
 				return;
-			var cosmeticInsect = new MosquitoInsect(self.room, pos);
+			var cosmeticInsect = new MosquitoInsect(rm, pos);
 			self.allInsects.Add(cosmeticInsect);
-			if (swarm != null)
+			if (swarm is not null)
 			{
 				swarm.members.Add(cosmeticInsect);
 				cosmeticInsect.mySwarm = swarm;
 			}
-			self.room.AddObject(cosmeticInsect);
+			rm.AddObject(cosmeticInsect);
 		}
 		else
 			orig(self, type, pos, swarm);
@@ -92,21 +96,25 @@ internal static class MosquitoInsectsCI
 /// </summary>
 public class MosquitoInsect : RedSwarmer
 {
+	internal static CreatureTemplate.Type? __mosTp;
     private readonly float _bodySize = Mathf.Max(1.1f, .6f + UnityEngine.Random.value);
     private int _wantToSuckCounter = 200, _restCtr;
 
 	///<inheritdoc/>
-	public MosquitoInsect(Room room, Vector2 pos) : base(room, pos) => type = _Enums.MosquitoInsect;
+	public MosquitoInsect(Room room, Vector2 pos) : base(room, pos)
+	{
+		type = _Enums.MosquitoInsect;
+		__mosTp ??= new("Mosquito");
+	}
 
 	///<inheritdoc/>
 	public override void Update(bool eu)
     {
         base.Update(eu);
-        if (room is null || !alive)
+        if (room is not Room rm || !alive)
             return;
         vel /= 1.25f;
-        room.PlaySound(SoundID.Spore_Bee_Angry_Buzz, pos, .35f, 1.1f + hue);
-        var mosTp = new CreatureTemplate.Type("Mosquito");
+        rm.PlaySound(SoundID.Spore_Bee_Angry_Buzz, pos, .35f, 1.1f + hue);
         if (_wantToSuckCounter == 0)
         {
             _restCtr++;
@@ -118,16 +126,18 @@ public class MosquitoInsect : RedSwarmer
         }
         if (_wantToSuckCounter > 0)
         {
-            for (var i = 0; i < room.physicalObjects.Length; i++)
+			List<PhysicalObject>[] objLists = rm.physicalObjects;
+			for (var i = 0; i < objLists.Length; i++)
             {
-				List<PhysicalObject> list = room.physicalObjects[i];
+				List<PhysicalObject> list = objLists[i];
                 for (var j = 0; j < list.Count; j++)
                 {
-                    if (list[j] is Creature c && !c.dead && c.Template.type != mosTp && c.Submersion < 1f)
+                    if (list[j] is Creature c && !c.dead && c.Template.type != __mosTp && c.Submersion < 1f)
                     {
-                        for (var k = 0; k < c.bodyChunks.Length; k++)
+						BodyChunk[] chs = c.bodyChunks;
+						for (var k = 0; k < chs.Length; k++)
                         {
-							BodyChunk ch = c.bodyChunks[k];
+							BodyChunk ch = chs[k];
                             if (DistLess(ch.pos, pos, 100f) && !DistLess(ch.pos, pos, ch.rad + 10f))
                             {
                                 dir = DirVec(pos, ch.pos);
@@ -141,8 +151,8 @@ public class MosquitoInsect : RedSwarmer
             }
         }
         vel += RNV() * 2f;
-        if (room.PointSubmerged(pos))
-            vel.y += !room.waterInverted ? 1f : -1f;
+        if (rm.PointSubmerged(pos))
+            vel.y += !rm.waterInverted ? 1f : -1f;
     }
 
 	///<inheritdoc/>
@@ -150,20 +160,23 @@ public class MosquitoInsect : RedSwarmer
     {
         base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
         var num = Mathf.Lerp(lastInGround, inGround, timeStacker);
-        sLeaser.sprites[1].scaleY = -sLeaser.sprites[1].scaleY;
-        sLeaser.sprites[1].scaleY /= 3f;
-        sLeaser.sprites[2].x = sLeaser.sprites[1].x;
-        sLeaser.sprites[2].y = sLeaser.sprites[1].y;
-        sLeaser.sprites[2].rotation = sLeaser.sprites[1].rotation;
-        sLeaser.sprites[0].scaleY /= _bodySize;
-        sLeaser.sprites[0].scaleX /= _bodySize * .7f;
-        for (var i = 0; i < 3; i++)
-            sLeaser.sprites[i].rotation += 180f;
+		FSprite s0 = sLeaser.sprites[0], s1 = sLeaser.sprites[1], s2 = sLeaser.sprites[2];
+		s1.scaleY = -s1.scaleY;
+        s1.scaleY /= 3f;
+        s2.x = s1.x;
+        s2.y = s1.y;
+        s2.rotation = s1.rotation;
+        s0.scaleY /= _bodySize;
+        s0.scaleX /= _bodySize * .7f;
+		s0.rotation += 180f;
+		s1.rotation += 180f;
+		s2.rotation += 180f;
         for (var i = 0; i < 2; i++)
         {
-            sLeaser.sprites[3 + i].scaleY = 3.5f * (1f - num);
-            sLeaser.sprites[3 + i].scaleX = 1.25f - num;
-            sLeaser.sprites[3 + i].rotation = Mathf.Pow(UnityEngine.Random.value, .5f) * 80f * ((UnityEngine.Random.value < .5f) ? (-1f) : 1f) + ((i == 0) ? (-90f) : 90f);
+			FSprite spr = sLeaser.sprites[3 + i];
+			spr.scaleY = 3.5f * (1f - num);
+            spr.scaleX = 1.25f - num;
+            spr.rotation = Mathf.Pow(UnityEngine.Random.value, .5f) * 80f * ((UnityEngine.Random.value < .5f) ? (-1f) : 1f) + ((i == 0) ? (-90f) : 90f);
         }
     }
 
@@ -171,21 +184,24 @@ public class MosquitoInsect : RedSwarmer
 	public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
     {
         base.ApplyPalette(sLeaser, rCam, palette);
-        sLeaser.sprites[0].color = Color.Lerp(HSL2RGB(Mathf.Lerp(.005f, .02f, hue), 1f, .3f), palette.blackColor, .1f + .6f * palette.darkness);
-        sLeaser.sprites[1].color = palette.blackColor;
-        sLeaser.sprites[2].color = palette.blackColor;
+		Color black = palette.blackColor;
+		float dark = palette.darkness;
+		sLeaser.sprites[0].color = Color.Lerp(HSL2RGB(Mathf.Lerp(.005f, .02f, hue), 1f, .3f), black, .1f + .6f * dark);
+        sLeaser.sprites[1].color = black;
+        sLeaser.sprites[2].color = black;
         for (var j = 0; j < 2; j++)
-            sLeaser.sprites[3 + j].color = Color.Lerp(Color.white, palette.fogColor, .5f + .5f * palette.darkness);
+            sLeaser.sprites[3 + j].color = Color.Lerp(Color.white, palette.fogColor, .5f + .5f * dark);
     }
 
 	///<inheritdoc/>
 	public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContainer)
     {
         newContainer = rCam.ReturnFContainer("Items");
-        foreach (FSprite fSprite in sLeaser.sprites)
+		FSprite[] sprs = sLeaser.sprites;
+        for (var i = 0; i < sprs.Length; i++)
         {
-            fSprite.RemoveFromContainer();
-            newContainer.AddChild(fSprite);
+			sprs[i].RemoveFromContainer();
+            newContainer.AddChild(sprs[i]);
         }
     }
 }

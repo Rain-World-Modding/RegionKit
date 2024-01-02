@@ -1,8 +1,4 @@
-﻿using System.Reflection;
-using RegionKit.Modules.Effects;
-using RegionKit.Modules.GateCustomization;
-
-namespace RegionKit;
+﻿namespace RegionKit;
 /// <summary>
 /// Main plugin class
 /// </summary>
@@ -10,7 +6,7 @@ namespace RegionKit;
 [BepInEx.BepInPlugin(MOD_GUID, MOD_FRIENDLYNAME, MOD_VERSION)]
 public class Mod : BepInEx.BaseUnityPlugin
 {
-	internal const string MOD_VERSION = "3.12";
+	internal const string MOD_VERSION = "3.13.2";
 	internal const string MOD_FRIENDLYNAME = "RegionKit";
 	internal const string MOD_GUID = "rwmodding.coreorg.rk";
 	internal const string RK_POM_CATEGORY = "RegionKit";
@@ -27,7 +23,8 @@ public class Mod : BepInEx.BaseUnityPlugin
 	/// <inheritdoc/>
 	public void OnEnable()
 	{
-		
+		__inst = this;
+
 		_writeTraceConfig = Config.Bind("main", "writeTrace", false, "Write additional spammy debug lines");
 		__writeTrace = _writeTraceConfig.Value;
 		_writeTraceConfig.SettingChanged += (sender, args) =>

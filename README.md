@@ -64,6 +64,9 @@ Our goal for region kit is to have a unified mod to hold objects, room effects, 
 - BackgroundBuilder
     - Allows custom AboveCloudsView backgrounds to be easily constructed and loaded for a room.
     - For instructions see [this file](./docs/BackgroundBuilder.md)
+- Custom Projections
+    - Allows custom overseer projections to be created and defined, as well as being able to modify overseer appearance and behaviors.
+    - For instructions see [this file](./docs/CustomProjections.md)
 - RoomSlideShow
 	- Allows adding simple animated objects to rooms (without gameplay effect).
 	- For instructions see [this file](./src/Modules/RoomSlideShow/README.md).
@@ -127,6 +130,7 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 	- SettingsSave for Specific Slugs
 	- BackgroundBuilder
 	- Many object fixes
+	- Custom Projections
 
 - Henpemaz
 	- Placed Objects Manager Framework
@@ -167,6 +171,10 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 
 - Isbjorn52
 	- Gate Customization
+
+- Xan
+	- Superstructure Fuses depth fix
+ 	- Shader stencil buffer enabler
 
 **Initial ExtendedGates authors**: Henpemaz (code); Mehri'Kairotep, Thalber, LB/M4rbleL1ne and Nautillo (spritework).
 

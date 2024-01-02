@@ -146,9 +146,10 @@ public static class ColorRoomEffect
 			self.size.y += 60f;
 			effectSlider.pos.y += 60f;
 			float posX = effectSlider.pos.x, posY = effectSlider.pos.y;
-			self.subNodes.Add(new EffectColorSlider(owner, "ColorR_Slider", self, new(posX, posY - 20f), "Red: "));
-			self.subNodes.Add(new EffectColorSlider(owner, "ColorG_Slider", self, new(posX, posY - 40f), "Green: "));
-			self.subNodes.Add(new EffectColorSlider(owner, "ColorB_Slider", self, new(posX, posY - 60f), "Blue: "));
+			List<DevUINode> subNds = self.subNodes;
+			subNds.Add(new EffectColorSlider(owner, "ColorR_Slider", self, new(posX, posY - 20f), "Red: "));
+			subNds.Add(new EffectColorSlider(owner, "ColorG_Slider", self, new(posX, posY - 40f), "Green: "));
+			subNds.Add(new EffectColorSlider(owner, "ColorB_Slider", self, new(posX, posY - 60f), "Blue: "));
 		}
 	}
 	#endregion
@@ -160,9 +161,10 @@ public static class ColorRoomEffect
 	/// <returns>The amount of red of the specified effect.</returns>
 	public static float GetRedAmount(this RoomSettings self, RoomSettings.RoomEffect.Type type)
 	{
-		for (var i = 0; i < self.effects.Count; i++)
+		List<RoomSettings.RoomEffect> efs = self.effects;
+		for (var i = 0; i < efs.Count; i++)
 		{
-			RoomSettings.RoomEffect effect = self.effects[i];
+			RoomSettings.RoomEffect effect = efs[i];
 			if (effect.type == type && colorEffectTypes.Contains(effect.type) && __colorEffectSettings.TryGetValue(effect, out ColorSettings settings))
 				return settings._r;
 		}
@@ -175,9 +177,10 @@ public static class ColorRoomEffect
 	/// <returns>The amount of green of the specified effect.</returns>
 	public static float GetGreenAmount(this RoomSettings self, RoomSettings.RoomEffect.Type type)
 	{
-		for (var i = 0; i < self.effects.Count; i++)
+		List<RoomSettings.RoomEffect> efs = self.effects;
+		for (var i = 0; i < efs.Count; i++)
 		{
-			RoomSettings.RoomEffect effect = self.effects[i];
+			RoomSettings.RoomEffect effect = efs[i];
 			if (effect.type == type && colorEffectTypes.Contains(effect.type) && __colorEffectSettings.TryGetValue(effect, out ColorSettings settings))
 				return settings._g;
 		}
@@ -190,9 +193,10 @@ public static class ColorRoomEffect
 	/// <returns>The amount of blue of the specified effect.</returns>
 	public static float GetBlueAmount(this RoomSettings self, RoomSettings.RoomEffect.Type type)
 	{
-		for (var i = 0; i < self.effects.Count; i++)
+		List<RoomSettings.RoomEffect> efs = self.effects;
+		for (var i = 0; i < efs.Count; i++)
 		{
-			RoomSettings.RoomEffect effect = self.effects[i];
+			RoomSettings.RoomEffect effect = efs[i];
 			if (effect.type == type && colorEffectTypes.Contains(effect.type) && __colorEffectSettings.TryGetValue(effect, out ColorSettings settings))
 				return settings._b;
 		}
@@ -205,9 +209,10 @@ public static class ColorRoomEffect
 	/// <returns>The color made by the three color sliders of the specified effect.</returns>
 	public static Color GetColor(this RoomSettings self, RoomSettings.RoomEffect.Type type)
 	{
-		for (var i = 0; i < self.effects.Count; i++)
+		List<RoomSettings.RoomEffect> efs = self.effects;
+		for (var i = 0; i < efs.Count; i++)
 		{
-			RoomSettings.RoomEffect effect = self.effects[i];
+			RoomSettings.RoomEffect effect = efs[i];
 			if (effect.type == type && colorEffectTypes.Contains(effect.type) && __colorEffectSettings.TryGetValue(effect, out ColorSettings settings))
 				return settings.Color;
 		}
@@ -218,7 +223,8 @@ public static class ColorRoomEffect
 	/// Checks if the specified effect is in the room.
 	/// </summary>
 	/// <returns>True if the specified effect is in the room, false otherwise.</returns>
-	public static bool IsEffectInRoom(this RoomSettings self, RoomSettings.RoomEffect.Type type) => self.GetEffect(type) != null;
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static bool IsEffectInRoom(this RoomSettings self, RoomSettings.RoomEffect.Type type) => self.GetEffect(type) is not null;
 	#endregion
 
 	private class ColorSettings
@@ -228,13 +234,22 @@ public static class ColorRoomEffect
 		internal float _g;
 		internal float _b;
 
-		internal Color Color => new(_r, _g, _b);
+		internal Color Color
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => new(_r, _g, _b);
+		}
 	}
 
-	private class EffectColorSlider : Slider
+	private sealed class EffectColorSlider : Slider
 	{
-		private RoomSettings.RoomEffect Effect => ((EffectPanel)parentNode).effect;
+		private RoomSettings.RoomEffect Effect
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => ((EffectPanel)parentNode).effect;
+		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal EffectColorSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title) : base(owner, IDstring, parentNode, pos, title, false, 110f) { }
 
 		public override void Refresh()

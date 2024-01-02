@@ -47,7 +47,7 @@ public abstract class PBehaviourModule
 		Modules.Machinery.OscillationParams wave;
 		private void OwnerUdate()
 		{
-			owner.vel = RotateAroundOrigo(owner.vel, wave.oscillationMode((owner.lifetime + wave.phase) * wave.frequency) * wave.amplitude);//+= PerpendicularVector(owner.vel).normalized * wave.oscm((owner.lifetime + wave.phase) * wave.frq) * wave.amp;//
+			owner.vel = RotateAroundOrigo(owner.vel, wave.Oscillator((owner.lifetime + wave.phase) * wave.frequency) * wave.amplitude);//+= PerpendicularVector(owner.vel).normalized * wave.oscm((owner.lifetime + wave.phase) * wave.frq) * wave.amp;//
 		}
 		///<inheritdoc/>
 		public override void Disable()
@@ -246,7 +246,7 @@ public abstract class PBehaviourModule
 
 		private void actionCycle()
 		{
-			owner.rot += _angVelBase + _myosp.oscillationMode(owner.lifetime * _myosp.frequency) * _myosp.amplitude;
+			owner.rot += _angVelBase + _myosp.Oscillator(owner.lifetime * _myosp.frequency) * _myosp.amplitude;
 		}
 		///<inheritdoc/>
 		public override float ComputationalCost => base.ComputationalCost + 0.06f;

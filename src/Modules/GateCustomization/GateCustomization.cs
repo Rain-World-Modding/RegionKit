@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Eventing.Reader;
-using System.IO;
+﻿using System.IO;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using static RegionKit.Modules.GateCustomization.GateDataRepresentations;
@@ -47,6 +46,7 @@ internal static class GateCustomization
 
 		IL.RegionGate.Update += IL_RegionGate_Update;
 		IL.RegionGateGraphics.Update += IL_RegionGateGraphics_Update;
+		IL.RegionGateGraphics.DoorGraphic.ctor += IL_DoorGraphic_ctor;
 	}
 
 	public static void Disable()
@@ -77,6 +77,7 @@ internal static class GateCustomization
 
 		IL.RegionGate.Update -= IL_RegionGate_Update;
 		IL.RegionGateGraphics.Update -= IL_RegionGateGraphics_Update;
+		IL.RegionGateGraphics.DoorGraphic.ctor -= IL_DoorGraphic_ctor;
 	}
 		
 	public static void LoadShaders(RainWorld rainWorld)
@@ -535,10 +536,6 @@ internal static class GateCustomization
 
 		if (regionGateData.commonGateData != null)
 		{
-			Vector2 gatePosition = regionGateData.commonGateData.GetPosition(rgGraphics.gate.room);
-
-			self.posZ = new Vector2((-9f + 9f * (float)door.number) * 20f + gatePosition.x - 10, gatePosition.y + 90f);
-
 			// Sound fix
 			self.rustleLoop = new StaticSoundLoop(SoundID.Gate_Clamps_Moving_LOOP, self.posZ, rgGraphics.gate.room, 0f, 1f);
 			self.screwTurnLoop = new StaticSoundLoop((rgGraphics.gate is WaterGate) ? SoundID.Gate_Water_Screw_Turning_LOOP : SoundID.Gate_Electric_Screw_Turning_LOOP, self.posZ, rgGraphics.gate.room, 0f, 1f);
@@ -924,6 +921,28 @@ internal static class GateCustomization
 		cursor.EmitDelegate<Action<RegionGate>>((self) =>
 		{
 			self.GetData().used = true;
+		});
+	}
+
+	private static void IL_DoorGraphic_ctor(ILContext il)
+	{
+		ILCursor cursor = new ILCursor(il);
+
+		cursor.GotoNext(MoveType.After,
+			x => x.MatchStfld<RegionGateGraphics.DoorGraphic>(nameof(RegionGateGraphics.DoorGraphic.posZ))
+			);
+
+		cursor.Emit(OpCodes.Ldarg_0);
+		cursor.EmitDelegate<Action<RegionGateGraphics.DoorGraphic>>((self) =>
+		{
+			RegionGateData regionGateData = self.rgGraphics.gate.GetData();
+
+			if (regionGateData.commonGateData != null)
+			{
+				Vector2 gatePosition = regionGateData.commonGateData.GetPosition(self.rgGraphics.gate.room);
+
+				self.posZ = new Vector2((-9f + 9f * (float)self.door.number) * 20f + gatePosition.x - 10, gatePosition.y + 90f);
+			}
 		});
 	}
 

@@ -10,7 +10,7 @@ internal class OverseerProperties
 {
 	private static ConditionalWeakTable<Region.RegionParams, OverseerProperties> _AttachedProperties = new();
 
-	public static OverseerProperties GetOverseerProperties(Region p) => p != null ? _AttachedProperties.GetValue(p.regionParams, _ => new()) : new();
+	public static OverseerProperties GetOverseerProperties(Region? p) => p != null ? _AttachedProperties.GetValue(p.regionParams, _ => new()) : new();
 
 	public static void Apply()
 	{

@@ -12,12 +12,17 @@ internal static class DecalPreview
 	{
 		On.DevInterface.Panel.Update += Panel_Update;
 		On.DevInterface.ObjectsPage.ctor += ObjectsPage_ctor;
+
+		// Fixes exception when trying to load decal that doesn't exist, tought i could throw that in
+		On.CustomDecal.LoadFile += CustomDecal_LoadFile;
 	}
 
 	public static void Disable()
 	{
 		On.DevInterface.Panel.Update -= Panel_Update;
 		On.DevInterface.ObjectsPage.ctor -= ObjectsPage_ctor;
+
+		On.CustomDecal.LoadFile -= CustomDecal_LoadFile;
 	}
 
 	private static void Panel_Update(On.DevInterface.Panel.orig_Update orig, Panel self)
@@ -53,6 +58,24 @@ internal static class DecalPreview
 		self.subNodes.Add(new DecalPreviewOverlay(owner, "DecalPreviewOverlay", self));
 
 		GetDecalSources();
+	}
+
+	private static void CustomDecal_LoadFile(On.CustomDecal.orig_LoadFile orig, CustomDecal self, string fileName)
+	{
+		if (Futile.atlasManager.GetAtlasWithName(fileName) != null)
+		{
+			return;
+		}
+
+		string decalPath = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
+
+		if (!File.Exists(decalPath))
+		{
+			(self.placedObject.data as PlacedObject.CustomDecalData).imageName = "ph";
+			fileName = "ph";
+		}
+
+		orig(self, fileName);
 	}
 
 	private static void GetDecalSources()

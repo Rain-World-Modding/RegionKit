@@ -15,7 +15,7 @@ using static RoofTopView;
 namespace RegionKit.Modules.BackgroundBuilder;
 
 
-[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "DevUI")]
+[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "BackgroundBuilder")]
 public static class _Module
 {
 	public const string BGPath = "Assets\\RegionKit\\Backgrounds";

@@ -120,9 +120,8 @@ namespace RegionKit.Modules.Effects
 			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null)
 			{
 				sLeaser.sprites = new FSprite[1];
-				LogMessage("Room size: " + new Vector2(rCam.room.PixelWidth, rCam.room.PixelHeight));
-				LogMessage("Grid size: " + new Vector2(rCam.room.PixelWidth, rCam.sSize.y));
-				LogMessage("Cam size: " + rCam.sSize);
+				// Current input size is: (3240.0, 768.0)
+				// This is where the code randomly runs infinitely (sometimes it doesn't but often generates a lot of extra points in the upper size of the grid)
 				poisPoints = Poisson.GeneratePoint(100f, new Vector2(rCam.sSize.x + 220f, rCam.sSize.y));
 				LogMessage(poisPoints.Count);
 				Array.Resize<FSprite>(ref sLeaser.sprites, 1 + poisPoints.Count);
@@ -147,6 +146,7 @@ namespace RegionKit.Modules.Effects
 			}
 		}
 
+		// Draws sprites on screen
 		public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
 			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null)
@@ -161,6 +161,7 @@ namespace RegionKit.Modules.Effects
 			}
 		}
 
+		// Unused for now
 		private Vector2 detailedWaterLevelPoint(Vector2 point, float height, Water water, int a)
 		{
 			float horizontalPosition = point.x;
@@ -190,7 +191,8 @@ namespace RegionKit.Modules.Effects
 			}
 			return num;
 		}
-
+		
+		// Applies color to sprites
 		public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 		{
 			for (int i = 0; i < sLeaser.sprites.Length; i++)

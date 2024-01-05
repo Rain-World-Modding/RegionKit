@@ -62,17 +62,15 @@ internal static class DecalPreview
 
 	private static void CustomDecal_LoadFile(On.CustomDecal.orig_LoadFile orig, CustomDecal self, string fileName)
 	{
-		if (Futile.atlasManager.GetAtlasWithName(fileName) != null)
+		if (Futile.atlasManager.GetAtlasWithName(fileName) == null)
 		{
-			return;
-		}
+			string decalPath = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
 
-		string decalPath = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
-
-		if (!File.Exists(decalPath))
-		{
-			(self.placedObject.data as PlacedObject.CustomDecalData).imageName = "ph";
-			fileName = "ph";
+			if (!File.Exists(decalPath))
+			{
+				(self.placedObject.data as PlacedObject.CustomDecalData).imageName = "ph";
+				fileName = "ph";
+			}
 		}
 
 		orig(self, fileName);

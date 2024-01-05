@@ -79,19 +79,20 @@ internal static class DecalPreview
 	private static void GetDecalSources()
 	{
 		decalSources.Clear();
-		string[] array = AssetManager.ListDirectory("decals", false, false);
+
+		string[] allDecalPaths = AssetManager.ListDirectory("decals", false, false);
 
 		HashSet<string> decalDirectories = new HashSet<string>();
 
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < allDecalPaths.Length; i++)
 		{
-			if (Directory.GetParent(array[i]).Parent.Name == "streamingassets")
+			if (Directory.GetParent(allDecalPaths[i]).Parent.Name == "streamingassets")
 			{
-				decalSources[Path.GetFileNameWithoutExtension(array[i])] = "Vanilla";
+				decalSources[Path.GetFileNameWithoutExtension(allDecalPaths[i])] = "Vanilla";
 				continue;
 			}
 
-			decalDirectories.Add(Directory.GetParent(array[i]).Parent.FullName);
+			decalDirectories.Add(Directory.GetParent(allDecalPaths[i]).Parent.FullName);
 		}
 
 		Dictionary<string, string> pathToModName = new Dictionary<string, string>();
@@ -101,11 +102,11 @@ internal static class DecalPreview
 			pathToModName[directory] = (string)modinfoJson["name"];
 		}
 
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < allDecalPaths.Length; i++)
 		{
-			if (!decalSources.ContainsKey(Path.GetFileNameWithoutExtension(array[i])))
+			if (!decalSources.ContainsKey(Path.GetFileNameWithoutExtension(allDecalPaths[i])))
 			{
-				decalSources[Path.GetFileNameWithoutExtension(array[i])] = pathToModName[Directory.GetParent(array[i]).Parent.FullName];
+				decalSources[Path.GetFileNameWithoutExtension(allDecalPaths[i])] = pathToModName[Directory.GetParent(allDecalPaths[i]).Parent.FullName];
 			}
 		}
 	}

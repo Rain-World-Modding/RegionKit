@@ -37,7 +37,6 @@ namespace RegionKit.Modules.Effects
 		{
 			if (!loaded)
 			{
-				LogMessage("entered loading / loading status: " + loaded);
 				loaded = true;
 
 				mossBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/liquidshaderpack"));
@@ -83,7 +82,6 @@ namespace RegionKit.Modules.Effects
 						tris[triIndex++] = new TriangleMesh.Triangle(i, i + 1 + vertsPerColumn, i + vertsPerColumn);
 					}
 				}
-				LogMessage("got here");
 				sLeaser.sprites[index] = new TriangleMesh("Futile_White", tris, true)
 				{
 					data = mossSprite,

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EffExt;
+using RegionKit.Modules.RoomSlideShow;
 
 namespace RegionKit.Modules.Effects
 {
@@ -38,7 +41,7 @@ namespace RegionKit.Modules.Effects
 	 internal class IceWaterUAD : UpdatableAndDeletable
 	{
 		public EffectExtraData EffectData { get; }
-		public Color color;
+		public UnityEngine.Color color;
 		public float height;
 		public IceWater iceWater;
 		public int seed;
@@ -47,7 +50,7 @@ namespace RegionKit.Modules.Effects
 		public IceWaterUAD(EffectExtraData effectData)
 		{
 			EffectData = effectData;
-			color = Color.white;
+			color = UnityEngine.Color.white;
 			height = 1;
 			iceWater = new IceWater();
 			seed = 1;
@@ -73,11 +76,7 @@ namespace RegionKit.Modules.Effects
 	internal class IceWater : CosmeticSprite
 	{
 		public static readonly object iceWaterSprite = new();
-		private static List<Vector2[]> polygons = new List<Vector2[]>();
-		private static List<int[]> surfaceIndex = new List<int[]>();
-		float oldWidth = 0f;
-		private static Vector2[] vertices = new Vector2[0];
-
+		static List<Vector2> poisPoints = new List<Vector2>();
 		public IceWater()
 		{
 
@@ -105,121 +104,45 @@ namespace RegionKit.Modules.Effects
 			}
 		}
 
-		public void SetValues(Color color, Room room, float height, int seed)
+		public void SetValues(UnityEngine.Color color, Room room, float height, int seed)
 		{
 			UnityEngine.Random.InitState(seed);
-			float width = room.roomSettings.GetEffectAmount(_Enums.IceWater) * 10f;
-			width += 0.5f;
-			if (width != oldWidth)
-			{
-				// Updates length of vertices from original points
-				foreach (Vector2[] polygon in polygons)
-				{
-					for (int i = 1; i < polygon.Length; i++)
-					{
-						polygon[i] = polygon[i].normalized * width;
-					}
-				}
-			}
-			oldWidth = width;
-			calculateNewVerts(room);
+
 		}
 
 		public void calculateNewVerts(Room room)
 		{
-			for (int i = 0; i < surfaceIndex.Count; i++)
-			{
-				polygons.ElementAt(i)[0] = room.waterObject.surface[surfaceIndex[i][0], surfaceIndex[i][1]].pos;
-				//Debug.Log("i is " + i +"\nsurfaceIndex[0] is " + surfaceIndex[i][0] +"\nsurfaceIndex[1] is " + surfaceIndex[i][1] +"\nsurface pos is " + room.waterObject.surface[surfaceIndex[i][0], surfaceIndex[i][1]].pos +"\n\n");
-			}
-			// Calculate corrsponding points from center
-			int vertIndex = 1;
-			for (int i = 0; i < polygons.Count; i++)
-			{
-				for (int j = 1; j < polygons.ElementAt(i).Length; j++)
-				{
-					vertices[vertIndex++] = polygons.ElementAt(i)[j] + polygons.ElementAt(i)[0];
-				}
-				vertIndex++;
-			}
+			
 		}
 
 		public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 		{
-			Debug.Log("Got into initiate sprites");
-			polygons.Clear();
-			surfaceIndex.Clear();
 			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null)
 			{
 				sLeaser.sprites = new FSprite[1];
-				int vertIndex = 0;
-				for (int i = 0; i < rCam.room.waterObject.surface.GetLength(0); i++)
+				LogMessage("Room size: " + new Vector2(rCam.room.PixelWidth, rCam.room.PixelHeight));
+				LogMessage("Grid size: " + new Vector2(rCam.room.PixelWidth, rCam.sSize.y));
+				LogMessage("Cam size: " + rCam.sSize);
+				poisPoints = Poisson.GeneratePoint(100f, new Vector2(rCam.sSize.x + 220f, rCam.sSize.y));
+				LogMessage(poisPoints.Count);
+				Array.Resize<FSprite>(ref sLeaser.sprites, 1 + poisPoints.Count);
+
+				for (int i = 1; i < sLeaser.sprites.Length; i++)
 				{
-					Debug.Log("Water surface count for second part is " + rCam.room.waterObject.surface.GetLength(1));
-					for (int j = 0; j < rCam.room.waterObject.surface.GetLength(1); j++)
+					sLeaser.sprites[i] = new FSprite("pixel")
 					{
-						float noise = UnityEngine.Random.Range(0f, 1f);
-						if (noise >= 0.5)
-						{
-							surfaceIndex.Add(new int[] {i, j});
-							// First element of each array is the original point from which the other points will spread from
-							polygons.Add(new Vector2[UnityEngine.Random.Range(3, 6)]);
-							polygons.ElementAt(vertIndex)[0] = rCam.room.waterObject.surface[i, j].pos;
-							for (int k = 1; k < polygons.ElementAt(vertIndex).Length; k++)
-							{
-								// Generates random direction for ice to form polygon
-								polygons.ElementAt(vertIndex)[k] = UnityEngine.Random.insideUnitCircle.normalized;
-							}
-							vertIndex++;
-						}
-					}
-				}
-				int vertNum = 0;
-				foreach (Vector2[] polygon in polygons)
-				{
-					vertNum += polygon.Length;
-				}
-				vertices = new Vector2[vertNum];
-				for (int i = 0; i < polygons.Count; i++)
-				{
-					for (int j = 0; j < polygons.ElementAt(i).Length; j++)
-					{
-						vertices[j] = polygons.ElementAt(i)[j];
-					}
+						anchorX = 0.5f,
+						anchorY = 0.5f,
+						scale = 4f
+					};
 				}
 
-				// Sets triangle vertices
-				Debug.Log("Polygons count " + polygons.Count);
-				List<TriangleMesh.Triangle> tris = new List<TriangleMesh.Triangle>();
-				int trisIndex = 0;
-				vertIndex = 0;
-				for (int i = 0; i < polygons.Count; i++)
+				sLeaser.sprites[0] = new FSprite("pixel")
 				{
-					for (int j = 1; j < polygons[i].Length - 1; j++)
-					{
-						// Logs
-						/*
-						Debug.Log("trisIndex: " + trisIndex + " with poly vert length " + polygons[i].Length +
-							"\ntempIndex a: " + vertIndex + // Center vertice
-							"\ntempIndex b: " + (vertIndex + j) +
-							"\ntempIndex c: " + (vertIndex + j + 1)
-							 );*/
-						tris.Add(new TriangleMesh.Triangle(vertIndex, vertIndex + j, vertIndex + j + 1));
-						trisIndex++;
-					}
-					vertIndex += polygons[i].Length;
-				}
-
-				sLeaser.sprites[0] = new TriangleMesh("Futile_White", tris.ToArray(), true)
-				{
-					data = iceWaterSprite,
-					shader = FShader.Basic,
-					color = Color.white
+					anchorX = 0.5f,
+					anchorY = 0.5f,
+					scale = 1f
 				};
-
-				sLeaser.sprites[0].isVisible = true;
-				Debug.Log("vertices length " + vertices.Length);
-				Debug.Log("tris length" + tris.Count);
 				AddToContainer(sLeaser, rCam, null);
 			}
 		}
@@ -228,27 +151,139 @@ namespace RegionKit.Modules.Effects
 		{
 			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null)
 			{
-				if (sLeaser.sprites.FirstOrDefault(x => x.data == iceWaterSprite) is TriangleMesh iceMesh)
+				for (int i = 1; i < sLeaser.sprites.Length; i++)
 				{
-					int offset = rCam.room.waterObject.PreviousSurfacePoint(camPos.x - 30f);
-					// Calculate vertex positions
-					for (int i = 0; i < vertices.Length; i++)
-					{
-						iceMesh.MoveVertice(i, vertices[i]);
-					}
+					//Vector2 origWaterPos = rCam.ApplyDepth(new Vector2(poisPoints[i - 1].x - 220f, room.FloatWaterLevel(poisPoints[i - 1].x - 220f)), Mathf.Lerp(-10f, 30f, poisPoints[i - 1].y));
+					//sLeaser.sprites[i].SetPosition(detailedWaterLevelPoint(origWaterPos, rCam.sSize.y, rCam.room.waterObject, i) - camPos);
+					sLeaser.sprites[i].SetPosition(poisPoints[i - 1]);
 				}
+				sLeaser.sprites[0].SetPosition(Vector2.zero);
 			}
+		}
+
+		private Vector2 detailedWaterLevelPoint(Vector2 point, float height, Water water, int a)
+		{
+			float horizontalPosition = point.x;
+			Vector2 waterFront = new Vector2(horizontalPosition, 0f);
+			Vector2 waterBack = new Vector2(horizontalPosition, 0f);
+
+			for (int i = 0; i < 2; i++)
+			{
+				int num = PreviousSurfacePointFB(horizontalPosition, water, i);
+				int num2 = Custom.IntClamp(num + 1, 0, water.surface.GetLength(0) - 1);
+				float t = Mathf.InverseLerp(water.surface[num, i].defaultPos.x + water.surface[num, i].pos.x, water.surface[num2, i].defaultPos.x + water.surface[num2, i].pos.x, horizontalPosition);
+				if (i == 0)
+					waterFront.y = Mathf.Lerp(water.surface[num, 0].defaultPos.y + water.surface[num, 0].pos.y, water.surface[num2, 0].defaultPos.y + water.surface[num2, 0].pos.y, t);
+				else
+					waterBack.y = Mathf.Lerp(water.surface[num, 1].defaultPos.y + water.surface[num, 1].pos.y, water.surface[num2, 1].defaultPos.y + water.surface[num2, 1].pos.y, t);
+			}
+
+			return Vector2.Lerp(waterFront, waterBack, poisPoints[a - 1].y / height);
+		}
+
+		private int PreviousSurfacePointFB(float horizontalPosition, Water water, int i)
+		{
+			int num = Mathf.Clamp(Mathf.FloorToInt((horizontalPosition + 250f) / water.triangleWidth) + 2, 0, water.surface.GetLength(0) - 1);
+			while (num > 0 && horizontalPosition < water.surface[num, i].defaultPos.x + water.surface[num, i].pos.x)
+			{
+				num--;
+			}
+			return num;
 		}
 
 		public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 		{
-			sLeaser.sprites[0].color = Color.white;
+			for (int i = 0; i < sLeaser.sprites.Length; i++)
+				sLeaser.sprites[i].color = UnityEngine.Color.magenta;
 		}
 
 		public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContainer)
 		{
 			newContainer ??= rCam.ReturnFContainer("Water");
-			rCam.ReturnFContainer("Water").AddChild(sLeaser.sprites[0]);
+			for (int i = 0; i < sLeaser.sprites.Length; i++)
+				newContainer.AddChild(sLeaser.sprites[i]);
 		}
+	}
+
+
+	internal static class Poisson
+	{
+		static bool is_valid(List<Vector2> samples, int[,] grid, Vector2 sample, Vector2 sample_zone, float radius, float cell_size)
+		{
+			if (sample.x < sample_zone.x && sample.x >= 0 && sample.y < sample_zone.y && sample.y >= 0)
+			{
+				int x = (int)(sample.x / cell_size);
+				int y = (int)(sample.y / cell_size);
+				int offset_x = Mathf.Max(0, x - 2);
+				int out_x = Mathf.Min(x + 2, grid.GetLength(0) - 1);
+				int offset_y = Mathf.Max(0, y - 2);
+				int out_y = Mathf.Min(y + 2, grid.GetLength(1) - 1);
+
+				for (int i = offset_x; i < out_x; i++)
+				{
+					for (int j = offset_y; j < out_y; j++)
+					{
+						int s_index = grid[i, j] - 1;
+						if (s_index != -1)
+						{
+							float _distance = (sample - samples[s_index]).sqrMagnitude;
+							if (_distance < radius * radius)
+							{
+								return false;
+							}
+						}
+					}
+				}
+				return true;
+			}
+			return false;
+		}
+		public static List<Vector2> GeneratePoint(float radius, Vector2 grid_size, int k = 30)
+		{
+			float cell_size = radius / Mathf.Sqrt(2);
+
+			//to get the columns we gonna divide the width/ cell_size and rows ....
+			int[,] grid = new int[Mathf.CeilToInt(grid_size.x / cell_size), Mathf.CeilToInt(grid_size.y / cell_size)];
+
+			List<Vector2> samples = new List<Vector2>();
+			List<Vector2> spawn_samples = new List<Vector2>();
+
+			spawn_samples.Add(grid_size / 2);
+			while (spawn_samples.Count > 0)
+			{
+				LogMessage("Running sample" + spawn_samples.Count);
+				int index = UnityEngine.Random.Range(0, spawn_samples.Count);
+				Vector2 current_spawn_sample = spawn_samples[index];
+				bool rejected_sample = true;
+				for (int i = 0; i < k; i++)
+				{
+					float angle_offset = UnityEngine.Random.value * Mathf.PI * 2;
+					//rotate a vector at a given angle
+					float x = Mathf.Sin(angle_offset);
+					float y = Mathf.Cos(angle_offset);
+					Vector2 offset_direction = new Vector2(x, y);
+
+					float new_magnitude = UnityEngine.Random.Range(radius, 2 * radius);
+					offset_direction *= new_magnitude;
+
+					Vector2 sample = current_spawn_sample + offset_direction;
+					if (is_valid(samples, grid, sample, grid_size, radius, cell_size))
+					{
+						samples.Add(sample);
+						spawn_samples.Add(sample);
+						grid[(int)(sample.x / cell_size), (int)(sample.y / cell_size)] = samples.Count;
+						rejected_sample = false;
+						break;
+					}
+				}
+
+				if (rejected_sample)
+				{
+					spawn_samples.RemoveAt(index);
+				}
+			}
+			return samples;
+		}
+
 	}
 }

@@ -53,7 +53,7 @@ public class ForcedEyePlayerData
     public int durationMin;
     public int durationMax;
 
-    private static ConditionalWeakTable<PlayerGraphics, ForcedEyePlayerData> _cwt = new();
+    public static ConditionalWeakTable<PlayerGraphics, ForcedEyePlayerData> _cwt = new();
     
     public static ForcedEyePlayerData Get(PlayerGraphics pg) => _cwt.GetValue(pg, _ => new());
 }
@@ -66,12 +66,24 @@ public class SlugcatEyeSelector : UpdatableAndDeletable
     {
         On.PlayerGraphics.Update += PlayerGraphics_Update;
         On.PlayerGraphics.DrawSprites += PlayerGraphics_DrawSprites;
+        On.Player.NewRoom += Player_NewRoom;
     }
 
     public static void Undo()
     {
 	    On.PlayerGraphics.Update -= PlayerGraphics_Update;
 	    On.PlayerGraphics.DrawSprites -= PlayerGraphics_DrawSprites;
+	    On.Player.NewRoom -= Player_NewRoom;
+    }
+
+    private static void Player_NewRoom(On.Player.orig_NewRoom orig, Player self, Room newRoom)
+    {
+	    orig(self, newRoom);
+
+	    if (self.graphicsModule is PlayerGraphics pg && ForcedEyePlayerData._cwt.TryGetValue(pg, out _))
+	    {
+		    ForcedEyePlayerData._cwt.Remove(pg);
+	    }
     }
 
     private static void PlayerGraphics_Update(On.PlayerGraphics.orig_Update orig, PlayerGraphics self)

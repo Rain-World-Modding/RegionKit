@@ -1,4 +1,8 @@
-﻿namespace RegionKit;
+﻿using RegionKit.Modules.Effects;
+using RegionKit.Modules.GateCustomization;
+using RegionKit.Modules.RoomSlideShow;
+
+namespace RegionKit;
 /// <summary>
 /// Main plugin class
 /// </summary>

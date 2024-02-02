@@ -22,42 +22,19 @@ internal static class BackgroundElementData
 
 		try
 		{
-			switch (array[0])
+			element = array[0] switch
 			{
-			case "DistantBuilding":
-				element = new ACV_DistantBuilding(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4]));
-				break;
-			case "DistantLightning":
-				element = new ACV_DistantLightning(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4]));
-				break;
-			case "FlyingCloud":
-				element = new ACV_FlyingCloud(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2]), float.Parse(args[3]), float.Parse(args[4]), float.Parse(args[5]));
-				break;
-
-			case "RF_DistantBuilding":
-				element = new RTV_DistantBuilding(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4]));
-				break;
-
-			case "Floor":
-				element = new RTV_Floor(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4]));
-				break;
-
-			case "Building":
-				element = new RTV_Building(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4]));
-				break;
-
-			case "DistantGhost":
-				element = new RTV_DistantGhost(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2]));
-				break;
-
-			case "DustWave":
-				element = new RTV_DustWave(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]));
-				break;
-
-			case "Smoke":
-				element = new RTV_Smoke(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2]), float.Parse(args[3]), float.Parse(args[4]), float.Parse(args[5]), bool.Parse(args[6]));
-				break;
-			}
+				"DistantBuilding" => new ACV_DistantBuilding(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4])),
+				"DistantLightning" => new ACV_DistantLightning(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4])),
+				"FlyingCloud" => new ACV_FlyingCloud(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2]), float.Parse(args[3]), float.Parse(args[4]), float.Parse(args[5])),
+				"RF_DistantBuilding" => new RTV_DistantBuilding(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4])),
+				"Floor" => new RTV_Floor(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4])),
+				"Building" => new RTV_Building(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4])),
+				"DistantGhost" => new RTV_DistantGhost(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2])),
+				"DustWave" => new RTV_DustWave(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3])),
+				"Smoke" => new RTV_Smoke(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2]), float.Parse(args[3]), float.Parse(args[4]), float.Parse(args[5]), bool.Parse(args[6])),
+				_ => null!
+			};
 		}
 		catch (Exception e) { LogError($"BackgroundBuilder: error loading background element from string [{line}]\n{e}"); return false; }
 
@@ -69,38 +46,19 @@ internal static class BackgroundElementData
 
 	public static CustomBgElement DataFromElement(this BackgroundScene.BackgroundSceneElement element)
 	{
-		switch (element)
+		return element switch
 		{
-		case AboveCloudsView.DistantBuilding el:
-			return new ACV_DistantBuilding(el.assetName, el.ScenePosToNeutral(), el.depth, el.atmosphericalDepthAdd);
-
-		case AboveCloudsView.DistantLightning el:
-			return new ACV_DistantLightning(el.assetName, el.ScenePosToNeutral(), el.depth, el.minusDepthForLayering);
-
-		case AboveCloudsView.FlyingCloud el:
-			return new ACV_FlyingCloud(el.ScenePosToNeutral(), el.depth, el.flattened, el.alpha, el.shaderInputColor);
-
-		case RoofTopView.Floor el:
-			return new RTV_Floor(el.assetName, el.ScenePosToNeutral(), el.fromDepth, el.toDepth);
-
-		case RoofTopView.DistantBuilding el:
-			return new RTV_DistantBuilding(el.assetName, el.ScenePosToNeutral(), el.depth, el.atmosphericalDepthAdd);
-
-		case RoofTopView.Building el:
-			return new RTV_Building(el.assetName, el.ScenePosToNeutral(), el.depth, el.scale);
-
-		case RoofTopView.DistantGhost el:
-			return new RTV_DistantGhost(el.ScenePosToNeutral(), el.depth);
-
-		case RoofTopView.DustWave el:
-			return new RTV_DustWave(el.assetName, el.ScenePosToNeutral(), el.depth);
-
-		case RoofTopView.Smoke el:
-			return new RTV_Smoke(el.pos, el.depth, el.flattened, el.alpha, el.shaderInputColor, el.shaderType);
-
-		default:
-			throw new BackgroundBuilderException(BackgroundBuilderError.InvalidVanillaBgElement); //this should never happen
-		}
+			AboveCloudsView.DistantBuilding el => new ACV_DistantBuilding(el.assetName, el.ScenePosToNeutral(), el.depth, el.atmosphericalDepthAdd),
+			AboveCloudsView.DistantLightning el => new ACV_DistantLightning(el.assetName, el.ScenePosToNeutral(), el.depth, el.minusDepthForLayering),
+			AboveCloudsView.FlyingCloud el => new ACV_FlyingCloud(el.ScenePosToNeutral(), el.depth, el.flattened, el.alpha, el.shaderInputColor),
+			RoofTopView.Floor el => new RTV_Floor(el.assetName, el.ScenePosToNeutral(), el.fromDepth, el.toDepth),
+			RoofTopView.DistantBuilding el => new RTV_DistantBuilding(el.assetName, el.ScenePosToNeutral(), el.depth, el.atmosphericalDepthAdd),
+			RoofTopView.Building el => new RTV_Building(el.assetName, el.ScenePosToNeutral(), el.depth, el.scale),
+			RoofTopView.DistantGhost el => new RTV_DistantGhost(el.ScenePosToNeutral(), el.depth),
+			RoofTopView.DustWave el => new RTV_DustWave(el.assetName, el.ScenePosToNeutral(), el.depth),
+			RoofTopView.Smoke el => new RTV_Smoke(el.pos, el.depth, el.flattened, el.alpha, el.shaderInputColor, el.shaderType),
+			_ => throw new BackgroundBuilderException(BackgroundBuilderError.InvalidVanillaBgElement),//this should never happen
+		};
 	}
 
 	public abstract class CustomBgElement
@@ -233,7 +191,7 @@ internal static class BackgroundElementData
 		{
 			if (self is not RoofTopView rtv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
-			return new RoofTopView.Floor(rtv, assetName, DefaultNeutralPos(pos, depth), fromDepth, toDepth);
+			return new RoofTopView.Floor(rtv, assetName, new Vector2(0f, rtv.floorLevel), fromDepth, toDepth);
 		}
 
 		public override string Serialize() => $"Floor: {assetName}, {pos.x}, {pos.y}, {fromDepth}, {toDepth}";
@@ -259,7 +217,7 @@ internal static class BackgroundElementData
 		{
 			if (self is not RoofTopView rtv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
-			return new RoofTopView.DistantBuilding(rtv, assetName, DefaultNeutralPos(pos, depth), depth, atmoDepthAdd);
+			return new RoofTopView.DistantBuilding(rtv, assetName, new Vector2(DefaultNeutralPos(pos, depth).x, rtv.floorLevel + pos.y), depth, atmoDepthAdd);
 		}
 
 		public override string Serialize() => $"DistantBuilding: {assetName}, {pos.x}, {pos.y}, {depth}, {atmoDepthAdd}";
@@ -285,7 +243,7 @@ internal static class BackgroundElementData
 		{
 			if (self is not RoofTopView rtv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
-			return new RoofTopView.Building(rtv, assetName, DefaultNeutralPos(pos, depth), depth, scale);
+			return new RoofTopView.Building(rtv, assetName, new Vector2(DefaultNeutralPos(pos, depth).x, rtv.floorLevel + pos.y), depth, scale);
 		}
 
 		public override string Serialize() => $"Building: {assetName}, {pos.x}, {pos.y}, {depth}, {scale}";
@@ -370,6 +328,10 @@ internal static class BackgroundElementData
 
 	#endregion RoofTopView
 
+
+	/// <summary>
+	/// A simplification of BackgroundBuilder.PosFromDrawPosAtNeutralCam
+	/// </summary>
 	public static Vector2 DefaultNeutralPos(Vector2 pos, float depth) => pos * depth;
 
 	public static Vector2 ScenePosToNeutral(this BackgroundScene.BackgroundSceneElement element)

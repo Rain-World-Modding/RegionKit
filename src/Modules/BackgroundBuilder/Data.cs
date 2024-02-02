@@ -91,7 +91,7 @@ internal static class Data
 		public Vector2 roomOffset = Vector2.zero;
 		public bool roomOffsetInit = false; //nullables were too painful to work with
 
-		public void UpdateOffsetInit() => roomOffsetInit = (roomOffset == roomSettings.parent.BackgroundData().roomOffset);
+		public void UpdateOffsetInit() => roomOffsetInit = (roomOffset != roomSettings.parent.BackgroundData().roomOffset);
 
 		public string backgroundName = "";
 
@@ -582,6 +582,10 @@ internal static class Data
 
 	public class RoofTopView_BGData : BGData
 	{
+		public Vector2? origin;
+
+		public bool LCMode;
+
 		public float floorLevel;
 
 		public string daySky;
@@ -637,8 +641,9 @@ internal static class Data
 				$"nightSky: {nightSky}"
 			};
 
-			return string.Join("\n", lines) + "\n" + base.Serialize();
+			if (origin is Vector2 v) lines.Add($"origin: {v.x}, {v.y}");
 
+			return string.Join("\n", lines) + "\n" + base.Serialize();
 		}
 
 		public override void UpdateSceneElement(string message)
@@ -665,6 +670,16 @@ internal static class Data
 
 			switch (array[0])
 			{
+			case "origin":
+				string[] array2 = Regex.Split(array[1], ", ");
+				if (array2.Length >= 2 && float.TryParse(array2[0], out float x) && float.TryParse(array2[1], out float y))
+					{ origin = new(x, y); }
+			break;
+
+			case "LCMode":
+				LCMode = true;
+				break;
+
 			case "floorLevel":
 				floorLevel = float.Parse(array[1].Trim());
 				break;

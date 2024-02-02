@@ -1,4 +1,6 @@
-﻿using static AboveCloudsView;
+﻿using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using static AboveCloudsView;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
@@ -11,6 +13,31 @@ internal static class Init
 		On.BackgroundScene.RoomToWorldPos += BackgroundScene_RoomToWorldPos;
 		On.AboveCloudsView.CloseCloud.DrawSprites += CloseCloud_DrawSprites;
 		On.AboveCloudsView.DistantCloud.DrawSprites += DistantCloud_DrawSprites;
+		IL.RoofTopView.ctor += RoofTopView_ctor1;
+	}
+
+	private static void RoofTopView_ctor1(ILContext il)
+	{
+		var c = new ILCursor(il);
+		if (c.TryGotoNext(MoveType.AfterLabel, 
+			x => x.MatchLdarg(0),
+			x => x.MatchLdfld<BackgroundScene>(nameof(BackgroundScene.room)),
+			x => x.MatchLdfld<Room>(nameof(Room.dustStorm))
+			))
+		{
+			c.Emit(OpCodes.Ldarg_0);
+			c.EmitDelegate((RoofTopView self) => 
+			{
+				if (self.room.roomSettings.BackgroundData().realData is Data.RoofTopView_BGData rtv)
+				{ 
+					if(rtv.origin is Vector2 v2)
+					self.sceneOrigo = v2;
+
+					if (rtv.LCMode)
+					{ self.isLC = true; }
+				}
+			});
+		}
 	}
 
 	public static void Undo()
@@ -57,7 +84,17 @@ internal static class Init
 
 	private static void RoofTopView_ctor(On.RoofTopView.orig_ctor orig, RoofTopView self, Room room, RoomSettings.RoomEffect effect)
 	{
+		//ye I know this is a little hacky but it works and it's less annoying than using a bool or smthn
+		Vector2 roomOffset = room.roomSettings.BackgroundData().roomOffset;
+		Vector2 backgroundOffset = room.roomSettings.BackgroundData().backgroundOffset;
+
+		room.roomSettings.BackgroundData().roomOffset = new();
+		room.roomSettings.BackgroundData().backgroundOffset = new();
+
 		orig(self, room, effect);
+
+		room.roomSettings.BackgroundData().roomOffset = roomOffset;
+		room.roomSettings.BackgroundData().backgroundOffset = backgroundOffset;
 
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 

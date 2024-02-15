@@ -29,9 +29,10 @@ public static class _Module
 		MossWaterUnlit.MossLoadResources(rainworld);
 		MossWaterRGB.MossLoadResources(rainworld);
 		MurkyWater.MurkyWaterLoadResources(rainworld);
+		ReflectiveWater.ReflectiveLoadResources(rainworld);
 
 
-
+		ReflectiveWater.Apply();
 		IceWater.Apply();
 		MurkyWater.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
@@ -48,6 +49,7 @@ public static class _Module
 		RoomRainWithoutDeathRain.Undo();
 		MossWaterUnlit.Undo();
 		MossWaterRGB.Undo();
+		ReflectiveWater.Undo();
 		IceWater.Undo();
 		MurkyWater.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
@@ -67,6 +69,7 @@ public static class _Module
 			type == _Enums.HiveColorAlpha ||
 			type == _Enums.MossWater ||
 			type == _Enums.MurkyWater ||
+			type == _Enums.ReflectiveWater ||
 			type == EchoExtender._Enums.EchoPresenceOverride)
 			res = _Enums.RegionKit;
 		return res;

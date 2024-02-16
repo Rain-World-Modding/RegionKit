@@ -1,5 +1,6 @@
-﻿using DevInterface;
+using DevInterface;
 using EffExt;
+using RegionKit.Modules.ShaderTools;
 
 namespace RegionKit.Modules.Effects;
 
@@ -32,13 +33,15 @@ public static class _Module
 
 		RainWorld rainworld = CRW;
 		MossWaterRGBBuilder.__RegisterBuilder();
-		//IceWaterBuilder.__RegisterBuilder();
+		IceWaterBuilder.__RegisterBuilder();
 		MossWaterUnlit.MossLoadResources(rainworld);
 		MossWaterRGB.MossLoadResources(rainworld);
+		MurkyWater.MurkyWaterLoadResources(rainworld);
 
 
 
 		IceWater.Apply();
+		MurkyWater.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -54,6 +57,7 @@ public static class _Module
 		MossWaterUnlit.Undo();
 		MossWaterRGB.Undo();
 		IceWater.Undo();
+		MurkyWater.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -70,6 +74,7 @@ public static class _Module
 			type == _Enums.PWMalfunction ||
 			type == _Enums.HiveColorAlpha ||
 			type == _Enums.MossWater ||
+			type == _Enums.MurkyWater ||
 			type == EchoExtender._Enums.EchoPresenceOverride)
 			res = _Enums.RegionKit;
 		return res;

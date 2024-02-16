@@ -21,6 +21,7 @@ internal static class _Module
 		SlugcatRoomTemplates.Apply();
 		RainSong.Enable();
 		FadePaletteCombiner.Enable();
+		DecalPreview.Enable();
 	}
 	public static void Disable()
 	{
@@ -33,5 +34,6 @@ internal static class _Module
 		SlugcatRoomTemplates.Undo();
 		RainSong.Disable();
 		FadePaletteCombiner.Disable();
+		DecalPreview.Disable();
 	}
 }

@@ -13,8 +13,9 @@ internal static class _Assets
 
 	internal static void LoadResources(/* On.RainWorld.orig_OnModsInit orig, RainWorld self */)
 	{
-		// orig(self);
+		System.Diagnostics.Stopwatch loadTime = new();
 		LogMessage($"Assets module loading atlases from assetpath assets/regionkit");
+		loadTime.Start();
 
 		foreach (string? dir in new[] { "", "sprites", /* "littleplanet", "extendedgates" */ })
 		{
@@ -29,7 +30,7 @@ internal static class _Assets
 					//FAtlasManager..LoadImage("");
 					atlasname = fi.Name[..^fi.Extension.Length];
 					Futile.atlasManager.LoadAtlasOrImage($"{fdir}/{atlasname}");
-					
+
 
 #if false
 					System.IO.FileInfo
@@ -45,16 +46,10 @@ internal static class _Assets
 #endif
 					//fi.AppendText();
 				}
-				try
-				{
-				}
-				catch (Exception ex)
-				{
-					LogError($"Assets module Failed to load atlas {atlasname} : {ex}");
-				}
-				//if (fi.)
 			}
 		}
+		loadTime.Stop();
+		LogDebug($"Resources loaded in {loadTime.Elapsed}");
 	}
 
 	internal static string? GetUTF8(params string[] assetpath)
@@ -312,7 +307,7 @@ internal static class _Assets
 			LogDebug(path + " loading as atlas");
 			return man.LoadAtlas(path);
 		}
-		LogDebug(path + "loading as single image");
+		LogDebug(path + " loading as single image");
 		return man.LoadImage(path);
 	}
 	public static void Disable()

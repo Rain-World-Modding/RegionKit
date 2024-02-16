@@ -91,7 +91,7 @@ public class BackgroundPage : Page
 		subNodes.Add(buttonLoad);
 
 
-		//subNodes.Add(new Button(owner, "Save", this, new Vector2(200f, 600f), 60f, "Save"));
+		subNodes.Add(new Button(owner, "Save", this, new Vector2(200f, 600f), 60f, "Save"));
 
 
 		//backgroundType = new ExtEnumCycler<BackgroundTemplateType>(owner, "BackTypeCycle", this, new Vector2(170f, 580f), 120f, RoomSettings.BackgroundData().type, "Type");
@@ -165,14 +165,14 @@ public class BackgroundPage : Page
 			{
 				RoomSettings.BackgroundData().roomOffset.x = slider.actualValue;
 				RoomSettings.BackgroundData().realData.UpdateSceneElement("");
-				RoomSettings.BackgroundData().roomOffsetInit = RoomSettings.BackgroundData().roomOffset == RoomSettings.parent.BackgroundData().roomOffset;
+				RoomSettings.BackgroundData().UpdateOffsetInit();
 			}
 
 			else if (sender.IDstring == "YOffset" && sender is GenericSlider slider2)
 			{
-				RoomSettings.BackgroundData().roomOffsetInit = true;
 				RoomSettings.BackgroundData().roomOffset.y = slider2.actualValue;
 				RoomSettings.BackgroundData().realData.UpdateSceneElement("");
+				RoomSettings.BackgroundData().UpdateOffsetInit();
 			}
 		}
 		else if (type == StringControl.StringFinish)

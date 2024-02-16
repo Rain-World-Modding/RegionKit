@@ -139,6 +139,7 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 	- Original Concealed Garden code
 	- Original Climbables and Popups code
 	- PaletteTextInput
+ 	- AlphaLevelShader
 
 - Thrithralas
 	- Echo Extender
@@ -171,6 +172,14 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 
 - Isbjorn52
 	- Gate Customization
+
+- Xan
+	- Superstructure Fuses depth fix
+ 	- Shader stencil buffer enabler
+ 
+- ASlightlyOvergrownCactus
+	- MossWater Unlit/RGB shaders
+ 	- MurkyWater shader
 
 **Initial ExtendedGates authors**: Henpemaz (code); Mehri'Kairotep, Thalber, LB/M4rbleL1ne and Nautillo (spritework).
 

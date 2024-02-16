@@ -48,6 +48,8 @@ public class Piston : UpdatableAndDeletable, IDrawable
 		Futile.atlasManager.TryGetElementWithName(visuals.atlasElement, out var selectedElement);
 		FAtlasElement defaultElement = Futile.atlasManager.GetElementWithName("pixel");
 		sprite.element = selectedElement ?? defaultElement;
+		RainWorld rw = this.room.game.rainWorld;
+		sprite.shader = rw.Shaders.TryGetValue(visuals.shader, out FShader shader) ? shader : rw.Shaders["Basic"];
 		sprite.scaleX = visuals.scaleX;
 		sprite.scaleY = visuals.scaleY;
 		sprite.alpha = visuals.alpha;

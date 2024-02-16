@@ -62,5 +62,9 @@ public static class _Enums
 	/// <summary>
 	/// Effect category
 	/// </summary>
+	public static RoomSettings.RoomEffect.Type MurkyWater = new(nameof(MurkyWater), true);
+	/// <summary>
+	/// Effect category
+	/// </summary>
 	public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKit = new(nameof(RegionKit), true);
 }

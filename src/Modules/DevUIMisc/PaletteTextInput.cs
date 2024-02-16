@@ -95,6 +95,11 @@ internal class PaletteTextInput
 				}
 				return arg + " " + ctroller.RoomSettings.EffectColorB;
 			case 3:
+				if (ctroller.RoomSettings.IsFadeTemplate(-1) && ctroller.RoomSettings.parent.fadePalette != null)
+				{
+				return "<T>" + ctroller.RoomSettings.fadePalette.palette.ToString();
+				}
+
 				if (ctroller.RoomSettings.fadePalette == null)
 				{
 					return "NONE";

@@ -49,6 +49,8 @@ public class Wheel : UpdatableAndDeletable, IDrawable
 		if (finalAngle > 360f) finalAngle = finalAngle - finalAngle % 360f;
 		sprite.rotation = finalAngle;
 		sprite.element = selectedElement ?? defaultElement;
+		RainWorld rw = this.room.game.rainWorld;
+		sprite.shader = rw.Shaders.TryGetValue(visuals.shader, out FShader shader) ? shader : rw.Shaders["Basic"];
 		sprite.scaleX = visuals.scaleX;
 		sprite.scaleY = visuals.scaleY;
 		sprite.alpha = visuals.alpha;

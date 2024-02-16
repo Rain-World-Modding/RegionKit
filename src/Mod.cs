@@ -1,4 +1,8 @@
-﻿namespace RegionKit;
+﻿using RegionKit.Modules.Effects;
+using RegionKit.Modules.GateCustomization;
+using RegionKit.Modules.RoomSlideShow;
+
+namespace RegionKit;
 /// <summary>
 /// Main plugin class
 /// </summary>
@@ -45,18 +49,26 @@ public class Mod : BepInEx.BaseUnityPlugin
 
 	private void Init(On.RainWorld.orig_OnModsInit orig, RainWorld self)
 	{
+		System.Diagnostics.Stopwatch
+			totalTime = new(),
+			perModule = new();
+		List<(ModuleInfo, TimeSpan)> enableTimes = new();
 		try { orig(self); }
 		catch (Exception ex) { LogFatal($"Caught error in init-orig: {ex}"); }
 		try
 		{
-
 			if (!_modulesSetUp)
 			{
 				ScanAssemblyForModules(typeof(Mod).Assembly);
+				totalTime.Start();
+
 				foreach (var mod in _modules)
 				{
+					perModule.Restart();
 					RunEnableOn(mod);
+					enableTimes.Add((mod, perModule.Elapsed));
 				}
+				totalTime.Stop();
 			}
 			_modulesSetUp = true;
 			_Assets.LoadResources();
@@ -64,6 +76,12 @@ public class Mod : BepInEx.BaseUnityPlugin
 		catch (Exception ex)
 		{
 			LogError($"Error on init: {ex}");
+		}
+		finally
+		{
+			LogDebug($"Total load time {totalTime.Elapsed}");
+			LogDebug($"Load time for modules: ");
+			foreach ((ModuleInfo module, TimeSpan elapsed) in enableTimes) LogDebug($"\t{module.name} : {elapsed}");
 		}
 	}
 
@@ -135,6 +153,8 @@ public class Mod : BepInEx.BaseUnityPlugin
 	///<inheritdoc/>
 	public void ScanAssemblyForModules(System.Reflection.Assembly asm)
 	{
+		System.Diagnostics.Stopwatch scanTime = new();
+		scanTime.Start();
 		Type[] types;
 		types = asm.GetTypesSafe(out var err);
 		if (err is not null)
@@ -147,6 +167,8 @@ public class Mod : BepInEx.BaseUnityPlugin
 			if (t.IsGenericTypeDefinition) continue;
 			TryRegisterModule(t);
 		}
+		scanTime.Stop();
+		LogDebug($"Scanned {asm.FullName} for modules in {scanTime.Elapsed}");
 	}
 
 	///<inheritdoc/>

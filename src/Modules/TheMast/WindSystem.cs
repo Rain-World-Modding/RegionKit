@@ -327,7 +327,7 @@ namespace RegionKit.Modules.TheMast
 
 			public override string ToString()
 			{
-				if (unrecognizedAttributes.Length < 3)
+				if (unrecognizedAttributes == null || unrecognizedAttributes.Length < 3)
 				{ unrecognizedAttributes = new string[3]; }
 
 				unrecognizedAttributes[0] = velocity.ToString();

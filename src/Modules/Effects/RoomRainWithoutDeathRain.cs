@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using UnityEngine.Diagnostics;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 
 namespace RegionKit.Modules.Effects
 {
@@ -15,8 +14,10 @@ namespace RegionKit.Modules.Effects
 			On.RoomRain.Update += RoomRain_Update;
 			On.RoomRain.ThrowAroundObjects += RoomRain_ThrowAroundObjects;
 			On.Water.DetailedWaterLevel += Water_DetailedWaterLevel;
+			IL.RoomCamera.DrawUpdate += RoomCamera_DrawUpdate1;
+			On.RegionGateGraphics.AddToContainer += RegionGateGraphics_AddToContainer;
+			On.VirtualMicrophone.Update += VirtualMicrophone_Update;
 		}
-
 
 		public static void Undo()
 		{
@@ -24,6 +25,58 @@ namespace RegionKit.Modules.Effects
 			On.RoomRain.Update -= RoomRain_Update;
 			On.RoomRain.ThrowAroundObjects -= RoomRain_ThrowAroundObjects;
 			On.Water.DetailedWaterLevel -= Water_DetailedWaterLevel;
+			IL.RoomCamera.DrawUpdate -= RoomCamera_DrawUpdate1;
+			On.RegionGateGraphics.AddToContainer -= RegionGateGraphics_AddToContainer;
+			On.VirtualMicrophone.Update -= VirtualMicrophone_Update;
+		}
+
+		private static void VirtualMicrophone_Update(On.VirtualMicrophone.orig_Update orig, VirtualMicrophone self)
+		{
+			orig(self);
+			if (float.IsInfinity(self.room.FloatWaterLevel(self.listenerPoint.x)))
+			{
+				self.underWater = 1f;
+			}
+		}
+
+		private static void RegionGateGraphics_AddToContainer(On.RegionGateGraphics.orig_AddToContainer orig, RegionGateGraphics self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+		{
+			if (self.gate.room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.AboveCloudsView) != null)
+			{
+				if (newContatiner == null || newContatiner == rCam.ReturnFContainer("Water"))
+				{
+					newContatiner = rCam.ReturnFContainer("GrabShaders");
+				}
+			}
+			orig(self, sLeaser, rCam, newContatiner);
+		}
+
+		private static void RoomCamera_DrawUpdate1(ILContext il)
+		{
+			var c = new ILCursor(il);
+			if (c.TryGotoNext(MoveType.After,
+				x => x.MatchLdarg(0),
+				x => x.MatchCall<RoomCamera>("get_room"),
+				x => x.MatchCallvirt<Room>("get_abstractRoom"),
+				x => x.MatchCallvirt<AbstractRoom>("get_gate")
+				))
+			{
+				c.Emit(OpCodes.Ldarg_0);
+				c.EmitDelegate((bool orig, RoomCamera self) => { return orig && self.room.roomSettings.GetEffectAmount(RoomSettings.RoomEffect.Type.Fog) == 0; });
+			}
+			else { LogError("Failed to ilhook RoomCamera.DrawUpdate pt 1"); }
+
+			if (c.TryGotoNext(MoveType.After,
+				x => x.MatchLdarg(0),
+				x => x.MatchCall<RoomCamera>("get_room"),
+				x => x.MatchCallvirt<Room>("get_abstractRoom"),
+				x => x.MatchCallvirt<AbstractRoom>("get_shelter")
+				))
+			{
+				c.Emit(OpCodes.Ldarg_0);
+				c.EmitDelegate((bool orig, RoomCamera self) => { return orig && self.room.roomSettings.GetEffectAmount(RoomSettings.RoomEffect.Type.Fog) == 0; });
+			}
+			else { LogError("Failed to ilhook RoomCamera.DrawUpdate pt 2"); }
 		}
 
 		private static float Water_DetailedWaterLevel(On.Water.orig_DetailedWaterLevel orig, Water self, float horizontalPosition)

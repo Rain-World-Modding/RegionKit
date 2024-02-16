@@ -83,6 +83,8 @@ public static class _Module
 		RegisterEmptyObjectType<CustomWallMyceliaData, ManagedRepresentation>("CustomWallMycelia", DECORATIONS_POM_CATEGORY);
 
 		RegisterManagedObject<GuardProtectNode, GuardProtectData, GuardProtectRepresentation>("GuardProtectNode", GAMEPLAY_POM_CATEGORY);
+
+		LoadShaders();
 	}
 
 	internal static void Enable()
@@ -397,4 +399,8 @@ public static class _Module
 		foreach (var uad in instance.updateList) if (uad is INotifyWhenRoomIsViewed tar) tar.RoomViewed();
 	}
 
+	public static void LoadShaders()
+	{
+		Custom.rainWorld.Shaders["ColorEffects"] = FShader.CreateShader("ColorEffects", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/coloreffects")).LoadAsset<Shader>("Assets/ColorEffects.shader"));
+	}
 }

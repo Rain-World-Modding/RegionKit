@@ -14,7 +14,7 @@ public class Drawable : CosmeticSprite
 		new FloatField("depth", 0f, 1f, 1f, displayName: "Depth"),
 		new StringField("shader", "Basic", "Shader"),
 		new EnumField<FContainer>("container", FContainer.Foreground, displayName: "FContainer"),
-		new IntegerField("alpha", 1, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Alpha"),
+		new IntegerField("alpha", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Alpha"),
 		new BooleanField("useColour", false, displayName: "Use Colour"),
 		new ColorField("colour", Color.white, ManagedFieldWithPanel.ControlType.slider, "Colour")
 	};

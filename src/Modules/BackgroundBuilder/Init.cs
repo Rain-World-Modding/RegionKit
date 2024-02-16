@@ -73,7 +73,7 @@ internal static class Init
 	private static void AboveCloudsView_ctor(On.AboveCloudsView.orig_ctor orig, AboveCloudsView self, Room room, RoomSettings.RoomEffect effect)
 	{
 		orig(self, room, effect);
-
+		Shader.SetGlobalFloat("_windDir", ModManager.MSC ? -1f : 1f);
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
 		if (data.type != BackgroundTemplateType.AboveCloudsView || data.realData is not Data.AboveCloudsView_BGData)

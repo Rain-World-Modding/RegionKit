@@ -333,6 +333,8 @@ internal static class Data
 		public float overrideYStart;
 		public float overrideYEnd;
 
+		public float windDir;
+
 		public Color atmosphereColor;
 
 		public string daySky;
@@ -377,6 +379,10 @@ internal static class Data
 			{
 				Shader.SetGlobalVector("_AboveCloudsAtmosphereColor", atmosphereColor);
 			}
+
+			float wind = Shader.GetGlobalFloat("_windDir");
+			if (SyncIfDefault(ref windDir, ref wind))
+			{ Shader.SetGlobalFloat("_windDir", wind); }
 
 			SyncIfDefault(ref startAltitude, ref acv.startAltitude);
 			SyncIfDefault(ref endAltitude, ref acv.endAltitude);
@@ -552,6 +558,10 @@ internal static class Data
 
 			case "overrideYEnd":
 				overrideYEnd = float.Parse(array[1].Trim());
+				break;
+
+			case "windDirection":
+				windDir = float.Parse(array[1].Trim());
 				break;
 
 			case "daySky":

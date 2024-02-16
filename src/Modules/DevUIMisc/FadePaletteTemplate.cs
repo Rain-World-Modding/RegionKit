@@ -73,7 +73,7 @@ internal static class FadePaletteTemplate
 
 	private static void PaletteController_Increment(On.DevInterface.PaletteController.orig_Increment orig, DevInterface.PaletteController self, int change)
 	{
-		if (self.controlPoint == 3)
+		if (self.controlPoint == 3 && self.RoomSettings.parent.fadePalette != null)
 		{
 			if (self.RoomSettings.fadePalette == null)
 			{
@@ -170,7 +170,7 @@ internal static class FadePaletteTemplate
 	{
 		List<string> result = new();
 
-		if (self.fadePalette != null && self.fadePalette.fades.Length > 0 && !saveAsTemplate)
+		if (self.fadePalette != null && self.fadePalette.fades.Length > 0 && saveAsTemplate)
 		{
 			result.Add($"FadePalette: {self.fadePalette.palette}, {self.fadePalette.fades[0]}");
 		}

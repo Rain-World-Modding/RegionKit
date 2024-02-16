@@ -16,6 +16,7 @@ namespace RegionKit.Modules.Effects
 			On.Water.DetailedWaterLevel += Water_DetailedWaterLevel;
 			IL.RoomCamera.DrawUpdate += RoomCamera_DrawUpdate1;
 			On.RegionGateGraphics.AddToContainer += RegionGateGraphics_AddToContainer;
+			On.VirtualMicrophone.Update += VirtualMicrophone_Update;
 		}
 
 		public static void Undo()
@@ -26,6 +27,16 @@ namespace RegionKit.Modules.Effects
 			On.Water.DetailedWaterLevel -= Water_DetailedWaterLevel;
 			IL.RoomCamera.DrawUpdate -= RoomCamera_DrawUpdate1;
 			On.RegionGateGraphics.AddToContainer -= RegionGateGraphics_AddToContainer;
+			On.VirtualMicrophone.Update -= VirtualMicrophone_Update;
+		}
+
+		private static void VirtualMicrophone_Update(On.VirtualMicrophone.orig_Update orig, VirtualMicrophone self)
+		{
+			orig(self);
+			if (float.IsInfinity(self.room.FloatWaterLevel(self.listenerPoint.x)))
+			{
+				self.underWater = 1f;
+			}
 		}
 
 		private static void RegionGateGraphics_AddToContainer(On.RegionGateGraphics.orig_AddToContainer orig, RegionGateGraphics self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)

@@ -9,7 +9,6 @@ public static class _Module
 	{
 		RegisterManagedObject<ReliableIggyEntrance, ReliableEntranceData, ReliableEntranceRep>("ReliableIggyEntrance", OVERSEER_POM_CATEGORY);
 		RegisterManagedObject<CustomDoorPointer, DoorPointerData, DoorPointerRep>("CustomIggyDirection", OVERSEER_POM_CATEGORY);
-		LoadShaders();
 	}
 
 	internal static void Enable()
@@ -21,6 +20,7 @@ public static class _Module
 		PointerHooks.Apply();
 		OverseerRecolor.Apply();
 		On.ImageTrigger.AttemptTriggerFire += ImageTrigger_AttemptTriggerFire;
+		LoadShaders();
 	}
 
 	private static void ImageTrigger_AttemptTriggerFire(On.ImageTrigger.orig_AttemptTriggerFire orig, RainWorldGame game, Room room, ActiveTriggerChecker triggerChecker, ShowProjectedImageEvent imgEvent)

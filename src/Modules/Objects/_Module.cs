@@ -83,8 +83,6 @@ public static class _Module
 		RegisterEmptyObjectType<CustomWallMyceliaData, ManagedRepresentation>("CustomWallMycelia", DECORATIONS_POM_CATEGORY);
 
 		RegisterManagedObject<GuardProtectNode, GuardProtectData, GuardProtectRepresentation>("GuardProtectNode", GAMEPLAY_POM_CATEGORY);
-
-		LoadShaders();
 	}
 
 	internal static void Enable()
@@ -108,6 +106,8 @@ public static class _Module
 		BigKarmaShrine.Apply();
 		CustomWallMycelia.Apply();
 		GuardProtectNode.Apply();
+
+		LoadShaders();
 	}
 
 	internal static void Disable()

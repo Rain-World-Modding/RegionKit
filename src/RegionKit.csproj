@@ -11,8 +11,8 @@
 		<Authors>RegionKit team</Authors>
 		<Description>All-in-one custom region dependency library.</Description>
 		<Copyright>GPL v3</Copyright>
-		<FileVersion>3.13.2</FileVersion>
-		<AssemblyVersion>3.13.2</AssemblyVersion>
+		<FileVersion>3.14.0</FileVersion>
+		<AssemblyVersion>3.14.0</AssemblyVersion>
 		<PackageReadmeFile>../README.md</PackageReadmeFile>
 		<PackageLicenseFile>../LICENSE</PackageLicenseFile>
 		<DebugType>Portable</DebugType>

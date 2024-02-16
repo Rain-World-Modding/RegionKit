@@ -1,4 +1,5 @@
-﻿using DevInterface;
+using DevInterface;
+using EffExt;
 using RegionKit.Modules.ShaderTools;
 
 namespace RegionKit.Modules.Effects;
@@ -10,6 +11,13 @@ public static class _Module
 	internal static void Setup()
 	{
 		PWMalfunction.Patch();
+
+
+		EffectDefinitionBuilder builder = new EffectDefinitionBuilder("NonlethalWater");
+		builder
+			.SetUADFactory((room, data, firstTimeRealized) => new NonlethalWater(data))
+			.SetCategory("RegionKit")
+			.Register();
 	}
 	internal static void Enable()
 	{

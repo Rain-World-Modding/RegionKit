@@ -106,6 +106,8 @@ public static class _Module
 		BigKarmaShrine.Apply();
 		CustomWallMycelia.Apply();
 		GuardProtectNode.Apply();
+
+		LoadShaders();
 	}
 
 	internal static void Disable()
@@ -397,4 +399,8 @@ public static class _Module
 		foreach (var uad in instance.updateList) if (uad is INotifyWhenRoomIsViewed tar) tar.RoomViewed();
 	}
 
+	public static void LoadShaders()
+	{
+		Custom.rainWorld.Shaders["ColorEffects"] = FShader.CreateShader("ColorEffects", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/coloreffects")).LoadAsset<Shader>("Assets/ColorEffects.shader"));
+	}
 }

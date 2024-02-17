@@ -1,7 +1,7 @@
 {
 	"id": "regionkit",
 	"name": "RegionKit",
-	"version": "3.14.1",
+	"version": "3.14.14",
 	"authors": "RegionKit team",
 	"description": "All-in-one custom region dependency pack.<LINE>Source code and detailed descriptions are hosted here: https://github.com/Rain-World-Modding/RegionKit<LINE>[b]Reporting bugs[/b]<LINE>If you have a problem to report, please do it via github issues, Rain World discord server, or leave a post on discussions under this workshop item. Try to first look if anyone has already reported similar problem, attach logs and other materials if relevant!<LINE>[b]Common issue and ways to fix[/b]<LINE>If the game crashes without logs, try manually deleting BepInEx folder and re-verifying game files.",
 	"requirements": [

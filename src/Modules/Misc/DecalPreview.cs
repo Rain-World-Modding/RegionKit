@@ -98,15 +98,21 @@ internal static class DecalPreview
 		Dictionary<string, string> pathToModName = new Dictionary<string, string>();
 		foreach (var directory in decalDirectories)
 		{
-			JObject modinfoJson = JObject.Parse(File.ReadAllText(Path.Combine(directory, "modinfo.json")));
-			pathToModName[directory] = (string)modinfoJson["name"];
+			if (decalSources.ContainsKey(directory)) continue;
+			foreach (ModManager.Mod mod in ModManager.ActiveMods)
+			{
+				if (Path.GetFullPath(mod.path).ToLower() == Path.GetFullPath(directory).ToLower())
+				{ pathToModName[directory] = mod.name; break; }
+			}
 		}
 
 		for (int i = 0; i < allDecalPaths.Length; i++)
 		{
 			if (!decalSources.ContainsKey(Path.GetFileNameWithoutExtension(allDecalPaths[i])))
 			{
-				decalSources[Path.GetFileNameWithoutExtension(allDecalPaths[i])] = pathToModName[Directory.GetParent(allDecalPaths[i]).Parent.FullName];
+				if (pathToModName.ContainsKey(Directory.GetParent(allDecalPaths[i]).Parent.FullName))
+				{ decalSources[Path.GetFileNameWithoutExtension(allDecalPaths[i])] = pathToModName[Directory.GetParent(allDecalPaths[i]).Parent.FullName]; }
+				else { decalSources[Path.GetFileNameWithoutExtension(allDecalPaths[i])] = "Unknown"; }
 			}
 		}
 	}

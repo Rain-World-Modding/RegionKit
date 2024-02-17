@@ -14,8 +14,24 @@ namespace RegionKit.Modules.Effects
 		internal static void Apply()
 		{
 			On.Lantern.InitiateSprites += Lantern_InitiateSprites;
+			On.LightSource.AddToContainer += LightSource_AddToContainer;
+			On.LightSource.InitiateSprites += LightSource_InitiateSprites;
 			On.Water.InitiateSprites += Water_InitiateSprites;
 			On.Water.DrawSprites += Water_DrawSprites;
+		}
+
+		private static void LightSource_AddToContainer(On.LightSource.orig_AddToContainer orig, LightSource self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+		{
+			orig(self, sLeaser, rCam, newContatiner);
+			if (rCam.room.roomSettings.GetEffect(_Enums.MurkyWater) != null && self.room == rCam.room)
+			rCam.ReturnFContainer("Water").AddChild(sLeaser.sprites[0]);
+		}
+
+		private static void LightSource_InitiateSprites(On.LightSource.orig_InitiateSprites orig, LightSource self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
+		{
+			orig(self, sLeaser, rCam);
+			if (rCam.room.roomSettings.GetEffect(_Enums.MurkyWater) != null && self.room == rCam.room)
+				sLeaser.sprites[0].shader = self.room.game.rainWorld.Shaders["NoLitWater"];
 		}
 
 		private static void Water_DrawSprites(On.Water.orig_DrawSprites orig, Water self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
@@ -30,9 +46,11 @@ namespace RegionKit.Modules.Effects
 
 		internal static void Undo()
 		{
-			On.Lantern.InitiateSprites += Lantern_InitiateSprites;
-			On.Water.InitiateSprites += Water_InitiateSprites;
-			
+			On.Lantern.InitiateSprites -= Lantern_InitiateSprites;
+			On.LightSource.AddToContainer -= LightSource_AddToContainer;
+			On.Water.InitiateSprites -= Water_InitiateSprites;
+			On.Water.DrawSprites -= Water_DrawSprites;
+			On.LightSource.InitiateSprites -= LightSource_InitiateSprites;
 		}
 
 		private static void Water_InitiateSprites(On.Water.orig_InitiateSprites orig, Water self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)

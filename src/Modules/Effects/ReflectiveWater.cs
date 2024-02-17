@@ -4,14 +4,65 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using EffExt;
 
 namespace RegionKit.Modules.Effects
 {
+	internal static class ReflectiveWaterBuilder
+	{
+		internal static void __RegisterBuilder()
+		{
+			try
+			{
+				EffectDefinitionBuilder builder = new EffectDefinitionBuilder("ReflectiveWater");
+				builder
+					.AddFloatField("LerpAngle", 0, 100, 1, 90)
+					.AddFloatField("Alpha", 0, 255, 1, 1)
+					.SetUADFactory((room, data, firstTimeRealized) => new ReflectiveWaterUAD(data))
+					.SetCategory("RegionKit")
+					.Register();
+			}
+			catch (Exception ex)
+			{
+				LogWarning($"Error on eff ReflectiveWater init {ex}");
+			}
+		}
+	}
+
+	internal class ReflectiveWaterUAD : UpdatableAndDeletable
+	{
+		public EffectExtraData EffectData { get; }
+		public float height;
+		public float lerpAngle;
+		public ReflectiveWater reflectiveWater;
+
+
+		public ReflectiveWaterUAD(EffectExtraData effectData)
+		{
+			EffectData = effectData;
+			height = 1;
+			reflectiveWater = new ReflectiveWater();
+
+		}
+
+		public override void Update(bool eu)
+		{
+			height = EffectData.GetFloat("Alpha") / 255f;
+			lerpAngle = EffectData.GetFloat("LerpAngle") / 100f;
+
+			if (reflectiveWater != null && room.BeingViewed)
+			{
+				reflectiveWater.SetValues(room, height, lerpAngle);
+			}
+		}
+	}
+
 	internal class ReflectiveWater
 	{
 		public static readonly object reflectiveSprite = new();
 		static bool loaded = false;
 		const int vertsPerColumn = 64;
+		private static float angleLerp = 0.5f;
 		internal static void Apply()
 		{
 			On.Water.InitiateSprites += Water_InitiateSprites;
@@ -23,6 +74,14 @@ namespace RegionKit.Modules.Effects
 		{
 			On.Water.InitiateSprites -= Water_InitiateSprites;
 			On.Water.DrawSprites -= Water_DrawSprites;
+		}
+
+		public void SetValues(Room room, float alpha, float angle)
+		{
+			float width = room.roomSettings.GetEffectAmount(_Enums.ReflectiveWater);
+			Shader.SetGlobalFloat("_ReflectionLerp", width);
+			Shader.SetGlobalFloat("_AlphaReflective", alpha);
+			angleLerp = angle;
 		}
 
 		public static void ReflectiveLoadResources(RainWorld rw)
@@ -48,7 +107,7 @@ namespace RegionKit.Modules.Effects
 			{
 				if (sLeaser.sprites.FirstOrDefault(x => x.data == reflectiveSprite) is TriangleMesh reflectiveMesh)
 				{
-					rCam.ReturnFContainer("Water").AddChild(reflectiveMesh);
+					rCam.ReturnFContainer("GrabShaders").AddChild(reflectiveMesh);
 					reflectiveMesh.MoveBehindOtherNode(sLeaser.sprites[1]);
 				}
 			}
@@ -93,8 +152,6 @@ namespace RegionKit.Modules.Effects
 			{
 				if (sLeaser.sprites.FirstOrDefault(x => x.data == reflectiveSprite) is TriangleMesh reflectiveMesh)
 				{
-					Shader.SetGlobalFloat("_ReflectionLerp", self.room.roomSettings.GetEffectAmount(_Enums.ReflectiveWater));
-					
 					WaterTriangleMesh waterMesh = (WaterTriangleMesh)sLeaser.sprites[0];
 					int offset = self.PreviousSurfacePoint(camPos.x - 30f);
 
@@ -113,7 +170,7 @@ namespace RegionKit.Modules.Effects
 							float v = row / (vertsPerColumn - 1f);
 							reflectiveMesh.UVvertices[column * vertsPerColumn + row] = new Vector2(u, v);
 							// Check vector to be slerped; Make sure the angle works with max water amplitude
-							Vector3 surfaceNormal = Vector3.Slerp(crossWater.normalized, new Vector3(0.0f, 0.5f, -0.4f), 0.9f);
+							Vector3 surfaceNormal = Vector3.Slerp(crossWater.normalized, new Vector3(0.0f, 0.5f, -0.4f), angleLerp);
 							reflectiveMesh.verticeColors[column * vertsPerColumn + row] = new Color(surfaceNormal.x, surfaceNormal.y, surfaceNormal.z, 1);
 							reflectiveMesh.MoveVertice(column * vertsPerColumn + row, Vector2.Lerp(waterFront, waterBack, v));
 						}

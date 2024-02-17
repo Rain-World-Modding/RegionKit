@@ -1,5 +1,6 @@
-using DevInterface;
+﻿using DevInterface;
 using EffExt;
+using RegionKit.Modules.RoomSlideShow;
 using RegionKit.Modules.ShaderTools;
 
 namespace RegionKit.Modules.Effects;
@@ -39,6 +40,7 @@ public static class _Module
 		MossWaterRGB.MossLoadResources(rainworld);
 		MurkyWater.MurkyWaterLoadResources(rainworld);
 		ReflectiveWater.ReflectiveLoadResources(rainworld);
+		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
 
 
 		ReflectiveWater.Apply();

@@ -141,6 +141,7 @@ internal static class FadePaletteTemplate
 
 	private static void RoomSettings_Save_string_bool(On.RoomSettings.orig_Save_string_bool orig, RoomSettings self, string path, bool saveAsTemplate)
 	{
+		if (self.fadePalette == null) { orig(self, path, saveAsTemplate); return; }
 		FadePalette origPalette = self.fadePalette;
 		FadePalette tempPalette = new(self.fadePalette.palette, self.fadePalette.fades.Length)
 		{ fades = origPalette.fades };

@@ -1,4 +1,6 @@
-﻿using System;
+﻿//-- Broken in 1.9.14 and not even used so I'm just commenting it out
+/*
+using System;
 using UnityEngine;
 
 namespace RegionKit.Modules.ConcealedGarden;
@@ -64,3 +66,4 @@ internal class CGFourthLayerFix
 		}
 	}
 }
+*/

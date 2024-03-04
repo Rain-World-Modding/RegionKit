@@ -30,6 +30,7 @@
 		<WarningsAsErrors>$(WarningsAsErrors);NU1605;</WarningsAsErrors>
 		<DefineConstants>$(DefineConstants)TRACE;RK;REMIX</DefineConstants>
 		<Nowarn>1591</Nowarn>
+		<DebugSymbols>true</DebugSymbols>
 	</PropertyGroup>
 	<!-- Exclude reference folder from project. -->
 	<ItemGroup>
@@ -169,6 +170,10 @@
 			<HintPath>lib/com.rlabrecque.steamworks.net.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="UnityEngine.Mathematics">
+			<HintPath>lib/Unity.Mathematics.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="PolySharp" Version="1.8.3">
@@ -179,9 +184,9 @@
 	<!-- Build event -->
 	<Target Name="BuildResultToModFolder" AfterTargets="Build">
 		<Message Text="RK: Copying build result to mod folder" Importance="high" />
-		<Copy SourceFiles="$(OutDir)$(ProjectName).dll" DestinationFolder="../mod/plugins" Retries="3" RetryDelayMilliseconds="300" />
-		<Copy SourceFiles="$(OutDir)$(ProjectName).pdb" DestinationFolder="../mod/plugins" Retries="3" RetryDelayMilliseconds="300" />
-		<Copy SourceFiles="$(OutDir)$(ProjectName).xml" DestinationFolder="../mod/plugins" Retries="3" RetryDelayMilliseconds="300" />
+		<Copy SourceFiles="$(OutDir)$(ProjectName).dll" DestinationFolder="../mod/newest/plugins" Retries="3" RetryDelayMilliseconds="300" />
+		<Copy SourceFiles="$(OutDir)$(ProjectName).pdb" DestinationFolder="../mod/newest/plugins" Retries="3" RetryDelayMilliseconds="300" />
+		<Copy SourceFiles="$(OutDir)$(ProjectName).xml" DestinationFolder="../mod/newest/plugins" Retries="3" RetryDelayMilliseconds="300" />
 		<!-- <Copy
 			SourceFiles="$(TargetPath)"
 			DestinationFolder="../mod/plugins"

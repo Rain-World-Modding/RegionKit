@@ -357,6 +357,7 @@ internal static class Data
 			curveCloudDepth = float.MaxValue;
 			overrideYStart = float.MaxValue;
 			overrideYEnd = float.MaxValue;
+			windDir = float.MaxValue;
 			daySky = "";
 			duskSky = "";
 			nightSky = "";

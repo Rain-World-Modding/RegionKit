@@ -36,15 +36,18 @@ public static class _Module
 		MossWaterRGBBuilder.__RegisterBuilder();
 		ReflectiveWaterBuilder.__RegisterBuilder();
 		IceWaterBuilder.__RegisterBuilder();
+		RGBElectricDeathBuilder.__RegisterBuilder();
 		MossWaterUnlit.MossLoadResources(rainworld);
 		MossWaterRGB.MossLoadResources(rainworld);
 		MurkyWater.MurkyWaterLoadResources(rainworld);
 		ReflectiveWater.ReflectiveLoadResources(rainworld);
+		RGBElectricDeath.REDLoadResources(rainworld);
 		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
 
 
 		ReflectiveWater.Apply();
 		IceWater.Apply();
+		RGBElectricDeath.Apply();
 		MurkyWater.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
@@ -62,6 +65,7 @@ public static class _Module
 		MossWaterRGB.Undo();
 		ReflectiveWater.Undo();
 		IceWater.Undo();
+		RGBElectricDeath.Undo();
 		MurkyWater.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}

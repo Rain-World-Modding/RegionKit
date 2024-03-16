@@ -77,7 +77,7 @@ internal static class ColoredCamoBeetlesCI
 			Room rm = self.room;
 			if (!InsectCoordinator.TileLegalForInsect(type, rm, pos) || rm.world.rainCycle.TimeUntilRain < UnityEngine.Random.Range(1200, 1600))
 				return;
-			if (!rm.readyForAI || rm.aimap.getAItile(pos).terrainProximity < 5)
+			if (!rm.readyForAI || rm.aimap.getTerrainProximity(pos) < 5)
 			{
 				for (var j = 0; j < 5; j++)
 				{

@@ -74,6 +74,7 @@ namespace RegionKit.Modules.Effects
 		{
 			On.Water.InitiateSprites -= Water_InitiateSprites;
 			On.Water.DrawSprites -= Water_DrawSprites;
+			On.Water.AddToContainer -= Water_AddToContainer;
 		}
 
 		public void SetValues(Room room, float alpha, float angle)

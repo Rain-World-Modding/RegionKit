@@ -8,6 +8,7 @@ using EffExt;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using On.CoralBrain;
+using On.MoreSlugcats;
 using RegionKit.Modules.Objects;
 
 namespace RegionKit.Modules.Effects
@@ -92,7 +93,6 @@ namespace RegionKit.Modules.Effects
 			On.GreenSparks.GreenSpark.ctor += GreenSparkOnctor;
 			On.GreenSparks.GreenSpark.InitiateSprites += GreenSparkOnInitiateSprites;
 			On.Lightning.Update += LightningOnUpdate;
-			
 		}
 
 		private static void GreenSparkOnInitiateSprites(On.GreenSparks.GreenSpark.orig_InitiateSprites orig, GreenSparks.GreenSpark self, RoomCamera.SpriteLeaser sleaser, RoomCamera rcam)

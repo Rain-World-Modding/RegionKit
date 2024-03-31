@@ -26,6 +26,9 @@ namespace RegionKit.Modules.Effects
 					.AddFloatField("Blue", 0, 255, 1, 45)
 					.AddFloatField("Green", 0, 255, 1, 3)
 					.AddFloatField("Red", 0, 255, 1, 153)
+					.AddBoolField("AffectBKGLightning", true)
+					.AddBoolField("AffectGreenSparks", true)
+					.AddBoolField("AffectElectricDeath", true)
 					.SetUADFactory((room, data, firstTimeRealized) => new RGBElectricDeathUAD(data))
 					.SetCategory("RegionKit")
 					.Register();
@@ -42,6 +45,9 @@ namespace RegionKit.Modules.Effects
 		public EffectExtraData EffectData { get; }
 		public Color color;
 		public RGBElectricDeath electricDeathRGB;
+		public bool affectBKGLightning;
+		public bool affectGreenSparks;
+		public bool affectElectricDeath;
 		
 
 		public RGBElectricDeathUAD(EffectExtraData effectData)
@@ -49,7 +55,9 @@ namespace RegionKit.Modules.Effects
 			EffectData = effectData;
 			color = Color.green;
 			electricDeathRGB = new RGBElectricDeath();
-			
+			affectBKGLightning = true;
+			affectGreenSparks = true;
+			affectElectricDeath = true;
 		}
 
 		public override void Update(bool eu)
@@ -57,6 +65,10 @@ namespace RegionKit.Modules.Effects
 			color.r = EffectData.GetFloat("Red") / 255f;
 			color.g = EffectData.GetFloat("Green") / 255f;
 			color.b = EffectData.GetFloat("Blue") / 255f;
+
+			affectBKGLightning = EffectData.GetBool("AffectBKGLightning");
+			affectGreenSparks = EffectData.GetBool("AffectGreenSparks");
+			affectElectricDeath = EffectData.GetBool("AffectElectricDeath");
 
 			if (electricDeathRGB != null && room.BeingViewed)
 			{
@@ -90,14 +102,14 @@ namespace RegionKit.Modules.Effects
 			On.ElectricDeath.InitiateSprites += ElectricDeathOnInitiateSprites;
 			On.ElectricDeath.SparkFlash.InitiateSprites += SparkFlashOnInitiateSprites;
 			IL.ElectricDeath.SparkFlash.Update += SparkFlashOnUpdate;
-			On.GreenSparks.GreenSpark.ctor += GreenSparkOnctor;
 			On.GreenSparks.GreenSpark.InitiateSprites += GreenSparkOnInitiateSprites;
 			On.Lightning.Update += LightningOnUpdate;
 		}
 
 		private static void GreenSparkOnInitiateSprites(On.GreenSparks.GreenSpark.orig_InitiateSprites orig, GreenSparks.GreenSpark self, RoomCamera.SpriteLeaser sleaser, RoomCamera rcam)
 		{
-			self.col = self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.color ?? self.col;
+			if (self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.affectGreenSparks == true)
+				self.col = self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.color ?? self.col;
 			orig(self, sleaser, rcam);
 		}
 
@@ -106,14 +118,14 @@ namespace RegionKit.Modules.Effects
 			On.ElectricDeath.InitiateSprites -= ElectricDeathOnInitiateSprites;
 			On.ElectricDeath.SparkFlash.InitiateSprites -= SparkFlashOnInitiateSprites;
 			IL.ElectricDeath.SparkFlash.Update -= SparkFlashOnUpdate;
-			On.GreenSparks.GreenSpark.ctor -= GreenSparkOnctor;
+			On.GreenSparks.GreenSpark.InitiateSprites -= GreenSparkOnInitiateSprites;
 			On.Lightning.Update -= LightningOnUpdate;
 		}
 
 		private static void LightningOnUpdate(On.Lightning.orig_Update orig, Lightning self, bool eu)
 		{
 			orig(self, eu);
-			if (self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null)
+			if (self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null && self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.affectBKGLightning == true)
 			{
 				self.bkgGradient[0] =
 					self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.color ??
@@ -124,15 +136,10 @@ namespace RegionKit.Modules.Effects
 			}
 		}
 
-		private static void GreenSparkOnctor(On.GreenSparks.GreenSpark.orig_ctor orig, GreenSparks.GreenSpark self, Vector2 pos)
-		{
-			orig(self, pos);
-		}
-
 		private static void SparkFlashOnInitiateSprites(On.ElectricDeath.SparkFlash.orig_InitiateSprites orig, ElectricDeath.SparkFlash self, RoomCamera.SpriteLeaser sleaser, RoomCamera rcam)
 		{
 			orig(self, sleaser, rcam);
-				if (self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null)
+				if (self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null && self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.affectElectricDeath == true)
 				{
 					sleaser.sprites[0].color =
 						self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.color ??
@@ -153,14 +160,14 @@ namespace RegionKit.Modules.Effects
 			if (cursor.TryGotoNext(MoveType.After, i => i.MatchNewobj<Color>())) 
 			{
 				cursor.Emit(OpCodes.Ldarg_0);
-				cursor.EmitDelegate<Func<Color, ElectricDeath.SparkFlash, Color>>((Color origColor, ElectricDeath.SparkFlash self) => (Color)((self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null) ? self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.color : origColor)); 
+				cursor.EmitDelegate<Func<Color, ElectricDeath.SparkFlash, Color>>((Color origColor, ElectricDeath.SparkFlash self) => (Color)((self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null && self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.affectElectricDeath == true) ? self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.color : origColor)); 
 			}
 		}
 		
 		private static void ElectricDeathOnInitiateSprites(On.ElectricDeath.orig_InitiateSprites orig, ElectricDeath self, RoomCamera.SpriteLeaser sleaser, RoomCamera rcam)
 		{
 			orig(self, sleaser, rcam);
-			if (self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null)
+			if (self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null && self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.affectElectricDeath == true)
 			{
 				sleaser.sprites[0].shader = self.room.game.rainWorld.Shaders["RGBElectricDeath"];
 				for (int i = 1; i < 10; i++)

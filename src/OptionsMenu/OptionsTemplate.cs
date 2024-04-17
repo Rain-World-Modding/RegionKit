@@ -289,7 +289,7 @@ public abstract class OptionsTemplate : OptionInterface
 
 
 	// TEXT LABEL
-    protected void AddTextLabel(string text, FLabelAlignment alignment = FLabelAlignment.Center, bool bigText = false, bool translate = true)
+    protected void AddTextLabel(string text, FLabelAlignment alignment = FLabelAlignment.Center, bool bigText = false, bool translate = true, Color? color = null)
     {
         float textHeight = (bigText ? 2f : 1f) * FONT_HEIGHT;
 
@@ -300,6 +300,11 @@ public abstract class OptionsTemplate : OptionInterface
         {
             autoWrap = true
         };
+
+		if (color != null)
+		{
+			textLabel.color = (Color)color;
+		}
         
         TextLabels.Add(textLabel);
     }

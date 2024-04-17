@@ -78,63 +78,63 @@ public sealed class ModOptions : OptionsTemplate
 		AddTab(ref tabIndex, "Credits");
 
 
-		AddTextLabel("CREDITS", bigText: true);
+		AddTextLabel("REGIONKIT TEAM", bigText: true);
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddAndDrawLargeDivider(ref Tabs[tabIndex]);
 
 		AddNewLine(1);
 
-		AddTextLabel("DryCryCrystal", translate: false);
-		AddTextLabel("Thalber", translate: false);
+		AddTextLabel("DryCryCrystal", translate: false, color: hexToColor("e07ec8"));
+		AddTextLabel("Thalber", translate: false, color: hexToColor("ffffff"));
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddNewLine(1);
 
-		AddTextLabel("DeltaTime", translate: false);
-		AddTextLabel("M4rbleL1ne", translate: false);
+		AddTextLabel("DeltaTime", translate: false, color: hexToColor("ad1457"));
+		AddTextLabel("M4rbleL1ne", translate: false, color: hexToColor("afff00"));
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddNewLine(1);
 
-		AddTextLabel("Bro", translate: false);
-		AddTextLabel("Henpemaz", translate: false);
+		AddTextLabel("Bro", translate: false, color: hexToColor("ad1457"));
+		AddTextLabel("Henpemaz", translate: false, color: hexToColor("0e7575"));
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddNewLine(1);
 
-		AddTextLabel("Thrithralas", translate: false);
-		AddTextLabel("Slime_Cubed", translate: false);
+		AddTextLabel("Thrithralas", translate: false, color: hexToColor("f1c40f"));
+		AddTextLabel("Slime_Cubed", translate: false, color: hexToColor("25c059"));
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddNewLine(1);
 
-		AddTextLabel("LeeMoriya", translate: false);
-		AddTextLabel("Bebe", translate: false);
+		AddTextLabel("LeeMoriya", translate: false, color: hexToColor("ffc900"));
+		AddTextLabel("Bebe", translate: false, color: hexToColor("84c86b"));
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddNewLine(1);
 
-		AddTextLabel("Doggo", translate: false);
-		AddTextLabel("Kaeporo", translate: false);
+		AddTextLabel("Doggo", translate: false, color: hexToColor("c73633"));
+		AddTextLabel("Kaeporo", translate: false, color: hexToColor("8de7f3"));
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddNewLine(1);
 		
-		AddTextLabel("Dracentis", translate: false);
-		AddTextLabel("Isbjorn52", translate: false);
+		AddTextLabel("Dracentis", translate: false, color: hexToColor("ad1457"));
+		AddTextLabel("Isbjorn52", translate: false, color: hexToColor("d97d3d"));
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddNewLine(1);
 
-		AddTextLabel("Xan", translate: false);
-		AddTextLabel("ASlightlyOvergrownCactus", translate: false);
+		AddTextLabel("Xan", translate: false, color: hexToColor("b3443b"));
+		AddTextLabel("ASlightlyOvergrownCactus", translate: false, color: hexToColor("339124"));
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddNewLine(1);
 
-		AddTextLabel("forthbridge", translate: false);
-		AddTextLabel("", translate: false);
+		AddTextLabel("forthbridge", translate: false, color: hexToColor("8b41ff"));
+		AddTextLabel("", translate: false, color: hexToColor("ffffff"));
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddNewLine(1);

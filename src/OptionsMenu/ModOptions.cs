@@ -128,8 +128,8 @@ public sealed class ModOptions : OptionsTemplate
 
 		AddNewLine(1);
 
+		AddTextLabel("Vigaro", translate: false, color: hexToColor("eaba2a"));
 		AddTextLabel("forthbridge", translate: false, color: hexToColor("8b41ff"));
-		AddTextLabel("", translate: false, color: hexToColor("ffffff"));
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddNewLine(1);

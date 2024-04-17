@@ -25,13 +25,16 @@ public sealed class ModOptions : OptionsTemplate
         "Enable Iggy?"));
 
 	public static Configurable<bool> DisableRant { get; } = Instance.config.Bind(nameof(DisableRant), false, new ConfigurableInfo(
-		"When checked, disables the rant that normally has a chance to be logged to the console as a fatal error.", null, "",
+		"When checked, disables the rant that has a chance to be logged to the console on startup.", null, "",
 		"Disable Rant?"));
 
 	public static Configurable<bool> AltGateArt { get; } = Instance.config.Bind(nameof(AltGateArt), false, new ConfigurableInfo(
-		"When checked, uses an alternative set of art for the gate glyphs.", null, "",
+		"When checked, uses an alternative set of art for region gate glyphs.", null, "",
 		"Alt Gate Art?"));
 
+	public static Configurable<bool> LogLevels { get; } = Instance.config.Bind(nameof(LogLevels), false, new ConfigurableInfo(
+		"When checked, ...", null, "",
+		"Log Levels?"));
 
 
 	// MENU
@@ -58,6 +61,7 @@ public sealed class ModOptions : OptionsTemplate
 		AddCheckBox(AltGateArt);
 		DrawCheckBoxes(ref Tabs[tabIndex]);
 
+		AddCheckBox(LogLevels);
 		AddCheckBox(DisableRant);
 		DrawCheckBoxes(ref Tabs[tabIndex]);
 
@@ -72,8 +76,11 @@ public sealed class ModOptions : OptionsTemplate
 	{
 		AddTab(ref tabIndex, "Credits");
 
+
 		AddTextLabel("CREDITS", bigText: true);
 		DrawTextLabels(ref Tabs[tabIndex]);
+
+		AddAndDrawLargeDivider(ref Tabs[tabIndex]);
 
 		AddNewLine(1);
 

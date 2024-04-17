@@ -7,21 +7,25 @@ public abstract class OptionsTemplate : OptionInterface
 {
     private const float SPACING = 20.0f;
     private const float FONT_HEIGHT = 20.0f;
+
     private const int CHECKBOX_COUNT = 2;
     private const float CHECKBOX_SIZE = 60.0f;
-
-    private float CheckBoxWithSpacing => CHECKBOX_SIZE + 0.25f * SPACING;
 
     private readonly int DRAGGER_COUNT = 2;
     private readonly float DRAGGER_SIZE = 60.0f;
 
+
+    private float CheckBoxWithSpacing => CHECKBOX_SIZE + 0.25f * SPACING;
     private float DraggerWithSpacing => DRAGGER_SIZE + 0.25f * SPACING;
     
+
     private Vector2 MarginX;
     private Vector2 Pos;
 
 
-    private readonly List<float> CoxEndPositions = new();
+    private readonly List<float> BoxEndPositions = new();
+
+    private readonly List<OpLabel> TextLabels = new();
 
     private readonly List<Configurable<bool>> CheckBoxConfigurables = new();
     private readonly List<OpLabel> CheckBoxesTextLabels = new();
@@ -31,12 +35,11 @@ public abstract class OptionsTemplate : OptionInterface
     private readonly List<bool> ComboBoxAllowEmpty = new();
     private readonly List<OpLabel> ComboBoxesTextLabels = new();
 
-    private readonly List<Configurable<int>> SliderConfigurables = new();
-    private readonly List<string> SliderMainTextLabels = new();
-    private readonly List<OpLabel> SliderTextLabelsLeft = new();
-    private readonly List<OpLabel> SliderTextLabelsRight = new();
+    private readonly List<Configurable<int>> IntSliderConfigurables = new();
+    private readonly List<string> IntSliderMainTextLabels = new();
+    private readonly List<OpLabel> IntSliderTextLabelsLeft = new();
+    private readonly List<OpLabel> IntSliderTextLabelsRight = new();
 
-    private readonly List<OpLabel> TextLabels = new();
 
     private readonly List<Configurable<int>> DraggerConfigurables = new();
     private readonly List<OpLabel> DraggerTextLabels = new();
@@ -47,6 +50,7 @@ public abstract class OptionsTemplate : OptionInterface
     private readonly List<OpLabel> FloatSliderTextLabelsRight = new();
 
 
+
     protected void AddTab(ref int tabIndex, string tabName)
     {
         tabIndex++;
@@ -54,8 +58,13 @@ public abstract class OptionsTemplate : OptionInterface
         InitializeMarginAndPos();
 
         AddNewLine();
-        AddTextLabel(MOD_FRIENDLYNAME, bigText: true);
+
+		AddAndDrawLargeDivider(ref Tabs[tabIndex]);
+
+		AddTextLabel(MOD_FRIENDLYNAME, bigText: true);
         DrawTextLabels(ref Tabs[tabIndex]);
+
+		AddAndDrawLargeDivider(ref Tabs[tabIndex]);
 
         AddNewLine(0.5f);
         AddTextLabel(Translate("Version") + " " + MOD_VERSION, FLabelAlignment.Left);
@@ -65,6 +74,8 @@ public abstract class OptionsTemplate : OptionInterface
         AddNewLine();
         AddBox();
     }
+
+
 
     protected void InitializeMarginAndPos()
     {
@@ -78,10 +89,12 @@ public abstract class OptionsTemplate : OptionInterface
         Pos.y -= spacingModifier * SPACING;
     }
 
+
+
     protected void AddBox()
     {
         MarginX += new Vector2(SPACING, -SPACING);
-        CoxEndPositions.Add(Pos.y);
+        BoxEndPositions.Add(Pos.y);
         AddNewLine();
     }
 
@@ -92,32 +105,15 @@ public abstract class OptionsTemplate : OptionInterface
         AddNewLine();
 
         float boxWidth = MarginX.y - MarginX.x;
-        int lastIndex = CoxEndPositions.Count - 1;
+        int lastIndex = BoxEndPositions.Count - 1;
 
-        tab.AddItems(new OpRect(Pos, new(boxWidth, CoxEndPositions[lastIndex] - Pos.y)));
-        CoxEndPositions.RemoveAt(lastIndex);
+        tab.AddItems(new OpRect(Pos, new(boxWidth, BoxEndPositions[lastIndex] - Pos.y)));
+        BoxEndPositions.RemoveAt(lastIndex);
     }
 
-    protected void DrawKeybinders(Configurable<KeyCode> configurable, ref OpTab tab, Vector2? offset = null, bool newline = true)
-    {
-        var name = Translate((string)configurable.info.Tags[0]);
 
-        tab.AddItems(
-            new OpLabel(new Vector2(115.0f, Pos.y) + (offset ?? Vector2.zero), new Vector2(100f, 34f), name)
-            {
-                alignment = FLabelAlignment.Right,
-                verticalAlignment = OpLabel.LabelVAlignment.Center,
-                description = Translate(configurable.info?.description)
-            },
-            new OpKeyBinder(configurable, new Vector2(235.0f, Pos.y) + (offset ?? Vector2.zero), new(146f, 30f), false)
-        );
 
-        if (newline)
-        {
-            AddNewLine(2);
-        }
-    }
-
+	// CHECK BOX
     protected void AddCheckBox(Configurable<bool> configurable, string? text=null)
     {
         text ??= Translate((string)configurable.info.Tags[0]);
@@ -176,6 +172,9 @@ public abstract class OptionsTemplate : OptionInterface
         CheckBoxesTextLabels.Clear();
     }
 
+
+
+	// COMBO BOX
     protected void AddComboBox(Configurable<string> configurable, List<ListItem> list, string? text = null, bool allowEmpty = false)
     {
         text ??= Translate((string)configurable.info.Tags[0]);
@@ -228,37 +227,40 @@ public abstract class OptionsTemplate : OptionInterface
         ComboBoxAllowEmpty.Clear();
     }
 
-    protected void AddSlider(Configurable<int> configurable, string? text = null, string sliderTextLeft = "", string sliderTextRight = "")
+
+
+	// INT SLIDER
+    protected void AddIntSlider(Configurable<int> configurable, string? text = null, string sliderTextLeft = "", string sliderTextRight = "")
     {
         text ??= Translate((string)configurable.info.Tags[0]);
 
-        SliderConfigurables.Add(configurable);
-        SliderMainTextLabels.Add(text);
-        SliderTextLabelsLeft.Add(new(new(), new(), sliderTextLeft, alignment: FLabelAlignment.Right)); // set pos and size when drawing
-        SliderTextLabelsRight.Add(new(new(), new(), sliderTextRight, alignment: FLabelAlignment.Left));
+        IntSliderConfigurables.Add(configurable);
+        IntSliderMainTextLabels.Add(text);
+        IntSliderTextLabelsLeft.Add(new(new(), new(), sliderTextLeft, alignment: FLabelAlignment.Right)); // set pos and size when drawing
+        IntSliderTextLabelsRight.Add(new(new(), new(), sliderTextRight, alignment: FLabelAlignment.Left));
     }
 
-    protected void DrawSliders(ref OpTab tab)
+    protected void DrawIntSliders(ref OpTab tab)
     {
-        if (SliderConfigurables.Count != SliderMainTextLabels.Count) return;
-        if (SliderConfigurables.Count != SliderTextLabelsLeft.Count) return;
-        if (SliderConfigurables.Count != SliderTextLabelsRight.Count) return;
+        if (IntSliderConfigurables.Count != IntSliderMainTextLabels.Count) return;
+        if (IntSliderConfigurables.Count != IntSliderTextLabelsLeft.Count) return;
+        if (IntSliderConfigurables.Count != IntSliderTextLabelsRight.Count) return;
 
         float width = MarginX.y - MarginX.x;
         float sliderCenter = MarginX.x + 0.5f * width;
         float sliderLabelSizeX = 0.2f * width;
         float sliderSizeX = width - 2f * sliderLabelSizeX - SPACING;
 
-        for (int sliderIndex = 0; sliderIndex < SliderConfigurables.Count; ++sliderIndex)
+        for (int sliderIndex = 0; sliderIndex < IntSliderConfigurables.Count; ++sliderIndex)
         {
             AddNewLine(2f);
 
-            var opLabel = SliderTextLabelsLeft[sliderIndex];
+            var opLabel = IntSliderTextLabelsLeft[sliderIndex];
             opLabel.pos = new(MarginX.x, Pos.y + 5f);
             opLabel.size = new(sliderLabelSizeX, FONT_HEIGHT);
             tab.AddItems(opLabel);
 
-            var configurable = SliderConfigurables[sliderIndex];
+            var configurable = IntSliderConfigurables[sliderIndex];
             OpSlider slider = new(configurable, new(sliderCenter - 0.5f * sliderSizeX, Pos.y), (int)sliderSizeX)
             {
                 size = new(sliderSizeX, FONT_HEIGHT),
@@ -266,24 +268,27 @@ public abstract class OptionsTemplate : OptionInterface
             };
             tab.AddItems(slider);
 
-            opLabel = SliderTextLabelsRight[sliderIndex];
+            opLabel = IntSliderTextLabelsRight[sliderIndex];
             opLabel.pos = new(sliderCenter + 0.5f * sliderSizeX + 0.5f * SPACING, Pos.y + 5f);
             opLabel.size = new(sliderLabelSizeX, FONT_HEIGHT);
             tab.AddItems(opLabel);
 
-            AddTextLabel(SliderMainTextLabels[sliderIndex]);
+            AddTextLabel(IntSliderMainTextLabels[sliderIndex]);
             DrawTextLabels(ref tab);
 
-            if (sliderIndex < SliderConfigurables.Count - 1)
+            if (sliderIndex < IntSliderConfigurables.Count - 1)
                 AddNewLine();
         }
 
-        SliderConfigurables.Clear();
-        SliderMainTextLabels.Clear();
-        SliderTextLabelsLeft.Clear();
-        SliderTextLabelsRight.Clear();
+        IntSliderConfigurables.Clear();
+        IntSliderMainTextLabels.Clear();
+        IntSliderTextLabelsLeft.Clear();
+        IntSliderTextLabelsRight.Clear();
     }
 
+
+
+	// TEXT LABEL
     protected void AddTextLabel(string text, FLabelAlignment alignment = FLabelAlignment.Center, bool bigText = false, bool translate = true)
     {
         float textHeight = (bigText ? 2f : 1f) * FONT_HEIGHT;
@@ -317,6 +322,9 @@ public abstract class OptionsTemplate : OptionInterface
         TextLabels.Clear();
     }
 
+
+
+	// FLOAT SLIDER
     protected void AddFloatSlider(Configurable<float> configurable, string? text = null, string sliderTextLeft = "", string sliderTextRight = "")
     {
         text ??= Translate((string)configurable.info.Tags[0]);
@@ -375,6 +383,9 @@ public abstract class OptionsTemplate : OptionInterface
         FloatSliderTextLabelsRight.Clear();
     }
 
+
+
+	// INT DRAGGER
     protected void AddDragger(Configurable<int> configurable, string? text = null)
     {
         text ??= Translate((string)configurable.info.Tags[0]);
@@ -429,7 +440,71 @@ public abstract class OptionsTemplate : OptionInterface
 
 
 
-    public bool GetConfigurable<T, TConfigurable>(Configurable<T> cfg, out TConfigurable checkBox)
+	// DIVIDER
+	protected void AddAndDrawLargeDivider(ref OpTab tab, Vector2? offset = null, bool newline = false)
+	{
+		var pos = new Vector2(300.0f, Pos.y) + (offset ?? Vector2.zero);
+
+		var left = new OpImage(pos, "LinearGradient200");
+		left.sprite.SetAnchor(0.5f, 0.0f);
+		left.sprite.rotation = 270.0f;
+
+		var right = new OpImage(pos, "LinearGradient200");
+		right.sprite.SetAnchor(0.5f, 0.0f);
+		right.sprite.rotation = 90.0f;
+
+		tab.AddItems(left, right);
+
+		if (newline)
+		{
+			AddNewLine(1);
+		}
+	}
+
+	protected void AddAndDrawSmallDivider(ref OpTab tab, Vector2? offset = null, bool newline = false)
+	{
+		var pos = new Vector2(300.0f, Pos.y) + (offset ?? Vector2.zero);
+
+		var divider = new OpImage(pos, "listDivider");
+		divider.sprite.SetAnchor(0.5f, 0.0f);
+
+		tab.AddItems(divider);
+
+		if (newline)
+		{
+			AddNewLine(1);
+		}
+	}
+
+
+
+	// KEYBINDER
+	protected void AddAndDrawKeybinder(Configurable<KeyCode> configurable, ref OpTab tab, Vector2? offset = null, bool newline = true)
+	{
+		var name = Translate((string)configurable.info.Tags[0]);
+
+		tab.AddItems(
+			new OpLabel(new Vector2(115.0f, Pos.y) + (offset ?? Vector2.zero), new Vector2(100f, 34f), name)
+			{
+				alignment = FLabelAlignment.Right,
+				verticalAlignment = OpLabel.LabelVAlignment.Center,
+				description = Translate(configurable.info?.description)
+			},
+			new OpKeyBinder(configurable, new Vector2(235.0f, Pos.y) + (offset ?? Vector2.zero), new(146f, 30f), false)
+		);
+
+		if (newline)
+		{
+			AddNewLine(2);
+		}
+	}
+
+
+
+	// CONFIGURABLE GETTERS
+	// Used to retrieve an existing configurable from the menu after init
+
+	public bool GetConfigurable<T, TConfigurable>(Configurable<T> cfg, out TConfigurable checkBox)
         where TConfigurable : UIconfig
     {
         foreach (var tab in Tabs)

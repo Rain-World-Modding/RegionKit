@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Iggy;
+﻿namespace RegionKit.Modules.Iggy;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), nameof(Update), tickPeriod: 1, moduleName: "Iggy")]
 public static class _Module
@@ -166,6 +166,9 @@ public static class _Module
 		string name)
 	{
 		orig(self, owner, IDstring, parentNode, name);
+
+		if (!ModOptions.EnableIggy.Value) return;
+
 		Iggy iggy = new Iggy(
 			owner,
 			IDstring + "_Iggy",

@@ -72,6 +72,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 			}
 			_modulesSetUp = true;
 			_Assets.LoadResources();
+			ModOptions.RegisterOI("regionkit");
 		}
 		catch (Exception ex)
 		{

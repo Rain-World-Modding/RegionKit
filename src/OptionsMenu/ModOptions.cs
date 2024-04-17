@@ -32,10 +32,6 @@ public sealed class ModOptions : OptionsTemplate
 		"When checked, uses an alternative set of art for region gate glyphs.", null, "",
 		"Alt Gate Art?"));
 
-	public static Configurable<bool> LogLevels { get; } = Instance.config.Bind(nameof(LogLevels), false, new ConfigurableInfo(
-		"When checked, ...", null, "",
-		"Log Levels?"));
-
 
 
 	// MENU
@@ -62,7 +58,6 @@ public sealed class ModOptions : OptionsTemplate
 		AddCheckBox(AltGateArt);
 		DrawCheckBoxes(ref Tabs[tabIndex]);
 
-		AddCheckBox(LogLevels);
 		AddCheckBox(DisableRant);
 		DrawCheckBoxes(ref Tabs[tabIndex]);
 

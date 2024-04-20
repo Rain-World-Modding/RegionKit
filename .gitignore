@@ -357,3 +357,4 @@ src/RegionKit.sln
 
 # plugins copied into mod folder
 mod/plugins/**
+mod/newest/plugins**

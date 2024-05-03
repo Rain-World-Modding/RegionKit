@@ -25,6 +25,7 @@ public static class _Module
 		GlowingSwimmersCI.Apply();
 		ColoredCamoBeetlesCI.Apply();
 		MosquitoInsectsCI.Apply();
+		ButterfliesCI.Apply();
 		ColorRoomEffect.Apply();
 		ReplaceEffectColor.Apply();
 		HiveColorAlpha.Apply();
@@ -54,6 +55,7 @@ public static class _Module
 		GlowingSwimmersCI.Undo();
 		ColoredCamoBeetlesCI.Undo();
 		MosquitoInsectsCI.Undo();
+		ButterfliesCI.Undo();
 		ColorRoomEffect.Undo();
 		ReplaceEffectColor.Undo();
 		HiveColorAlpha.Undo();

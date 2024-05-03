@@ -116,7 +116,7 @@ namespace RegionKit.Modules.Effects
 
 			// Create random color
 			// Somewhat based on flare bomb purple color (hsl(0.7, 1, 0.5) for reference but here has slightly random color range)
-			var hsl = new HSLColor(Random.Range(0.64f, 0.76f), 1f, 0.5f);
+			var hsl = new HSLColor(Random.Range(0.6f, 0.8f), 1f, 0.5f);
 			fadeColor = hsl.rgb;
 			hsl.lightness = 0.9f;
 			zipColor = hsl.rgb;
@@ -199,7 +199,7 @@ namespace RegionKit.Modules.Effects
 
 				// Glow and decide if want to zip
 				zip = 0f;
-				glow = Mathf.Lerp(glow, 0f, 0.5f); // slowly fade out glow
+				glow = Mathf.Lerp(glow, 0f, 0.4f); // slowly fade out glow
 
 				if (zipCooldown == 0 && Random.value < (submerged ? 1/20f : 1/80f)) // being submerged gives bigger chance so it can escape
 				{
@@ -235,14 +235,14 @@ namespace RegionKit.Modules.Effects
 			{
 				if (light == null)
 				{
-					light = new LightSource(pos, false, zipColor, this)
+					light = new LightSource(pos, false, Color.Lerp(fadeColor, zipColor, 0.5f), this)
 					{
 						noGameplayImpact = true
 					};
 					room.AddObject(light);
 				}
 				light.setPos = new Vector2?(pos);
-				light.setAlpha = new float?(0.45f - 0.3f * (1f - glow));
+				light.setAlpha = new float?(0.75f - 0.4f * (1f - glow));
 				light.setRad = new float?(40f + 15f * (1f - glow));
 			}
 			else if (light != null)
@@ -325,7 +325,7 @@ namespace RegionKit.Modules.Effects
 			}
 			else
 			{
-				sLeaser.sprites[0].color = Color.Lerp(rCam.currentPalette.blackColor, fadeColor, glowFac * 2f);
+				sLeaser.sprites[0].color = Color.Lerp(rCam.currentPalette.blackColor, fadeColor, Mathf.Max(glowFac * 2f, Mathf.Sqrt(room.Darkness(pos)) * 2f / 3f));
 			}
 		}
 

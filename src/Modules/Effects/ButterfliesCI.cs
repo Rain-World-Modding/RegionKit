@@ -55,15 +55,6 @@ namespace RegionKit.Modules.Effects
 				return orig(type);
 		}
 
-		private static RoomSettingsPage.DevEffectsCategories RoomSettingsPage_DevEffectGetCategoryFromEffectType(On.DevInterface.RoomSettingsPage.orig_DevEffectGetCategoryFromEffectType orig, RoomSettingsPage self, RoomSettings.RoomEffect.Type type)
-		{
-			if (type == _Enums.ButterfliesA || type == _Enums.ButterfliesB)
-			{
-				return RoomSettingsPage.DevEffectsCategories.Insects;
-			}
-			return orig.Invoke(self, type);
-		}
-
 		private static void InsectCoordinator_CreateInsect(On.InsectCoordinator.orig_CreateInsect orig, InsectCoordinator self, CosmeticInsect.Type type, Vector2 pos, InsectCoordinator.Swarm swarm)
 		{
 			if (!InsectCoordinator.TileLegalForInsect(type, self.room, pos))
@@ -95,7 +86,7 @@ namespace RegionKit.Modules.Effects
 
 		private static bool InsectCoordinator_EffectSpawnChanceForInsect(On.InsectCoordinator.orig_EffectSpawnChanceForInsect orig, CosmeticInsect.Type type, Room room, Vector2 testPos, float effectAmount)
 		{
-			if (type == _Enums.ButterflyA || type == _Enums.ButterflyA)
+			if (type == _Enums.ButterflyA || type == _Enums.ButterflyB)
 			{
 				return Mathf.Pow(Random.value, 1f - effectAmount) > (room.readyForAI ? room.aimap.getTerrainProximity(testPos) : 5) * 0.05f;
 			}

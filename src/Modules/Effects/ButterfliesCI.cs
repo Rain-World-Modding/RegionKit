@@ -260,7 +260,7 @@ namespace RegionKit.Modules.Effects
 					}
 					else
 					{
-						flyDir += Custom.DirVec(pos, mySwarm.placedObject.pos) * Mathf.Pow(Random.value, 2f) * 0.1f;
+						flyDir += Custom.DirVec(pos, mySwarm.placedObject.pos) * Mathf.Pow(Random.value, 2f) * 0.05f;
 					}
 
 					if (pos.x < 0f)

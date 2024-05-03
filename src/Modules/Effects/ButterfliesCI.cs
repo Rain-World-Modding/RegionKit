@@ -229,7 +229,7 @@ namespace RegionKit.Modules.Effects
 				{
 					flyDir += Custom.DirVec(pos, mySwarm.placedObject.pos) * Random.value * 0.075f;
 				}
-				else if (keepFlying <= 0 && room.GetTile(pos).wallbehind && Random.value < 1 / 80f)
+				else if (keepFlying <= 0 && room.GetTile(pos).wallbehind && Random.value < 1 / 70f)
 				{
 					// Sit on L2 walls rarely
 					sitPos = pos;
@@ -249,7 +249,7 @@ namespace RegionKit.Modules.Effects
 					{
 						flyDir += Custom.DirVec(creatureAvoider.currentWorstCrit.DangerPos, pos) * creatureAvoider.FleeSpeed * Random.value * 3f;
 					}
-					else
+					else if (Vector2.Distance(pos, mySwarm.placedObject.pos) > mySwarm.insectGroupData.Rad)
 					{
 						flyDir += Custom.DirVec(pos, mySwarm.placedObject.pos) * Mathf.Pow(Random.value, 2f) * 0.05f;
 					}

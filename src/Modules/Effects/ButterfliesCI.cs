@@ -405,13 +405,13 @@ namespace RegionKit.Modules.Effects
 			{
 				bool side = i < 2;
 				float adjWingFac = Mathf.Lerp(0.5f, 1f, wingFac); // just gives a larger number
-				float baseAngle = Mathf.Lerp(45f, side ? 60f : 0f, adjWingFac); // lerp between rest position and flight
+				float baseAngle = Mathf.Lerp(45f, side ? 0f : 60f, adjWingFac); // lerp between rest position and flight
 
 				sLeaser.sprites[3 + i].x = posFac.x - camPos.x;
 				sLeaser.sprites[3 + i].y = posFac.y - camPos.y;
 				sLeaser.sprites[3 + i].scaleY = 0.3f * (1f - groundFac);
 				sLeaser.sprites[3 + i].scaleX = 0.18f * adjWingFac;
-				sLeaser.sprites[3 + i].rotation = (baseAngle + flapFac * 600f * Mathf.Pow(wingFac, 4f)) * wingFac * ((i == 0) ? (-1f) : 1f) + bodyRot;
+				sLeaser.sprites[3 + i].rotation = (baseAngle + flapFac * 450f * Mathf.Pow(wingFac, 4f)) * wingFac * ((i % 2 == 0) ? -1f : 1f) + bodyRot;
 				sLeaser.sprites[3 + i].anchorY = -0.1f;
 			}
 		}
@@ -424,14 +424,17 @@ namespace RegionKit.Modules.Effects
 			Color palCol = palette.texture.GetPixel((int)Mathf.Lerp(14f, 20f, colorFac), 2);
 			Color effCol = palette.texture.GetPixel(30, A ? 4 : 2);
 			Color bodyColor = palette.blackColor;
-			Color wingColor = Color.Lerp(Color.Lerp(palCol, effCol, 0.925f), palette.fogColor, 0.15f * palette.fogAmount + 0.25f * palette.darkness);
+			Color wingColor = Color.Lerp(Color.Lerp(palCol, effCol, 0.925f), palette.fogColor, 0.15f * palette.fogAmount + 0.2f * palette.darkness);
 			for (int i = 0; i < 3; i++)
 			{
 				sLeaser.sprites[i].color = bodyColor;
 			}
 			for (int i = 3; i < sLeaser.sprites.Length; i++)
 			{
-				sLeaser.sprites[i].color = Color.Lerp(wingColor, palette.blackColor, i < 5 ? 0f : 0.1f); // bottom half ever so slightly darker
+				sLeaser.sprites[i].color = Color.Lerp(wingColor, palette.blackColor, colorFac * 0.125f); // slight lightness variation
+
+				// I would like for the below to work but I'm removing it to cover up that the wing position relative to the other on the same side is inconsistent
+				// sLeaser.sprites[i].color = Color.Lerp(wingColor, palette.blackColor, i < 5 ? 0f : 0.2f);
 			}
 		}
 	}

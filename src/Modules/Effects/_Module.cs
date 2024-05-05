@@ -78,6 +78,8 @@ public static class _Module
 			type == _Enums.GlowingSwimmers ||
 			type == _Enums.ColoredCamoBeetles ||
 			type == _Enums.MosquitoInsects ||
+			type == _Enums.ButterfliesA ||
+			type == _Enums.ButterfliesB ||
 			type == _Enums.PWMalfunction ||
 			type == _Enums.HiveColorAlpha ||
 			type == _Enums.MossWater ||

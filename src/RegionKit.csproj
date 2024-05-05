@@ -16,6 +16,8 @@
 		<PackageReadmeFile>../README.md</PackageReadmeFile>
 		<PackageLicenseFile>../LICENSE</PackageLicenseFile>
 		<DebugType>Portable</DebugType>
+		<AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
+    	<PathMap>$(AppOutputBase)=RegionKit\</PathMap>
 	</PropertyGroup>
 	<!-- Debug configuration. Build for release. -->
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

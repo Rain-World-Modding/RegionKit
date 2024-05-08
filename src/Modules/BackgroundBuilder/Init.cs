@@ -28,13 +28,10 @@ internal static class Init
 			c.Emit(OpCodes.Ldarg_0);
 			c.EmitDelegate((RoofTopView self) => 
 			{
-				if (self.room.roomSettings.BackgroundData().realData is Data.RoofTopView_BGData rtv)
+				if (self.room.roomSettings.BackgroundData().sceneData is Data.RoofTopView_SceneData rtv)
 				{ 
 					if(rtv.origin is Vector2 v2)
 					self.sceneOrigo = v2;
-
-					if (rtv.LCMode)
-					{ self.isLC = true; }
 				}
 			});
 		}
@@ -76,10 +73,10 @@ internal static class Init
 		Shader.SetGlobalFloat("_windDir", ModManager.MSC ? -1f : 1f);
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
-		if (data.type != BackgroundTemplateType.AboveCloudsView || data.realData is not Data.AboveCloudsView_BGData)
+		if (data.type != BackgroundTemplateType.AboveCloudsView || data.sceneData is not Data.AboveCloudsView_SceneData)
 		{ data.backgroundName = ""; data.SetBGTypeAndData(BackgroundTemplateType.AboveCloudsView); }
-
-		data.realData.MakeScene(self);
+		data.LoadSceneData(self);
+		data.sceneData.MakeScene(self);
 	}
 
 	private static void RoofTopView_ctor(On.RoofTopView.orig_ctor orig, RoofTopView self, Room room, RoomSettings.RoomEffect effect)
@@ -98,9 +95,9 @@ internal static class Init
 
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
-		if (data.type != BackgroundTemplateType.RoofTopView || data.realData is not Data.RoofTopView_BGData)
+		if (data.type != BackgroundTemplateType.RoofTopView || data.sceneData is not Data.RoofTopView_SceneData)
 		{ data.backgroundName = ""; data.SetBGTypeAndData(BackgroundTemplateType.RoofTopView); }
-
-		data.realData.MakeScene(self);
+		data.LoadSceneData(self);
+		data.sceneData.MakeScene(self);
 	}
 }

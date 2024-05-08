@@ -4,6 +4,8 @@ using System.Text.RegularExpressions;
 using static RoofTopView;
 using static AboveCloudsView;
 using static RegionKit.Modules.BackgroundBuilder.BackgroundElementData;
+using System.Reflection;
+using System;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
@@ -23,6 +25,102 @@ public class BackgroundTemplateType : ExtEnum<BackgroundTemplateType>
 
 internal static class Data
 {
+	#region reflection
+	class BackgroundDataAttribute : Attribute
+	{
+		public string? name = null;
+		public int order = 0;
+		public string? backingFieldName = null; //if backingFieldName isn't null, the serializer will only write if the backing field is assigned
+
+		public bool ShouldWrite<T>(T data)
+		{
+			return backingFieldName == null || typeof(T).GetField(backingFieldName, BF_ALL_CONTEXTS)?.GetValue(data) != null;
+		}
+	}
+	public static List<string> SerializeBackgroundData(BGSceneData data)
+	{
+		return (from pair in GetPropertyAttributes(data)
+				orderby pair.Value.Item2.order
+				//where item.Value.Item2.loadType.HasFlag(BackgroundDataAttribute.LoadType.Write)
+				where pair.Value.Item2.ShouldWrite(data)
+				select pair.Key + ": " + ObjectToString(pair.Value.Item1.GetValue(data))).ToList();
+	}
+
+	public static void ParseBackgroundData(BGSceneData data, string[] fileText)
+	{
+		Dictionary<string, Tuple<PropertyInfo, BackgroundDataAttribute>> attributes = GetPropertyAttributes(data);
+
+		foreach (string line in fileText)
+		{
+			string[] array = Regex.Split(line, ": ");
+			if (array.Length < 2) continue;
+			if (attributes.ContainsKey(array[0]))
+			{
+				try
+				{
+					Type type = attributes[array[0]].Item1.PropertyType;
+					bool nullable = false;
+					if (Nullable.GetUnderlyingType(type) != null)
+					{
+						nullable = true;
+						type = Nullable.GetUnderlyingType(type);
+					}
+					object value = StringToObject(array[1], type);
+					if (value != null || nullable)
+						attributes[array[0]].Item1.SetValue(data, value);
+				}
+				catch (Exception e) { }
+			}
+			else
+			{
+				data.LineToData(line);
+			}
+		}
+	}
+
+	private static Dictionary<string, Tuple<PropertyInfo, BackgroundDataAttribute>> GetPropertyAttributes(BGSceneData data)
+	{
+		Dictionary<string, Tuple<PropertyInfo, BackgroundDataAttribute>> attributes = new();
+		foreach (PropertyInfo prop in data.GetType().GetProperties(BF_ALL_CONTEXTS))
+		{
+			if (prop.GetCustomAttribute(typeof(BackgroundDataAttribute)) is BackgroundDataAttribute attribute)
+			{
+				attributes[attribute.name ?? prop.Name] = new(prop, attribute);
+			}
+		}
+		return attributes;
+	}
+
+	public static string ObjectToString(object obj)
+	{
+		return obj switch
+		{
+			bool => (bool)obj ? "True" : "False",
+			Color => colorToHex((Color)obj),
+			Vector2 => $"{((Vector2)obj).x}, {((Vector2)obj).y}",
+			string => (string)obj,
+			null => "Null",
+			_ => obj.ToString()
+		};
+	}
+
+	public static object StringToObject(string str, Type type)
+	{
+		if (str == "Null") return null;
+
+		if (type == typeof(string)) return str;
+		else if (type == typeof(bool)) return str == "True";
+		else if (type == typeof(int)) return int.Parse(str);
+		else if (type == typeof(float)) return float.Parse(str);
+		else if (type == typeof(Color)) return hexToColor(str);
+		else if (type == typeof(Vector2))
+		{
+			string[] array2 = Regex.Split(str, ",").Select(p => p.Trim()).ToArray();
+			return new Vector2(float.Parse(array2[0]), float.Parse(array2[1]));
+		}
+		return null;
+	}
+	#endregion
 	#region hooks
 	public static void Apply()
 	{
@@ -103,7 +201,9 @@ internal static class Data
 
 		public RoomBGData? parent = null;
 
-		public BGData realData = new();
+		public BGSceneData sceneData = new();
+
+		public SlugcatStats.Name slug = null!;
 
 		/// <summary>
 		/// Checks if data was loaded from txt or serialized from background
@@ -117,7 +217,7 @@ internal static class Data
 			backgroundOffset = Vector2.zero;
 			type = BackgroundTemplateType.None;
 			parent = null;
-			realData = new();
+			sceneData = new();
 		}
 
 		public void FromName(string name, SlugcatStats.Name slug)
@@ -133,6 +233,7 @@ internal static class Data
 		/// </summary>
 		public bool TryGetFromPath(string path, SlugcatStats.Name slug)
 		{
+			this.slug = slug;
 			if (!File.Exists(path)) return false;
 
 			string[] lines = ProcessSlugcatConditions(File.ReadAllLines(path), slug);
@@ -158,7 +259,6 @@ internal static class Data
 
 					case "Type":
 						SetBGTypeAndData((BackgroundTemplateType)ExtEnumBase.Parse(typeof(BackgroundTemplateType), array[1], false));
-
 						break;
 
 					case "Parent":
@@ -173,8 +273,22 @@ internal static class Data
 				}
 				catch (Exception e) { LogError($"BackgroundBuilder: error loading line [{line}]\n{e}"); }
 			}
-			realData.LoadData(lines);
+			//realData.LoadData(lines);
 			return true;
+		}
+		public void LoadSceneData(BackgroundScene scene)
+		{
+			if (parent != null)
+			{
+				parent.LoadSceneData(scene);
+				InheritFromParent();
+			}
+			if (!TryGetPathFromName(backgroundName, out string path) || !File.Exists(path)) return;
+
+			string[] lines = ProcessSlugcatConditions(File.ReadAllLines(path), slug);
+			if (sceneData is AboveCloudsView_SceneData acvd && scene is AboveCloudsView acv) { acvd.Scene = acv; }
+			if (sceneData is RoofTopView_SceneData rtvd && scene is RoofTopView rtv) { rtvd.Scene = rtv; }
+			sceneData.LoadData(lines);
 		}
 
 		/// <summary>
@@ -182,7 +296,7 @@ internal static class Data
 		/// </summary>
 		public void InheritFromTemplate(RoomBGData templateData)
 		{
-			realData = templateData.realData;
+			sceneData = templateData.sceneData;
 			parent = templateData.parent;
 			backgroundOffset = templateData.backgroundOffset;
 			protect = templateData.protect;
@@ -200,7 +314,7 @@ internal static class Data
 
 			backgroundOffset = parent.backgroundOffset;
 			type = parent.type;
-			realData = parent.realData;
+			sceneData = parent.sceneData;
 		}
 
 		public void SetBGTypeAndData(BackgroundTemplateType type)
@@ -210,19 +324,19 @@ internal static class Data
 			this.type = type;
 
 			if (type == BackgroundTemplateType.AboveCloudsView)
-			{ realData = new AboveCloudsView_BGData(); }
+			{ sceneData = new AboveCloudsView_SceneData(); }
 
 			else if (type == BackgroundTemplateType.RoofTopView)
-			{ realData = new RoofTopView_BGData(); }
+			{ sceneData = new RoofTopView_SceneData(); }
 
-			else { realData = new BGData(); }
+			else { sceneData = new BGSceneData(); }
 
 		}
 
 		/// <summary>
 		/// returns the string that goes in background files
 		/// </summary>
-		public string Serialize()
+		public List<string> Serialize()
 		{
 			List<string> lines = new List<string>
 			{
@@ -232,7 +346,7 @@ internal static class Data
 			"---------------",
 			};
 
-			return string.Join("\n", lines) + "\n" + realData.Serialize();
+			return lines.Concat(sceneData.Serialize()).ToList();
 		}
 
 		/// <summary>
@@ -252,21 +366,27 @@ internal static class Data
 		}
 	}
 
-	public partial class BGData
+	public partial class BGSceneData
 	{
-		public virtual string Serialize()
+		public virtual List<string> Serialize()
 		{
 			List<string> list = new();
+			list = SerializeBackgroundData(this);
 			foreach (CustomBgElement element in backgroundElements)
 			{
 				list.Add(element.Serialize());
 			}
-			return string.Join("\n", list);
+			return list;
 		}
 
 		public virtual void MakeScene(BackgroundScene self)
 		{
 			sceneInitialized = true;
+			MakeBackgroundElements(self);
+		}
+
+		public void MakeBackgroundElements(BackgroundScene self)
+		{
 			if (backgroundElements.Count != 0)
 			{
 				self.elements.RemoveAll(x => { if (x.HasInstanceData()) { x.Destroy(); return true; } return false; });
@@ -275,8 +395,9 @@ internal static class Data
 				{
 					try
 					{
-
-						self.AddElement(element.MakeSceneElement(self));
+						var e = element.MakeSceneElement(self);
+						e.CData().dataElement = element;
+						self.AddElement(e);
 					}
 					catch (BackgroundBuilderException bgex)
 					{
@@ -293,12 +414,14 @@ internal static class Data
 				}
 			}
 		}
+
 		public virtual void UpdateSceneElement(string message)
 		{
 		}
 
 		public virtual void LoadData(string[] fileText)
 		{
+			ParseBackgroundData(this, fileText);
 			foreach (string line in fileText)
 			{ LineToData(line); }
 		}
@@ -319,50 +442,232 @@ internal static class Data
 		public bool sceneInitialized = false;
 	}
 
-	public class AboveCloudsView_BGData : BGData
+	public class AboveCloudsView_SceneData : BGSceneData
 	{
+		[BackgroundData]
+		public float startAltitude 
+		{ 
+			get => _startAltitude ?? Scene?.startAltitude ?? 20000; 
+			set { 
+				_startAltitude = value;
+				if (Scene != null)
+				{
+					Scene.startAltitude = value;
+					Scene.sceneOrigo = new Vector2(2514f, (startAltitude + endAltitude) / 2f);
+				}
+			}
+		}
 
-		public float startAltitude;
-		public float endAltitude;
-		public float cloudsStartDepth;
-		public float cloudsEndDepth;
-		public float distantCloudsEndDepth;
-		public float cloudsCount;
-		public float distantCloudsCount;
-		public float curveCloudDepth;
-		public float overrideYStart;
-		public float overrideYEnd;
+		[BackgroundData]
+		public float endAltitude 
+		{ 
+			get => _endAltitude ?? Scene?.endAltitude ?? 31400; 
+			set { 
+				_endAltitude = value; if (Scene != null)
+				{
+					Scene.endAltitude = value;
+					Scene.sceneOrigo = new Vector2(2514f, (startAltitude + endAltitude) / 2f);
+				}
+			}
+		}
 
-		public float windDir;
+		[BackgroundData]
+		public float cloudsStartDepth 
+		{ 
+			get => _cloudsStartDepth ?? Scene?.cloudsStartDepth ?? 5; 
+			set
+			{
+				redoClouds |= value != cloudsStartDepth; 
+				_cloudsStartDepth = value; 
+				if (Scene != null) Scene.cloudsStartDepth = value; 
+			}
+		}
 
-		public Color atmosphereColor;
+		[BackgroundData]
+		public float cloudsEndDepth 
+		{ 
+			get => _cloudsEndDepth ?? Scene?.cloudsEndDepth ?? 40; 
+			set
+			{
+				redoClouds |= value != cloudsEndDepth;
+				_cloudsEndDepth = value; 
+				if (Scene != null) Scene.cloudsEndDepth = value; 
+			}
+		}
 
-		public string daySky;
+		[BackgroundData]
+		public float distantCloudsEndDepth 
+		{ 
+			get => _distantCloudsEndDepth ?? Scene?.distantCloudsEndDepth ?? 200; 
+			set 
+			{
+				redoClouds |= value != distantCloudsEndDepth;
+				_distantCloudsEndDepth = value;
+				if (Scene != null) Scene.distantCloudsEndDepth = value;
+			}
+		}
 
-		public string duskSky;
+		[BackgroundData]
+		public float cloudsCount
+		{
+			get => _cloudsCount ?? Scene?.elements.Where(x => x is CloseCloud).Count() ?? 7;
+			set
+			{
+				redoClouds |= value != cloudsCount;
+				_cloudsCount = value;
+			}
+		}
 
-		public string nightSky;
+		[BackgroundData]
+		public float distantCloudsCount
+		{
+			get => _distantCloudsCount ?? Scene?.elements.Where(x => x is DistantCloud).Count() ?? 11; 
+			set
+			{
+				redoClouds |= value != distantCloudsCount;
+				_distantCloudsCount = value;
+			}
+		}
+
+		[BackgroundData(backingFieldName = nameof(_curveCloudDepth))]
+		public float curveCloudDepth
+		{
+			get => _curveCloudDepth ?? 1;
+			set
+			{
+				redoClouds |= value != curveCloudDepth;
+				_curveCloudDepth = value;
+			}
+		}
+
+		[BackgroundData(backingFieldName = nameof(_overrideYStart))]
+		public float overrideYStart
+		{
+			get => _overrideYStart ?? -40 * cloudsEndDepth; 
+			set
+			{
+				redoClouds |= value != overrideYStart;
+				_overrideYStart = value;
+			}
+		}
+
+		[BackgroundData(backingFieldName = nameof(_overrideYEnd))]
+		public float overrideYEnd
+		{
+			get => _overrideYEnd ?? 0; 
+			set
+			{
+				redoClouds |= value != overrideYEnd;
+				_overrideYEnd = value;
+			}
+		}
+
+		[BackgroundData(backingFieldName = nameof(_windDir))]
+		public float windDir
+		{
+			get => _windDir ?? Shader.GetGlobalFloat("_windDir"); 
+			set
+			{
+				_windDir = value;
+				if (Scene != null)
+					Shader.SetGlobalFloat("_windDir", value);
+			}
+		}
+
+		[BackgroundData(backingFieldName = nameof(_atmosphereColor))]
+		public Color atmosphereColor
+		{
+			get => _atmosphereColor ?? Scene?.atmosphereColor ?? new Color(0.16078432f, 0.23137255f, 0.31764707f); 
+			set
+			{
+				_atmosphereColor = value;
+				if (Scene != null)
+				{
+					Scene.atmosphereColor = value;
+					Shader.SetGlobalVector(RainWorld.ShadPropAboveCloudsAtmosphereColor, value);
+				}
+			}
+		}
+
+		[BackgroundData(backingFieldName = nameof(_multiplyColor))]
+		public Color multiplyColor
+		{
+			get => _multiplyColor ?? Color.white;
+			set
+			{
+				_multiplyColor = value;
+				if (Scene != null)
+					Shader.SetGlobalVector(RainWorld.ShadPropMultiplyColor, value);
+			}
+		}
+
+		[BackgroundData]
+		public string daySky
+		{
+			get => _daySky ?? Scene?.daySky.illustrationName ?? "AtC_Sky"; 
+			set
+			{
+				_daySky = value;
+				if (DoesTextureExist(value) && Scene != null)
+				{
+					Scene.LoadGraphic(value, true, true);
+					Scene.daySky.illustrationName = value;
+				}
+			}
+		}
+
+		[BackgroundData]
+		public string duskSky
+		{
+			get => _duskSky ?? Scene?.duskSky.illustrationName ?? "AtC_DuskSky"; 
+			set
+			{
+				_duskSky = value;
+				if (DoesTextureExist(value) && Scene != null)
+				{
+					Scene.LoadGraphic(value, true, true);
+					Scene.duskSky.illustrationName = value;
+				}
+			}
+		}
+
+		[BackgroundData]
+		public string nightSky
+		{
+			get => _nightSky ?? Scene?.nightSky.illustrationName ?? "AtC_NightSky"; 
+			set
+			{
+				_nightSky = value;
+				if (DoesTextureExist(value) && Scene != null)
+				{
+					Scene.LoadGraphic(value, true, true);
+					Scene.nightSky.illustrationName = value;
+				}
+			}
+		}
+
+		#region backingfields
+		private string? _daySky;
+		private string? _duskSky;
+		private string? _nightSky;
+		private float? _startAltitude;
+		private float? _endAltitude;
+		private float? _cloudsStartDepth;
+		private float? _cloudsEndDepth;
+		private float? _distantCloudsEndDepth;
+		private float? _cloudsCount;
+		private float? _distantCloudsCount;
+		private float? _curveCloudDepth;
+		private float? _overrideYStart;
+		private float? _overrideYEnd;
+		private float? _windDir;
+		private Color? _atmosphereColor;
+		private Color? _multiplyColor;
+		#endregion
+
+		public bool redoClouds;
 
 		public AboveCloudsView? Scene;
-
-		public AboveCloudsView_BGData()
-		{
-			startAltitude = float.MaxValue;
-			endAltitude = float.MaxValue;
-			cloudsStartDepth = float.MaxValue;
-			cloudsEndDepth = float.MaxValue;
-			distantCloudsEndDepth = float.MaxValue;
-			cloudsCount = float.MaxValue;
-			distantCloudsCount = float.MaxValue;
-			curveCloudDepth = float.MaxValue;
-			overrideYStart = float.MaxValue;
-			overrideYEnd = float.MaxValue;
-			windDir = float.MaxValue;
-			daySky = "";
-			duskSky = "";
-			nightSky = "";
-			atmosphereColor = Color.black;
-		}
 
 		public override void MakeScene(BackgroundScene self)
 		{
@@ -370,99 +675,47 @@ internal static class Data
 
 			Scene = acv;
 
-			Scene.SyncAndLoadIfTextureNameExists(ref daySky, ref acv.daySky.illustrationName);
-
-			Scene.SyncAndLoadIfTextureNameExists(ref duskSky, ref acv.duskSky.illustrationName);
-
-			Scene.SyncAndLoadIfTextureNameExists(ref nightSky, ref acv.nightSky.illustrationName);
-
-			if (SyncIfDefault(ref atmosphereColor, ref acv.atmosphereColor))
-			{
-				Shader.SetGlobalVector("_AboveCloudsAtmosphereColor", atmosphereColor);
-			}
-
-			float wind = Shader.GetGlobalFloat("_windDir");
-			if (SyncIfDefault(ref windDir, ref wind))
-			{ Shader.SetGlobalFloat("_windDir", wind); }
-
-			SyncIfDefault(ref startAltitude, ref acv.startAltitude);
-			SyncIfDefault(ref endAltitude, ref acv.endAltitude);
-
-			bool redoClouds = SyncIfDefault(ref cloudsStartDepth, ref acv.cloudsStartDepth);
-
-			redoClouds = SyncIfDefault(ref cloudsEndDepth, ref acv.cloudsEndDepth) || redoClouds;
-			redoClouds = SyncIfDefault(ref distantCloudsEndDepth, ref acv.distantCloudsEndDepth) || redoClouds;
-
-			float count = acv.elements.Where(x => x is CloseCloud).Count();
-			redoClouds = SyncIfDefault(ref cloudsCount, ref count) || redoClouds;
-
-			count = acv.elements.Where(x => x is DistantCloud).Count();
-			redoClouds = SyncIfDefault(ref distantCloudsCount, ref count) || redoClouds;
-
-			count = 1;
-			redoClouds = SyncIfDefault(ref curveCloudDepth, ref count) || redoClouds;
-
-			count = -40 * cloudsEndDepth;
-			redoClouds = SyncIfDefault(ref overrideYStart, ref count) || redoClouds;
-
-			count = 0;
-			redoClouds = SyncIfDefault(ref overrideYEnd, ref count) || redoClouds;
-
-			self.sceneOrigo = new Vector2(2514f, (acv.startAltitude + acv.endAltitude) / 2f);
-
 			base.MakeScene(self);
 
 			if (redoClouds)
 			{
-				//reset clouds
-				self.elements.RemoveAll(x => { if (x is Cloud) { x.Destroy(); return true; } return false; });
-				Scene.clouds = new();
-
-				for (int i = 0; i < cloudsCount; i++)
-				{
-					float cloudDepth = i / (cloudsCount - 1f);
-					CloseCloud cloud = new CloseCloud(acv, new Vector2(0f, 0f), cloudDepth, i);
-					self.AddElement(cloud);
-				}
-
-				for (int j = 0; j < distantCloudsCount; j++)
-				{
-					float num15 = j / (distantCloudsCount - 1f);
-					num15 = Mathf.Pow(num15, curveCloudDepth);
-					DistantCloud dcloud = new DistantCloud(Scene, new Vector2(0f, Mathf.Lerp(overrideYStart, overrideYEnd, num15)), num15, j);
-					Scene.AddElement(dcloud);
-				}
+				RedoClouds(acv);
+				redoClouds = false;
 			}
 		}
 
-		public override string Serialize()
+		public void RedoClouds(AboveCloudsView scene)
 		{
-			List<string> lines = new List<string>
+			scene.elements.RemoveAll(x => { if (x is Cloud) { x.Destroy(); return true; } return false; });
+			scene.clouds = new();
+
+			for (int i = 0; i < cloudsCount; i++)
 			{
-				$"startAltitude: {startAltitude}",
-				$"endAltitude: {endAltitude}",
-				$"cloudsStartDepth: {cloudsStartDepth}",
-				$"cloudsEndDepth: {cloudsEndDepth}",
-				$"distantCloudsEndDepth: {distantCloudsEndDepth}",
-				$"cloudsCount: {cloudsCount}",
-				$"distantCloudsCount: {distantCloudsCount}",
-				$"curveCloudDepth: {curveCloudDepth}",
-				$"daySky: {daySky}",
-				$"duskSky: {duskSky}",
-				$"nightSky: {nightSky}"
-			};
+				float cloudDepth = i / (cloudsCount - 1f);
+				CloseCloud cloud = new CloseCloud(scene, new Vector2(0f, 0f), cloudDepth, i);
+				scene.AddElement(cloud);
+			}
 
-			if (curveCloudDepth != 1) lines.Add($"curveCloudDepth: {curveCloudDepth}");
-			if (overrideYStart != -40 * cloudsEndDepth) lines.Add($"overrideYStart: {overrideYStart}");
-			if (overrideYEnd != 0) lines.Add($"overrideYEnd: {overrideYEnd}");
+			for (int j = 0; j < distantCloudsCount; j++)
+			{
+				float num15 = j / (distantCloudsCount - 1f);
+				num15 = Mathf.Pow(num15, curveCloudDepth);
+				var dcloud = new DistantCloud(scene, new Vector2(0f, Mathf.Lerp(overrideYStart, overrideYEnd, num15)), num15, j);
+				scene.AddElement(dcloud);
+			}
+		}
 
+		public override List<string> Serialize()
+		{
+			List<string> lines = new();
+
+			LogMessage("\nCLOUD DEPTHS\nshouldn't go in background file, but useful for positioning\n");
 			foreach (DistantCloud cloud in (Scene?.clouds ?? new()).Where(x => x is DistantCloud))
 			{
-				LogMessage("\nCLOUD DEPTHS\nshouldn't go in background file, but useful for positioning\n");
 				LogMessage($"distantCloud: {cloud.pos.x}, {cloud.pos.y}, {cloud.depth}, {cloud.distantCloudDepth}");
 			}
 
-			return string.Join("\n", lines) + "\n\n" + base.Serialize();
+			return lines.Concat(base.Serialize()).ToList();
 
 		}
 
@@ -477,32 +730,7 @@ internal static class Data
 
 			if (message == "CloudAmount")
 			{
-				foreach (BackgroundScene.BackgroundSceneElement element in Scene.elements.ToList())
-				{
-					if (element is DistantCloud or CloseCloud)
-					{
-						element.Destroy();
-						Scene.elements.Remove(element);
-					}
-				}
-
-				int num = (int)cloudsCount;
-				for (int i = 0; i < num; i++)
-				{
-					float cloudDepth = i / (float)(num - 1);
-					CloseCloud cloud = new CloseCloud(Scene, new Vector2(0f, 0f), cloudDepth, i);
-					cloud.CData().needsAddToRoom = true;
-					Scene.AddElement(cloud);
-				}
-
-				num = (int)distantCloudsCount;
-				for (int j = 0; j < num; j++)
-				{
-					float num15 = j / (float)(num - 1);
-					DistantCloud dcloud = new DistantCloud(Scene, new Vector2(0f, -40f * Scene.cloudsEndDepth * (1f - num15)), num15, j);
-					dcloud.CData().needsAddToRoom = true;
-					Scene.AddElement(dcloud);
-				}
+				RedoClouds(Scene);
 			}
 
 			if (message == "atmoUpdate")
@@ -521,66 +749,6 @@ internal static class Data
 
 			switch (array[0])
 			{
-			case "startAltitude":
-				startAltitude = float.Parse(array[1].Trim());
-				break;
-
-			case "endAltitude":
-				endAltitude = float.Parse(array[1].Trim());
-				break;
-
-			case "cloudsStartDepth":
-				cloudsStartDepth = float.Parse(array[1].Trim());
-				break;
-
-			case "cloudsEndDepth":
-				cloudsEndDepth = float.Parse(array[1].Trim());
-				break;
-
-			case "distantCloudsEndDepth":
-				distantCloudsEndDepth = float.Parse(array[1].Trim());
-				break;
-
-			case "cloudsCount":
-				cloudsCount = float.Parse(array[1].Trim());
-				break;
-
-			case "distantCloudsCount":
-				distantCloudsCount = float.Parse(array[1].Trim());
-				break;
-
-			case "curveCloudDepth":
-				curveCloudDepth = float.Parse(array[1].Trim());
-				break;
-
-			case "overrideYStart":
-				overrideYStart = float.Parse(array[1].Trim());
-				break;
-
-			case "overrideYEnd":
-				overrideYEnd = float.Parse(array[1].Trim());
-				break;
-
-			case "windDirection":
-				windDir = float.Parse(array[1].Trim());
-				break;
-
-			case "daySky":
-				daySky = array[1];
-				break;
-
-			case "duskSky":
-				duskSky = array[1];
-				break;
-
-			case "nightSky":
-				nightSky = array[1];
-				break;
-
-			case "atmosphereColor":
-				atmosphereColor = hexToColor(array[1]);
-				break;
-
 			case "DistantBuilding":
 			case "DistantLightning":
 			case "FlyingCloud":
@@ -591,29 +759,119 @@ internal static class Data
 		}
 	}
 
-	public class RoofTopView_BGData : BGData
+	public class RoofTopView_SceneData : BGSceneData
 	{
-		public Vector2? origin;
+		[BackgroundData]
+		public float floorLevel
+		{
+			get => _floorLevel ?? Scene?.floorLevel ?? 26; 
+			set
+			{
+				_floorLevel = value;
+				if (Scene != null)
+				{
+					UpdateFloorLevel(floorLevel - Scene.floorLevel);
+					Scene.floorLevel = value;
+				}
+			}
+		}
 
-		public bool LCMode;
+		[BackgroundData]
+		public string daySky
+		{
+			get => _daySky ?? Scene?.daySky.illustrationName ?? "AtC_Sky";
+			set
+			{
+				_daySky = value;
+				if (DoesTextureExist(value) && Scene != null)
+				{
+					Scene.LoadGraphic(value, true, true);
+					Scene.daySky.illustrationName = value;
+				}
+			}
+		}
 
-		public float floorLevel;
+		[BackgroundData]
+		public string duskSky
+		{
+			get => _duskSky ?? Scene?.duskSky.illustrationName ?? "AtC_DuskSky";
+			set
+			{
+				_duskSky = value;
+				if (DoesTextureExist(value) && Scene != null)
+				{
+					Scene.LoadGraphic(value, true, true);
+					Scene.duskSky.illustrationName = value;
+				}
+			}
+		}
 
-		public string daySky;
+		[BackgroundData]
+		public string nightSky
+		{
+			get => _nightSky ?? Scene?.nightSky.illustrationName ?? "AtC_NightSky";
+			set
+			{
+				_nightSky = value;
+				if (DoesTextureExist(value) && Scene != null)
+				{
+					Scene.LoadGraphic(value, true, true);
+					Scene.nightSky.illustrationName = value;
+				}
+			}
+		}
 
-		public string duskSky;
+		[BackgroundData]
+		public Vector2? origin
+		{
+			get => _origin; 
+			set
+			{
+				_origin = value;
+				if (Scene is RoofTopView rtv && value is Vector2 v)
+				{
+					rtv.sceneOrigo = v;
+					Shader.SetGlobalVector(RainWorld.ShadPropSceneOrigoPosition, v);
+				}
+			}
+		}
 
-		public string nightSky;
+		[BackgroundData(backingFieldName = nameof(_atmosphereColor))]
+		public Color atmosphereColor
+		{
+			get => _atmosphereColor ?? Scene?.atmosphereColor ?? new Color(0.16078432f, 0.23137255f, 0.31764707f);
+			set
+			{
+				_atmosphereColor = value;
+				if (Scene != null) Scene.atmosphereColor = value;
+				Shader.SetGlobalVector(RainWorld.ShadPropAboveCloudsAtmosphereColor, value);
+			}
+		}
+
+		[BackgroundData(backingFieldName = nameof(_multiplyColor))]
+		public Color multiplyColor
+		{
+			get => _multiplyColor ?? Color.white;
+			set
+			{
+				_multiplyColor = value;
+				if (Scene != null)
+					Shader.SetGlobalVector(RainWorld.ShadPropMultiplyColor, value);
+			}
+		}
+
+		#region backingfields
+		private Vector2? _origin;
+		private bool? lCMode;
+		private float? _floorLevel;
+		private string? _daySky;
+		private string? _duskSky;
+		private string? _nightSky;
+		private Color? _atmosphereColor;
+		private Color? _multiplyColor;
+		#endregion
 
 		public RoofTopView? Scene;
-
-		public RoofTopView_BGData()
-		{
-			floorLevel = float.MaxValue;
-			daySky = "";
-			duskSky = "";
-			nightSky = "";
-		}
 
 		public override void MakeScene(BackgroundScene self)
 		{
@@ -621,55 +879,31 @@ internal static class Data
 
 			Scene = rtv;
 
-			if (Scene.floorLevel != floorLevel && floorLevel != float.MaxValue)
-			{
-				foreach (BackgroundScene.BackgroundSceneElement element in Scene.elements)
-				{
-					if (element is RoofTopView.DistantBuilding or Building or Floor or RoofTopView.Smoke or Rubble)
-					{ element.pos.y += floorLevel - Scene.floorLevel; }
-				}
-				Scene.floorLevel = floorLevel;
-			}
-			SyncIfDefault(ref floorLevel, ref rtv.floorLevel);
-
-			Scene.SyncAndLoadIfTextureNameExists(ref daySky, ref rtv.daySky.illustrationName);
-
-			Scene.SyncAndLoadIfTextureNameExists(ref duskSky, ref rtv.duskSky.illustrationName);
-
-			Scene.SyncAndLoadIfTextureNameExists(ref nightSky, ref rtv.nightSky.illustrationName);
-
-
 			base.MakeScene(self);
 		}
 
-		public override string Serialize()
+		public void UpdateFloorLevel(float difference)
 		{
-			List<string> lines = new List<string>
+			if (Scene == null) return;
+			foreach (BackgroundScene.BackgroundSceneElement element in Scene.elements)
 			{
-				$"floorLevel: {floorLevel}",
-				$"daySky: {daySky}",
-				$"duskSky: {duskSky}",
-				$"nightSky: {nightSky}"
-			};
+				if (element is RoofTopView.DistantBuilding or Building or Floor or RoofTopView.Smoke or Rubble)
+				{ element.pos.y += difference; }
+			}
+		}
+
+		public override List<string> Serialize()
+		{
+			List<string> lines = new();
 
 			if (origin is Vector2 v) lines.Add($"origin: {v.x}, {v.y}");
 
-			return string.Join("\n", lines) + "\n" + base.Serialize();
+			return lines.Concat(base.Serialize()).ToList();
 		}
 
 		public override void UpdateSceneElement(string message)
 		{
 			if (Scene == null) return;
-
-			if (Scene.floorLevel != floorLevel)
-			{
-				foreach (BackgroundScene.BackgroundSceneElement element in Scene.elements)
-				{
-					if (element is RoofTopView.DistantBuilding or Building or Floor or RoofTopView.Smoke or Rubble)
-					{ element.pos.y += floorLevel - Scene.floorLevel; }
-				}
-				Scene.floorLevel = floorLevel;
-			}
 		}
 
 		public override void LineToData(string line)
@@ -681,32 +915,6 @@ internal static class Data
 
 			switch (array[0])
 			{
-			case "origin":
-				string[] array2 = Regex.Split(array[1], ", ");
-				if (array2.Length >= 2 && float.TryParse(array2[0], out float x) && float.TryParse(array2[1], out float y))
-					{ origin = new(x, y); }
-			break;
-
-			case "LCMode":
-				LCMode = true;
-				break;
-
-			case "floorLevel":
-				floorLevel = float.Parse(array[1].Trim());
-				break;
-
-			case "daySky":
-				daySky = array[1];
-				break;
-
-			case "duskSky":
-				duskSky = array[1];
-				break;
-
-			case "nightSky":
-				nightSky = array[1];
-				break;
-
 			case "DistantBuilding":
 				if (TryGetBgElementFromString("RF_" + line, out CustomBgElement element))
 				{ backgroundElements.Add(element); }
@@ -733,37 +941,6 @@ internal static class Data
 			else { return false; }
 		}
 		catch { return false; }
-	}
-
-	public static bool SyncIfDefault(ref float one, ref float two)
-	{
-		if (one != float.MaxValue)
-		{ two = one; return true; }
-		else { one = two; return false; }
-	}
-
-	public static bool SyncIfDefault(ref Color one, ref Color two)
-	{
-		if (one != Color.black)
-		{ two = one; return true; }
-		else { one = two; return false; }
-	}
-
-	public static bool SyncAndLoadIfTextureNameExists(this BackgroundScene scene, ref string newName, ref string currentName, bool crispPixels = true, bool clampWrapMode = true)
-	{
-		if (SyncIfTextureNameExists(ref newName, ref currentName))
-		{
-			scene.LoadGraphic(newName, crispPixels, clampWrapMode);
-			return true;
-		}
-		return false;
-	}
-
-	public static bool SyncIfTextureNameExists(ref string newName, ref string currentName)
-	{
-		if (DoesTextureExist(newName))
-		{ currentName = newName; return true; }
-		else { newName = currentName; return false; }
 	}
 
 	public static bool DoesTextureExist(string name)

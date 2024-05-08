@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using static RegionKit.Modules.BackgroundBuilder.Data;
 
 namespace RegionKit.Modules.BackgroundBuilder;
@@ -14,7 +12,7 @@ internal static class BackgroundElementData
 	public static bool TryGetBgElementFromString(string line, out CustomBgElement element)
 	{
 		element = null!;
-		string[] array = Regex.Split(line, ": ");
+		string[] array = Regex.Split(line, ":").Select(p => p.Trim()).ToArray();
 		if (array.Length < 2) return false;
 
 		string[] args = Regex.Split(array[1], ", ");
@@ -39,7 +37,7 @@ internal static class BackgroundElementData
 		catch (Exception e) { LogError($"BackgroundBuilder: error loading background element from string [{line}]\n{e}"); return false; }
 
 		if (array.Length > 2)
-		{ Array.Copy(array, 2, element.tags, 0, array.Length - 2); }
+		{ element.ParseExtraTags(array.Skip(2).ToList()); }
 
 		return element != null;
 	}
@@ -67,24 +65,69 @@ internal static class BackgroundElementData
 
 		public float depth;
 
+		public Vector2? anchorPos = null;
+
+		public float? spriteScale = null;
+
 		public BackgroundScene.BackgroundSceneElement? element;
 
-		public string[] tags;
+		public List<string> unrecognizedTags;
 
 		protected CustomBgElement(Vector2 pos, float depth)
 		{
 			this.pos = pos;
 			this.depth = depth;
-			tags = new string[0];
+			unrecognizedTags = new();
 		}
 
 		public abstract string Serialize(); // Saves data for this individual element
+
+		public virtual string SerializeTags()
+		{
+			List<string> tags = new();
+			if (anchorPos is Vector2 v) tags.Add($"anchor|{v.x}, {v.y}");
+			if (spriteScale is float f) tags.Add($"scale|{f}");
+			return " : " + string.Join(" : ", tags.Concat(unrecognizedTags));
+		}
 
 		//public abstract PositionedDevUINode MakeDevUI(); // Called when opening the dev menu to allow editing
 		public abstract BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self); // Called when opening the scene
 
 		public abstract void UpdateSceneElement(); // Applies changes to the scene element, called when loaded or the dev UI changes
 
+		public virtual void ParseExtraTags(List<string> tags)
+		{
+			//this logic is bad still, need to find a better system (or just use reflection :3)
+			foreach (string tag in tags)
+			{
+				string[] split = tag.Split('|');
+				if (split.Length >= 2 && ParseTag(split[0], split[1]))
+				{
+					continue;
+				}
+				unrecognizedTags.Add(tag);
+			}
+		}
+
+		public virtual bool ParseTag(string tag, string value)
+		{
+			switch (tag.ToLower())
+			{
+			case "scale":
+				spriteScale = float.Parse(value);
+				return true;
+
+			case "anchor":
+				string[] array2 = Regex.Split(value, ",").Select(p => p.Trim()).ToArray();
+				if (array2.Length >= 2 && float.TryParse(array2[0], out float x) && float.TryParse(array2[1], out float y))
+				{
+					anchorPos = new(x, y);
+					return true;
+				}
+				else return false;
+			default: return false;
+			}
+		}
 	}
 	#region AboveCloudsView
 	public class ACV_DistantBuilding : CustomBgElement
@@ -191,7 +234,7 @@ internal static class BackgroundElementData
 		{
 			if (self is not RoofTopView rtv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 
-			return new RoofTopView.Floor(rtv, assetName, new Vector2(0f, rtv.floorLevel), fromDepth, toDepth);
+			return new RoofTopView.Floor(rtv, assetName, new Vector2(0f, rtv.floorLevel) + pos, fromDepth, toDepth);
 		}
 
 		public override string Serialize() => $"Floor: {assetName}, {pos.x}, {pos.y}, {fromDepth}, {toDepth}";
@@ -242,8 +285,7 @@ internal static class BackgroundElementData
 		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
 		{
 			if (self is not RoofTopView rtv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
-
-			return new RoofTopView.Building(rtv, assetName, new Vector2(DefaultNeutralPos(pos, depth).x, rtv.floorLevel + pos.y), depth, scale);
+			return new RoofTopView.Building(rtv, assetName, new Vector2(DefaultNeutralPos(new Vector2(pos.x, pos.y), depth).x, rtv.floorLevel + pos.y), depth, scale);
 		}
 
 		public override string Serialize() => $"Building: {assetName}, {pos.x}, {pos.y}, {depth}, {scale}";
@@ -302,6 +344,7 @@ internal static class BackgroundElementData
 		float alpha;
 		float shaderInputColor;
 		bool shaderType;
+		public string? spriteName = null;
 
 		public RTV_Smoke(Vector2 pos, float depth, float flattened, float alpha, float shaderInputColor, bool shaderType) : base(pos, depth)
 		{
@@ -323,6 +366,16 @@ internal static class BackgroundElementData
 		public override void UpdateSceneElement()
 		{
 
+		}
+
+		public override bool ParseTag(string tag, string value)
+		{
+			if (tag.ToLower() == "spritename")
+			{
+				spriteName = value;
+				return true;
+			}
+			return base.ParseTag(tag, value);
 		}
 	}
 

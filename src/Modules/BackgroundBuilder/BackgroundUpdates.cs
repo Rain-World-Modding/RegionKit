@@ -13,15 +13,49 @@ internal static class BackgroundUpdates
 {
 	public static void Apply()
 	{
-		On.BackgroundScene.Update += BackgroundScene_Update;
+		//On.BackgroundScene.Update += BackgroundScene_Update;
 		On.BackgroundScene.BackgroundSceneElement.DrawSprites += BackgroundSceneElement_DrawSprites;
-		On.BackgroundScene.BackgroundSceneElement.DrawPos += BackgroundSceneElement_DrawPos;
+		On.BackgroundScene.BackgroundSceneElement.InitiateSprites += BackgroundSceneElement_InitiateSprites;
+		//On.BackgroundScene.BackgroundSceneElement.DrawPos += BackgroundSceneElement_DrawPos;
+		On.RoofTopView.Building.InitiateSprites += Building_InitiateSprites;
+		On.RoofTopView.DistantBuilding.InitiateSprites += Building_InitiateSprites;
+		On.AboveCloudsView.DistantBuilding.InitiateSprites += Building_InitiateSprites;
+		On.AboveCloudsView.DistantLightning.InitiateSprites += Building_InitiateSprites;
+		On.RoofTopView.Smoke.InitiateSprites += Building_InitiateSprites;
+	}
+
+	private static void Building_InitiateSprites<T, S>(T orig, S self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
+		where T : Delegate
+		where S : BackgroundScene.BackgroundSceneElement
+	{
+		orig.DynamicInvoke(self, sLeaser, rCam);
+		if (self.CData().dataElement?.anchorPos is Vector2 anchor)
+		{
+			foreach (FSprite sprite in sLeaser.sprites)
+			{ sprite.SetAnchor(anchor); }
+		}
+		if (self is RoofTopView.Smoke && self.CData().dataElement is BackgroundElementData.RTV_Smoke dsmoke && dsmoke.spriteName != null)
+		{
+			self.scene.LoadGraphic(dsmoke.spriteName, false, false);
+			sLeaser.sprites[0].SetElementByName(dsmoke.spriteName);
+		}
+	}
+
+	private static void BackgroundSceneElement_InitiateSprites(On.BackgroundScene.BackgroundSceneElement.orig_InitiateSprites orig, BackgroundScene.BackgroundSceneElement self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
+	{
+		orig(self, sLeaser, rCam);
+
+		if (self.CData().dataElement?.anchorPos is Vector2 anchor)
+		{
+			foreach (FSprite sprite in sLeaser.sprites)
+			{ sprite.SetAnchor(anchor); }
+		}
 	}
 
 	private static Vector2 BackgroundSceneElement_DrawPos(On.BackgroundScene.BackgroundSceneElement.orig_DrawPos orig, BackgroundScene.BackgroundSceneElement self, Vector2 camPos, float hDisplace)
 	{
-		if (Input.GetKeyDown("v"))
-		{ LogMessage($"name is [{GetSpriteOfElement(self)?._atlas.name}] and pos is {orig(self, camPos, hDisplace)} and depth is {self.depth}"); }
+		//if (Input.GetKeyDown("v"))
+		//{ LogMessage($"name is [{GetSpriteOfElement(self)?._atlas.name}] and pos is {orig(self, camPos, hDisplace)} and depth is {self.depth}"); }
 		Vector2 offset = new Vector2();
 		return orig(self, camPos, hDisplace) - offset;
 	}
@@ -61,7 +95,20 @@ internal static class BackgroundUpdates
 				{ sprite.MoveInFrontOfOtherNode(otherNode); }
 			}
 		}
+
 		orig(self, sLeaser, rCam, timeStacker, camPos);
+
+		if (self.CData().dataElement?.spriteScale is float scale)
+		{
+			foreach (FSprite sprite in sLeaser.sprites)
+			{ 
+				sprite.scale = scale;
+				if (self is Building building)
+				{
+					sLeaser.sprites[0].color = new Color(building.elementSize.x * building.scale / 4000f, building.elementSize.y * building.scale / 1500f, 1f / (self.depth / 20f));
+				}
+			}
+		}
 	}
 
 
@@ -210,15 +257,16 @@ internal static class BackgroundUpdates
 	static bool ActiveDrag;
 
 
-	private static readonly ConditionalWeakTable<BackgroundScene.BackgroundSceneElement, BoolClass> table = new();
+	private static readonly ConditionalWeakTable<BackgroundScene.BackgroundSceneElement, InstanceData> table = new();
 
-	public static BoolClass CData(this BackgroundScene.BackgroundSceneElement p) => table.GetValue(p, _ => new BoolClass());
+	public static InstanceData CData(this BackgroundScene.BackgroundSceneElement p) => table.GetValue(p, _ => new InstanceData());
 
-	public class BoolClass
+	public class InstanceData
 	{
 		public bool DepthUpdate = false;
 		public bool needsAddToRoom = false;
 		public bool ReInitiateSprites = false;
+		public BackgroundElementData.CustomBgElement? dataElement = null;
 	}
 
 }

@@ -25,7 +25,6 @@ public static class _Module
 		Init.Apply();
 		BuilderPageHooks.Apply();
 		ExceptionFixes.Apply();
-		return; //still wip
 		BackgroundUpdates.Apply();
 	}
 	internal static void Disable()
@@ -34,8 +33,6 @@ public static class _Module
 		Init.Undo();
 		BuilderPageHooks.Undo();
 		ExceptionFixes.Undo();
-		return; //still wip
-		//BuilderPage.Undo();
 	}
 
 }

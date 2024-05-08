@@ -24,8 +24,8 @@ public sealed class ModOptions : OptionsTemplate
         "When checked, Iggy will appear in the devtools menu to describe various elements of the UI.", null, "",
         "Enable Iggy?"));
 
-	public static Configurable<bool> DisableRant { get; } = Instance.config.Bind(nameof(DisableRant), false, new ConfigurableInfo(
-		"When checked, disables the rant that has a chance to be logged to the console on startup.", null, "",
+	public static Configurable<bool> EnableRant { get; } = Instance.config.Bind(nameof(EnableRant), false, new ConfigurableInfo(
+		"When checked, enables the rant that has a chance to be logged to the console on startup.", null, "",
 		"Disable Rant?"));
 
 	public static Configurable<bool> AltGateArt { get; } = Instance.config.Bind(nameof(AltGateArt), false, new ConfigurableInfo(
@@ -58,7 +58,7 @@ public sealed class ModOptions : OptionsTemplate
 		AddCheckBox(AltGateArt);
 		DrawCheckBoxes(ref Tabs[tabIndex]);
 
-		AddCheckBox(DisableRant);
+		AddCheckBox(EnableRant);
 		DrawCheckBoxes(ref Tabs[tabIndex]);
 
 

@@ -13,6 +13,6 @@ public static class TheRitual
 				throw new Joar();
 			}
 		}
-		if (UnityEngine.Random.value < 0.05 && !ModOptions.DisableRant.Value) throw new Joar();
+		if (UnityEngine.Random.value < 0.05 && ModOptions.EnableRant.Value) throw new Joar();
 	}
 }

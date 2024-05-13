@@ -249,10 +249,6 @@ namespace RegionKit.Modules.Effects
 					{
 						flyDir += Custom.DirVec(creatureAvoider.currentWorstCrit.DangerPos, pos) * creatureAvoider.FleeSpeed * Random.value * 3f;
 					}
-					else if (Vector2.Distance(pos, mySwarm.placedObject.pos) > mySwarm.insectGroupData.Rad)
-					{
-						flyDir += Custom.DirVec(pos, mySwarm.placedObject.pos) * Mathf.Pow(Random.value, 2f) * 0.05f;
-					}
 
 					if (pos.x < 0f)
 					{

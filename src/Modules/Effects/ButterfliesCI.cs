@@ -26,7 +26,8 @@ namespace RegionKit.Modules.Effects
 
 		private static bool InsectCoordinator_TileLegalForInsect(On.InsectCoordinator.orig_TileLegalForInsect orig, CosmeticInsect.Type type, Room room, Vector2 testPos)
 		{
-			return (type == _Enums.ButterflyA || type == _Enums.ButterflyB) ? !room.GetTile(testPos).AnyWater : orig(type, room, testPos);
+			bool aiNoNarrow = !room.readyForAI || !room.aimap.getAItile(testPos).narrowSpace;
+			return (type == _Enums.ButterflyA || type == _Enums.ButterflyB) ? !room.GetTile(testPos).AnyWater && aiNoNarrow : orig(type, room, testPos);
 		}
 
 		private static void PostRoomLoad(Room self)

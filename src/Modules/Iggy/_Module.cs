@@ -166,6 +166,9 @@ public static class _Module
 		string name)
 	{
 		orig(self, owner, IDstring, parentNode, name);
+
+		if (!ModOptions.EnableIggy.Value) return;
+
 		Iggy iggy = new Iggy(
 			owner,
 			IDstring + "_Iggy",

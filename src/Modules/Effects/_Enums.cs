@@ -89,5 +89,13 @@ public static class _Enums
 	/// <summary>
 	/// Effect category
 	/// </summary>
+	public static RoomSettings.RoomEffect.Type RGBElectricDeath = new(nameof(RGBElectricDeath), true);
+	/// <summary>
+	/// Effect category
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type HSLDisplaySnow = new(nameof(HSLDisplaySnow), true);
+	/// <summary>
+	/// Effect category
+	/// </summary>
 	public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKit = new(nameof(RegionKit), true);
 }

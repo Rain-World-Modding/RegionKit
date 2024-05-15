@@ -13,28 +13,6 @@ internal static class Init
 		On.BackgroundScene.RoomToWorldPos += BackgroundScene_RoomToWorldPos;
 		On.AboveCloudsView.CloseCloud.DrawSprites += CloseCloud_DrawSprites;
 		On.AboveCloudsView.DistantCloud.DrawSprites += DistantCloud_DrawSprites;
-		IL.RoofTopView.ctor += RoofTopView_ctor1;
-	}
-
-	private static void RoofTopView_ctor1(ILContext il)
-	{
-		var c = new ILCursor(il);
-		if (c.TryGotoNext(MoveType.AfterLabel, 
-			x => x.MatchLdarg(0),
-			x => x.MatchLdfld<BackgroundScene>(nameof(BackgroundScene.room)),
-			x => x.MatchLdfld<Room>(nameof(Room.dustStorm))
-			))
-		{
-			c.Emit(OpCodes.Ldarg_0);
-			c.EmitDelegate((RoofTopView self) => 
-			{
-				if (self.room.roomSettings.BackgroundData().sceneData is Data.RoofTopView_SceneData rtv)
-				{ 
-					if(rtv.origin is Vector2 v2)
-					self.sceneOrigo = v2;
-				}
-			});
-		}
 	}
 
 	public static void Undo()

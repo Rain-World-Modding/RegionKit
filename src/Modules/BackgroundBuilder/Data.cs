@@ -30,7 +30,10 @@ internal static class Data
 	{
 		public string? name = null;
 		public int order = 0;
-		public string? backingFieldName = null; //if backingFieldName isn't null, the serializer will only write if the backing field is assigned
+		/// <summary>
+		/// if backingFieldName isn't null, the serializer will only write if the backing field is assigned
+		/// </summary>
+		public string? backingFieldName = null;
 
 		public bool ShouldWrite<T>(T data)
 		{

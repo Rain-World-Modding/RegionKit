@@ -19,6 +19,20 @@ public static class _Module
 			.SetUADFactory((room, data, firstTimeRealized) => new NonlethalWater(data))
 			.SetCategory("RegionKit")
 			.Register();
+
+		RainWorld rainworld = CRW;
+		MossWaterRGBBuilder.__RegisterBuilder();
+		ReflectiveWaterBuilder.__RegisterBuilder();
+		//IceWaterBuilder.__RegisterBuilder();
+		RGBElectricDeathBuilder.__RegisterBuilder();
+		HSLDisplaySnowBuilder.__RegisterBuilder();
+		MossWaterUnlit.MossLoadResources(rainworld);
+		MossWaterRGB.MossLoadResources(rainworld);
+		MurkyWater.MurkyWaterLoadResources(rainworld);
+		ReflectiveWater.ReflectiveLoadResources(rainworld);
+		RGBElectricDeath.REDLoadResources(rainworld);
+		HSLDisplaySnow.RDSLoadResources(rainworld);
+		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
 	}
 	internal static void Enable()
 	{
@@ -33,19 +47,6 @@ public static class _Module
 		MossWaterUnlit.Apply();
 		MossWaterRGB.Apply();
 
-		RainWorld rainworld = CRW;
-		MossWaterRGBBuilder.__RegisterBuilder();
-		ReflectiveWaterBuilder.__RegisterBuilder();
-		IceWaterBuilder.__RegisterBuilder();
-		RGBElectricDeathBuilder.__RegisterBuilder();
-		HSLDisplaySnowBuilder.__RegisterBuilder();
-		MossWaterUnlit.MossLoadResources(rainworld);
-		MossWaterRGB.MossLoadResources(rainworld);
-		MurkyWater.MurkyWaterLoadResources(rainworld);
-		ReflectiveWater.ReflectiveLoadResources(rainworld);
-		RGBElectricDeath.REDLoadResources(rainworld);
-		HSLDisplaySnow.RDSLoadResources(rainworld);
-		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
 
 
 		ReflectiveWater.Apply();

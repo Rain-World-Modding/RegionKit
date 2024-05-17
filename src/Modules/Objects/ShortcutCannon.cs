@@ -29,16 +29,20 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 			base.Update(eu);
 			timer++;
 			if (timer > TimerLength || player.room != room)
-			{ Destroy(); player.waterRetardationImmunity = origWaterRetardation; return; }
+			{ Destroy(); player.waterRetardationImmunity = origWaterRetardation; GetPostCorrector(player).Value = null!; return; }
 
 			if (player.submerged)
 			{
-				player.waterRetardationImmunity = Custom.LerpMap(timer, TimerLength / 2, TimerLength, 1f, origWaterRetardation, 1.5f);
+				player.waterRetardationImmunity = LerpMap(timer, TimerLength / 2, TimerLength, 1f, origWaterRetardation, 1.5f);
 			}
 
 			(player.graphicsModule as PlayerGraphics)!.legsDirection = new Vector2(0f, -1f);
 			EvenVelocity(player);
 		}
+
+		public float JumpBoostMultiplier() => LerpMap(cannon.boostMultiplier(), 0.4f, 2.5f, 0.25f, 0.5f);
+
+		public float SlideFrictionResult(float orig, float oldOrig) => LerpMap(timer, 1, TimerLength, oldOrig, orig); //not used anymore, timer too short to matter
 	}
 
 	public static void EvenVelocity(Player player)
@@ -55,7 +59,7 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 
 	public static List<ShortcutCannon> GetShortcutCannons(Room room) => _shortcutCannonsInRoom.GetValue(room, _ => new());
 
-	public static StrongBox<PostCorrector> GetShortcutCannons(Player p) => _shortcutCannonHelpers.GetValue(p, _ => new());
+	public static StrongBox<PostCorrector> GetPostCorrector(Player p) => _shortcutCannonHelpers.GetValue(p, _ => new());
 
 	public static bool TryGetSuperShortcut(Room room, IntVector2 pos, out ShortcutCannon shortcut)
 	{
@@ -79,6 +83,7 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		On.ShortcutGraphics.GenerateSprites += ShortcutGraphics_GenerateSprites;
 		On.Player.SpitOutOfShortCut += Player_SpitOutOfShortCut;
 		IL.ShortcutHelper.Update += ShortcutHelper_Update;
+		IL.Player.UpdateBodyMode += Player_UpdateBodyMode;
 	}
 
 	public static void Undo()
@@ -86,6 +91,62 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		IL.ShortcutHelper.Update -= ShortcutHelper_Update;
 		On.Player.SpitOutOfShortCut -= Player_SpitOutOfShortCut;
 		On.ShortcutGraphics.GenerateSprites -= ShortcutGraphics_GenerateSprites;
+		IL.Player.UpdateBodyMode -= Player_UpdateBodyMode;
+	}
+
+
+	private static void Player_UpdateBodyMode(ILContext il)
+	{
+		var c = new ILCursor(il);
+
+		//changes the velocity when corridor boosting, 2 matches, 1 for each body chunk
+		for (int j = 0; j < 2; j++)
+		{
+			if (c.TryGotoNext(MoveType.After,
+			x => x.MatchLdflda<BodyChunk>(nameof(BodyChunk.vel)),
+			x => x.MatchLdflda<Vector2>(nameof(Vector2.y)),
+			x => x.MatchDup(),
+			x => x.MatchLdindR4(),
+			x => x.MatchLdcR4(j == 0 ? 15f : 10f)
+			))
+			{
+				c.Emit(OpCodes.Ldarg_0);
+				c.EmitDelegate((float orig, Player self) => GetPostCorrector(self).Value == null ? orig : orig * GetPostCorrector(self).Value.JumpBoostMultiplier());
+			}
+			else { LogError("ShortcutCannon failed to il match Player.UpdateBodyMode jump boost " + j); }
+		}
+
+		//changes the velocity when pushing a direction into a wall, mainly for wall sliding
+		//4 different matches for each cardinal direction
+		int index = 0;
+		for (int j = 0; j < 4; j++)
+		{
+			if (c.TryGotoNext(MoveType.After,
+				x => x.MatchLdloc(out index),
+				x => x.MatchLdelemRef(),
+				x => x.MatchLdfld<BodyChunk>(nameof(BodyChunk.pos)),
+				x => x.MatchCallvirt<Room>(nameof(Room.GetTilePosition)),
+				x => x.MatchCallvirt<Room>(nameof(Room.MiddleOfTile)),
+				x => x.MatchLdfld(out _),
+				x => x.MatchSub(),
+				x => x.MatchLdcR4(0.2f),
+				x => x.MatchMul(),
+				x => x.MatchSub()
+				))
+			{
+				c.Emit(OpCodes.Ldloc, index);
+				c.Emit(OpCodes.Ldarg_0);
+				c.EmitDelegate((Func<float, int, Player, float>)(j switch
+				{
+					0 => (float orig, int i, Player self) => GetPostCorrector(self).Value == null ? orig : self.bodyChunks[i].vel.y,
+					1 => (float orig, int i, Player self) => GetPostCorrector(self).Value == null ? orig : self.bodyChunks[1 - i].vel.y,
+					2 => (float orig, int i, Player self) => GetPostCorrector(self).Value == null ? orig : self.bodyChunks[i].vel.x,
+					3 => (float orig, int i, Player self) => GetPostCorrector(self).Value == null ? orig : self.bodyChunks[1 - i].vel.x,
+					_ => (float orig, int i, Player self) => orig
+				}));
+			}
+			else { LogError("ShortcutCannon failed to il match Player.UpdateBodyMode friction slide " + j); }
+		}
 	}
 
 	private static void ShortcutGraphics_GenerateSprites(On.ShortcutGraphics.orig_GenerateSprites orig, ShortcutGraphics self)
@@ -130,6 +191,7 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 			});
 			c.Emit(OpCodes.Brtrue, label);
 		}
+		else { LogError("ShortcutCannon failed to il match ShortcutHelper.Update"); }
 	}
 
 	private static void CannonLaunch(ShortcutHelper self, Player player, ShortcutHelper.ShortcutPusher pusher, ShortcutCannon shortcutCannon)
@@ -159,9 +221,9 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		orig(self, pos, newRoom, spitOutAllSticks);
 		if (!TryGetSuperShortcut(newRoom, pos, out var shortcutCannon)) return;
 
-		GetShortcutCannons(self).Value?.Destroy();
-		GetShortcutCannons(self).Value = new(self, shortcutCannon);
-		newRoom.AddObject(GetShortcutCannons(self).Value);
+		GetPostCorrector(self).Value?.Destroy();
+		GetPostCorrector(self).Value = new(self, shortcutCannon);
+		newRoom.AddObject(GetPostCorrector(self).Value);
 
 		Vector2 a = IntVector2ToVector2(newRoom.ShorcutEntranceHoleDirection(pos));
 		for (int i = 0; i < self.bodyChunks.Length; i++)

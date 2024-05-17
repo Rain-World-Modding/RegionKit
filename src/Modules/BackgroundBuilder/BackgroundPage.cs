@@ -155,7 +155,7 @@ public class BackgroundPage : Page
 
 			else if (sender.IDstring == "Save")
 			{
-				LogMessage($"\n\nBACKGROUND OUTPUT\n\n{RoomSettings.BackgroundData().Serialize()}\n\n");
+				Debug.Log($"\n\nBACKGROUND OUTPUT\n\n{string.Join("\n", RoomSettings.BackgroundData().Serialize())}\n\n");
 			}
 		}
 
@@ -164,14 +164,14 @@ public class BackgroundPage : Page
 			if (sender.IDstring == "XOffset" && sender is GenericSlider slider)
 			{
 				RoomSettings.BackgroundData().roomOffset.x = slider.actualValue;
-				RoomSettings.BackgroundData().realData.UpdateSceneElement("");
+				RoomSettings.BackgroundData().sceneData.UpdateSceneElement("");
 				RoomSettings.BackgroundData().UpdateOffsetInit();
 			}
 
 			else if (sender.IDstring == "YOffset" && sender is GenericSlider slider2)
 			{
 				RoomSettings.BackgroundData().roomOffset.y = slider2.actualValue;
-				RoomSettings.BackgroundData().realData.UpdateSceneElement("");
+				RoomSettings.BackgroundData().sceneData.UpdateSceneElement("");
 				RoomSettings.BackgroundData().UpdateOffsetInit();
 			}
 		}

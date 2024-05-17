@@ -19,12 +19,27 @@ public static class _Module
 			.SetUADFactory((room, data, firstTimeRealized) => new NonlethalWater(data))
 			.SetCategory("RegionKit")
 			.Register();
+
+		RainWorld rainworld = CRW;
+		MossWaterRGBBuilder.__RegisterBuilder();
+		ReflectiveWaterBuilder.__RegisterBuilder();
+		//IceWaterBuilder.__RegisterBuilder();
+		RGBElectricDeathBuilder.__RegisterBuilder();
+		HSLDisplaySnowBuilder.__RegisterBuilder();
+		MossWaterUnlit.MossLoadResources(rainworld);
+		MossWaterRGB.MossLoadResources(rainworld);
+		MurkyWater.MurkyWaterLoadResources(rainworld);
+		ReflectiveWater.ReflectiveLoadResources(rainworld);
+		RGBElectricDeath.REDLoadResources(rainworld);
+		HSLDisplaySnow.RDSLoadResources(rainworld);
+		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
 	}
 	internal static void Enable()
 	{
 		GlowingSwimmersCI.Apply();
 		ColoredCamoBeetlesCI.Apply();
 		MosquitoInsectsCI.Apply();
+		ButterfliesCI.Apply();
 		ColorRoomEffect.Apply();
 		ReplaceEffectColor.Apply();
 		HiveColorAlpha.Apply();
@@ -32,19 +47,12 @@ public static class _Module
 		MossWaterUnlit.Apply();
 		MossWaterRGB.Apply();
 
-		RainWorld rainworld = CRW;
-		MossWaterRGBBuilder.__RegisterBuilder();
-		ReflectiveWaterBuilder.__RegisterBuilder();
-		IceWaterBuilder.__RegisterBuilder();
-		MossWaterUnlit.MossLoadResources(rainworld);
-		MossWaterRGB.MossLoadResources(rainworld);
-		MurkyWater.MurkyWaterLoadResources(rainworld);
-		ReflectiveWater.ReflectiveLoadResources(rainworld);
-		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
 
 
 		ReflectiveWater.Apply();
 		IceWater.Apply();
+		RGBElectricDeath.Apply();
+		HSLDisplaySnow.Apply();
 		MurkyWater.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
@@ -54,6 +62,7 @@ public static class _Module
 		GlowingSwimmersCI.Undo();
 		ColoredCamoBeetlesCI.Undo();
 		MosquitoInsectsCI.Undo();
+		ButterfliesCI.Undo();
 		ColorRoomEffect.Undo();
 		ReplaceEffectColor.Undo();
 		HiveColorAlpha.Undo();
@@ -62,6 +71,8 @@ public static class _Module
 		MossWaterRGB.Undo();
 		ReflectiveWater.Undo();
 		IceWater.Undo();
+		RGBElectricDeath.Undo();
+		HSLDisplaySnow.Undo();
 		MurkyWater.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
@@ -76,6 +87,8 @@ public static class _Module
 			type == _Enums.GlowingSwimmers ||
 			type == _Enums.ColoredCamoBeetles ||
 			type == _Enums.MosquitoInsects ||
+			type == _Enums.ButterfliesA ||
+			type == _Enums.ButterfliesB ||
 			type == _Enums.PWMalfunction ||
 			type == _Enums.HiveColorAlpha ||
 			type == _Enums.MossWater ||

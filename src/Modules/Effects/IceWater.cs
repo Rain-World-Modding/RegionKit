@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using EffExt;
 using RegionKit.Modules.RoomSlideShow;
+using SharpVoronoiLib;
 
 namespace RegionKit.Modules.Effects
 {
@@ -24,7 +25,8 @@ namespace RegionKit.Modules.Effects
 					.AddFloatField("Green", 0, 255, 1, 255)
 					.AddFloatField("Red", 0, 255, 1, 255)
 					.AddFloatField("Height", 0, 5, 0.1f, 1)
-					.AddIntField("Seed", 1, 1000, 1)
+					.AddFloatField("CellCount", 0f, 1000f, 1f, 400f)
+					.AddIntField("GenType", 1, 2, 1)
 					.SetUADFactory((room, data, firstTimeRealized) => new IceWaterUAD(data))
 					.SetCategory("RegionKit")
 					.Register();
@@ -45,6 +47,7 @@ namespace RegionKit.Modules.Effects
 		public float height;
 		public IceWater iceWater;
 		public int seed;
+		public float cellCount;
 
 
 		public IceWaterUAD(EffectExtraData effectData)
@@ -58,16 +61,18 @@ namespace RegionKit.Modules.Effects
 
 		public override void Update(bool eu)
 		{
-			color.r = EffectData.GetFloat("Red");
-			color.g = EffectData.GetFloat("Green");
-			color.b = EffectData.GetFloat("Blue");
+			color.r = EffectData.GetFloat("Red") / 255f;
+			color.g = EffectData.GetFloat("Green") / 255f;
+			color.b = EffectData.GetFloat("Blue") / 255f;
+			color.a = 1.0f;
 			height = EffectData.GetFloat("Height");
-			seed = EffectData.GetInt("Seed");
+			seed = EffectData.GetInt("GenType");
+			cellCount = EffectData.GetFloat("CellCount");
 
 
 			if (iceWater != null && room.BeingViewed)
 			{
-				iceWater.SetValues(color, room, height, seed);
+				iceWater.SetValues(color, room, height, seed, cellCount);
 			}
 		}
 	}
@@ -76,7 +81,15 @@ namespace RegionKit.Modules.Effects
 	internal class IceWater : CosmeticSprite
 	{
 		public static readonly object iceWaterSprite = new();
-		static List<Vector2> poisPoints = new List<Vector2>();
+		static List<VoronoiSite> poisPoints = new List<VoronoiSite>();
+		private static VoronoiPlane plane;
+		private static List<VoronoiEdge> voronoiEdges = new List<VoronoiEdge>();
+		private static float height = 0f;
+		private static float cellAmount = 0f;
+		private static int genType = 1;
+		private static UnityEngine.Color color;
+		private static float oldAmount = 0f;
+		private static int oldGen = 1;
 		public IceWater()
 		{
 
@@ -104,29 +117,46 @@ namespace RegionKit.Modules.Effects
 			}
 		}
 
-		public void SetValues(UnityEngine.Color color, Room room, float height, int seed)
+		public void SetValues(UnityEngine.Color colorUAD, Room room, float height, int genTypeUAD, float cellUAD)
 		{
-			UnityEngine.Random.InitState(seed);
+			oldGen = genType;
+			oldAmount = cellAmount;
 
-		}
-
-		public void calculateNewVerts(Room room)
-		{
-			
+			genType = genTypeUAD;
+			cellAmount = cellUAD;
+			color = colorUAD;
 		}
 
 		public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 		{
 			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null)
 			{
-				sLeaser.sprites = new FSprite[1];
 				// Current input size is: (3240.0, 768.0)
-				// This is where the code randomly runs infinitely (sometimes it doesn't but often generates a lot of extra points in the upper size of the grid)
-				poisPoints = Poisson.GeneratePoint(100f, new Vector2(rCam.sSize.x + 220f, rCam.sSize.y));
-				LogMessage(poisPoints.Count);
-				Array.Resize<FSprite>(ref sLeaser.sprites, 1 + poisPoints.Count);
+				plane = new VoronoiPlane(0, 0, rCam.sSize.x + 320f, rCam.sSize.y + 100f);
+				if (genType == 1)
+					poisPoints = plane.GenerateRandomSites((int)cellAmount, PointGenerationMethod.Uniform);
+				if (genType == 2)
+					poisPoints = plane.GenerateRandomSites((int)cellAmount, PointGenerationMethod.Gaussian);
+				plane.Tessellate();
+				voronoiEdges = plane.Relax(3, 0.7f);
+				if (plane.Sites != null)
+				{
+					sLeaser.sprites = new FSprite[plane.Sites.Count];
+					for (int i = 0; i < plane.Sites.Count; i++)
+					{
+						// 0 is the center of each cell
+						TriangleMesh.Triangle[] tris = new TriangleMesh.Triangle[plane.Sites[i].cell.Count - 2];
+						for (int j = 0; j < tris.Length; j++)
+						{
+							tris[j] = new TriangleMesh.Triangle(0, j + 1, j + 2);
+						}
 
-				for (int i = 1; i < sLeaser.sprites.Length; i++)
+						sLeaser.sprites[i] = new TriangleMesh("Futile_White", tris, true);
+					}
+				}
+
+				/*
+				for (int i = 0; i < poisPoints.Count; i++)
 				{
 					sLeaser.sprites[i] = new FSprite("pixel")
 					{
@@ -136,14 +166,54 @@ namespace RegionKit.Modules.Effects
 					};
 				}
 
-				sLeaser.sprites[0] = new FSprite("pixel")
+				for (int i = poisPoints.Count; i < sLeaser.sprites.Length; i++)
 				{
-					anchorX = 0.5f,
-					anchorY = 0.5f,
-					scale = 1f
-				};
+					int j = i - poisPoints.Count;
+					float rotation = VecToDeg(DirVec(VoronoiPointToVector(voronoiEdges[j].Start), VoronoiPointToVector(voronoiEdges[j].End))) + 90f;
+
+					sLeaser.sprites[i] = new FSprite("pixel")
+					{
+						anchorX = 0.5f,
+						anchorY = 0.5f,
+						scaleY = 2f,
+						scaleX = (float)voronoiEdges[i - poisPoints.Count].Length,
+						rotation = rotation
+					};
+				}
+				*/
+
+
 				AddToContainer(sLeaser, rCam, null);
 			}
+		}
+
+		public bool RegenerateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
+		{
+			sLeaser.RemoveAllSpritesFromContainer();
+			plane = new VoronoiPlane(0, 0, rCam.sSize.x + 320f, rCam.sSize.y + 100f);
+			if (genType == 1)
+				poisPoints = plane.GenerateRandomSites((int)cellAmount, PointGenerationMethod.Uniform);
+			if (genType == 2)
+				poisPoints = plane.GenerateRandomSites((int)cellAmount, PointGenerationMethod.Gaussian);
+			plane.Tessellate();
+			voronoiEdges = plane.Relax(3, 0.7f);
+			if (plane.Sites != null)
+			{
+				sLeaser.sprites = new FSprite[plane.Sites.Count];
+				for (int i = 0; i < plane.Sites.Count; i++)
+				{
+					// 0 is the center of each cell
+					TriangleMesh.Triangle[] tris = new TriangleMesh.Triangle[plane.Sites[i].cell.Count - 2];
+					for (int j = 0; j < tris.Length; j++)
+					{
+						tris[j] = new TriangleMesh.Triangle(0, j + 1, j + 2);
+					}
+
+					sLeaser.sprites[i] = new TriangleMesh("Futile_White", tris, true);
+				}
+			}
+			AddToContainer(sLeaser, rCam, null);
+			return false;
 		}
 
 		// Draws sprites on screen
@@ -151,13 +221,44 @@ namespace RegionKit.Modules.Effects
 		{
 			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null)
 			{
-				for (int i = 1; i < sLeaser.sprites.Length; i++)
+
+				/*
+				for (int i = 0; i < poisPoints.Count; i++)
 				{
-					//Vector2 origWaterPos = rCam.ApplyDepth(new Vector2(poisPoints[i - 1].x - 220f, room.FloatWaterLevel(poisPoints[i - 1].x - 220f)), Mathf.Lerp(-10f, 30f, poisPoints[i - 1].y));
+					//Vector2 origWaterPos = rCam.ApplyDepth(new Vector2(poisPoints[i - 1].x - 320f, room.FloatWaterLevel(poisPoints[i - 1].x)), Mathf.Lerp(-10f, 30f, poisPoints[i - 1].y / rCam.sSize.y));
 					//sLeaser.sprites[i].SetPosition(detailedWaterLevelPoint(origWaterPos, rCam.sSize.y, rCam.room.waterObject, i) - camPos);
-					sLeaser.sprites[i].SetPosition(poisPoints[i - 1]);
+					sLeaser.sprites[i].SetPosition(new Vector2((float)poisPoints[i].X, (float)poisPoints[i].Y - 100f));
 				}
-				sLeaser.sprites[0].SetPosition(Vector2.zero);
+				for (int i = poisPoints.Count; i < sLeaser.sprites.Length; i++)
+				{
+					int j = i - poisPoints.Count;
+					Vector2 temp = VoronoiPointToVector(voronoiEdges[j].Mid);
+					sLeaser.sprites[i].SetPosition(new Vector2(temp.x, temp.y - 100f));
+				}
+				*/
+				if (plane.Sites != null)
+				{
+					for (int i = 0; i < sLeaser.sprites.Length; i++)
+					{
+						for (int j = 0; j < (sLeaser.sprites[i] as TriangleMesh).vertices.Length; j++)
+						{
+
+							Vector2 centroid = new Vector2((float)plane.Sites[i].X, (float)plane.Sites[i].Y);
+							List<VoronoiPoint> vPoints = plane.Sites[i].ClockwisePoints.ToList<VoronoiPoint>();
+							Vector2 vertice = VoronoiPointToVector(vPoints[j]);
+							Vector2 final = (vertice - centroid) * rCam.room.roomSettings.GetEffectAmount(_Enums.IceWater) + centroid;
+
+							(sLeaser.sprites[i] as TriangleMesh).MoveVertice(j, final);
+							sLeaser.sprites[i].color = color;
+						}
+					}
+				}
+
+				// Regenerate
+				if (oldAmount != cellAmount || oldGen != genType)
+				{
+					bool erm = RegenerateSprites(sLeaser, rCam);
+				}
 			}
 		}
 
@@ -179,7 +280,7 @@ namespace RegionKit.Modules.Effects
 					waterBack.y = Mathf.Lerp(water.surface[num, 1].defaultPos.y + water.surface[num, 1].pos.y, water.surface[num2, 1].defaultPos.y + water.surface[num2, 1].pos.y, t);
 			}
 
-			return Vector2.Lerp(waterFront, waterBack, poisPoints[a - 1].y / height);
+			return Vector2.Lerp(waterFront, waterBack, (float)poisPoints[a - 1].Y / height);
 		}
 
 		private int PreviousSurfacePointFB(float horizontalPosition, Water water, int i)
@@ -195,8 +296,28 @@ namespace RegionKit.Modules.Effects
 		// Applies color to sprites
 		public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 		{
-			for (int i = 0; i < sLeaser.sprites.Length; i++)
-				sLeaser.sprites[i].color = UnityEngine.Color.magenta;
+			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null)
+			{
+				/*
+				for (int i = 0; i < poisPoints.Count; i++)
+				{
+					// Yellow is Random Vertices
+					sLeaser.sprites[i].color = UnityEngine.Color.yellow;
+				}
+				for (int i = poisPoints.Count; i < sLeaser.sprites.Length; i++)
+				{
+					// Magenta is voronoi vertices
+					sLeaser.sprites[i].color = UnityEngine.Color.magenta;
+				}
+				*/
+				for (int i = 0; i < sLeaser.sprites.Length; i++)
+				{
+					for (int j = 0; j < (sLeaser.sprites[i] as TriangleMesh).vertices.Length; j++)
+					{
+						sLeaser.sprites[j].color = color;
+					}
+				}
+			}
 		}
 
 		public override void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContainer)
@@ -205,87 +326,10 @@ namespace RegionKit.Modules.Effects
 			for (int i = 0; i < sLeaser.sprites.Length; i++)
 				newContainer.AddChild(sLeaser.sprites[i]);
 		}
-	}
 
-
-	internal static class Poisson
-	{
-		static bool is_valid(List<Vector2> samples, int[,] grid, Vector2 sample, Vector2 sample_zone, float radius, float cell_size)
+		public static Vector2 VoronoiPointToVector(VoronoiPoint point)
 		{
-			if (sample.x < sample_zone.x && sample.x >= 0 && sample.y < sample_zone.y && sample.y >= 0)
-			{
-				int x = (int)(sample.x / cell_size);
-				int y = (int)(sample.y / cell_size);
-				int offset_x = Mathf.Max(0, x - 2);
-				int out_x = Mathf.Min(x + 2, grid.GetLength(0) - 1);
-				int offset_y = Mathf.Max(0, y - 2);
-				int out_y = Mathf.Min(y + 2, grid.GetLength(1) - 1);
-
-				for (int i = offset_x; i < out_x; i++)
-				{
-					for (int j = offset_y; j < out_y; j++)
-					{
-						int s_index = grid[i, j] - 1;
-						if (s_index != -1)
-						{
-							float _distance = (sample - samples[s_index]).sqrMagnitude;
-							if (_distance < radius * radius)
-							{
-								return false;
-							}
-						}
-					}
-				}
-				return true;
-			}
-			return false;
+			return new Vector2((float)point.X, (float)point.Y);
 		}
-		public static List<Vector2> GeneratePoint(float radius, Vector2 grid_size, int k = 30)
-		{
-			float cell_size = radius / Mathf.Sqrt(2);
-
-			//to get the columns we gonna divide the width/ cell_size and rows ....
-			int[,] grid = new int[Mathf.CeilToInt(grid_size.x / cell_size), Mathf.CeilToInt(grid_size.y / cell_size)];
-
-			List<Vector2> samples = new List<Vector2>();
-			List<Vector2> spawn_samples = new List<Vector2>();
-
-			spawn_samples.Add(grid_size / 2);
-			while (spawn_samples.Count > 0)
-			{
-				LogMessage("Running sample" + spawn_samples.Count);
-				int index = UnityEngine.Random.Range(0, spawn_samples.Count);
-				Vector2 current_spawn_sample = spawn_samples[index];
-				bool rejected_sample = true;
-				for (int i = 0; i < k; i++)
-				{
-					float angle_offset = UnityEngine.Random.value * Mathf.PI * 2;
-					//rotate a vector at a given angle
-					float x = Mathf.Sin(angle_offset);
-					float y = Mathf.Cos(angle_offset);
-					Vector2 offset_direction = new Vector2(x, y);
-
-					float new_magnitude = UnityEngine.Random.Range(radius, 2 * radius);
-					offset_direction *= new_magnitude;
-
-					Vector2 sample = current_spawn_sample + offset_direction;
-					if (is_valid(samples, grid, sample, grid_size, radius, cell_size))
-					{
-						samples.Add(sample);
-						spawn_samples.Add(sample);
-						grid[(int)(sample.x / cell_size), (int)(sample.y / cell_size)] = samples.Count;
-						rejected_sample = false;
-						break;
-					}
-				}
-
-				if (rejected_sample)
-				{
-					spawn_samples.RemoveAt(index);
-				}
-			}
-			return samples;
-		}
-
 	}
 }

@@ -83,6 +83,14 @@ public static class _Module
 		RegisterEmptyObjectType<CustomWallMyceliaData, ManagedRepresentation>("CustomWallMycelia", DECORATIONS_POM_CATEGORY);
 
 		RegisterManagedObject<GuardProtectNode, GuardProtectData, GuardProtectRepresentation>("GuardProtectNode", GAMEPLAY_POM_CATEGORY);
+
+		RegisterFullyManagedObjectType(new ManagedField[] 
+		{ 
+			new IntVector2Field("0zone", new(1, 1), IntVector2Field.IntVectorReprType.rect), 
+			new FloatField("1traction", 0f, 1f, 1f, displayName:"Traction", increment: 0.02f), 
+			new BooleanField("2slope", false, displayName:"slippery slopes"), 
+			new BooleanField("3tunnel", false, displayName:"no tunnel crawl") 
+		}, typeof(SlipperyZone), "SlipperyZone", GAMEPLAY_POM_CATEGORY);
 	}
 
 	internal static void Enable()
@@ -106,6 +114,7 @@ public static class _Module
 		BigKarmaShrine.Apply();
 		CustomWallMycelia.Apply();
 		GuardProtectNode.Apply();
+		SlipperyZone.ApplyHooks();
 
 		LoadShaders();
 	}

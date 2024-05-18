@@ -94,20 +94,14 @@ namespace RegionKit.Modules.Effects
 
 		internal static void Apply()
 		{
-			if (ModManager.MSC)
-			{
-				On.MoreSlugcats.Snow.InitiateSprites += SnowOnInitiateSprites;
-				On.MoreSlugcats.BlizzardGraphics.DrawSprites += BlizzardGraphicsOnDrawSprites;
-			}
+			On.MoreSlugcats.Snow.InitiateSprites += SnowOnInitiateSprites;
+			On.MoreSlugcats.BlizzardGraphics.DrawSprites += BlizzardGraphicsOnDrawSprites;
 		}
 
 		internal static void Undo()
 		{
-			if (ModManager.MSC)
-			{
-				On.MoreSlugcats.Snow.InitiateSprites -= SnowOnInitiateSprites;
-				On.MoreSlugcats.BlizzardGraphics.DrawSprites -= BlizzardGraphicsOnDrawSprites;
-			}
+			On.MoreSlugcats.Snow.InitiateSprites -= SnowOnInitiateSprites;
+			On.MoreSlugcats.BlizzardGraphics.DrawSprites -= BlizzardGraphicsOnDrawSprites;
 		}
 		
 		private static void BlizzardGraphicsOnDrawSprites(BlizzardGraphics.orig_DrawSprites orig, MoreSlugcats.BlizzardGraphics self, RoomCamera.SpriteLeaser sleaser, RoomCamera rcam, float timestacker, Vector2 campos)

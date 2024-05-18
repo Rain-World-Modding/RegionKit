@@ -13,6 +13,8 @@ internal static class Init
 		On.BackgroundScene.RoomToWorldPos += BackgroundScene_RoomToWorldPos;
 		On.AboveCloudsView.CloseCloud.DrawSprites += CloseCloud_DrawSprites;
 		On.AboveCloudsView.DistantCloud.DrawSprites += DistantCloud_DrawSprites;
+		On.AboveCloudsView.Update += AboveCloudsView_Update;
+		On.RoofTopView.Update += RoofTopView_Update;
 	}
 
 	public static void Undo()
@@ -22,6 +24,38 @@ internal static class Init
 		On.BackgroundScene.RoomToWorldPos -= BackgroundScene_RoomToWorldPos;
 		On.AboveCloudsView.CloseCloud.DrawSprites -= CloseCloud_DrawSprites;
 		On.AboveCloudsView.DistantCloud.DrawSprites -= DistantCloud_DrawSprites;
+		On.AboveCloudsView.Update -= AboveCloudsView_Update;
+		On.RoofTopView.Update -= RoofTopView_Update;
+	}
+
+	private static void RoofTopView_Update(On.RoofTopView.orig_Update orig, RoofTopView self, bool eu)
+	{
+		orig(self, eu);
+
+		RainCycle rainCycle = self.room.world.rainCycle;
+		if ((self.room.game.cameras[0].effect_dayNight > 0f && rainCycle.timer >= rainCycle.cycleLength)
+			|| (ModManager.Expedition && self.room.game.rainWorld.ExpeditionMode))
+		{
+			if (self.room.roomSettings.BackgroundData().sceneData is Data.DayNightSceneData dayNightScene)
+			{
+				dayNightScene.ColorUpdate();
+			}
+		}
+	}
+
+	private static void AboveCloudsView_Update(On.AboveCloudsView.orig_Update orig, AboveCloudsView self, bool eu)
+	{
+		orig(self, eu);
+
+		RainCycle rainCycle = self.room.world.rainCycle;
+		if ((self.room.game.cameras[0].effect_dayNight > 0f && rainCycle.timer >= rainCycle.cycleLength)
+			|| (ModManager.Expedition && self.room.game.rainWorld.ExpeditionMode))
+		{
+			if (self.room.roomSettings.BackgroundData().sceneData is Data.DayNightSceneData dayNightScene)
+			{
+				dayNightScene.ColorUpdate();
+			}
+		}
 	}
 
 	private static void DistantCloud_DrawSprites(On.AboveCloudsView.DistantCloud.orig_DrawSprites orig, DistantCloud self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)

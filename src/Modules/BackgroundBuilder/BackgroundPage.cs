@@ -91,7 +91,7 @@ public class BackgroundPage : Page
 		subNodes.Add(buttonLoad);
 
 
-		subNodes.Add(new Button(owner, "Save", this, new Vector2(200f, 600f), 60f, "Save"));
+		//subNodes.Add(new Button(owner, "Save", this, new Vector2(200f, 600f), 60f, "Save"));
 
 
 		//backgroundType = new ExtEnumCycler<BackgroundTemplateType>(owner, "BackTypeCycle", this, new Vector2(170f, 580f), 120f, RoomSettings.BackgroundData().type, "Type");

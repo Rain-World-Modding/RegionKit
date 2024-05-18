@@ -13,6 +13,22 @@ internal static class Init
 		On.BackgroundScene.RoomToWorldPos += BackgroundScene_RoomToWorldPos;
 		On.AboveCloudsView.CloseCloud.DrawSprites += CloseCloud_DrawSprites;
 		On.AboveCloudsView.DistantCloud.DrawSprites += DistantCloud_DrawSprites;
+		On.AboveCloudsView.Update += AboveCloudsView_Update;
+	}
+
+	private static void AboveCloudsView_Update(On.AboveCloudsView.orig_Update orig, AboveCloudsView self, bool eu)
+	{
+		orig(self, eu);
+
+		RainCycle rainCycle = self.room.world.rainCycle;
+		if ((self.room.game.cameras[0].effect_dayNight > 0f && rainCycle.timer >= rainCycle.cycleLength)
+			|| (ModManager.Expedition && self.room.game.rainWorld.ExpeditionMode))
+		{
+			if (self.room.roomSettings.BackgroundData().sceneData is Data.DayNightSceneData dayNightScene)
+			{
+				dayNightScene.ColorUpdate();
+			}
+		}
 	}
 
 	public static void Undo()

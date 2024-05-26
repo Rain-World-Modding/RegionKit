@@ -24,7 +24,6 @@ public static class _Enums
 	/// Mosquito Insect effect enum
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type MosquitoInsects = new(nameof(MosquitoInsects), true);
-	/// <summary>
 	/// Butterfly A effect enum
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type ButterfliesA = new(nameof(ButterfliesA), true);
@@ -32,6 +31,11 @@ public static class _Enums
 	/// Butterfly B effect enum
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type ButterfliesB = new(nameof(ButterfliesB), true);
+	/// <summary>
+	/// Zipper effect enum
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type Zippers = new(nameof(Zippers), true);
+	
 	/// <summary>
 	/// Glowing Swimmer insect enum
 	/// </summary>
@@ -52,6 +56,10 @@ public static class _Enums
 	/// Butterfly B enum
 	/// </summary>
 	public static CosmeticInsect.Type ButterflyB = new(nameof(ButterflyB), true);
+	/// <summary>
+	/// Zipper enum
+	/// </summary>
+	public static CosmeticInsect.Type Zipper = new(nameof(Zipper), true);
 
 	/// <summary>
 	/// ReplaceEffectColorA

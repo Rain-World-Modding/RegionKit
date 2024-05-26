@@ -97,8 +97,20 @@ the image to use as the background during night
 `atmosphereColor:` (default 293C51)  
 hex color distant elements fade to
 
+`duskAtmosphereColor:` (default 845368 or C05F5F for Rivulet)  
+atmosphereColor at dusk
+
+`nightAtmosphereColor:` (default 0C0D11)  
+atmosphereColor at night
+
 `multiplyColor:` (default FFFFFF)  
-hex color multiplier close elements fade to
+hex color multiplier for DistantBuildings
+
+`duskMultiplyColor:` (default FFC977)  
+multiplyColor at dusk
+
+`nightMultiplyColor:` (default 142436)  
+multiplyColor at night
 
 
 ## Background Scene Elements

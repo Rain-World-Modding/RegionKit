@@ -384,6 +384,7 @@ internal static class Data
 
 		public virtual void MakeScene(BackgroundScene self)
 		{
+			_Scene = self;
 			sceneInitialized = true;
 			MakeBackgroundElements(self);
 		}
@@ -443,9 +444,249 @@ internal static class Data
 		public List<CustomBgElement> backgroundElements = new();
 
 		public bool sceneInitialized = false;
+
+		public BackgroundScene? _Scene;
 	}
 
-	public class AboveCloudsView_SceneData : BGSceneData
+	public class DayNightSceneData : BGSceneData
+	{
+
+		[BackgroundData(backingFieldName = nameof(_atmosphereColor))]
+		public Color atmosphereColor
+		{
+			get => _atmosphereColor ?? new Color(0.16078432f, 0.23137255f, 0.31764707f);
+			set
+			{
+				_atmosphereColor = value;
+				NeedColorUpdate = true;
+			}
+		}
+
+		[BackgroundData(backingFieldName = nameof(_multiplyColor))]
+		public Color multiplyColor
+		{
+			get => _multiplyColor ?? Color.white;
+			set
+			{
+				_multiplyColor = value;
+				NeedColorUpdate = true;
+			}
+		}
+
+		[BackgroundData(backingFieldName = nameof(_duskAtmosphereColor))]
+		public Color duskAtmosphereColor
+		{
+			get
+			{
+				if (_duskAtmosphereColor is Color color) return color;
+				if (_Scene?.room.game.GetStorySession.saveStateNumber == MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName.Rivulet)
+				{
+					return new Color(0.7564706f, 0.3756863f, 0.3756863f);
+				}
+				return new Color(0.5176471f, 0.3254902f, 0.40784314f);
+			}
+			set
+			{
+				_duskAtmosphereColor = value;
+				NeedColorUpdate = true;
+			}
+		}
+
+		[BackgroundData(backingFieldName = nameof(_duskMultiplyColor))]
+		public Color duskMultiplyColor
+		{
+			get => _duskAtmosphereColor ?? new Color(1f, 0.79f, 0.47f);
+			set
+			{
+				_duskMultiplyColor = value;
+				NeedColorUpdate = true;
+			}
+		}
+
+		[BackgroundData(backingFieldName = nameof(_nightAtmosphereColor))]
+		public Color nightAtmosphereColor
+		{
+			get => _nightAtmosphereColor ?? new Color(0.04882353f, 0.0527451f, 0.06843138f);
+			set
+			{
+				_nightAtmosphereColor = value;
+				NeedColorUpdate = true;
+			}
+		}
+
+		[BackgroundData(backingFieldName = nameof(_nightMultiplyColor))]
+		public Color nightMultiplyColor
+		{
+			get => _nightMultiplyColor ?? new Color(0.078431375f, 0.14117648f, 0.21176471f);
+			set
+			{
+				_nightMultiplyColor = value;
+				NeedColorUpdate = true;
+			}
+		}
+
+		[BackgroundData]
+		public string daySky
+		{
+			get
+			{
+				return _daySky ?? 
+					((_Scene is AboveCloudsView acv) ? acv.daySky.illustrationName : 
+					(_Scene is RoofTopView rtv) ? rtv.daySky.illustrationName : "AtC_Sky");
+			}
+
+			set
+			{
+				_daySky = value;
+				if (DoesTextureExist(value) && _Scene != null)
+				{
+					_Scene.LoadGraphic(value, true, true);
+					if (_Scene is AboveCloudsView acv) acv.daySky.illustrationName = value;
+					if (_Scene is RoofTopView rtv) rtv.daySky.illustrationName = value;
+				}
+			}
+		}
+
+		[BackgroundData]
+		public string duskSky
+		{
+			get
+			{
+				return _duskSky ??
+					((_Scene is AboveCloudsView acv) ? acv.duskSky.illustrationName :
+					(_Scene is RoofTopView rtv) ? rtv.duskSky.illustrationName : "AtC_Sky");
+			}
+
+			set
+			{
+				_duskSky = value;
+				if (DoesTextureExist(value) && _Scene != null)
+				{
+					_Scene.LoadGraphic(value, true, true);
+					if (_Scene is AboveCloudsView acv) acv.duskSky.illustrationName = value;
+					if (_Scene is RoofTopView rtv) rtv.duskSky.illustrationName = value;
+				}
+			}
+		}
+
+		[BackgroundData]
+		public string nightSky
+		{
+			get
+			{
+				return _nightSky ??
+					((_Scene is AboveCloudsView acv) ? acv.nightSky.illustrationName :
+					(_Scene is RoofTopView rtv) ? rtv.nightSky.illustrationName : "AtC_Sky");
+			}
+
+			set
+			{
+				_daySky = value;
+				if (DoesTextureExist(value) && _Scene != null)
+				{
+					_Scene.LoadGraphic(value, true, true);
+					if (_Scene is AboveCloudsView acv) acv.nightSky.illustrationName = value;
+					if (_Scene is RoofTopView rtv) rtv.nightSky.illustrationName = value;
+				}
+			}
+		}
+
+		public override void MakeScene(BackgroundScene self)
+		{
+			base.MakeScene(self);
+
+			if (NeedColorUpdate)
+			{
+				ColorUpdate();
+				NeedColorUpdate = false;
+			}
+		}
+
+		/// <summary>
+		/// this method is mostly copied from AboveCloudsView.Update \ RoofTopView.Update
+		/// </summary>
+		public void ColorUpdate()
+		{
+			if (_Scene == null) return;
+
+			//getting the backing fields because if it's using vanilla colors then we can ignore it
+			Color? atmoColor = _atmosphereColor;
+			Color? mulColor = _multiplyColor;
+
+			RainCycle rainCycle = _Scene.room.world.rainCycle;
+			if ((_Scene.room.game.cameras[0].effect_dayNight > 0f && rainCycle.timer >= rainCycle.cycleLength)
+				|| (ModManager.Expedition && _Scene.room.game.rainWorld.ExpeditionMode))
+			{
+				float t = 1320f; //33 seconds
+
+				float duskTimer = Mathf.InverseLerp(0f, t, rainCycle.dayNightCounter);
+				float nightTimer = Mathf.InverseLerp(t, t * 2f, rainCycle.dayNightCounter);
+				float delayedNightCounter = Mathf.InverseLerp(t, t * 2.25f, rainCycle.dayNightCounter);
+
+				if (0f < duskTimer && duskTimer < 1f)
+				{
+					if (_atmosphereColor != null || _duskAtmosphereColor != null)
+						atmoColor = Color.Lerp(atmosphereColor, duskAtmosphereColor, duskTimer);
+
+					if (_multiplyColor != null || _duskMultiplyColor != null)
+						mulColor = Color.Lerp(multiplyColor, duskMultiplyColor, duskTimer);
+				}
+
+				else if (duskTimer == 1f && nightTimer < 1f)
+				{
+					if (_duskAtmosphereColor != null || _nightAtmosphereColor != null)
+						atmoColor = Color.Lerp(duskAtmosphereColor, nightAtmosphereColor, nightTimer);
+
+				}
+				else if (1f <= nightTimer && _nightAtmosphereColor != null)
+				{
+					atmoColor = nightAtmosphereColor;
+				}
+
+				if (duskTimer == 1f && delayedNightCounter < 1f)
+				{
+					if (_duskMultiplyColor != null || _nightMultiplyColor != null)
+						mulColor = Color.Lerp(duskMultiplyColor, nightMultiplyColor, delayedNightCounter);
+				}
+				else if (1f <= delayedNightCounter && _nightMultiplyColor != null)
+				{
+					mulColor = nightMultiplyColor;
+				}
+
+			}
+			if (atmoColor is Color color)
+			{
+
+				if (_Scene is AboveCloudsView acv) acv.atmosphereColor = color;
+				if (_Scene is RoofTopView rtv) rtv.atmosphereColor = color;
+
+				Shader.SetGlobalVector(RainWorld.ShadPropAboveCloudsAtmosphereColor, color);
+			}
+
+			if (mulColor is Color color2)
+			{
+				Shader.SetGlobalVector(RainWorld.ShadPropMultiplyColor, color2);
+			}
+		}
+
+		private bool NeedColorUpdate = false;
+
+		#region backingfields
+		private string? _daySky;
+		private string? _duskSky;
+		private string? _nightSky;
+
+		private Color? _atmosphereColor;
+		private Color? _multiplyColor;
+		private Color? _duskAtmosphereColor;
+		private Color? _duskMultiplyColor;
+		private Color? _nightAtmosphereColor;
+		private Color? _nightMultiplyColor;
+		#endregion
+
+	}
+
+	public class AboveCloudsView_SceneData : DayNightSceneData
 	{
 		[BackgroundData]
 		public float startAltitude 
@@ -577,82 +818,7 @@ internal static class Data
 			}
 		}
 
-		[BackgroundData(backingFieldName = nameof(_atmosphereColor))]
-		public Color atmosphereColor
-		{
-			get => _atmosphereColor ?? Scene?.atmosphereColor ?? new Color(0.16078432f, 0.23137255f, 0.31764707f); 
-			set
-			{
-				_atmosphereColor = value;
-				if (Scene != null)
-				{
-					Scene.atmosphereColor = value;
-					Shader.SetGlobalVector(RainWorld.ShadPropAboveCloudsAtmosphereColor, value);
-				}
-			}
-		}
-
-		[BackgroundData(backingFieldName = nameof(_multiplyColor))]
-		public Color multiplyColor
-		{
-			get => _multiplyColor ?? Color.white;
-			set
-			{
-				_multiplyColor = value;
-				if (Scene != null)
-					Shader.SetGlobalVector(RainWorld.ShadPropMultiplyColor, value);
-			}
-		}
-
-		[BackgroundData]
-		public string daySky
-		{
-			get => _daySky ?? Scene?.daySky.illustrationName ?? "AtC_Sky"; 
-			set
-			{
-				_daySky = value;
-				if (DoesTextureExist(value) && Scene != null)
-				{
-					Scene.LoadGraphic(value, true, true);
-					Scene.daySky.illustrationName = value;
-				}
-			}
-		}
-
-		[BackgroundData]
-		public string duskSky
-		{
-			get => _duskSky ?? Scene?.duskSky.illustrationName ?? "AtC_DuskSky"; 
-			set
-			{
-				_duskSky = value;
-				if (DoesTextureExist(value) && Scene != null)
-				{
-					Scene.LoadGraphic(value, true, true);
-					Scene.duskSky.illustrationName = value;
-				}
-			}
-		}
-
-		[BackgroundData]
-		public string nightSky
-		{
-			get => _nightSky ?? Scene?.nightSky.illustrationName ?? "AtC_NightSky"; 
-			set
-			{
-				_nightSky = value;
-				if (DoesTextureExist(value) && Scene != null)
-				{
-					Scene.LoadGraphic(value, true, true);
-					Scene.nightSky.illustrationName = value;
-				}
-			}
-		}
-
 		#region backingfields
-		private string? _daySky;
-		private string? _duskSky;
-		private string? _nightSky;
 		private float? _startAltitude;
 		private float? _endAltitude;
 		private float? _cloudsStartDepth;
@@ -664,13 +830,11 @@ internal static class Data
 		private float? _overrideYStart;
 		private float? _overrideYEnd;
 		private float? _windDir;
-		private Color? _atmosphereColor;
-		private Color? _multiplyColor;
 		#endregion
 
 		public bool redoClouds;
 
-		public AboveCloudsView? Scene;
+		public AboveCloudsView? Scene { get => _Scene is AboveCloudsView acv ? acv : null; set => _Scene = value; }
 
 		public override void MakeScene(BackgroundScene self)
 		{
@@ -735,12 +899,6 @@ internal static class Data
 			{
 				RedoClouds(Scene);
 			}
-
-			if (message == "atmoUpdate")
-			{
-				Scene.atmosphereColor = atmosphereColor;
-				Shader.SetGlobalVector("_AboveCloudsAtmosphereColor", atmosphereColor);
-			}
 		}
 
 		public override void LineToData(string line)
@@ -762,7 +920,7 @@ internal static class Data
 		}
 	}
 
-	public class RoofTopView_SceneData : BGSceneData
+	public class RoofTopView_SceneData : DayNightSceneData
 	{
 		[BackgroundData]
 		public float floorLevel
@@ -775,51 +933,6 @@ internal static class Data
 				{
 					UpdateFloorLevel(floorLevel - Scene.floorLevel);
 					Scene.floorLevel = value;
-				}
-			}
-		}
-
-		[BackgroundData]
-		public string daySky
-		{
-			get => _daySky ?? Scene?.daySky.illustrationName ?? "AtC_Sky";
-			set
-			{
-				_daySky = value;
-				if (DoesTextureExist(value) && Scene != null)
-				{
-					Scene.LoadGraphic(value, true, true);
-					Scene.daySky.illustrationName = value;
-				}
-			}
-		}
-
-		[BackgroundData]
-		public string duskSky
-		{
-			get => _duskSky ?? Scene?.duskSky.illustrationName ?? "AtC_DuskSky";
-			set
-			{
-				_duskSky = value;
-				if (DoesTextureExist(value) && Scene != null)
-				{
-					Scene.LoadGraphic(value, true, true);
-					Scene.duskSky.illustrationName = value;
-				}
-			}
-		}
-
-		[BackgroundData]
-		public string nightSky
-		{
-			get => _nightSky ?? Scene?.nightSky.illustrationName ?? "AtC_NightSky";
-			set
-			{
-				_nightSky = value;
-				if (DoesTextureExist(value) && Scene != null)
-				{
-					Scene.LoadGraphic(value, true, true);
-					Scene.nightSky.illustrationName = value;
 				}
 			}
 		}
@@ -839,42 +952,13 @@ internal static class Data
 			}
 		}
 
-		[BackgroundData(backingFieldName = nameof(_atmosphereColor))]
-		public Color atmosphereColor
-		{
-			get => _atmosphereColor ?? Scene?.atmosphereColor ?? new Color(0.16078432f, 0.23137255f, 0.31764707f);
-			set
-			{
-				_atmosphereColor = value;
-				if (Scene != null) Scene.atmosphereColor = value;
-				Shader.SetGlobalVector(RainWorld.ShadPropAboveCloudsAtmosphereColor, value);
-			}
-		}
-
-		[BackgroundData(backingFieldName = nameof(_multiplyColor))]
-		public Color multiplyColor
-		{
-			get => _multiplyColor ?? Color.white;
-			set
-			{
-				_multiplyColor = value;
-				if (Scene != null)
-					Shader.SetGlobalVector(RainWorld.ShadPropMultiplyColor, value);
-			}
-		}
-
 		#region backingfields
 		private Vector2? _origin;
 		private bool? lCMode;
 		private float? _floorLevel;
-		private string? _daySky;
-		private string? _duskSky;
-		private string? _nightSky;
-		private Color? _atmosphereColor;
-		private Color? _multiplyColor;
 		#endregion
 
-		public RoofTopView? Scene;
+		public RoofTopView? Scene { get => _Scene is RoofTopView acv ? acv : null; set => _Scene = value; }
 
 		public override void MakeScene(BackgroundScene self)
 		{

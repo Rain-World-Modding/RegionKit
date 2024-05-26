@@ -183,6 +183,7 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 
 - Alduris
 	- Butterfly insect effect
+	- Zipper insect effect
 
 **Initial ExtendedGates authors**: Henpemaz (code); Mehri'Kairotep, Thalber, LB/M4rbleL1ne and Nautillo (spritework).
 

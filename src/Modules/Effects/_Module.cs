@@ -34,12 +34,15 @@ public static class _Module
 		HSLDisplaySnow.RDSLoadResources(rainworld);
 		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
 	}
+
 	internal static void Enable()
 	{
 		GlowingSwimmersCI.Apply();
 		ColoredCamoBeetlesCI.Apply();
 		MosquitoInsectsCI.Apply();
 		ButterfliesCI.Apply();
+		ZippersCI.Apply();
+		
 		ColorRoomEffect.Apply();
 		ReplaceEffectColor.Apply();
 		HiveColorAlpha.Apply();
@@ -63,6 +66,8 @@ public static class _Module
 		ColoredCamoBeetlesCI.Undo();
 		MosquitoInsectsCI.Undo();
 		ButterfliesCI.Undo();
+		ZippersCI.Undo();
+
 		ColorRoomEffect.Undo();
 		ReplaceEffectColor.Undo();
 		HiveColorAlpha.Undo();
@@ -89,6 +94,7 @@ public static class _Module
 			type == _Enums.MosquitoInsects ||
 			type == _Enums.ButterfliesA ||
 			type == _Enums.ButterfliesB ||
+			type == _Enums.Zippers ||
 			type == _Enums.PWMalfunction ||
 			type == _Enums.HiveColorAlpha ||
 			type == _Enums.MossWater ||

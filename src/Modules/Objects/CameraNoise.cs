@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Objects;
+﻿namespace RegionKit.Modules.Objects;
 public class CameraNoise : UpdatableAndDeletable, IDrawable
 {
 	private CameraNoiseData _data => (CameraNoiseData)_owner.data;
@@ -40,7 +40,7 @@ public class CameraNoise : UpdatableAndDeletable, IDrawable
 	private void RegenerateSpritesIfNeeded(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 		var resolution = rCam.game.rainWorld.screenSize;
-		if ((resolution, _data.amount, _data.minsegments, _data.maxsegments) == _c_settings)
+		if (sLeaser.sprites != null && (resolution, _data.amount, _data.minsegments, _data.maxsegments) == _c_settings)
 		{
 			return;
 		}

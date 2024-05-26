@@ -53,14 +53,13 @@ internal static class RKAdditionalClimbables
 		int count = 0;
 		var c = new ILCursor(il);
 		while (c.TryGotoNext(MoveType.After,
-			x => x.MatchLdfld<Creature.Grasp>("grabber"),
-			x => x.MatchIsinst<Player>(),
+			x => x.MatchLdloc(0),
 			x => x.MatchLdfld<Player>("bodyMode"),
 			x => x.MatchLdsfld<Player.BodyModeIndex>("ClimbingOnBeam"),
 			x => x.MatchCall(out _)))
 		{
 			c.Emit(OpCodes.Ldarg_0);
-			c.EmitDelegate((bool flag, MoreSlugcats.Yeek yeek) => JumpAllowed(flag, (yeek.grabbedBy[0].grabber as Player)!));
+			c.EmitDelegate((bool orig, MoreSlugcats.Yeek yeek) => JumpAllowed(orig, (yeek.grabbedBy[0].grabber as Player)!));
 			count++;
 		}
 		if (count == 0)

@@ -91,7 +91,7 @@ public class BackgroundPage : Page
 		subNodes.Add(buttonLoad);
 
 
-		subNodes.Add(new Button(owner, "Save", this, new Vector2(200f, 600f), 60f, "Save"));
+		//subNodes.Add(new Button(owner, "Save", this, new Vector2(200f, 600f), 60f, "Save"));
 
 
 		//backgroundType = new ExtEnumCycler<BackgroundTemplateType>(owner, "BackTypeCycle", this, new Vector2(170f, 580f), 120f, RoomSettings.BackgroundData().type, "Type");
@@ -155,7 +155,7 @@ public class BackgroundPage : Page
 
 			else if (sender.IDstring == "Save")
 			{
-				LogMessage($"\n\nBACKGROUND OUTPUT\n\n{RoomSettings.BackgroundData().Serialize()}\n\n");
+				Debug.Log($"\n\nBACKGROUND OUTPUT\n\n{string.Join("\n", RoomSettings.BackgroundData().Serialize())}\n\n");
 			}
 		}
 
@@ -164,14 +164,14 @@ public class BackgroundPage : Page
 			if (sender.IDstring == "XOffset" && sender is GenericSlider slider)
 			{
 				RoomSettings.BackgroundData().roomOffset.x = slider.actualValue;
-				RoomSettings.BackgroundData().realData.UpdateSceneElement("");
+				RoomSettings.BackgroundData().sceneData.UpdateSceneElement("");
 				RoomSettings.BackgroundData().UpdateOffsetInit();
 			}
 
 			else if (sender.IDstring == "YOffset" && sender is GenericSlider slider2)
 			{
 				RoomSettings.BackgroundData().roomOffset.y = slider2.actualValue;
-				RoomSettings.BackgroundData().realData.UpdateSceneElement("");
+				RoomSettings.BackgroundData().sceneData.UpdateSceneElement("");
 				RoomSettings.BackgroundData().UpdateOffsetInit();
 			}
 		}

@@ -11,6 +11,7 @@ public static class _Enums
 	//public static RoomSettings.RoomEffect.Type FogOfWarDarkened = new(nameof(FogOfWarDarkened), true);
 	public static RoomSettings.RoomEffect.Type FogOfWarSolid = new(nameof(FogOfWarSolid), false); // disabled
 	public static RoomSettings.RoomEffect.Type FogOfWarDarkened = new(nameof(FogOfWarDarkened), false); //disabled
+
 	/// <summary>
 	/// Glowing Swimmer effect enum
 	/// </summary>
@@ -20,13 +21,21 @@ public static class _Enums
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type ColoredCamoBeetles = new(nameof(ColoredCamoBeetles), true);
 	/// <summary>
-	/// Mosquito Insect effet enum
+	/// Mosquito Insect effect enum
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type MosquitoInsects = new(nameof(MosquitoInsects), true);
+	/// Butterfly A effect enum
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type ButterfliesA = new(nameof(ButterfliesA), true);
 	/// <summary>
 	/// Butterfly B effect enum
 	/// </summary>
+	public static RoomSettings.RoomEffect.Type ButterfliesB = new(nameof(ButterfliesB), true);
+	/// <summary>
+	/// Zipper effect enum
+	/// </summary>
 	public static RoomSettings.RoomEffect.Type Zippers = new(nameof(Zippers), true);
+	
 	/// <summary>
 	/// Glowing Swimmer insect enum
 	/// </summary>
@@ -41,6 +50,14 @@ public static class _Enums
 	public static CosmeticInsect.Type MosquitoInsect = new(nameof(MosquitoInsect), true);
 	/// <summary>
 	/// Butterfly A enum
+	/// </summary>
+	public static CosmeticInsect.Type ButterflyA = new(nameof(ButterflyA), true);
+	/// <summary>
+	/// Butterfly B enum
+	/// </summary>
+	public static CosmeticInsect.Type ButterflyB = new(nameof(ButterflyB), true);
+	/// <summary>
+	/// Zipper enum
 	/// </summary>
 	public static CosmeticInsect.Type Zipper = new(nameof(Zipper), true);
 
@@ -76,6 +93,15 @@ public static class _Enums
 	/// Effect category
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type ReflectiveWater = new(nameof(ReflectiveWater), true);
+
+	/// <summary>
+	/// Effect category
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type RGBElectricDeath = new(nameof(RGBElectricDeath), true);
+	/// <summary>
+	/// Effect category
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type HSLDisplaySnow = new(nameof(HSLDisplaySnow), true);
 	/// <summary>
 	/// Effect category
 	/// </summary>

@@ -185,7 +185,7 @@ internal class SlipperyZone : UpdatableAndDeletable
 			c.Emit(OpCodes.Ldloc, 3);
 			c.Emit(OpCodes.Ldloc, 4);
 			c.EmitDelegate((float orig, BodyChunk self, Vector2 slopePos, int direction) => {
-				if (GetSlippy(self) is not SlipperyZone zone || zone.AffectSlopes) return orig;
+				if (GetSlippy(self) is not SlipperyZone zone || !zone.AffectSlopes) return orig;
 
 
 				slopePos -= new Vector2(10f, 10f); //set to bottom left

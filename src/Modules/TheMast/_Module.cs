@@ -1,4 +1,7 @@
-﻿namespace RegionKit.Modules.TheMast;
+﻿using EffExt;
+using RegionKit.Modules.Effects;
+
+namespace RegionKit.Modules.TheMast;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "The Mast")]
 internal static class _Module
@@ -8,6 +11,15 @@ internal static class _Module
 		PearlChains.Apply();
 		WindSystem.Apply();
 		WormGrassFix.Apply();
+		new EffectDefinitionBuilder("FullRoomWind")
+			.AddBoolField("Vertical", false)
+			.SetUADFactory((room, data, firstTimeRealized) => {
+				var wind = new WindSystem.Wind(new PlacedObject(_Enums.PlacedWind, null));
+				wind._placedObj.data = new WindSystem.WindData(data, wind._placedObj);
+				return wind;
+				})
+			.SetCategory("RegionKit")
+			.Register();
 	}
 	public static void Enable()
 	{

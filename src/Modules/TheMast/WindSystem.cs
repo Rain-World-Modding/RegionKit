@@ -215,6 +215,7 @@ namespace RegionKit.Modules.TheMast
 						}
 					}
 				}
+				if (Data._effectExtraData != null) Data.EffectsUpdate();
 			}
 
 			private float ApplyWind(float vel, float target, float force)
@@ -251,9 +252,9 @@ namespace RegionKit.Modules.TheMast
 
 			private bool WindAffectsPoint(Vector2 p)
 			{
-				WindData wd = (WindData)_placedObj.data;
+				if (Data._effectExtraData != null) return true;
 				p -= _placedObj.pos;
-				return TriContainsPoint(p, Vector2.zero, wd.handles[0], wd.handles[1]) || TriContainsPoint(p, wd.handles[1], wd.handles[2], Vector2.zero);
+				return TriContainsPoint(p, Vector2.zero, Data.handles[0], Data.handles[1]) || TriContainsPoint(p, Data.handles[1], Data.handles[2], Vector2.zero);
 			}
 
 			// From https://blackpawn.com/texts/pointinpoly/
@@ -283,6 +284,23 @@ namespace RegionKit.Modules.TheMast
 
 		public class WindData : PlacedObject.QuadObjectData
 		{
+
+			internal EffExt.EffectExtraData? _effectExtraData;
+
+			public WindData(EffExt.EffectExtraData effectsData, PlacedObject owner) : base(owner)
+			{
+				_effectExtraData = effectsData;
+				affectGroup = AffectGroup.Creatures;
+				EffectsUpdate();
+			}
+
+			public void EffectsUpdate()
+			{
+				if (_effectExtraData == null) return;
+				velocity = (_effectExtraData.Amount * 2f) - 1f;
+				vertGroup = _effectExtraData.GetBool("Vertical") ? VertGroup.Vertical : VertGroup.Horizontal;
+			}
+
 			public float velocity;
 			public AffectGroup affectGroup;
 			public VertGroup vertGroup;

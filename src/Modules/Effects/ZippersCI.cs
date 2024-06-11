@@ -96,15 +96,15 @@ namespace RegionKit.Modules.Effects
 	{
 		public Vector2 lastLastPos;
 		public Vector2 dir;
-		private Vector2? zipFrom;
-		private Vector2? zipTo;
+		public Vector2? zipFrom;
+		public Vector2? zipTo;
 
 		public float zip;
 		public float lastZip;
 		public float glow;
 		public float lastGlow;
 
-		private int zipCooldown;
+		public int zipCooldown;
 		public Color zipColor;
 		public Color fadeColor;
 		private LightSource light;

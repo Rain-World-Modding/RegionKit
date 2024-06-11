@@ -35,6 +35,10 @@ public static class _Enums
 	/// Zipper effect enum
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type Zippers = new(nameof(Zippers), true);
+	/// <summary>
+	/// Circuit fly effect enum
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type CircuitFlies = new(nameof(CircuitFlies), true);
 	
 	/// <summary>
 	/// Glowing Swimmer insect enum
@@ -60,6 +64,10 @@ public static class _Enums
 	/// Zipper enum
 	/// </summary>
 	public static CosmeticInsect.Type Zipper = new(nameof(Zipper), true);
+	/// <summary>
+	/// Circuit fly enum
+	/// </summary>
+	public static CosmeticInsect.Type CircuitFly = new(nameof(CircuitFly), true);
 
 	/// <summary>
 	/// ReplaceEffectColorA

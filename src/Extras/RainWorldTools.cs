@@ -80,11 +80,11 @@ public static class RainWorldTools
 	}
 	public static FContainer ReturnFContainer(this RoomCamera rcam, ContainerCodes cc)
 		=> rcam.ReturnFContainer(cc.ToString());
-	public static IEnumerable<IRoomZone> GetZones(this Room room, params int[] tags)
+	public static IEnumerable<Modules.RoomZones.IRoomZone> GetZones(this Room room, params int[] tags)
 	{
 		foreach (UpdatableAndDeletable uad in room.updateList)
 		{
-			if (uad is IRoomZone zone && tags.Contains(zone.Tag)) yield return zone;
+			if (uad is Modules.RoomZones.IRoomZone zone && tags.Contains(zone.Tag)) yield return zone;
 		}
 	}
 

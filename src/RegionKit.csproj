@@ -45,6 +45,8 @@
 	<!-- Editorconfig -->
 	<ItemGroup>
 		<None Include="./.editorconfig" />
+		<None Include="Modules\Atmo\ConsoleFace.cs" />
+		<None Include="Modules\Atmo\Helpers\Utils.cs" />
 		<None Include="Modules\BackgroundBuilder\OLDBuilderPage.cs" />
 		<EditorConfigFiles Remove="./.editorconfig" />
 	</ItemGroup>
@@ -56,6 +58,11 @@
 		<Compile Remove="Embedded/**" />
 		<None Include="Embedded/**" />
 		<EmbeddedResource Include="Embedded/**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Modules\Atmo\ConsoleFace.cs" />
+	  <Compile Remove="Modules\Atmo\Helpers\Utils.cs" />
 	</ItemGroup>
 
 	<!-- Lib includes. -->

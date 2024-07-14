@@ -530,9 +530,7 @@ internal static class Data
 		{
 			get
 			{
-				return _daySky ?? 
-					((_Scene is AboveCloudsView acv) ? acv.daySky.illustrationName : 
-					(_Scene is RoofTopView rtv) ? rtv.daySky.illustrationName : "AtC_Sky");
+				return _daySky ?? (_Scene as AboveCloudsView)?.daySky.illustrationName ?? (_Scene as RoofTopView)?.daySky.illustrationName ?? "AtC_Sky";
 			}
 
 			set
@@ -552,9 +550,7 @@ internal static class Data
 		{
 			get
 			{
-				return _duskSky ??
-					((_Scene is AboveCloudsView acv) ? acv.duskSky.illustrationName :
-					(_Scene is RoofTopView rtv) ? rtv.duskSky.illustrationName : "AtC_Sky");
+				return _duskSky ?? (_Scene as AboveCloudsView)?.duskSky.illustrationName ?? (_Scene as RoofTopView)?.duskSky.illustrationName ?? "AtC_duskSky";
 			}
 
 			set
@@ -574,9 +570,7 @@ internal static class Data
 		{
 			get
 			{
-				return _nightSky ??
-					((_Scene is AboveCloudsView acv) ? acv.nightSky.illustrationName :
-					(_Scene is RoofTopView rtv) ? rtv.nightSky.illustrationName : "AtC_Sky");
+				return _nightSky ?? (_Scene as AboveCloudsView)?.nightSky.illustrationName ?? (_Scene as RoofTopView)?.nightSky.illustrationName ?? "AtC_nightSky";
 			}
 
 			set

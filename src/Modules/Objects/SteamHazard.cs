@@ -39,6 +39,7 @@ public class SteamHazard : UpdatableAndDeletable
 	///<inheritdoc/>
 	public override void Update(bool eu)
 	{
+		const float deltaTime = 1 / 40f; // Supposed to be time between ticks, used to use Time.deltaTime. That does not play nice with lag/frame drops, though.
 		base.Update(eu);
 		ManagedData managedData = (ManagedData)_placedObject.data;
 		_durationRate = managedData.GetValue<float>("f1");
@@ -48,18 +49,18 @@ public class SteamHazard : UpdatableAndDeletable
 		_fromPos = _placedObject.pos;
 		_toPos = managedData.GetValue<Vector2>("v1");
 
-		//Steam burst
+		// Steam burst
 		if (_soundLoop != null)
 		{
 			if (_soundLoop.Volume > 0f)
 			{
 				_soundLoop.Update();
 			}
-			_frequency += _frequencyRate * Time.deltaTime;
+			_frequency += _frequencyRate * deltaTime;
 			if (_frequency >= 1f)
 			{
 				_soundLoop.Volume = 0.6f;
-				_duration += _durationRate * Time.deltaTime;
+				_duration += _durationRate * deltaTime;
 				_steam.EmitSmoke(_fromPos, _toPos * 0.15f, room.RoomRect, _lifetime);
 				if (_duration >= 1f)
 				{
@@ -69,7 +70,7 @@ public class SteamHazard : UpdatableAndDeletable
 			}
 			else
 			{
-				_soundLoop.Volume -= 0.5f * Time.deltaTime;
+				_soundLoop.Volume -= 0.5f * deltaTime;
 				if (_soundLoop.Volume <= 0f)
 				{
 					_soundLoop.Stop();
@@ -80,34 +81,27 @@ public class SteamHazard : UpdatableAndDeletable
 		//Creature hit by steam
 		for (int i = 0; i < _steam.particles.Count; i++)
 		{
-			if (_steam.particles[i].life > _dangerRange)
-			{
-				for (int w = 0; w < room.physicalObjects.Length; w++)
-				{
-					for (int j = 0; j < room.physicalObjects[w].Count; j++)
-					{
-						for (int k = 0; k < room.physicalObjects[w][j].bodyChunks.Length; k++)
-						{
-							Vector2 a = room.physicalObjects[w][j].bodyChunks[k].ContactPoint.ToVector2();
-							Vector2 v = room.physicalObjects[w][j].bodyChunks[k].pos + a * (room.physicalObjects[w][j].bodyChunks[k].rad + 30f);
+			if (_steam.particles[i].life <= _dangerRange) continue;
 
-							if (Vector2.Distance(_steam.particles[i].pos, v) < 20f)
-							{
-								if (room.physicalObjects[w][j] is Creature crit)
-								{
-									if (crit.stun == 0)
-									{
-										crit.stun = 100;
-										room.AddObject(new CreatureSpasmer(room.physicalObjects[w][j] as Creature, false, crit.stun));
-										float silentChance = room.game.cameras[0].virtualMicrophone.soundLoader.soundTriggers[(int)SoundID.Gate_Water_Steam_Puff].silentChance;
-										room.game.cameras[0].virtualMicrophone.soundLoader.soundTriggers[(int)SoundID.Gate_Water_Steam_Puff].silentChance = 0f;
-										room.PlaySound(SoundID.Gate_Water_Steam_Puff, crit.mainBodyChunk, false, 0.8f, 1f);
-										room.PlaySound(SoundID.Big_Spider_Spit_Warning_Rustle, crit.mainBodyChunk, false, 1f, 1f);
-										room.game.cameras[0].virtualMicrophone.soundLoader.soundTriggers[(int)SoundID.Gate_Water_Steam_Puff].silentChance = silentChance;
-										return;
-									}
-								}
-							}
+			for (int w = 0; w < room.physicalObjects.Length; w++)
+			{
+				for (int j = 0; j < room.physicalObjects[w].Count; j++)
+				{
+					for (int k = 0; k < room.physicalObjects[w][j].bodyChunks.Length; k++)
+					{
+						Vector2 a = room.physicalObjects[w][j].bodyChunks[k].ContactPoint.ToVector2();
+						Vector2 v = room.physicalObjects[w][j].bodyChunks[k].pos + a * (room.physicalObjects[w][j].bodyChunks[k].rad + 30f);
+
+						if (Vector2.Distance(_steam.particles[i].pos, v) < 20f && room.physicalObjects[w][j] is Creature crit && crit.stun == 0)
+						{
+							crit.stun = 100;
+							room.AddObject(new CreatureSpasmer(room.physicalObjects[w][j] as Creature, false, crit.stun));
+							float silentChance = room.game.cameras[0].virtualMicrophone.soundLoader.soundTriggers[(int)SoundID.Gate_Water_Steam_Puff].silentChance;
+							room.game.cameras[0].virtualMicrophone.soundLoader.soundTriggers[(int)SoundID.Gate_Water_Steam_Puff].silentChance = 0f;
+							room.PlaySound(SoundID.Gate_Water_Steam_Puff, crit.mainBodyChunk, false, 0.8f, 1f);
+							room.PlaySound(SoundID.Big_Spider_Spit_Warning_Rustle, crit.mainBodyChunk, false, 1f, 1f);
+							room.game.cameras[0].virtualMicrophone.soundLoader.soundTriggers[(int)SoundID.Gate_Water_Steam_Puff].silentChance = silentChance;
+							return;
 						}
 					}
 				}

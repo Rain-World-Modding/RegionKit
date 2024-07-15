@@ -2,7 +2,6 @@
 using static RegionKit.Modules.Atmo.API.Backing;
 
 using RegionKit.Modules.Atmo.Body;
-using RegionKit.Modules.Atmo.Data;
 
 namespace RegionKit.Modules.Atmo.API;
 #pragma warning disable CS0419 // Ambiguous reference in cref attribute
@@ -28,16 +27,9 @@ public static class V0 {
 	/// <param name="cu">Core update callback.</param>
 	/// <param name="ignoreCase">Whether action name matching should be case sensitive.</param>
 	/// <returns>The number of name collisions encountered.</returns>
-	public static int AddNamedAction(
-		string[] names,
-		V0_lc_AbstractUpdate? au = null,
-		V0_lc_RealizedUpdate? ru = null,
-		V0_lc_Init? oi = null,
-		V0_lc_CoreUpdate? cu = null,
-		bool ignoreCase = true) {
-		return names
-				.Select((name) => AddNamedAction(name, au, ru, oi, cu, ignoreCase) ? 0 : 1)
-				.Aggregate((x, y) => x + y);
+	public static void AddNamedAction(string[] names, AbstractUpdate? au = null, RealizedUpdate? ru = null, Init? oi = null, CoreUpdate? cu = null, bool ignoreCase = true) 
+	{
+		foreach (string name in names) { AddNamedAction(name, au, ru, oi, cu, ignoreCase); }
 	}
 
 	/// <summary>
@@ -50,17 +42,14 @@ public static class V0 {
 	/// <param name="cu">Core update callback.</param>
 	/// <param name="ignoreCase">Whether action name matching should be case insensitive.</param>
 	/// <returns>True if successfully registered; false if name already taken.</returns>
-	public static bool AddNamedAction(
-		string name,
-		V0_lc_AbstractUpdate? au = null,
-		V0_lc_RealizedUpdate? ru = null,
-		V0_lc_Init? oi = null,
-		V0_lc_CoreUpdate? cu = null,
-		bool ignoreCase = true) {
+	public static void AddNamedAction(string name, AbstractUpdate? au = null, RealizedUpdate? ru = null, Init? oi = null, CoreUpdate? cu = null, bool ignoreCase = true) 
+	{
 		StringComparer? comp = ignoreCase ? StringComparer.CurrentCultureIgnoreCase : StringComparer.CurrentCulture;
-		if (__namedActions.ContainsKey(name)) { return false; }
-		void newCb(Happen ha) {
-			foreach (string? ac in ha.actions.Keys) {
+		if (__namedActions.ContainsKey(name)) { return; }
+		void newCb(Happen ha, ArgSet args) 
+		{
+			foreach (string? ac in ha.actions.Keys) 
+			{
 				if (comp.Compare(ac, name) == 0) {
 					ha.On_AbstUpdate += au;
 					ha.On_RealUpdate += ru;
@@ -71,8 +60,7 @@ public static class V0 {
 			}
 		}
 		__namedActions.Add(name, newCb);
-		EV_MakeNewHappen += newCb;
-		return true;
+		return;
 	}
 	/// <summary>
 	/// Registers a named action. Many names. Arbitrary Happen manipulation. Args support. 
@@ -81,13 +69,9 @@ public static class V0 {
 	/// <param name="builder">User builder callback.</param>
 	/// <param name="ignoreCase">Whether action name matching should be case sensitive.</param>
 	/// <returns>Number of name collisions encountered.</returns>
-	public static int AddNamedAction(
-		string[] names,
-		V0_Create_NamedHappenBuilder builder,
-		bool ignoreCase = true) {
-		return names
-				.Select((name) => AddNamedAction(name, builder, ignoreCase) ? 0 : 1)
-				.Aggregate((x, y) => x + y);
+	public static void AddNamedAction(string[] names, Create_NamedHappenBuilder builder, bool ignoreCase = true) 
+	{
+		foreach (string name in names) { AddNamedAction(name, builder, ignoreCase); }
 	}
 
 	/// <summary>
@@ -97,34 +81,24 @@ public static class V0 {
 	/// <param name="builder">User builder callback.</param>
 	/// <param name="ignoreCase"></param>
 	/// <returns>True if successfully added; false if already taken.</returns>
-	public static bool AddNamedAction(
-		string name,
-		V0_Create_NamedHappenBuilder builder,
-		bool ignoreCase = true) {
-		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length) {
+	public static void AddNamedAction(string name, Create_NamedHappenBuilder builder, bool ignoreCase = true) 
+	{
+		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length) 
+		{
 			LogWarning($"Invalid action name: {name}");
-			return false;
+			return;
 		}
-		if (__namedTriggers.ContainsKey(name)) { return false; }
-		StringComparer? comp = ignoreCase ? StringComparer.CurrentCultureIgnoreCase : StringComparer.CurrentCulture;
-		void newCb(Happen ha) {
-			foreach (KeyValuePair<string, string[]> ac in ha.actions) {
-				if (comp.Compare(ac.Key, name) == 0) {
-					builder?.Invoke(ha, ac.Value);
-				}
-			}
-		}
-		__namedActions.Add(name, newCb);
-		EV_MakeNewHappen += newCb;
-		return true;
+		if (__namedActions.ContainsKey(name)) { return; }
+		__namedActions.Add(name, builder);
+		return;
 	}
 	/// <summary>
 	/// Removes a named callback.
 	/// </summary>
 	/// <param name="action"></param>
-	public static void RemoveNamedAction(string action) {
-		if (!__namedActions.TryGetValue(action, out V0_Create_RawHappenBuilder? builder)) return;
-		EV_MakeNewHappen -= builder;
+	public static void RemoveNamedAction(string action) 
+	{
+		if (!__namedActions.TryGetValue(action, out Create_NamedHappenBuilder? builder)) return;
 		__namedActions.Remove(action);
 	}
 	/// <summary>
@@ -134,13 +108,9 @@ public static class V0 {
 	/// <param name="fac">User trigger factory callback.</param>
 	/// <param name="ignoreCase">Whether trigger name should be case sensitive.</param>
 	/// <returns>Number of name collisions encountered.</returns>
-	public static int AddNamedTrigger(
-		string[] names,
-		V0_Create_NamedTriggerFactory fac,
-		bool ignoreCase = true) {
-		return names
-				.Select((name) => AddNamedTrigger(name, fac, ignoreCase) ? 1 : 0)
-				.Aggregate((x, y) => x + y);
+	public static void AddNamedTrigger(string[] names, Create_NamedTriggerFactory fac, bool ignoreCase = true) 
+	{
+		foreach (var name in names) { AddNamedTrigger(name, fac, ignoreCase); }
 	}
 	/// <summary>
 	/// Registers a named trigger. Single name.
@@ -149,32 +119,23 @@ public static class V0 {
 	/// <param name="fac">User factory callback.</param>
 	/// <param name="ignoreCase">Whether name matching should be case insensitive.</param>
 	/// <returns></returns>
-	public static bool AddNamedTrigger(
-		string name,
-		V0_Create_NamedTriggerFactory fac,
-		bool ignoreCase = true) {
+	public static void AddNamedTrigger(string name, Create_NamedTriggerFactory fac, bool ignoreCase = true) 
+	{
 		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length) {
 			LogWarning($"Invalid trigger name: {name}");
-			return false;
+			return;
 		}
-		if (__namedTriggers.ContainsKey(name)) { return false; }
-		StringComparer? comp = ignoreCase ? StringComparer.CurrentCultureIgnoreCase : StringComparer.CurrentCulture;
-
-		HappenTrigger? newCb(string n, ArgSet args, RainWorldGame rwg, Happen ha) {
-			if (comp.Compare(n, name) == 0) return fac(args, rwg, ha);
-			return null;
-		}
-		__namedTriggers.Add(name, newCb);
-		EV_MakeNewTrigger += newCb;
-		return true;
+		if (__namedTriggers.ContainsKey(name)) return;
+		__namedTriggers.Add(name, fac);
+		return;
 	}
 	/// <summary>
 	/// Removes a registered trigger by name.
 	/// </summary>
 	/// <param name="name"></param>
-	public static void RemoveNamedTrigger(string name) {
-		if (!__namedTriggers.TryGetValue(name, out V0_Create_RawTriggerFactory? fac)) return;
-		EV_MakeNewTrigger -= fac;
+	public static void RemoveNamedTrigger(string name)
+	{
+		if (!__namedTriggers.TryGetValue(name, out Create_NamedTriggerFactory? fac)) return;
 		__namedTriggers.Remove(name);
 	}
 	/// <summary>
@@ -184,11 +145,11 @@ public static class V0 {
 	/// <param name="handler">User handler callback.</param>
 	/// <param name="ignoreCase">Whether name matching should be case insensitive.</param>
 	/// <returns>Number of errors and name collisions encountered.</returns>
-	public static int AddNamedMetafun(
-		string[] names,
-		V0_Create_NamedMetaFunction handler,
-		bool ignoreCase = true)
-		=> names.Select((name) => AddNamedMetafun(name, handler, ignoreCase) ? 0 : 1).Aggregate((x, y) => x + y);
+	public static void AddNamedMetafun(string[] names, Create_NamedMetaFunction handler, bool ignoreCase = true)
+	{
+		foreach (string name in names) { AddNamedMetafun(name, handler, ignoreCase); }
+	}
+
 	/// <summary>
 	/// Registers a metafunction with a given single name.
 	/// </summary>
@@ -196,70 +157,25 @@ public static class V0 {
 	/// <param name="handler">User handler callback.</param>
 	/// <param name="ignoreCase">Whether macro name matching should be case insensitive.</param>
 	/// <returns>True if successfully attached; false otherwise.</returns>
-	public static bool AddNamedMetafun(
-		string name,
-		V0_Create_NamedMetaFunction handler,
-		bool ignoreCase = true) {
-		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length) {
+	public static bool AddNamedMetafun(string name, Create_NamedMetaFunction handler, bool ignoreCase = true) 
+	{
+		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length) 
+		{
 			LogWarning($"Invalid metafun name: {name}");
 			return false;
 		}
 		if (__namedMetafuncs.ContainsKey(name)) return false;
-		StringComparer comp = ignoreCase ? StringComparer.CurrentCultureIgnoreCase : StringComparer.CurrentCulture;
-		IArgPayload? newCb(string n, string val, int ss, SlugcatStats.Name ch) {
-			if (comp.Compare(n, name) == 0) return handler(val, ss, ch);
-			return null;
-		}
-		EV_ApplyMetafunctions += newCb;
-		__namedMetafuncs.Add(name, newCb);
+		__namedMetafuncs.Add(name, handler);
 		return true;
 	}
 	/// <summary>
 	/// Clears a metafunction name binding.
 	/// </summary>
 	/// <param name="name"></param>
-	public static void RemoveNamedMetafun(string name) {
-		if (!__namedMetafuncs.TryGetValue(name, out V0_Create_RawMetaFunction? handler)) return;
-		EV_ApplyMetafunctions -= handler;
+	public static void RemoveNamedMetafun(string name) 
+	{
+		if (!__namedMetafuncs.TryGetValue(name, out Create_NamedMetaFunction? handler)) return;
 		__namedMetafuncs.Remove(name);
-	}
-	/// <summary>
-	/// Subscribe to this to attach your custom callbacks to newly created happen objects.
-	/// You can also use <see cref="AddNamedAction"/> overloads as name-safe wrappers.
-	/// </summary>
-	public static event V0_Create_RawHappenBuilder? EV_MakeNewHappen {
-		add {
-			Backing.__EV_MakeNewHappen += value;
-		}
-		remove {
-			Backing.__EV_MakeNewHappen -= value;
-		}
-	}
-
-	/// <summary>
-	/// Subscribe to this to dispense your custom triggers.
-	/// You can also use <see cref="AddNamedTrigger"/> overloads as a name-safe wrappers.
-	/// </summary>
-	public static event V0_Create_RawTriggerFactory? EV_MakeNewTrigger {
-		add {
-			Backing.__EV_MakeNewTrigger += value;
-		}
-		remove {
-			Backing.__EV_MakeNewTrigger -= value;
-		}
-
-	}
-
-	/// <summary>
-	/// Subscribe to this to register custom variables-macros. You can also use <see cref="AddNamedMetafun"/> overloads as name-safe wrappers.
-	/// </summary>
-	public static event V0_Create_RawMetaFunction? EV_ApplyMetafunctions {
-		add {
-			Backing.__EV_ApplyMetafunctions += value;
-		}
-		remove {
-			Backing.__EV_ApplyMetafunctions -= value;
-		}
 	}
 
 #pragma warning restore CS0419 // Ambiguous reference in cref attribute

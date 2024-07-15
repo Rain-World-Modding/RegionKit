@@ -23,27 +23,16 @@ public static partial class VarRegistry {
 	/// <param name="saveslot">Save slot to look at</param>
 	/// <param name="character">Character to look at</param>
 	/// <returns></returns>
-	public static Arg? GetMetaFunction(string text, in int saveslot, in SlugcatStats.Name character) {
+	public static Arg? GetMetaFunction(string text, in int saveslot, in SlugcatStats.Name character) 
+	{
 		Match _is;
 		if (!(_is = __Metaf_Sub.Match(text)).Success) return null;
 		string name = __Metaf_Name.Match(text).Value;//text.Substring(0, Mathf.Max(_is.Index - 1, 0));
 		VerboseLog($"Attempting to create metafun from {text} (name {name}, match {_is.Value})");
-		IEnumerable<V0_Create_RawMetaFunction?>? invl = __AM_invl;
-		IArgPayload? res = null;
-		if (invl is null) {
-			VerboseLog("No metafun handlers attached");
-			return null;
-		}
-		foreach (V0_Create_RawMetaFunction? inv in invl) {
-			try {
-				if ((res = inv?.Invoke(name, _is.Value, saveslot, character)) is not null) {
-					return new(res);
-				}
-			}
-			catch (Exception ex) {
-				LogError($"VarRegistry: Error invoking metafun handler {inv}//{inv?.Method} for {name}, {_is.Value}:" +
-					$"\n{ex}");
-			}
+		if (__namedMetafuncs.TryGetValue(text, out var metaFunc))
+		{
+			IArgPayload? res = metaFunc.Invoke(_is.Value, saveslot, character);
+			if (res != null) return new(res);
 		}
 		VerboseLog($"No metafun {name}, variable lookup continues as normal");
 		return null;

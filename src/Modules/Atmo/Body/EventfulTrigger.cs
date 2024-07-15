@@ -3,7 +3,7 @@
 /// <summary>
 /// An event-driven trigger. Does not inherit <see cref="HappenTrigger.NeedsRWG"/>, intended to be used with lambdas and local capture for state. The following example's factory uses that to create an instance that will, every frame, roll a number between 0 and 5, and the trigger will be active if it rolled 0 that frame:
 /// <code>
-/// <see cref="API.V0_Create_NamedTriggerFactory"/> fac = (args, game, happ) =>
+/// <see cref="API.Create_NamedTriggerFactory"/> fac = (args, game, happ) =>
 ///	{
 ///		int x = 6;
 ///		int c = 0;

@@ -11,17 +11,9 @@ public struct HappenConfig {
 	/// </summary>
 	public string name;
 	/// <summary>
-	/// List of room groups the happen is associated with.
+	/// Group the happen is associated with.
 	/// </summary>
-	public List<string> groups;
-	/// <summary>
-	/// List of included rooms.
-	/// </summary>
-	public List<string> include;
-	/// <summary>
-	/// List of excluded rooms.
-	/// </summary>
-	public List<string> exclude;
+	public RoomGroup myGroup;
 	/// <summary>
 	/// List of action names with parameters.
 	/// </summary>
@@ -36,10 +28,8 @@ public struct HappenConfig {
 	/// <param name="name"></param>
 	public HappenConfig(string name) {
 		this.name = name;
-		groups = new();
 		actions = new();
-		include = new();
-		exclude = new();
+		myGroup = new(name);
 		conditions = null;
 	}
 }

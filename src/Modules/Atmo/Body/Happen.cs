@@ -119,10 +119,8 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// Make sure it is properly instantiated, and none of the fields are unexpectedly null.</param>
 	/// <param name="owner">HappenSet this happen will belong to. Must not be null.</param>
 	/// <param name="game">Current game instance. Must not be null.</param>
-	public Happen(
-		HappenConfig cfg,
-		HappenSet owner,
-		RainWorldGame game) {
+	public Happen(HappenConfig cfg, HappenSet owner, RainWorldGame game) 
+	{
 		BangBang(owner, nameof(owner));
 		BangBang(game, nameof(game));
 		Set = owner;
@@ -147,7 +145,7 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 		AbstractRoom absroom,
 		int time) {
 		if (On_AbstUpdate is null) return;
-		foreach (V0_lc_AbstractUpdate cb in On_AbstUpdate.GetInvocationList().Cast<V0_lc_AbstractUpdate>()) {
+		foreach (AbstractUpdate cb in On_AbstUpdate.GetInvocationList().Cast<AbstractUpdate>()) {
 			try {
 				cb?.Invoke(absroom, time);
 			}
@@ -160,11 +158,11 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// <summary>
 	/// Attach to this to receive a call once per abstract update, for every affected room.
 	/// </summary>
-	public event V0_lc_AbstractUpdate? On_AbstUpdate;
+	public event AbstractUpdate? On_AbstUpdate;
 	internal void RealUpdate(Room room) {
 		_sw.Start();
 		if (On_RealUpdate is null) return;
-		foreach (V0_lc_RealizedUpdate cb in On_RealUpdate.GetInvocationList().Cast<V0_lc_RealizedUpdate>()) {
+		foreach (RealizedUpdate cb in On_RealUpdate.GetInvocationList().Cast<RealizedUpdate>()) {
 			try {
 				cb?.Invoke(room);
 			}
@@ -181,11 +179,11 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// <summary>
 	/// Attach to this to receive a call once per realized update, for every affected room.
 	/// </summary>
-	public event V0_lc_RealizedUpdate? On_RealUpdate;
+	public event RealizedUpdate? On_RealUpdate;
 	internal void Init(World world) {
 		InitRan = true;
 		if (On_Init is null) return;
-		foreach (V0_lc_Init cb in On_Init.GetInvocationList().Cast<V0_lc_Init>()) {
+		foreach (Init cb in On_Init.GetInvocationList().Cast<Init>()) {
 			try {
 				cb?.Invoke(world);
 			}
@@ -202,7 +200,7 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// <summary>
 	/// Subscribe to this to receive one call before abstract or realized update is first ran.
 	/// </summary>
-	public event V0_lc_Init? On_Init;
+	public event Init? On_Init;
 	internal void CoreUpdate() {
 		_sw.Start();
 		for (int tin = triggers.Count - 1; tin > -1; tin--) {
@@ -248,7 +246,7 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 		if (On_CoreUpdate is null) return;
 
 		//todo: cast cost?
-		foreach (V0_lc_CoreUpdate cb in On_CoreUpdate.GetInvocationList()) {
+		foreach (CoreUpdate cb in On_CoreUpdate.GetInvocationList()) {
 			try {
 				cb(game);
 			}
@@ -263,7 +261,7 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// <summary>
 	/// Subscribe to this to receive an update once per frame.
 	/// </summary>
-	public event V0_lc_CoreUpdate? On_CoreUpdate;
+	public event CoreUpdate? On_CoreUpdate;
 	#endregion
 	public bool AffectsRoom(AbstractRoom? room) => room is not null ? this.Set.GetRoomsForHappen(this).Contains(room.name) : false;
 	/// <summary>

@@ -35,7 +35,8 @@ public static partial class HappenBuilding {
 #warning contributor notice: triggers
 	//Place your trigger registration code here.
 	//Do not remove this warning directive.
-	internal static void __RegisterBuiltinTriggers() {
+	internal static void __RegisterBuiltinTriggers() 
+	{
 		AddNamedTrigger(new[] { "always" }, TMake_Always);
 		AddNamedTrigger(new[] { "untilrain", "beforerain" }, TMake_UntilRain);
 		AddNamedTrigger(new[] { "afterrain" }, TMake_AfterRain);
@@ -1119,40 +1120,36 @@ public static partial class HappenBuilding {
 			}
 		};
 	}
-	private static IArgPayload? MMake_FileReadWrite(string text, int ss, SlugcatStats.Name ch) {
+	private static IArgPayload? MMake_FileReadWrite(string text, int ss, SlugcatStats.Name ch) 
+	{
 		LogWarning($"CAUTION: {nameof(MMake_FileReadWrite)} DOES NO SAFETY CHECKS! Atmo developers are not responsible for any accidental damage by write");
 		IO.FileInfo file = new(text);
 		DateTime? lwt = null;//file.LastWriteTimeUtc;
-		Arg pl = new(string.Empty);
-		void UpdateFile() {
+		string pl = string.Empty;
+
+		string ReadFromFile() 
+		{
 			file.Refresh();
-			try {
-				if (file.Exists) {
-					if (file.LastWriteTimeUtc == lwt) {
-						return;
-					}
+			try
+			{
+				if (file.Exists && file.LastWriteTimeUtc != lwt)
+				{
 					lwt = file.LastWriteTimeUtc;
 					using IO.StreamReader sr = file.OpenText();
-					pl.Str = sr.ReadToEnd();
+					pl = sr.ReadToEnd();
 				}
 			}
-			catch (IO.IOException ex) {
-				LogError($"Could not sync with file {file.FullName}: {ex}");
-			}
+			catch (IO.IOException ex) { LogError($"Could not sync with file {file.FullName}: {ex}"); }
+			return pl;
 		}
-		string ReadFromFile() {
-			UpdateFile();
-			return pl.Str;
-		}
-		void WriteToFile(string val) {
-			pl.Str = val;
+		void WriteToFile(string val) 
+		{
+			pl = val;
 			using IO.StreamWriter sw = file.CreateText();
 			sw.Write(val);
 			sw.Flush();
 		}
-		return new ByCallback() {
-			prop_Str = new(ReadFromFile, WriteToFile)
-		};
+		return new ByCallback<string>(ReadFromFile, WriteToFile);
 	}
 	private static IArgPayload? MMake_FMT(string text, int ss, SlugcatStats.Name ch) {
 		string[] bits = __FMT_Split.Split(text);

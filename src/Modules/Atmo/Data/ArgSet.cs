@@ -17,19 +17,23 @@ namespace RegionKit.Modules.Atmo.Data;
 ///		consistent argument syntax in various <see cref="Happen"/> actions.
 /// </para>
 /// </summary>
-public sealed class ArgSet : IList<Arg> {
+public sealed class ArgSet : IList<Arg>
+{
 	/// <summary>
 	/// Creates the instance from a given array of raw string arguments.
 	/// </summary>
 	/// <param name="rawargs"></param>
 	/// <param name="linkage">Whether to parse argument names and variable links on instantiation. On by default.</param>
-	public ArgSet(string[] rawargs, bool linkage = true) {
-		for (int i = 0; i < rawargs.Length; i++) {
+	public ArgSet(string[] rawargs, bool linkage = true)
+	{
+		for (int i = 0; i < rawargs.Length; i++)
+		{
 			Arg newarg = new(
 				rawargs[i] ?? string.Empty,
 				linkage);
 			_args.Add(newarg);
-			if (newarg.Name is not null) {
+			if (newarg.Name is not null)
+			{
 				_named.Add(newarg.Name, newarg);
 			}
 		}
@@ -50,12 +54,7 @@ public sealed class ArgSet : IList<Arg> {
 	/// </summary>
 	/// <param name="names">Names to check</param>
 	/// <returns>An <see cref="Arg"/> if one is found, null otherwise.</returns>
-	public Arg? this[params string[] names] {
-		get {
-			foreach (string? name in names) if (_named.TryGetValue(name, out Arg val)) return val;
-			return null;
-		}
-	}
+	public Arg? this[params string[] names] => _named.Where(n => names.Contains(n.Key)).Select(n => n.Value).FirstOrDefault();
 #pragma warning disable CS1591
 	#region interface
 	/// <summary>
@@ -68,43 +67,53 @@ public sealed class ArgSet : IList<Arg> {
 		=> _args.Count;
 	public bool IsReadOnly
 		=> false;
-	public void Add(Arg item) {
+	public void Add(Arg item)
+	{
 		_args.Add(item);
 	}
 
-	public void Clear() {
+	public void Clear()
+	{
 		_args.Clear();
 	}
 
-	public bool Contains(Arg item) {
+	public bool Contains(Arg item)
+	{
 		return _args.Contains(item);
 	}
 
-	public void CopyTo(Arg[] array, int arrayIndex) {
+	public void CopyTo(Arg[] array, int arrayIndex)
+	{
 		_args.CopyTo(array, arrayIndex);
 	}
 
-	public IEnumerator<Arg> GetEnumerator() {
+	public IEnumerator<Arg> GetEnumerator()
+	{
 		return _args.GetEnumerator();
 	}
 
-	public int IndexOf(Arg item) {
+	public int IndexOf(Arg item)
+	{
 		return _args.IndexOf(item);
 	}
 
-	public void Insert(int index, Arg item) {
+	public void Insert(int index, Arg item)
+	{
 		_args.Insert(index, item);
 	}
 
-	public bool Remove(Arg item) {
+	public bool Remove(Arg item)
+	{
 		return _args.Remove(item);
 	}
 
-	public void RemoveAt(int index) {
+	public void RemoveAt(int index)
+	{
 		_args.RemoveAt(index);
 	}
 
-	IEnumerator IEnumerable.GetEnumerator() {
+	IEnumerator IEnumerable.GetEnumerator()
+	{
 		return _args.GetEnumerator();
 	}
 	#endregion interface;
@@ -113,7 +122,8 @@ public sealed class ArgSet : IList<Arg> {
 	/// Creates a new ArgSet from a specified string array.
 	/// </summary>
 	/// <param name="raw"></param>
-	public static implicit operator ArgSet(string[] raw) {
+	public static implicit operator ArgSet(string[] raw)
+	{
 		return new(raw);
 	}
 }

@@ -10,7 +10,8 @@ namespace RegionKit.Modules.Atmo.Body;
 /// To get rooms a happen should be active in, see <seealso cref="GetRoomsForHappen(Happen)"/>.
 /// </para>
 /// </summary>
-public sealed class HappenSet {
+public sealed class HappenSet
+{
 	#region fields
 	/// <summary>
 	/// The world this instance is created for.
@@ -30,21 +31,24 @@ public sealed class HappenSet {
 	/// </summary>
 	/// <param name="world">World to be bound to.</param>
 	/// <param name="file">File to read contents from. New instance stays blank if this is null.</param>
-	public HappenSet(World world, System.IO.FileInfo? file = null) {
+	public HappenSet(World world, System.IO.FileInfo? file = null)
+	{
 		BangBang(world, nameof(world));
 		this.world = world;
 		//if (world is null || file is null) return;
-		if (file is not null && file.Exists) {
+		if (file is not null && file.Exists)
+		{
 			HappenParser.Parse(file, this, world.game);
 		}
-		else {
+		else
+		{
 			LogWarning($"No atmo file found for {file?.FullName ?? "NULL"}, leaving blank");
 		}
 
 		//subregions as groups
 		Dictionary<string, RoomGroup> subContents = new();
 
-		foreach (string sub in world.region.subRegions) 
+		foreach (string sub in world.region.subRegions)
 		{
 			subContents[sub] = new(sub);
 			subContents[sub].includeRooms.AddRange(world.abstractRooms
@@ -85,16 +89,18 @@ public sealed class HappenSet {
 	/// </summary>
 	/// <param name="ha">Happen to be checked. Must not be null.</param>
 	/// <returns>A set of room names for rooms the given happen should work in.</returns>
-	public IEnumerable<string> GetRoomsForHappen(Happen ha) {
+	public IEnumerable<string> GetRoomsForHappen(Happen ha)
+	{
 		BangBang(ha, nameof(ha));
-		return RoomGroups.TryGetValue(ha, out var group)? group.Rooms : new List<string>();
+		return RoomGroups.TryGetValue(ha, out var group) ? group.Rooms : new List<string>();
 	}
 	/// <summary>
 	/// Yields all happens a given room should have active.
 	/// </summary>
 	/// <param name="roomname">Room name to check. Must not be null.</param>
 	/// <returns>A set of happens active for given room.</returns>
-	public IEnumerable<Happen> GetHappensForRoom(string roomname) {
+	public IEnumerable<Happen> GetHappensForRoom(string roomname)
+	{
 		BangBang(roomname, nameof(roomname));
 		return RoomsToHappens.TryGetValue(roomname, out var happens) ? happens : new List<Happen>();
 	}
@@ -118,7 +124,7 @@ public sealed class HappenSet {
 	/// </summary>
 	/// <param name="happen"></param>
 	/// <param name="group"></param>
-	public void InsertHappen(Happen happen, RoomGroup group) 
+	public void InsertHappen(Happen happen, RoomGroup group)
 	{
 		AllHappens.Add(happen);
 		RoomGroups[happen] = group;
@@ -128,8 +134,10 @@ public sealed class HappenSet {
 	/// Yields performance records for all happens. Consume or discard the enumerable on the same frame.
 	/// </summary>
 	/// <returns></returns>
-	public IEnumerable<Happen.Perf> GetPerfRecords() {
-		foreach (Happen? ha in AllHappens) {
+	public IEnumerable<Happen.Perf> GetPerfRecords()
+	{
+		foreach (Happen? ha in AllHappens)
+		{
 			yield return ha.PerfRecord();
 		}
 	}

@@ -2,7 +2,8 @@
 /// <summary>
 /// Objects that can be used as payloads for <see cref="Arg"/>. Don't forget to add <see cref="object.ToString"/> override! Implement this, or use <see cref="Payloads.ByCallbackGetOnly"/> and <see cref="Payloads.ByCallback"/> if you want callback-driven shorthands.
 /// </summary>
-public interface IArgPayload {
+public interface IArgPayload 
+{
 	/// <summary>
 	/// Raw string used to create the instance.
 	/// </summary>

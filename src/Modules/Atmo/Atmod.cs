@@ -26,7 +26,8 @@ namespace RegionKit.Modules.Atmo;
 /// </para>
 /// </summary>
 [RegionKitModule(nameof(OnEnable), nameof(OnDisable), moduleName: "Atmo")]
-public static class Atmod {
+public static class Atmod
+{
 
 	/// <summary>
 	/// Mod version
@@ -42,9 +43,11 @@ public static class Atmod {
 	/// <summary>
 	/// Applies hooks and sets <see cref="inst"/>.
 	/// </summary>
-	public static void OnEnable() {
+	public static void OnEnable()
+	{
 		LogWarning($"Atmo booting... {THR.Thread.CurrentThread.ManagedThreadId}");
-		try {
+		try
+		{
 			On.AbstractRoom.Update += RunHappensAbstUpd;
 			On.RainWorldGame.Update += DoBodyUpdates;
 			On.Room.Update += RunHappensRealUpd;
@@ -52,16 +55,20 @@ public static class Atmod {
 			On.OverWorld.LoadFirstWorld += SetTempSSN;
 			VarRegistry.__Init();
 			HappenBuilding.__InitBuiltins();
-			
+
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 			LogFatal($"Error on enable!\n{ex}");
 		}
-		try {
+		try
+		{
 			//ConsoleFace.Apply();
 		}
-		catch (Exception ex) {
-			switch (ex) {
+		catch (Exception ex)
+		{
+			switch (ex)
+			{
 			case TypeLoadException or System.IO.FileNotFoundException:
 				LogWarning("DevConsole not present");
 				break;
@@ -75,9 +82,11 @@ public static class Atmod {
 	/// <summary>
 	/// Undoes hooks and spins up a static cleanup member cleanup procedure.
 	/// </summary>
-	public static void OnDisable() {
+	public static void OnDisable()
+	{
 		_dying = true;
-		try {
+		try
+		{
 			__slugnameNotFound = new(SLUG_NOT_FOUND, true);
 			//On.World.ctor -= FetchHappenSet;
 			On.Room.Update -= RunHappensRealUpd;
@@ -93,21 +102,25 @@ public static class Atmod {
 			bool verbose = false;
 			sw.Start();
 			cleanup_logger.LogMessage("Spooling cleanup thread.\nNote: errors logged here are nonconsequential and can be ignored.");
-			System.Threading.ThreadPool.QueueUserWorkItem((_) => {
-				static string aggregator(string x, string y) {
+			System.Threading.ThreadPool.QueueUserWorkItem((_) =>
+			{
+				static string aggregator(string x, string y)
+				{
 					return $"{x}\n\t{y}";
 				}
 				List<string> success = new();
 				List<string> failure = new();
 				IEnumerable<Type> types = typeof(Atmod).Assembly.GetTypesSafe(out System.Reflection.ReflectionTypeLoadException? tlex);
-				foreach (Type t in types) {
-					try {
+				foreach (Type t in types)
+				{
+					try
+					{
 						var l = t.CleanupStatic();
-						VT<List<string>, List<string>> res = new(l.Item1, l.Item2);
-						success.AddRange(res.a);
-						failure.AddRange(res.b);
+						success.AddRange(l.Item1);
+						failure.AddRange(l.Item2);
 					}
-					catch (Exception ex) {
+					catch (Exception ex)
+					{
 						cleanup_logger
 						.LogError($"{t}: Unhandled Error cleaning up static fields:" +
 							$"\n{ex}");
@@ -115,10 +128,12 @@ public static class Atmod {
 				}
 				sw.Stop();
 				cleanup_logger.LogDebug($"Finished statics cleanup: {sw.Elapsed}.");
-				if (tlex is not null) {
+				if (tlex is not null)
+				{
 					cleanup_logger.LogWarning($"TypeLoadExceptions occured: {tlex.LoaderExceptions.Select(x => x.ToString()).Stitch(aggregator)}");
 				}
-				if (verbose) {
+				if (verbose)
+				{
 					cleanup_logger.LogDebug(
 						$"Successfully cleared: {success.Stitch(aggregator)}");
 					cleanup_logger.LogDebug(
@@ -126,24 +141,28 @@ public static class Atmod {
 				}
 			});
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 			LogFatal($"Error on disable!\n{ex}");
 		}
 	}
 	/// <summary>
 	/// Cleans up set if not ingame, updates some builtin variables.
 	/// </summary>
-	public static void Update() {
+	public static void Update()
+	{
 		if (_dying) return;
 		rainWorld ??= CRW;
-		if (!_setupRan && rainWorld is not null) {
+		if (!_setupRan && rainWorld is not null)
+		{
 
 			_setupRan = true;
 		}
 
 		if (rainWorld is null || CurrentSet is null) return;
 		if (rainWorld.processManager.currentMainLoop is RainWorldGame) return;
-		if (rainWorld?.processManager.FindSubProcess<RainWorldGame>() is null) {
+		if (rainWorld?.processManager.FindSubProcess<RainWorldGame>() is null)
+		{
 			LogDebug("No RainWorldGame in processmanager, erasing currentset");
 			CurrentSet = null;
 		}
@@ -154,22 +173,26 @@ public static class Atmod {
 	/// </summary>
 	/// <param name="orig"></param>
 	/// <param name="self"></param>
-	private static void SetTempSSN(On.OverWorld.orig_LoadFirstWorld orig, OverWorld self) {
+	private static void SetTempSSN(On.OverWorld.orig_LoadFirstWorld orig, OverWorld self)
+	{
 
 		__tempSlugName = self.PlayerCharacterNumber;
 		LogMessage($"Setting temp SSN: {__tempSlugName}, {THR.Thread.CurrentThread.ManagedThreadId}");
 		orig(self);
 		__tempSlugName = null;
 	}
-	private static void FetchHappenSet(On.World.orig_LoadWorld orig, World self, SlugcatStats.Name slugcatNumber, List<AbstractRoom> abstractRoomsList, int[] swarmRooms, int[] shelters, int[] gates) {
+	private static void FetchHappenSet(On.World.orig_LoadWorld orig, World self, SlugcatStats.Name slugcatNumber, List<AbstractRoom> abstractRoomsList, int[] swarmRooms, int[] shelters, int[] gates)
+	{
 		LogMessage($"Fetching happenset for {self.name} {THR.Thread.CurrentThread.ManagedThreadId}");
 		orig(self, slugcatNumber, abstractRoomsList, swarmRooms, shelters, gates);
 		if (self.singleRoomWorld) return;
 		__temp_World = self;
-		try {
+		try
+		{
 			CurrentSet = HappenSet.TryCreate(self);
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			LogError($"Could not create a happenset: {e}");
 		}
 		__temp_World = null;
@@ -179,16 +202,20 @@ public static class Atmod {
 	/// </summary>
 	/// <param name="orig"></param>
 	/// <param name="self"></param>
-	private static void DoBodyUpdates(On.RainWorldGame.orig_Update orig, RainWorldGame self) {
+	private static void DoBodyUpdates(On.RainWorldGame.orig_Update orig, RainWorldGame self)
+	{
 		orig(self);
 		if (CurrentSet is null) return;
 		if (self.pauseMenu != null) return;
-		foreach (Happen? ha in CurrentSet.AllHappens) {
+		foreach (Happen? ha in CurrentSet.AllHappens)
+		{
 			if (ha is null) continue;
-			try {
+			try
+			{
 				ha.CoreUpdate();
 			}
-			catch (Exception e) {
+			catch (Exception e)
+			{
 				LogError($"Error doing body update for {ha.name}:\n{e}");
 			}
 		}
@@ -199,19 +226,24 @@ public static class Atmod {
 	/// <param name="orig"></param>
 	/// <param name="self"></param>
 	/// <param name="timePassed"></param>
-	private static void RunHappensAbstUpd(On.AbstractRoom.orig_Update orig, AbstractRoom self, int timePassed) {
+	private static void RunHappensAbstUpd(On.AbstractRoom.orig_Update orig, AbstractRoom self, int timePassed)
+	{
 		orig(self, timePassed);
 		if (CurrentSet is null) return;
 		IEnumerable<Happen>? haps = CurrentSet.GetHappensForRoom(self.name);
-		foreach (Happen? ha in haps) {
+		foreach (Happen? ha in haps)
+		{
 			if (ha is null) continue;
-			try {
-				if (ha.Active) {
+			try
+			{
+				if (ha.Active)
+				{
 					if (!ha.InitRan) { ha.Init(self.world); ha.InitRan = true; }
 					ha.AbstUpdate(self, timePassed);
 				}
 			}
-			catch (Exception e) {
+			catch (Exception e)
+			{
 				LogError($"Error running event abstupdate for room {self.name}:\n{e}");
 			}
 		}
@@ -221,7 +253,8 @@ public static class Atmod {
 	/// </summary>
 	/// <param name="orig"></param>
 	/// <param name="self"></param>
-	private static void RunHappensRealUpd(On.Room.orig_Update orig, Room self) {
+	private static void RunHappensRealUpd(On.Room.orig_Update orig, Room self)
+	{
 		//#warning issue: for some reason geteventsforroom always returns none on real update
 		//in my infinite wisdom i set SU_S04 as test room instead of SU_C04. everything worked as intended except for my brain
 
@@ -229,14 +262,18 @@ public static class Atmod {
 		//DBG.Stopwatch sw = DBG.Stopwatch.StartNew();
 		if (CurrentSet is null) return;
 		IEnumerable<Happen>? haps = CurrentSet.GetHappensForRoom(self.abstractRoom.name);
-		foreach (Happen? ha in haps) {
-			try {
-				if (ha.Active) {
+		foreach (Happen? ha in haps)
+		{
+			try
+			{
+				if (ha.Active)
+				{
 					if (!ha.InitRan) { ha.Init(self.world); ha.InitRan = true; }
 					ha.RealUpdate(self);
 				}
 			}
-			catch (Exception e) {
+			catch (Exception e)
+			{
 				LogError($"Error running event realupdate for room {self.abstractRoom.name}:\n{e}");
 			}
 		}
@@ -245,7 +282,7 @@ public static class Atmod {
 
 	public static void VerboseLog(string message)
 	{
-	
+
 	}
 
 

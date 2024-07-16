@@ -10,7 +10,8 @@ using NamedVars = System.Collections.Generic.Dictionary<RegionKit.Modules.Atmo.D
 
 namespace RegionKit.Modules.Atmo.Data;
 
-public static partial class VarRegistry {
+public static partial class VarRegistry
+{
 	#region fields
 	internal static readonly NamedVars __SpecialVars = new();
 	internal static readonly Regex __Metaf_Sub = new("^\\w+(\\s.+$|$)");
@@ -23,7 +24,7 @@ public static partial class VarRegistry {
 	/// <param name="saveslot">Save slot to look at</param>
 	/// <param name="character">Character to look at</param>
 	/// <returns></returns>
-	public static Arg? GetMetaFunction(string text, in int saveslot, in SlugcatStats.Name character) 
+	public static Arg? GetMetaFunction(string text, in int saveslot, in SlugcatStats.Name character)
 	{
 		Match _is;
 		if (!(_is = __Metaf_Sub.Match(text)).Success) return null;
@@ -45,14 +46,17 @@ public static partial class VarRegistry {
 	/// </summary>
 	/// <param name="name">Supposed var name</param>
 	/// <returns>null if not a special</returns>
-	public static Arg? GetSpecial(string name) {
+	public static Arg? GetSpecial(string name)
+	{
 		SpVar tp = __SpecialForName(name);
 		if (tp is SpVar.NONE) return null;
 		return __SpecialVars[tp];
 	}
-	internal static void __FillSpecials() {
+	internal static void __FillSpecials()
+	{
 		__SpecialVars.Clear();
-		foreach (SpVar tp in Enum.GetValues(typeof(SpVar))) {
+		foreach (SpVar tp in Enum.GetValues(typeof(SpVar)))
+		{
 			static RainWorldGame? FindRWG()
 				=> rainWorld?.processManager?.FindSubProcess<RainWorldGame>();
 			static int findKarma()
@@ -60,52 +64,65 @@ public static partial class VarRegistry {
 			static int findKarmaCap()
 				=> FindRWG()?.GetStorySession?.saveState.deathPersistentSaveData.karmaCap ?? -1;
 			static int findClock() => FindRWG()?.world.rainCycle?.cycleLength ?? __temp_World?.rainCycle.cycleLength ?? -1;
-			try {
-				__SpecialVars.Add(tp, tp switch {
+			try
+			{
+				__SpecialVars.Add(tp, tp switch
+				{
 					SpVar.NONE => 0,
 					SpVar.version => Ver,
-					SpVar.time => new(new ByCallbackGetOnly() {
+					SpVar.time => new(new ByCallbackGetOnly()
+					{
 						getStr = () => DateTime.Now.ToString()
 					}),
-					SpVar.utctime => new(new ByCallbackGetOnly() {
+					SpVar.utctime => new(new ByCallbackGetOnly()
+					{
 						getStr = () => DateTime.UtcNow.ToString()
 					}),
-					SpVar.cycletime => new(new ByCallbackGetOnly() {
+					SpVar.cycletime => new(new ByCallbackGetOnly()
+					{
 						getI32 = findClock,
 						getF32 = () => findClock() / 40,
 						getStr = () => $"{findClock() / 40} seconds / {findClock()} frames"
 					}),
-					SpVar.root => new(new ByCallbackGetOnly() {
+					SpVar.root => new(new ByCallbackGetOnly()
+					{
 						getStr = Custom.RootFolderDirectory
 					}),
 					SpVar.realm => FindAssemblies("Realm").Count() > 0, //check if right
 					SpVar.os => Environment.OSVersion.Platform.ToString(),
-					SpVar.memused => new(new ByCallbackGetOnly() {
+					SpVar.memused => new(new ByCallbackGetOnly()
+					{
 						getStr = () => GC.GetTotalMemory(false).ToString()
 					}),
-					SpVar.memtotal => new(new ByCallbackGetOnly() {
+					SpVar.memtotal => new(new ByCallbackGetOnly()
+					{
 						getStr = () => "???"
 					}),
 					SpVar.username => Environment.UserName,
 					SpVar.machinename => Environment.MachineName,
-					SpVar.karma => new(new ByCallbackGetOnly() {
+					SpVar.karma => new(new ByCallbackGetOnly()
+					{
 						getI32 = findKarma,
 						getF32 = static () => findKarma(),
 					}),
-					SpVar.karmacap => new(new ByCallbackGetOnly() {
+					SpVar.karmacap => new(new ByCallbackGetOnly()
+					{
 						getI32 = findKarmaCap,
 						getF32 = static () => findKarmaCap(),
 					}),
 					_ => 0,
 				}); ;
 			}
-			catch (Exception ex) {
+			catch (Exception ex)
+			{
 				LogError(__ErrorMessage(Site.InitSpecials, $"Error registering a special: {tp}", ex));
 			}
 		}
 	}
-	internal static SpVar __SpecialForName(string name) {
-		return name.ToLower() switch {
+	internal static SpVar __SpecialForName(string name)
+	{
+		return name.ToLower() switch
+		{
 			"root" or "rootfolder" => SpVar.root,
 			"now" or "time" => SpVar.time,
 			"utcnow" or "utctime" => SpVar.utctime,
@@ -123,7 +140,8 @@ public static partial class VarRegistry {
 		};
 	}
 
-	internal enum SpVar {
+	internal enum SpVar
+	{
 		NONE,
 		time,
 		utctime,

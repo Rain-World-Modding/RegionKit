@@ -15,7 +15,8 @@ namespace RegionKit.Modules.Atmo.API;
 /// </list>
 /// See also: <seealso cref="Happen"/> for core lifecycle logic, <seealso cref="HappenTrigger"/> for how conditions work, <seealso cref="HappenSet"/> for additional info on how happens are composed.
 /// </summary>
-public static class V0 {
+public static class V0
+{
 	#region API proper
 	/// <summary>
 	/// Registers a named action. Multiple names. Up to one callback for every lifecycle event. No args support.
@@ -27,7 +28,7 @@ public static class V0 {
 	/// <param name="cu">Core update callback.</param>
 	/// <param name="ignoreCase">Whether action name matching should be case sensitive.</param>
 	/// <returns>The number of name collisions encountered.</returns>
-	public static void AddNamedAction(string[] names, AbstractUpdate? au = null, RealizedUpdate? ru = null, Init? oi = null, CoreUpdate? cu = null, bool ignoreCase = true) 
+	public static void AddNamedAction(string[] names, AbstractUpdate? au = null, RealizedUpdate? ru = null, Init? oi = null, CoreUpdate? cu = null, bool ignoreCase = true)
 	{
 		foreach (string name in names) { AddNamedAction(name, au, ru, oi, cu, ignoreCase); }
 	}
@@ -42,15 +43,16 @@ public static class V0 {
 	/// <param name="cu">Core update callback.</param>
 	/// <param name="ignoreCase">Whether action name matching should be case insensitive.</param>
 	/// <returns>True if successfully registered; false if name already taken.</returns>
-	public static void AddNamedAction(string name, AbstractUpdate? au = null, RealizedUpdate? ru = null, Init? oi = null, CoreUpdate? cu = null, bool ignoreCase = true) 
+	public static void AddNamedAction(string name, AbstractUpdate? au = null, RealizedUpdate? ru = null, Init? oi = null, CoreUpdate? cu = null, bool ignoreCase = true)
 	{
 		StringComparer? comp = ignoreCase ? StringComparer.CurrentCultureIgnoreCase : StringComparer.CurrentCulture;
 		if (__namedActions.ContainsKey(name)) { return; }
-		void newCb(Happen ha, ArgSet args) 
+		void newCb(Happen ha, ArgSet args)
 		{
-			foreach (string? ac in ha.actions.Keys) 
+			foreach (string? ac in ha.actions.Keys)
 			{
-				if (comp.Compare(ac, name) == 0) {
+				if (comp.Compare(ac, name) == 0)
+				{
 					ha.On_AbstUpdate += au;
 					ha.On_RealUpdate += ru;
 					ha.On_Init += oi;
@@ -69,7 +71,7 @@ public static class V0 {
 	/// <param name="builder">User builder callback.</param>
 	/// <param name="ignoreCase">Whether action name matching should be case sensitive.</param>
 	/// <returns>Number of name collisions encountered.</returns>
-	public static void AddNamedAction(string[] names, Create_NamedHappenBuilder builder, bool ignoreCase = true) 
+	public static void AddNamedAction(string[] names, Create_NamedHappenBuilder builder, bool ignoreCase = true)
 	{
 		foreach (string name in names) { AddNamedAction(name, builder, ignoreCase); }
 	}
@@ -81,9 +83,9 @@ public static class V0 {
 	/// <param name="builder">User builder callback.</param>
 	/// <param name="ignoreCase"></param>
 	/// <returns>True if successfully added; false if already taken.</returns>
-	public static void AddNamedAction(string name, Create_NamedHappenBuilder builder, bool ignoreCase = true) 
+	public static void AddNamedAction(string name, Create_NamedHappenBuilder builder, bool ignoreCase = true)
 	{
-		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length) 
+		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length)
 		{
 			LogWarning($"Invalid action name: {name}");
 			return;
@@ -96,7 +98,7 @@ public static class V0 {
 	/// Removes a named callback.
 	/// </summary>
 	/// <param name="action"></param>
-	public static void RemoveNamedAction(string action) 
+	public static void RemoveNamedAction(string action)
 	{
 		if (!__namedActions.TryGetValue(action, out Create_NamedHappenBuilder? builder)) return;
 		__namedActions.Remove(action);
@@ -108,7 +110,7 @@ public static class V0 {
 	/// <param name="fac">User trigger factory callback.</param>
 	/// <param name="ignoreCase">Whether trigger name should be case sensitive.</param>
 	/// <returns>Number of name collisions encountered.</returns>
-	public static void AddNamedTrigger(string[] names, Create_NamedTriggerFactory fac, bool ignoreCase = true) 
+	public static void AddNamedTrigger(string[] names, Create_NamedTriggerFactory fac, bool ignoreCase = true)
 	{
 		foreach (var name in names) { AddNamedTrigger(name, fac, ignoreCase); }
 	}
@@ -119,9 +121,10 @@ public static class V0 {
 	/// <param name="fac">User factory callback.</param>
 	/// <param name="ignoreCase">Whether name matching should be case insensitive.</param>
 	/// <returns></returns>
-	public static void AddNamedTrigger(string name, Create_NamedTriggerFactory fac, bool ignoreCase = true) 
+	public static void AddNamedTrigger(string name, Create_NamedTriggerFactory fac, bool ignoreCase = true)
 	{
-		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length) {
+		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length)
+		{
 			LogWarning($"Invalid trigger name: {name}");
 			return;
 		}
@@ -157,9 +160,9 @@ public static class V0 {
 	/// <param name="handler">User handler callback.</param>
 	/// <param name="ignoreCase">Whether macro name matching should be case insensitive.</param>
 	/// <returns>True if successfully attached; false otherwise.</returns>
-	public static bool AddNamedMetafun(string name, Create_NamedMetaFunction handler, bool ignoreCase = true) 
+	public static bool AddNamedMetafun(string name, Create_NamedMetaFunction handler, bool ignoreCase = true)
 	{
-		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length) 
+		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length)
 		{
 			LogWarning($"Invalid metafun name: {name}");
 			return false;
@@ -172,7 +175,7 @@ public static class V0 {
 	/// Clears a metafunction name binding.
 	/// </summary>
 	/// <param name="name"></param>
-	public static void RemoveNamedMetafun(string name) 
+	public static void RemoveNamedMetafun(string name)
 	{
 		if (!__namedMetafuncs.TryGetValue(name, out Create_NamedMetaFunction? handler)) return;
 		__namedMetafuncs.Remove(name);

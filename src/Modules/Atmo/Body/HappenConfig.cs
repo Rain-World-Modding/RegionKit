@@ -5,7 +5,8 @@ namespace RegionKit.Modules.Atmo.Body;
 /// <summary>
 /// Represents data accumulated by a <see cref="HappenParser"/> for a singular happen.
 /// </summary>
-public struct HappenConfig {
+public struct HappenConfig
+{
 	/// <summary>
 	/// Happen's name.
 	/// </summary>
@@ -26,7 +27,8 @@ public struct HappenConfig {
 	/// Creates a blank config with given name.
 	/// </summary>
 	/// <param name="name"></param>
-	public HappenConfig(string name) {
+	public HappenConfig(string name)
+	{
 		this.name = name;
 		actions = new();
 		myGroup = new(name);

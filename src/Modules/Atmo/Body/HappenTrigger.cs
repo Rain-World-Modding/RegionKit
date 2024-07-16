@@ -15,7 +15,8 @@
 /// </para>
 /// NOTICE: As of now, all trigger children mentioned in above example are deprecated and serve only as code samples. For builtins, <see cref="EventfulTrigger"/> is used instead.
 /// </summary>
-public abstract partial class HappenTrigger {
+public abstract partial class HappenTrigger
+{
 	#region fields
 	/// <summary>
 	/// Happen that owns this instance. Some triggers, such as <see cref="AfterOther"/>, need this to check state of other triggers, the owning happen itself, or other happens in the current set.
@@ -44,13 +45,15 @@ public abstract partial class HappenTrigger {
 	/// <summary>
 	/// Intermediary abstract class for triggers that require RainWorldGame state access (such as <see cref="OnKarma"/> or <see cref="AfterRain"/>). Make sure to provide non-null <see cref="RainWorldGame"/> instance to its constructor.
 	/// </summary>
-	public abstract class NeedsRWG : HappenTrigger {
+	public abstract class NeedsRWG : HappenTrigger
+	{
 		/// <summary>
 		/// Intermediary constructor. Make sure you provide non-null RainWorldGame instance. Owner may be null.
 		/// </summary>
 		/// <param name="game">Current game instance for state access.</param>
 		/// <param name="ow"></param>
-		public NeedsRWG(RainWorldGame game, Happen? ow = null) : base(ow) {
+		public NeedsRWG(RainWorldGame game, Happen? ow = null) : base(ow)
+		{
 			BangBang(game, nameof(game));
 			this.game = game;
 		}

@@ -11,12 +11,14 @@ namespace RegionKit.Modules.Atmo.Gen;
 /// <summary>
 /// Manages happens' initialization and builtin behaviours.
 /// </summary>
-public static partial class HappenBuilding {
+public static partial class HappenBuilding
+{
 	/// <summary>
 	/// Populates a happen with callbacks. Called automatically by the constructor.
 	/// </summary>
 	/// <param name="happen"></param>
-	internal static void __NewHappen(Happen happen) {
+	internal static void __NewHappen(Happen happen)
+	{
 		foreach (KeyValuePair<string, string[]> ac in happen.actions)
 		{
 			if (__namedActions.TryGetValue(ac.Key, out var builder))
@@ -34,7 +36,7 @@ public static partial class HappenBuilding {
 	/// <param name="rwg">game instance</param>
 	/// <param name="owner">Happen that requests the trigger.</param>
 	/// <returns>Resulting trigger; an always-active trigger if something went wrong.</returns>
-	internal static HappenTrigger __CreateTrigger(string id, string[] args, RainWorldGame rwg, Happen owner) 
+	internal static HappenTrigger __CreateTrigger(string id, string[] args, RainWorldGame rwg, Happen owner)
 	{
 		HappenTrigger? res = null;
 
@@ -43,7 +45,8 @@ public static partial class HappenBuilding {
 			res = trigger.Invoke(args.Select(x => x.ApplyEscapes()).ToArray(), rwg, owner);
 		}
 
-		if (res is null) {
+		if (res is null)
+		{
 			LogWarning($"Failed to create a trigger! {id}, args: {args.Stitch()}. Replacing with a stub");
 			res = new EventfulTrigger() { On_ShouldRunUpdates = () => true };
 		}

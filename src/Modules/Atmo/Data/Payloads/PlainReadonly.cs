@@ -4,7 +4,8 @@ namespace RegionKit.Modules.Atmo.Data.Payloads;
 /// <summary>
 /// A read only value based arg payload.
 /// </summary>
-public readonly record struct PlainReadonly : IArgPayload {
+public readonly record struct PlainReadonly : IArgPayload
+{
 	#region backing
 	private readonly string _str;
 	private readonly int _i32;
@@ -19,7 +20,8 @@ public readonly record struct PlainReadonly : IArgPayload {
 		int i32,
 		float f32,
 		bool @bool,
-		Vector4 vec) {
+		Vector4 vec)
+	{
 		_str = str;
 		_i32 = i32;
 		_f32 = f32;
@@ -43,17 +45,22 @@ public readonly record struct PlainReadonly : IArgPayload {
 	/// <inheritdoc/>
 	public ArgType DataType => ArgType.OTHER;
 	/// <inheritdoc/>
-	public void GetEnum<TE>(out TE? value) where TE : Enum {
-		if (!RealUtils.TryParseEnum(Str, out value)) {
+	public void GetEnum<TE>(out TE? value) where TE : Enum
+	{
+		if (!RealUtils.TryParseEnum(Str, out value))
+		{
 			value = (TE)Convert.ChangeType(I32, typeof(TE));
 		};
 	}
 	/// <inheritdoc/>
-	public void GetExtEnum<T>(out T? value) where T : ExtEnumBase {
-		if (ExtEnumBase.TryParse(typeof(T), _str, false, out ExtEnumBase res)) {
+	public void GetExtEnum<T>(out T? value) where T : ExtEnumBase
+	{
+		if (ExtEnumBase.TryParse(typeof(T), _str, false, out ExtEnumBase res))
+		{
 			value = (T)res;
 		}
-		else {
+		else
+		{
 			var ent = ExtEnumBase.GetExtEnumType(typeof(T)).GetEntry(_i32);
 			value = ent is null ? null : (T)ExtEnumBase.Parse(typeof(T), ent, true);
 		}
@@ -62,7 +69,8 @@ public readonly record struct PlainReadonly : IArgPayload {
 	/// <inheritdoc/>
 	public void SetEnum<TE>(in TE value) where TE : Enum { }
 	/// <inheritdoc/>
-	public void SetExtEnum<T>(in T value) where T : ExtEnumBase {
+	public void SetExtEnum<T>(in T value) where T : ExtEnumBase
+	{
 		throw new NotImplementedException();
 	}
 	#endregion

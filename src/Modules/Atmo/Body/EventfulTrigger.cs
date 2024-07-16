@@ -18,7 +18,8 @@
 /// </code>
 /// <see cref="EventfulTrigger.ShouldRunUpdates"/> defaults to false if callback is null.
 /// </summary>
-public sealed class EventfulTrigger : HappenTrigger {
+public sealed class EventfulTrigger : HappenTrigger
+{
 	/// <summary>
 	/// Attach to this to fill in the behaviour of <see cref="EvalResults(bool)"/>.
 	/// </summary>
@@ -32,17 +33,20 @@ public sealed class EventfulTrigger : HappenTrigger {
 	/// </summary>
 	public Func<bool>? On_ShouldRunUpdates;
 	/// <inheritdoc/>
-	public override void EvalResults(bool res) {
+	public override void EvalResults(bool res)
+	{
 		On_EvalResults?.Invoke(res);
 	}
 
 	/// <inheritdoc/>
-	public override void Update() {
+	public override void Update()
+	{
 		On_Update?.Invoke();
 	}
 
 	/// <inheritdoc/>
-	public override bool ShouldRunUpdates() {
+	public override bool ShouldRunUpdates()
+	{
 		return On_ShouldRunUpdates?.Invoke() ?? false;
 	}
 }

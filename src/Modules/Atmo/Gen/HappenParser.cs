@@ -11,7 +11,8 @@ namespace RegionKit.Modules.Atmo.Gen;
 /// <summary>
 /// Responsible for filling <see cref="HappenSet"/>s from atmo script files.
 /// </summary>
-public class HappenParser {
+public class HappenParser
+{
 	//this is still a mess but manageable
 	#region fields
 	#region statfields
@@ -52,10 +53,12 @@ public class HappenParser {
 	/// Creates a parser for a specified file. <see cref="_Advance"/> the return value until it's <see cref="done"/>.
 	/// </summary>
 	/// <param name="file">Input file.</param>
-	public HappenParser(System.IO.FileInfo file) {
+	public HappenParser(System.IO.FileInfo file)
+	{
 		BangBang(file, nameof(file));
 		VerboseLog($"HappenParse: booting for file: {file.FullName}");
-		if (!file.Exists) {
+		if (!file.Exists)
+		{
 			_aborted = true;
 			LogWarning($"HappenParse: file does not exist. aborted");
 			_allLines = new string[0];
@@ -63,7 +66,8 @@ public class HappenParser {
 		}
 		_allLines = System.IO.File.ReadAllLines(file.FullName, Encoding.UTF8);
 	}
-	internal void _Advance() {
+	internal void _Advance()
+	{
 		_currentLine = _allLines[_index];
 		Match
 				group_que = LineMatchers[LineKind.GroupBegin].Match(_currentLine),
@@ -107,7 +111,8 @@ public class HappenParser {
 		}
 		_index++;
 	}
-	private void _ParseGroup() {
+	private void _ParseGroup()
+	{
 		if (_currentGroup is null || string.IsNullOrWhiteSpace(_currentLine))
 		{
 			LogWarning($"Error parsing group: current group is null! aborting!");
@@ -116,7 +121,8 @@ public class HappenParser {
 		}
 
 		Match end = LineMatchers[LineKind.GroupEnd].Match(_currentLine);
-		if (end.Success && end.Index == 0) {
+		if (end.Success && end.Index == 0)
+		{
 			_FinalizeGroup();
 			_phase = ParsePhase.None;
 			return;
@@ -160,30 +166,38 @@ public class HappenParser {
 			{
 			case WhereOps.Include: group.includeRooms.Add(s); break;
 			case WhereOps.Exclude: group.excludeRooms.Add(s); break;
-			case WhereOps.Group:group._groupNames.Add(s); break;
+			case WhereOps.Group: group._groupNames.Add(s); break;
 			}
 		}
 	}
 
-	private void _ParseHappen() {
-		foreach (LineKind prop in __happenProps) {
+	private void _ParseHappen()
+	{
+		foreach (LineKind prop in __happenProps)
+		{
 			Match match = LineMatchers[prop].Match(_currentLine);
 
-			if (match.Success && match.Index == 0) {
+			if (match.Success && match.Index == 0)
+			{
 				string? payload = _currentLine.Substring(match.Length);
-				switch (prop) {
-				case LineKind.HappenWhere: {
+				switch (prop)
+				{
+				case LineKind.HappenWhere:
+				{
 					VerboseLog("HappenParse: Recognized WHERE clause");
 
 					ParseGroupFromLine(_currentHappen.myGroup, payload, WhereOps.Group);
 				}
 				break;
-				case LineKind.HappenWhat: {
+				case LineKind.HappenWhat:
+				{
 					VerboseLog("HappenParse: Recognized WHAT clause");
 					PredicateInlay.Token[]? tokens = PredicateInlay.Tokenize(payload).ToArray();
-					for (int i = 0; i < tokens.Length; i++) {
+					for (int i = 0; i < tokens.Length; i++)
+					{
 						PredicateInlay.Token tok = tokens[i];
-						if (tok.type == PredicateInlay.TokenType.Word) {
+						if (tok.type == PredicateInlay.TokenType.Word)
+						{
 							PredicateInlay.Leaf leaf = PredicateInlay.MakeLeaf(tokens, in i) ?? new();
 							_currentHappen.actions.Set(leaf.funcName, leaf.args.Select(x => x.ApplyEscapes()).ToArray());
 						}
@@ -191,8 +205,10 @@ public class HappenParser {
 				}
 				break;
 				case LineKind.HappenWhen:
-					try {
-						if (_currentHappen.conditions is not null) {
+					try
+					{
+						if (_currentHappen.conditions is not null)
+						{
 							LogWarning("HappenParse: Duplicate WHEN clause! Skipping! (Did you forget to close a previous Happen with END HAPPEN?)");
 							break;
 						}
@@ -200,12 +216,14 @@ public class HappenParser {
 						_currentHappen.conditions = new PredicateInlay(
 							expression: payload,
 							exchanger: null,
-							logger: (data) => {
+							logger: (data) =>
+							{
 								LogWarning($"{_currentHappen.name}: {data}");
 							},
 							mendOnThrow: true);
 					}
-					catch (Exception ex) {
+					catch (Exception ex)
+					{
 						LogError($"HappenParse: Error creating eval tree from a WHEN block for {_currentHappen.name}:\n{ex}");
 						_currentHappen.conditions = null;
 					}
@@ -223,16 +241,17 @@ public class HappenParser {
 		}
 	}
 
-	private void _FinalizeHappen() 
+	private void _FinalizeHappen()
 	{
 		_allHappens.Add(_currentHappen);
 		_currentHappen = default;
 	}
 
-	private void _FinalizeGroup() {
-		if (_currentGroup is null) 
+	private void _FinalizeGroup()
+	{
+		if (_currentGroup is null)
 		{ LogWarning("HappenParse: attempted to finalize group while group is null!"); }
-		else 
+		else
 		{
 			string name = _currentGroup.name;
 			VerboseLog($"HappenParse: ending group: {name}. Regex patterns: {_currentGroup._matchers.Count}, Literal rooms: {_currentGroup.includeRooms.Count}");
@@ -241,12 +260,14 @@ public class HappenParser {
 		_currentGroup = null;
 	}
 	#region nested
-	private enum WhereOps {
+	private enum WhereOps
+	{
 		Group,
 		Include,
 		Exclude,
 	}
-	private enum LineKind {
+	private enum LineKind
+	{
 		Comment,
 		GroupBegin,
 		GroupEnd,
@@ -257,7 +278,8 @@ public class HappenParser {
 		HappenEnd,
 		Other,
 	}
-	private enum ParsePhase {
+	private enum ParsePhase
+	{
 		None,
 		Group,
 		Happen
@@ -269,30 +291,34 @@ public class HappenParser {
 	/// <param name="file">File to check from.</param>
 	/// <param name="set">Happenset instance to add results to.</param>
 	/// <param name="game">Current RainWorldGame instance.</param>
-	public static void Parse(System.IO.FileInfo file, HappenSet set, RainWorldGame game) {
+	public static void Parse(System.IO.FileInfo file, HappenSet set, RainWorldGame game)
+	{
 		BangBang(file, "file");
 		BangBang(set, "set");
 		BangBang(game, "rwg");
 		HappenParser p = new(file);
-		for (int i = 0; i < p._allLines.Length; i++) {
+		for (int i = 0; i < p._allLines.Length; i++)
+		{
 			p._Advance();
 		}
-		if (p._currentGroup is not null) {
+		if (p._currentGroup is not null)
+		{
 			LogWarning($"HappenParse: Group {p._currentGroup.name} missing END! Last block in file, auto wrapping");
 			p._FinalizeGroup();
 		}
-		if (p._currentHappen.name is not null) {
+		if (p._currentHappen.name is not null)
+		{
 			LogWarning($"HappenParse: Happen {p._currentHappen.name} missing END! Last block in file, auto wrapping");
 
 		}
-		foreach (KeyValuePair<string, RoomGroup> groupPre in p._allGroups) 
+		foreach (KeyValuePair<string, RoomGroup> groupPre in p._allGroups)
 		{
 			RoomGroup group = groupPre.Value;
 			group.EvaluateMatchers(game.world);
 			group.EvaluateGroups(p._allGroups);
 		}
 		set.InsertGroups(p._allGroups.Values.ToList());
-		foreach (HappenConfig cfg in p._allHappens) 
+		foreach (HappenConfig cfg in p._allHappens)
 		{
 			cfg.myGroup.EvaluateMatchers(game.world);
 			cfg.myGroup.EvaluateGroups(p._allGroups);

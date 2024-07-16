@@ -3,7 +3,8 @@
 /// <summary>
 /// A composable UAD subclass.
 /// </summary>
-public class EventfulUAD : UpdatableAndDeletable, IDrawable {
+public class EventfulUAD : UpdatableAndDeletable, IDrawable
+{
 	/// <summary>
 	/// This is used to distinguish eventfuls between each other.
 	/// </summary>
@@ -48,96 +49,123 @@ public class EventfulUAD : UpdatableAndDeletable, IDrawable {
 	/// <summary>
 	/// Performs a lookup in the Data field.
 	/// </summary>
-	public object? this[string field] {
+	public object? this[string field]
+	{
 		get => data.EnsureAndGet(field, () => null);
 		set { data[field] = value; }
 	}
 	/// <inheritdoc/>
-	public override void Update(bool eu) {
+	public override void Update(bool eu)
+	{
 		base.Update(eu);
-		try {
+		try
+		{
 			onUpdate?.Invoke(eu);
 			if (!_initRan) onInit?.Invoke();
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 			__ReportError(this, Update, ex);
 		}
-		finally {
+		finally
+		{
 			_initRan = true;
 		}
 
 	}
 	/// <inheritdoc/>
-	public override void PausedUpdate() {
+	public override void PausedUpdate()
+	{
 		base.PausedUpdate();
-		try {
+		try
+		{
 			onPausedUpdate?.Invoke();
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 			__ReportError(this, PausedUpdate, ex);
 		}
 	}
 	/// <inheritdoc/>
-	public override void Destroy() {
+	public override void Destroy()
+	{
 		base.Destroy();
-		try {
+		try
+		{
 			onDestroy?.Invoke();
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 			__ReportError(this, Destroy, ex);
 		}
 	}
 	/// <inheritdoc/>
-	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam) {
+	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
+	{
 		//if (onInitSprites is null) return;
-		try {
+		try
+		{
 			onInitSprites?.Invoke(sLeaser, rCam);
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 			__ReportError(this, InitiateSprites, ex);
 		}
-		finally {
+		finally
+		{
 			sLeaser.sprites ??= new FSprite[0];
 		}
 	}
 	/// <inheritdoc/>
-	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos) {
+	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
+	{
 		if (onDraw is null) return;
-		try {
+		try
+		{
 			onDraw?.Invoke(sLeaser, rCam, timeStacker, camPos);
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 			__ReportError(this, DrawSprites, ex);
 		}
 	}
 	/// <inheritdoc/>
-	public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette) {
-		try {
+	public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
+	{
+		try
+		{
 			onApplyPalette?.Invoke(sLeaser, rCam, palette);
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 			__ReportError(this, ApplyPalette, ex);
 		}
 	}
 	/// <inheritdoc/>
-	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner) {
-		try {
+	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer? newContatiner)
+	{
+		try
+		{
 			onAddToContainer?.Invoke(sLeaser, rCam, newContatiner);
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 			__ReportError(this, PausedUpdate, ex);
 		}
 	}
 
-	private static void __ReportError(EventfulUAD uad, Delegate where, object? err) {
+	private static void __ReportError(EventfulUAD uad, Delegate where, object? err)
+	{
 		LogError($"EventfulUAD {uad.id}: error on {where.Method.Name}: {err}");
 	}
 	/// <inheritdoc/>
-	public class Extra<T> : EventfulUAD {
+	public class Extra<T> : EventfulUAD
+	{
 		/// <summary>
 		/// Creates a new instance with specified contents.
 		/// </summary>
-		public Extra(T item) {
+		public Extra(T item)
+		{
 			_0 = item;
 		}
 
@@ -146,14 +174,17 @@ public class EventfulUAD : UpdatableAndDeletable, IDrawable {
 		/// </summary>
 		public T _0;
 		/// <inheritdoc/>
-		public void Deconstruct(out T? i0) {
+		public void Deconstruct(out T? i0)
+		{
 			i0 = this._0;
 		}
 	}
 	/// <inheritdoc/>
-	public class Extra<T0, T1> : EventfulUAD {
+	public class Extra<T0, T1> : EventfulUAD
+	{
 		/// <inheritdoc/>
-		public Extra(T0 item0, T1 item1) {
+		public Extra(T0 item0, T1 item1)
+		{
 			_0 = item0;
 			_1 = item1;
 		}
@@ -166,15 +197,18 @@ public class EventfulUAD : UpdatableAndDeletable, IDrawable {
 		/// Second extra item.
 		/// </summary>
 		public T1 _1;/// <inheritdoc/>
-		public void Deconstruct(out T0? i0, out T1 i1) {
+		public void Deconstruct(out T0? i0, out T1 i1)
+		{
 			i0 = _0;
 			i1 = _1;
 		}
 	}
 	/// <inheritdoc/>
-	public class Extra<T0, T1, T2> : EventfulUAD {
+	public class Extra<T0, T1, T2> : EventfulUAD
+	{
 		/// <inheritdoc/>
-		public Extra(T0 item0, T1 item1, T2 item2) {
+		public Extra(T0 item0, T1 item1, T2 item2)
+		{
 			_0 = item0;
 			_1 = item1;
 			_2 = item2;
@@ -192,7 +226,8 @@ public class EventfulUAD : UpdatableAndDeletable, IDrawable {
 		/// </summary>
 		public T2 _2;
 		/// <inheritdoc/>
-		public void Deconstruct(out T0 i0, out T1 i1, out T2 i2) {
+		public void Deconstruct(out T0 i0, out T1 i1, out T2 i2)
+		{
 			i0 = _0;
 			i1 = _1;
 			i2 = _2;

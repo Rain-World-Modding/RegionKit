@@ -57,7 +57,8 @@ namespace RegionKit.Modules.Atmo.Body;
 /// </list>
 /// </para>
 /// </summary>
-public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
+public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
+{
 	internal const int PROFILER_CYCLE_COREUP = 200;
 	internal const int PROFILER_CYCLE_REALUP = 400;
 	internal const int STORE_CYCLES = 12;
@@ -119,7 +120,7 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// Make sure it is properly instantiated, and none of the fields are unexpectedly null.</param>
 	/// <param name="owner">HappenSet this happen will belong to. Must not be null.</param>
 	/// <param name="game">Current game instance. Must not be null.</param>
-	public Happen(HappenConfig cfg, HappenSet owner, RainWorldGame game) 
+	public Happen(HappenConfig cfg, HappenSet owner, RainWorldGame game)
 	{
 		BangBang(owner, nameof(owner));
 		BangBang(game, nameof(game));
@@ -129,7 +130,8 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 		actions = cfg.actions;
 		conditions = cfg.conditions;
 		List<HappenTrigger> list_triggers = new();
-		conditions?.Populate((id, args) => {
+		conditions?.Populate((id, args) =>
+		{
 			HappenTrigger? nt = HappenBuilding.__CreateTrigger(id, args, game, this);
 			list_triggers.Add(nt);
 			return nt.ShouldRunUpdates;
@@ -143,13 +145,17 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	#region lifecycle cbs
 	internal void AbstUpdate(
 		AbstractRoom absroom,
-		int time) {
+		int time)
+	{
 		if (On_AbstUpdate is null) return;
-		foreach (AbstractUpdate cb in On_AbstUpdate.GetInvocationList().Cast<AbstractUpdate>()) {
-			try {
+		foreach (AbstractUpdate cb in On_AbstUpdate.GetInvocationList().Cast<AbstractUpdate>())
+		{
+			try
+			{
 				cb?.Invoke(absroom, time);
 			}
-			catch (Exception ex) {
+			catch (Exception ex)
+			{
 				LogError(ErrorMessage(Site.abstup, cb, ex));
 				On_AbstUpdate -= cb;
 			}
@@ -159,14 +165,18 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// Attach to this to receive a call once per abstract update, for every affected room.
 	/// </summary>
 	public event AbstractUpdate? On_AbstUpdate;
-	internal void RealUpdate(Room room) {
+	internal void RealUpdate(Room room)
+	{
 		_sw.Start();
 		if (On_RealUpdate is null) return;
-		foreach (RealizedUpdate cb in On_RealUpdate.GetInvocationList().Cast<RealizedUpdate>()) {
-			try {
+		foreach (RealizedUpdate cb in On_RealUpdate.GetInvocationList().Cast<RealizedUpdate>())
+		{
+			try
+			{
 				cb?.Invoke(room);
 			}
-			catch (Exception ex) {
+			catch (Exception ex)
+			{
 				LogError(ErrorMessage(Site.realup, cb, ex));
 				On_RealUpdate -= cb;
 			}
@@ -180,14 +190,18 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// Attach to this to receive a call once per realized update, for every affected room.
 	/// </summary>
 	public event RealizedUpdate? On_RealUpdate;
-	internal void Init(World world) {
+	internal void Init(World world)
+	{
 		InitRan = true;
 		if (On_Init is null) return;
-		foreach (Init cb in On_Init.GetInvocationList().Cast<Init>()) {
-			try {
+		foreach (Init cb in On_Init.GetInvocationList().Cast<Init>())
+		{
+			try
+			{
 				cb?.Invoke(world);
 			}
-			catch (Exception ex) {
+			catch (Exception ex)
+			{
 				LogError(ErrorMessage(
 					where: Site.init,
 					cb: cb,
@@ -201,13 +215,17 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// Subscribe to this to receive one call before abstract or realized update is first ran.
 	/// </summary>
 	public event Init? On_Init;
-	internal void CoreUpdate() {
+	internal void CoreUpdate()
+	{
 		_sw.Start();
-		for (int tin = triggers.Count - 1; tin > -1; tin--) {
-			try {
+		for (int tin = triggers.Count - 1; tin > -1; tin--)
+		{
+			try
+			{
 				triggers[tin].Update();
 			}
-			catch (Exception ex) {
+			catch (Exception ex)
+			{
 				HappenTrigger tr = triggers[tin];
 				triggers.RemoveAt(tin);
 				LogError(ErrorMessage(
@@ -217,10 +235,12 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 					resp: Response.void_trigger));
 			}
 		}
-		try {
+		try
+		{
 			Active = conditions?.Eval() ?? true;
 		}
-		catch (Exception ex) {
+		catch (Exception ex)
+		{
 #pragma warning disable IDE0031 // Use null propagation
 			LogError(ErrorMessage(
 				where: Site.eval,
@@ -229,11 +249,14 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 				resp: Response.none));
 #pragma warning restore IDE0031 // Use null propagation
 		}
-		for (int tin = triggers.Count - 1; tin > -1; tin--) {
-			try {
+		for (int tin = triggers.Count - 1; tin > -1; tin--)
+		{
+			try
+			{
 				triggers[tin]?.EvalResults(Active);
 			}
-			catch (Exception ex) {
+			catch (Exception ex)
+			{
 				triggers.RemoveAt(tin);
 
 				LogError(ErrorMessage(
@@ -246,11 +269,14 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 		if (On_CoreUpdate is null) return;
 
 		//todo: cast cost?
-		foreach (CoreUpdate cb in On_CoreUpdate.GetInvocationList()) {
-			try {
+		foreach (CoreUpdate cb in On_CoreUpdate.GetInvocationList())
+		{
+			try
+			{
 				cb(game);
 			}
-			catch (Exception ex) {
+			catch (Exception ex)
+			{
 				LogError(ErrorMessage(Site.coreup, cb, ex));
 				On_CoreUpdate -= cb;
 			}
@@ -268,8 +294,10 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// Returns a performance report struct.
 	/// </summary>
 	/// <returns></returns>
-	public Perf PerfRecord() {
-		Perf perf = new() {
+	public Perf PerfRecord()
+	{
+		Perf perf = new()
+		{
 			name = name,
 			samples_eval = haeval_readings.Count,
 			samples_realup = realup_readings.Count
@@ -277,18 +305,22 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 		double
 			realuptotal = 0d,
 			evaltotal = 0d;
-		if (perf.samples_realup is not 0) {
+		if (perf.samples_realup is not 0)
+		{
 			foreach (double rec in realup_readings) realuptotal += rec;
 			perf.avg_realup = realuptotal / realup_readings.Count;
 		}
-		else {
+		else
+		{
 			perf.avg_realup = double.NaN;
 		}
-		if (perf.samples_eval is not 0) {
+		if (perf.samples_eval is not 0)
+		{
 			foreach (double rec in haeval_readings) evaltotal += rec;
 			perf.avg_eval = evaltotal / haeval_readings.Count;
 		}
-		else {
+		else
+		{
 			perf.avg_eval = double.NaN;
 		}
 		return perf;
@@ -299,7 +331,8 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// </summary>
 	/// <param name="other"></param>
 	/// <returns></returns>
-	public int CompareTo(Happen other) {
+	public int CompareTo(Happen other)
+	{
 		return _guid.CompareTo(other._guid);
 	}
 	/// <summary>
@@ -307,14 +340,16 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// </summary>
 	/// <param name="other"></param>
 	/// <returns></returns>
-	public bool Equals(Happen other) {
+	public bool Equals(Happen other)
+	{
 		return _guid.Equals(other._guid);
 	}
 	/// <summary>
 	/// Returns a string representation of the happen.
 	/// </summary>
 	/// <returns></returns>
-	public override string ToString() {
+	public override string ToString()
+	{
 		return $"{name}" +
 			$"[{(actions.Count == 0 ? string.Empty : actions.Select(x => $"{x.Key}").Aggregate(JoinWithComma))}]" +
 			$"({triggers.Count} triggers)";
@@ -324,7 +359,8 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 	/// <summary>
 	/// Carries performance report from the happen.
 	/// </summary>
-	public record struct Perf {
+	public record struct Perf
+	{
 		/// <summary>
 		/// Happen name
 		/// </summary>
@@ -346,7 +382,8 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 		/// </summary>
 		public int samples_eval;
 	}
-	private enum Site {
+	private enum Site
+	{
 		abstup,
 		realup,
 		coreup,
@@ -355,7 +392,8 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 		eval_res,
 		triggerupdate,
 	}
-	private enum Response {
+	private enum Response
+	{
 		none,
 		remove_cb,
 		void_trigger
@@ -365,11 +403,13 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen> {
 		Site where,
 		Delegate? cb,
 		Exception ex,
-		Response resp = Response.remove_cb) {
+		Response resp = Response.remove_cb)
+	{
 		return $"Happen {this}: {where}: " +
 			$"Error on invoke {cb}//{cb?.Method}:" +
 			$"\n{ex}" +
-			$"\nAction taken: " + resp switch {
+			$"\nAction taken: " + resp switch
+			{
 				Response.none => "none.",
 				Response.remove_cb => "removing problematic callback.",
 				Response.void_trigger => "voiding trigger.",

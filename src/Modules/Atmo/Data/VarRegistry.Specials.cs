@@ -2,11 +2,10 @@
 using static RegionKit.Modules.Atmo.API.Backing;
 using static RegionKit.Modules.Atmo.Atmod;
 using System.Text.RegularExpressions;
-
-using RegionKit.Modules.Atmo.Data.Payloads;
 //using static Atmo.API.V0;
 
-using NamedVars = System.Collections.Generic.Dictionary<RegionKit.Modules.Atmo.Data.VarRegistry.SpVar, RegionKit.Modules.Atmo.Data.Arg>;
+using NamedVars = System.Collections.Generic.Dictionary<RegionKit.Modules.Atmo.Data.VarRegistry.SpVar, RegionKit.Modules.Atmo.Data.NewArg>;
+using HarmonyLib;
 
 namespace RegionKit.Modules.Atmo.Data;
 
@@ -24,16 +23,16 @@ public static partial class VarRegistry
 	/// <param name="saveslot">Save slot to look at</param>
 	/// <param name="character">Character to look at</param>
 	/// <returns></returns>
-	public static Arg? GetMetaFunction(string text, in int saveslot, in SlugcatStats.Name character)
+	public static NewArg? GetMetaFunction(string text, in int saveslot, in SlugcatStats.Name character)
 	{
 		Match _is;
 		if (!(_is = __Metaf_Sub.Match(text)).Success) return null;
 		string name = __Metaf_Name.Match(text).Value;//text.Substring(0, Mathf.Max(_is.Index - 1, 0));
 		VerboseLog($"Attempting to create metafun from {text} (name {name}, match {_is.Value})");
-		if (__namedMetafuncs.TryGetValue(text, out var metaFunc))
+		if (__namedMetafuncs.TryGetValue(name, out var metaFunc))
 		{
-			IArgPayload? res = metaFunc.Invoke(_is.Value, saveslot, character);
-			if (res != null) return new(res);
+			NewArg? res = metaFunc.Invoke(_is.Value, saveslot, character);
+			if (res != null) return res;
 		}
 		VerboseLog($"No metafun {name}, variable lookup continues as normal");
 		return null;
@@ -46,7 +45,7 @@ public static partial class VarRegistry
 	/// </summary>
 	/// <param name="name">Supposed var name</param>
 	/// <returns>null if not a special</returns>
-	public static Arg? GetSpecial(string name)
+	public static NewArg? GetSpecial(string name)
 	{
 		SpVar tp = __SpecialForName(name);
 		if (tp is SpVar.NONE) return null;
@@ -66,52 +65,29 @@ public static partial class VarRegistry
 			static int findClock() => FindRWG()?.world.rainCycle?.cycleLength ?? __temp_World?.rainCycle.cycleLength ?? -1;
 			try
 			{
-				__SpecialVars.Add(tp, tp switch
+				__SpecialVars[tp] = tp switch
 				{
-					SpVar.NONE => 0,
-					SpVar.version => Ver,
-					SpVar.time => new(new ByCallbackGetOnly()
+					SpVar.NONE => new() { 0 },
+					SpVar.version => new() { Ver },
+					SpVar.time => new() { new Callback<string>(getter: DateTime.Now.ToString) },
+					SpVar.utctime => new() { new Callback<string>(getter: DateTime.UtcNow.ToString) },
+					SpVar.cycletime => new() 
 					{
-						getStr = () => DateTime.Now.ToString()
-					}),
-					SpVar.utctime => new(new ByCallbackGetOnly()
-					{
-						getStr = () => DateTime.UtcNow.ToString()
-					}),
-					SpVar.cycletime => new(new ByCallbackGetOnly()
-					{
-						getI32 = findClock,
-						getF32 = () => findClock() / 40,
-						getStr = () => $"{findClock() / 40} seconds / {findClock()} frames"
-					}),
-					SpVar.root => new(new ByCallbackGetOnly()
-					{
-						getStr = Custom.RootFolderDirectory
-					}),
-					SpVar.realm => FindAssemblies("Realm").Count() > 0, //check if right
-					SpVar.os => Environment.OSVersion.Platform.ToString(),
-					SpVar.memused => new(new ByCallbackGetOnly()
-					{
-						getStr = () => GC.GetTotalMemory(false).ToString()
-					}),
-					SpVar.memtotal => new(new ByCallbackGetOnly()
-					{
-						getStr = () => "???"
-					}),
-					SpVar.username => Environment.UserName,
-					SpVar.machinename => Environment.MachineName,
-					SpVar.karma => new(new ByCallbackGetOnly()
-					{
-						getI32 = findKarma,
-						getF32 = static () => findKarma(),
-					}),
-					SpVar.karmacap => new(new ByCallbackGetOnly()
-					{
-						getI32 = findKarmaCap,
-						getF32 = static () => findKarmaCap(),
-					}),
-					_ => 0,
-				}); ;
+					new Callback<int>(findClock),
+					new Callback<float>(() => findClock() / 40),
+					new Callback<string>(() => $"{findClock() / 40} seconds / {findClock()} frames")
+					},
+					SpVar.root => new() { new Callback<string>(getter: Custom.RootFolderDirectory) },
+					SpVar.realm => new() { new Callback<bool>(getter: () => FindAssemblies("Realm").Count() > 0) },
+					SpVar.os => new() { new Callback<string>(getter: Environment.OSVersion.Platform.ToString) },
+					SpVar.memused => new() { new Callback<string>(getter: GC.GetTotalMemory(false).ToString) },
+					SpVar.memtotal => new() { new Callback<string>(getter: () => "???") },
+					SpVar.username => new() { Environment.UserName },
+					SpVar.machinename => new() { Environment.MachineName },
+					SpVar.karma => new() { new Callback<int>(getter: findKarma) },
+					SpVar.karmacap => new() { new Callback<int>(getter: findKarmaCap) },
+					_ => new() { 0 },
+				};
 			}
 			catch (Exception ex)
 			{

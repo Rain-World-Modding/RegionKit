@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 using static RegionKit.Modules.Atmo.Data.VarRegistry;
-using NamedVars = System.Collections.Generic.Dictionary<string, RegionKit.Modules.Atmo.Data.Arg>;
+using NamedVars = System.Collections.Generic.Dictionary<string, RegionKit.Modules.Atmo.Data.NewArg>;
 using SerDict = System.Collections.Generic.Dictionary<string, object>;
 using RegionKit.Modules.Atmo.Helpers;
 
@@ -26,12 +26,12 @@ public class VarSet
 	/// <param name="save"></param>
 	public VarSet(VT<int, SlugcatStats.Name> save)
 	{
-
+		
 	}
 	/// <summary>
 	/// Fetches a variable by name (may contain persistent prefix)
 	/// </summary>
-	public Arg GetVar(string name)
+	public NewArg GetVar(string name)
 	{
 		DataSection sec = DataSection.Normal;
 		if (name.StartsWith(PREFIX_PERSISTENT))
@@ -45,21 +45,23 @@ public class VarSet
 	/// Gets variable by name in a specified section (no prefixes)
 	/// </summary>
 	/// <returns></returns>
-	public Arg GetVar(string name, DataSection section)
+	public NewArg GetVar(string name, DataSection section)
 	{
 		NamedVars vars = _DictForSection(section);
-		Arg _def = __Defarg;
+		NewArg _def = __Defarg;
 		return vars.EnsureAndGet(name, () => _def);
 	}
 	internal SerDict _GetSer(DataSection section)
 	{
 		SerDict res = new();
-		Arg _def = __Defarg;
+		NewArg _def = __Defarg;
 		NamedVars tdict = _DictForSection(section);
-		foreach ((string name, Arg var) in tdict)
+		foreach ((string name, NewArg var) in tdict)
 		{
 			if (var.Equals(_def)) continue;
-			res.Add(name, var.Str);
+			string str = "";
+			var.TryGetValue<string>(out str);
+			res.Add(name, str);
 		}
 		return res;
 	}
@@ -70,7 +72,7 @@ public class VarSet
 		if (dict is null) return;
 		foreach ((string name, object val) in dict)
 		{
-			tdict.Add(name, val.ToString());
+			tdict.Add(name, new() { val.ToString() });
 		}
 	}
 	internal NamedVars _DictForSection(DataSection sec)

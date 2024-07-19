@@ -3,8 +3,12 @@
 /// <summary>
 /// Displays what kind of data an <see cref="IArgPayload"/> instance was constructed from.
 /// </summary>
-public enum ArgType 
+public enum ArgType
 {
+	/// <summary>
+	/// The data type is unspecified.
+	/// </summary>
+	OTHER,
 	/// <summary>
 	/// Value was originally assigned as float.
 	/// </summary>
@@ -29,8 +33,4 @@ public enum ArgType
 	/// Value was orignally assigned as a vector.
 	/// </summary>
 	VECTOR,
-	/// <summary>
-	/// The data type is unspecified.
-	/// </summary>
-	OTHER
 }

@@ -4,7 +4,7 @@ using RegionKit.Modules.Atmo.Body;
 namespace RegionKit.Modules.Atmo.Data;
 
 /// <summary>
-/// A set of <see cref="Arg"/>s. Implements IList, so can be indexed by position (<see cref="this[int]"/>), as well as <see cref="Arg"/>'s name <see cref="this[string[]]"/>.
+/// A set of <see cref="NewArg"/>s. Implements IList, so can be indexed by position (<see cref="this[int]"/>), as well as <see cref="NewArg"/>'s name <see cref="this[string[]]"/>.
 /// <para>
 ///		ArgSets can be created from string arrays, explicitly (<see cref="ArgSet(string[], bool)"/>)
 ///		or implicitly (a cast that invokes the same constructor). When instantiating, ArgSet creates 
@@ -17,7 +17,7 @@ namespace RegionKit.Modules.Atmo.Data;
 ///		consistent argument syntax in various <see cref="Happen"/> actions.
 /// </para>
 /// </summary>
-public sealed class ArgSet : IList<Arg>
+public sealed class ArgSet : IList<NewArg>
 {
 	/// <summary>
 	/// Creates the instance from a given array of raw string arguments.
@@ -26,20 +26,17 @@ public sealed class ArgSet : IList<Arg>
 	/// <param name="linkage">Whether to parse argument names and variable links on instantiation. On by default.</param>
 	public ArgSet(string[] rawargs, bool linkage = true)
 	{
-		for (int i = 0; i < rawargs.Length; i++)
+		foreach (string arg in rawargs)
 		{
-			Arg newarg = new(
-				rawargs[i] ?? string.Empty,
-				linkage);
+			NewArg newarg = VarRegistry.ParseArg(arg, out var name);
+
 			_args.Add(newarg);
-			if (newarg.Name is not null)
-			{
-				_named.Add(newarg.Name, newarg);
-			}
+			if (name is not null)
+			{ _named.Add(name, newarg); }
 		}
 	}
-	private readonly List<Arg> _args = new();
-	private readonly Dictionary<string, Arg> _named = new();
+	private readonly List<NewArg> _args = new();
+	private readonly Dictionary<string, NewArg> _named = new();
 	/// <summary>
 	/// Checks given names and returns first matching named argument, if any.
 	/// <para>
@@ -53,8 +50,8 @@ public sealed class ArgSet : IList<Arg>
 	/// </para>
 	/// </summary>
 	/// <param name="names">Names to check</param>
-	/// <returns>An <see cref="Arg"/> if one is found, null otherwise.</returns>
-	public Arg? this[params string[] names] => _named.Where(n => names.Contains(n.Key)).Select(n => n.Value).FirstOrDefault();
+	/// <returns>An <see cref="NewArg"/> if one is found, null otherwise.</returns>
+	public NewArg? this[params string[] names] => _named.Where(n => names.Contains(n.Key)).Select(n => n.Value).FirstOrDefault();
 #pragma warning disable CS1591
 	#region interface
 	/// <summary>
@@ -62,12 +59,12 @@ public sealed class ArgSet : IList<Arg>
 	/// </summary>
 	/// <param name="index"></param>
 	/// <returns></returns>
-	public Arg this[int index] { get => _args[index]; set => _args[index] = value; }
+	public NewArg this[int index] { get => _args[index]; set => _args[index] = value; }
 	public int Count
 		=> _args.Count;
 	public bool IsReadOnly
 		=> false;
-	public void Add(Arg item)
+	public void Add(NewArg item)
 	{
 		_args.Add(item);
 	}
@@ -77,32 +74,32 @@ public sealed class ArgSet : IList<Arg>
 		_args.Clear();
 	}
 
-	public bool Contains(Arg item)
+	public bool Contains(NewArg item)
 	{
 		return _args.Contains(item);
 	}
 
-	public void CopyTo(Arg[] array, int arrayIndex)
+	public void CopyTo(NewArg[] array, int arrayIndex)
 	{
 		_args.CopyTo(array, arrayIndex);
 	}
 
-	public IEnumerator<Arg> GetEnumerator()
+	public IEnumerator<NewArg> GetEnumerator()
 	{
 		return _args.GetEnumerator();
 	}
 
-	public int IndexOf(Arg item)
+	public int IndexOf(NewArg item)
 	{
 		return _args.IndexOf(item);
 	}
 
-	public void Insert(int index, Arg item)
+	public void Insert(int index, NewArg item)
 	{
 		_args.Insert(index, item);
 	}
 
-	public bool Remove(Arg item)
+	public bool Remove(NewArg item)
 	{
 		return _args.Remove(item);
 	}
@@ -122,8 +119,5 @@ public sealed class ArgSet : IList<Arg>
 	/// Creates a new ArgSet from a specified string array.
 	/// </summary>
 	/// <param name="raw"></param>
-	public static implicit operator ArgSet(string[] raw)
-	{
-		return new(raw);
-	}
+	
 }

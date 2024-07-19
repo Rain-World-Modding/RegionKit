@@ -1,8 +1,9 @@
-﻿using RegionKit.Modules.Atmo.Helpers;
+﻿using Newtonsoft.Json.Linq;
+using RegionKit.Modules.Atmo.Helpers;
 using static RegionKit.Modules.Atmo.Atmod;
 using IO = System.IO;
 
-using NamedVars = System.Collections.Generic.Dictionary<string, RegionKit.Modules.Atmo.Data.Arg>;
+using NamedVars = System.Collections.Generic.Dictionary<string, RegionKit.Modules.Atmo.Data.NewArg>;
 using Save = RegionKit.Modules.Atmo.Helpers.VT<int, SlugcatStats.Name>;
 using SerDict = System.Collections.Generic.Dictionary<string, object>;
 
@@ -10,7 +11,7 @@ namespace RegionKit.Modules.Atmo.Data;
 /// <summary>
 /// Allows accessing a pool of variables, global or save-specific.
 /// You can use <see cref="GetVar"/> to fetch variables by name.
-/// Variables are returned as <see cref="Arg"/>s (NOTE: they may be mutable!
+/// Variables are returned as <see cref="NewArg"/>s (NOTE: they may be mutable!
 /// Be careful not to mess the values up, especially if you are requesting
 /// a variable made by someone else). Use 'p_' prefix to look for a death-persistent variable,
 /// and 'g_' prefix to look for a global variable.
@@ -33,7 +34,7 @@ public static partial class VarRegistry
 	internal const string PREFIX_GLOBAL = "g_";
 	internal const string PREFIX_PERSISTENT = "p_";
 	//internal const string PREFIX_FMT = "$FMT_";
-	internal static Arg __Defarg = string.Empty;
+	internal static NewArg __Defarg = new() { string.Empty };
 	/// <summary>
 	/// Var sets per save. Key is saveslot number + character index.
 	/// </summary>
@@ -99,7 +100,7 @@ public static partial class VarRegistry
 	private static void __TrackCycleLength(On.RainCycle.orig_ctor orig, RainCycle self, World world, float minutes)
 	{
 		orig(self, world, minutes);
-		__SpecialVars[SpVar.cycletime].F32 = minutes * 60f;
+		__SpecialVars[SpVar.cycletime].SetValue(minutes * 60f);
 		VerboseLog($"Setting $cycletime to {__SpecialVars[SpVar.cycletime]}");
 	}
 
@@ -245,6 +246,31 @@ public static partial class VarRegistry
 	#endregion hooks
 	#endregion lifecycle
 	#region methods
+	public static NewArg ParseArg(string value, out string? name)
+	{
+		name = null;
+		string raw = value;
+
+		int splPoint = value.IndexOf('=');
+		if (splPoint is not -1 && splPoint < value.Length - 1)
+		{
+			name = value.Substring(0, splPoint);
+			raw = value.Substring(splPoint + 1);
+		}
+		if (raw.StartsWith("$"))
+		{
+			int? ss = __CurrentSaveslot;
+			SlugcatStats.Name? ch = __CurrentCharacter;
+			VerboseLog($"Linking variable {raw}: {ss}, {ch}");
+			if (ss is not null)
+			{
+				return VarRegistry.GetVar(raw.Substring(1), ss.Value, ch ?? __slugnameNotFound);
+			}
+		}
+		return new(name, raw);
+	}
+
+
 	/// <summary>
 	/// Fetches a stored variable. Creates a new one if does not exist. You can use prefixes to request death-persistent ("p_") and global ("g_") variables. Persistent variables follow the lifecycle of <see cref="DeathPersistentSaveData"/>; global variables are shared across the entire saveslot.
 	/// </summary>
@@ -252,15 +278,15 @@ public static partial class VarRegistry
 	/// <param name="saveslot">Save slot to look up data from (<see cref="RainWorld"/>.options.saveSlot for current)</param>
 	/// <param name="character">Current character. 0 for survivor, 1 for monk, 2 for hunter.</param>
 	/// <returns>Variable requested; if there was no variable with given name before, GetVar creates a blank one from an empty string.</returns>
-	public static Arg GetVar(string name, int saveslot, SlugcatStats.Name character = null!)
+	public static NewArg GetVar(string name, int saveslot, SlugcatStats.Name character = null!)
 	{
 		character ??= __slugnameNotFound;
 		BangBang(name, nameof(name));
-		if (name.StartsWith("$") && GetMetaFunction(name.Substring(1), saveslot, character) is Arg meta)
+		if (name.StartsWith("$") && GetMetaFunction(name.Substring(1), saveslot, character) is NewArg meta)
 		{
 			return meta;
 		}
-		if (GetSpecial(name) is Arg spec)
+		if (GetSpecial(name) is NewArg spec)
 		{
 			return spec;
 		}
@@ -299,7 +325,7 @@ public static partial class VarRegistry
 			SerDict json = reader.ReadToEnd().dictionaryFromJson();
 			foreach ((string name, object val) in json)
 			{
-				res.Add(name, val?.ToString() ?? string.Empty);
+				res.Add(name, new() { val?.ToString() ?? string.Empty });
 			}
 		}
 		catch (IO.IOException ex)

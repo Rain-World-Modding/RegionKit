@@ -45,6 +45,7 @@ public static class Atmod
 	/// </summary>
 	public static void OnEnable()
 	{
+		Conversion.Register();
 		LogWarning($"Atmo booting... {THR.Thread.CurrentThread.ManagedThreadId}");
 		try
 		{
@@ -282,7 +283,7 @@ public static class Atmod
 
 	public static void VerboseLog(string message)
 	{
-
+		UnityEngine.Debug.Log(message);
 	}
 
 

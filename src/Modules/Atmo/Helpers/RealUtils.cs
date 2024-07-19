@@ -97,41 +97,5 @@ namespace RegionKit.Modules.Atmo.Helpers
 		{
 			return Mathf.Clamp(Mathf.Lerp(start - mDev, start + mDev, UnityEngine.Random.value), minRes, maxRes);
 		}
-		public static void Assign<TV, TT>(TV argv, TT target, ArgType datatype = ArgType.STRING)
-	where TV : IArgPayload
-	where TT : IArgPayload
-		{
-			switch (datatype)
-			{
-			case ArgType.DECIMAL:
-			{
-				target.F32 = argv.F32;
-				break;
-			}
-			case ArgType.INTEGER:
-			{
-				target.I32 = argv.I32;
-				break;
-			}
-			case ArgType.BOOLEAN:
-			{
-				target.Bool = argv.Bool;
-				break;
-			}
-			case ArgType.VECTOR:
-			{
-				target.Vec = argv.Vec;
-				break;
-			}
-			case ArgType.STRING:
-			case ArgType.ENUM:
-			case ArgType.OTHER:
-			default:
-			{
-				target.Str = argv.Str;
-				break;
-			}
-			}
-		}
 	}
 }

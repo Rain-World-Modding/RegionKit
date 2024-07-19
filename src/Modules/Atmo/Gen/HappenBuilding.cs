@@ -23,7 +23,7 @@ public static partial class HappenBuilding
 		{
 			if (__namedActions.TryGetValue(ac.Key, out var builder))
 			{
-				builder.Invoke(happen, ac.Value);
+				builder.Invoke(happen, new(ac.Value));
 			}
 		}
 		//API_MakeNewHappen?.Invoke(ha);
@@ -42,7 +42,7 @@ public static partial class HappenBuilding
 
 		if (__namedTriggers.TryGetValue(id, out var trigger))
 		{
-			res = trigger.Invoke(args.Select(x => x.ApplyEscapes()).ToArray(), rwg, owner);
+			res = trigger.Invoke(new(args.Select(x => x.ApplyEscapes()).ToArray()), rwg, owner);
 		}
 
 		if (res is null)

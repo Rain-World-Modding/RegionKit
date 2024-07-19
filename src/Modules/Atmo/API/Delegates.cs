@@ -47,5 +47,5 @@ public delegate HappenTrigger? Create_NamedTriggerFactory(ArgSet args, RainWorld
 /// <param name="saveslot">Current saveslot number.</param>
 /// <param name="character">Current character number.</param>
 /// <returns><see cref="IArgPayload"/> object linking to metafun's output; null if there was an error.</returns>
-public delegate IArgPayload? Create_NamedMetaFunction(string value, int saveslot, SlugcatStats.Name character);
+public delegate NewArg? Create_NamedMetaFunction(string value, int saveslot, SlugcatStats.Name character);
 #pragma warning restore CS0419

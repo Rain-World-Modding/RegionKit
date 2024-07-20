@@ -35,6 +35,10 @@ public sealed class ArgSet : IList<NewArg>
 			{ _named.Add(name, newarg); }
 		}
 	}
+	public ArgSet()
+	{
+	}
+
 	private readonly List<NewArg> _args = new();
 	private readonly Dictionary<string, NewArg> _named = new();
 	/// <summary>

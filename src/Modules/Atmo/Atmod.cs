@@ -56,6 +56,7 @@ public static class Atmod
 			On.OverWorld.LoadFirstWorld += SetTempSSN;
 			VarRegistry.__Init();
 			HappenBuilding.__InitBuiltins();
+			SaveVarRegistry.ApplyHooks();
 
 		}
 		catch (Exception ex)

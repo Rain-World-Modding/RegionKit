@@ -17,42 +17,12 @@ namespace RegionKit.Modules.Atmo.Data;
 /// </summary>
 public static partial class VarRegistry
 {
-	#region fields / consts / props
-	/// <summary>
-	/// <see cref="DeathPersistentSaveData"/> hash to slugcat number.
-	/// </summary>
-	private static readonly Dictionary<int, SlugcatStats.Name> __DPSD_Slug = new();
-	internal const string PREFIX_VOLATILE = "v_";
-	internal const string PREFIX_GLOBAL = "g_";
-	internal const string PREFIX_NORMAL = "n_";
-	internal const string PREFIX_REGION = "r_";
-	internal const string PREFIX_PERSISTENT = "p_";
-	//internal const string PREFIX_FMT = "$FMT_";
-	internal static NewArg __Defarg = new() { string.Empty };
-	#endregion
-	#region lifecycle
-	internal static void __Clear()
-	{
-	}
-	internal static void __Init()
-	{
-		LogDebug("Init VarRegistry hooks");
-		try
-		{
-			//__FillSpecials();
-		}
-		catch (Exception ex)
-		{
-			LogFatal(__ErrorMessage(Site.Init, "Unhandled exception", ex));
-		}
-
-	}
-	#endregion lifecycle
-	#region methods
-	public static NewArg ParseArg(string value, out string? name)
+	internal static Arg __Defarg = new StaticArg(string.Empty);
+	public static Arg ParseArg(string value, out string? name, World? world)
 	{
 		name = null;
 		string raw = value;
+		Arg? result = null;
 
 		int splPoint = value.IndexOf('=');
 		if (splPoint is not -1 && splPoint < value.Length - 1)
@@ -60,11 +30,13 @@ public static partial class VarRegistry
 			name = value.Substring(0, splPoint);
 			raw = value.Substring(splPoint + 1);
 		}
-		if (raw.StartsWith("$"))
+		if (raw.StartsWith("$") && world != null)
 		{
-			return VarRegistry.GetVar(raw.Substring(1), __temp_World);
+			result = VarRegistry.GetVar(raw.Substring(1), world);
 		}
-		return new(name, raw);
+		result ??= new StaticArg(raw);
+		if (name != null) result.Name = name;
+		return result;
 	}
 
 
@@ -74,74 +46,17 @@ public static partial class VarRegistry
 	/// <param name="name">Name of the variable, with prefix if needed. Must not be null.</param>
 	/// <param name="world">Save slot to look up data from (<see cref="RainWorld"/>.options.saveSlot for current)</param>
 	/// <returns>Variable requested; if there was no variable with given name before, GetVar creates a blank one from an empty string.</returns>
-	public static NewArg GetVar(string name, World world)
+	public static Arg GetVar(string name, World world)
 	{
 		BangBang(name, nameof(name));
-		if (name.StartsWith("$") && GetMetaFunction(name.Substring(1), world) is NewArg meta)
+		if (name.StartsWith("$") && GetMetaFunction(name.Substring(1), world) is Arg meta)
 		{
 			return meta;
 		}
-		if (GetSpecial(name, world) is NewArg spec)
+		if (GetSpecial(name, world) is Arg spec)
 		{
 			return spec;
 		}
-		if (name.StartsWith(PREFIX_GLOBAL))
-		{
-			name = name.Substring(PREFIX_GLOBAL.Length);
-			LogDebug($"Reading global var {name}");
-			return SaveVarRegistry.GetSaveData(world, SaveVarRegistry.DataSection.Global)[name] ?? new();
-		}
-		else if (name.StartsWith(PREFIX_VOLATILE))
-		{
-			name = name.Substring(PREFIX_VOLATILE.Length);
-			return SaveVarRegistry.GetSaveData(world, SaveVarRegistry.DataSection.Volatile)[name] ?? new();
-		}
-		else if (name.StartsWith(PREFIX_PERSISTENT))
-		{
-
-			name = name.Substring(PREFIX_PERSISTENT.Length);
-			return SaveVarRegistry.GetSaveData(world, SaveVarRegistry.DataSection.Persistent)[name] ?? new();
-		}
-		else if (name.StartsWith(PREFIX_REGION))
-		{
-
-			name = name.Substring(PREFIX_REGION.Length);
-			return SaveVarRegistry.GetSaveData(world, SaveVarRegistry.DataSection.Region)[name] ?? new();
-		}
-		return new(null, name);
+		return new StaticArg(name);
 	}
-	private static string __ErrorMessage(Site site, string message, Exception? ex)
-	{
-		return $"{nameof(VarRegistry)}: {site}: {message}\nException: {ex?.ToString() ?? "NULL"}";
-	}
-	#endregion methods
-	#region nested
-	/// <summary>
-	/// Variable kinds
-	/// </summary>
-	public enum DataSection
-	{
-		/// <summary>
-		/// Normal data
-		/// </summary>
-		Normal,
-		/// <summary>
-		/// Death-persistent data
-		/// </summary>
-		Persistent,
-		//global
-	}
-	private enum Site
-	{
-		ReadData,
-		WipeData,
-		WriteData,
-		HookWipe,
-		HookNormal,
-		HookPersistent,
-		Init,
-		InitSpecials,
-		Clear
-	}
-	#endregion
 }

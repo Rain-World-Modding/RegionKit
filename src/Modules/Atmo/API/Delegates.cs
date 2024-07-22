@@ -39,13 +39,11 @@ public delegate HappenAction? Create_NamedHappenBuilder(Happen happen, ArgSet ar
 /// <param name="args">Trigger arguments.</param>
 /// <param name="game">Current RainWorldGame instance.</param>
 /// <param name="happen">Happen the trigger is to be attached to.</param>
-public delegate HappenTrigger? Create_NamedTriggerFactory(ArgSet args, RainWorldGame game, Happen happen);
+public delegate HappenTrigger? Create_NamedTriggerFactory(ArgSet args, Happen happen);
 /// <summary>
 /// Delegate for registering named metafunctions. Used by <see cref="V0.AddNamedMetafun"/> overloads.
 /// </summary>
 /// <param name="value">Body text passed to the metafun.</param>
-/// <param name="saveslot">Current saveslot number.</param>
-/// <param name="character">Current character number.</param>
-/// <returns><see cref="IArgPayload"/> object linking to metafun's output; null if there was an error.</returns>
-public delegate NewArg? Create_NamedMetaFunction(string value, World world);
+/// <param name="world">Current saveslot number.</param>
+public delegate Arg? Create_NamedMetaFunction(string value, World world);
 #pragma warning restore CS0419

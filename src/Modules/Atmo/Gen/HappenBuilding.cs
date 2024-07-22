@@ -21,7 +21,7 @@ public static partial class HappenBuilding
 	/// <param name="happen"></param>
 	internal static HappenAction __NewHappen(string id, string[] args, Happen happen)
 	{
-		ArgSet argSet = new(args.Select(x => x.ApplyEscapes()).ToArray());
+		ArgSet argSet = new(args.Select(x => x.ApplyEscapes()).ToArray(), happen.Set.world);
 		HappenAction? res = null;
 		if (__namedActions.TryGetValue(id, out var builder))
 		{
@@ -43,14 +43,14 @@ public static partial class HappenBuilding
 	/// <param name="rwg">game instance</param>
 	/// <param name="owner">Happen that requests the trigger.</param>
 	/// <returns>Resulting trigger; an always-active trigger if something went wrong.</returns>
-	internal static HappenTrigger __CreateTrigger(string id, string[] args, RainWorldGame rwg, Happen owner)
+	internal static HappenTrigger __CreateTrigger(string id, string[] args, Happen owner)
 	{
-		ArgSet argSet = new(args.Select(x => x.ApplyEscapes()).ToArray());
+		ArgSet argSet = new(args.Select(x => x.ApplyEscapes()).ToArray(), owner.Set.world);
 		HappenTrigger? res = null;
 
 		if (__namedTriggers.TryGetValue(id, out var trigger))
 		{
-			res = trigger.Invoke(argSet, rwg, owner);
+			res = trigger.Invoke(argSet, owner);
 		}
 
 		if (res is null)

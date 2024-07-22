@@ -11,13 +11,7 @@ namespace RegionKit.Modules.Atmo.Data
 	{
 		public enum DataSection
 		{
-			/// <summary>
-			/// Normal data
-			/// </summary>
 			Normal,
-			/// <summary>
-			/// Death-persistent data
-			/// </summary>
 			Persistent,
 			Global,
 			Region,
@@ -27,15 +21,15 @@ namespace RegionKit.Modules.Atmo.Data
 		public static void SetArg(World world, DataSection section, string? name, string value)
 		{
 			ArgSet set = GetSaveData(world, section);
-			if (name != null) set[name] = value;
+			if (name != null) { set[name] = value; set[name]!.Name = name; }
 			else set.Add(value);
 		}
-		public static NewArg GetArg(World world, DataSection section, string? name, string? value = null)
+		public static Arg GetArg(World world, DataSection section, string? name, string? value = null)
 		{
 			ArgSet set = GetSaveData(world, section);
 			if (name != null)
 			{
-				NewArg? arg = set[name];
+				Arg? arg = set[name];
 				if (arg == null)
 				{
 					arg = 0;
@@ -57,10 +51,11 @@ namespace RegionKit.Modules.Atmo.Data
 				DataSection.Persistent => DeathPersistentData(save),
 				DataSection.Global => GlobalData(save),
 				DataSection.Region => RegionData(save, world.name),
-				_ => new()
+				DataSection.Volatile or _ => VolatileData(save)
 			};
 		}
 
+		public static ArgSet VolatileData(SaveState p) => _volatileData.GetValue(p, _ => new());
 		public static ArgSet GlobalData(SaveState p) => _globalData.GetValue(p.progression.miscProgressionData, _ => new());
 		public static ArgSet DeathPersistentData(SaveState p) => _deathPersistentData.GetValue(p.deathPersistentSaveData, _ => new());
 		public static ArgSet NormalData(SaveState p) => _normalData.GetValue(p.miscWorldSaveData, _ => new());
@@ -70,6 +65,7 @@ namespace RegionKit.Modules.Atmo.Data
 			return regionState is not null ? _regionData.GetValue(regionState, _ => new()) : new();
 		}
 
+		private static ConditionalWeakTable<SaveState, ArgSet> _volatileData = new();
 		private static ConditionalWeakTable<PlayerProgression.MiscProgressionData, ArgSet> _globalData = new();
 		private static ConditionalWeakTable<DeathPersistentSaveData, ArgSet> _deathPersistentData = new();
 		private static ConditionalWeakTable<RegionState, ArgSet> _regionData = new();
@@ -83,7 +79,7 @@ namespace RegionKit.Modules.Atmo.Data
 				string[] array = Regex.Split(unrecognized[i], "<mwB>");
 				if (array.Length >= 2 && array[0] == "AtmoSaveData")
 				{
-					SetTable(table, self, new ArgSet(array[1].Split(',')));
+					SetTable(table, self, new ArgSet(array[1].Split(','), null));
 					unrecognized.RemoveAt(i);
 					break;
 				}
@@ -94,8 +90,9 @@ namespace RegionKit.Modules.Atmo.Data
 			table.Remove(self);
 			table.Add(self, set);
 		}
-		public static void SaveTableToUnrecognized<T>(ConditionalWeakTable<T, ArgSet> table, T self, List<string> unrecognized) where T : class
+		public static void SaveArgSetToUnrecognized(ArgSet set, List<string> unrecognized)
 		{
+			UnityEngine.Debug.Log("saving set");
 			for (int i = 0; i < unrecognized.Count; i++)
 			{
 				string[] array = Regex.Split(unrecognized[i], "<mwB>");
@@ -104,16 +101,18 @@ namespace RegionKit.Modules.Atmo.Data
 					unrecognized.RemoveAt(i);
 				}
 			}
-			string? save = TableToString(table, self);
+			string? save = ArgSetString(set);
 			if (save is string s)
 			{
+				UnityEngine.Debug.Log("saving set: " + save);
 				unrecognized.Add("AtmoSaveData" + "<mwB>" + s);
 			}
 		}
-		public static string? TableToString<T>(ConditionalWeakTable<T, ArgSet> table, T self) where T : class
+
+		public static string? ArgSetString(ArgSet set)
 		{
-			if (!table.TryGetValue(self, out var set) || set.Count == 0) return null;
-			return string.Join(",", set.Select(a => a.Raw));
+			if (set.Count == 0) return null;
+			return string.Join(",", set.Select(a => a.Name != null ? a.Name + "=" + a.Raw : a.Raw));
 		}
 
 		#region hooks
@@ -123,7 +122,7 @@ namespace RegionKit.Modules.Atmo.Data
 			On.MiscWorldSaveData.ToString += MiscWorldSaveData_ToString;
 
 			On.DeathPersistentSaveData.FromString += DeathPersistentSaveData_FromString;
-			On.DeathPersistentSaveData.ToString += DeathPersistentSaveData_ToString;
+			On.DeathPersistentSaveData.SaveToString += DeathPersistentSaveData_SaveToString; ;
 
 			On.RegionState.ctor += RegionState_ctor;
 			On.RegionState.SaveToString += RegionState_SaveToString;
@@ -132,9 +131,10 @@ namespace RegionKit.Modules.Atmo.Data
 			On.PlayerProgression.MiscProgressionData.ToString += MiscProgressionData_ToString;
 		}
 
+
 		private static string MiscProgressionData_ToString(On.PlayerProgression.MiscProgressionData.orig_ToString orig, PlayerProgression.MiscProgressionData self)
 		{
-			SaveTableToUnrecognized(_globalData, self, self.unrecognizedSaveStrings);
+			SaveArgSetToUnrecognized(_globalData.GetValue(self, _ => new()), self.unrecognizedSaveStrings);
 			return orig(self);
 		}
 
@@ -146,7 +146,7 @@ namespace RegionKit.Modules.Atmo.Data
 
 		private static string RegionState_SaveToString(On.RegionState.orig_SaveToString orig, RegionState self)
 		{
-			SaveTableToUnrecognized(_regionData, self, self.unrecognizedSaveStrings);
+			SaveArgSetToUnrecognized(_regionData.GetValue(self, _ => new()), self.unrecognizedSaveStrings);
 			return orig(self);
 		}
 
@@ -156,12 +156,11 @@ namespace RegionKit.Modules.Atmo.Data
 			LoadTableFromUnrecognized(_regionData, self, self.unrecognizedSaveStrings);
 		}
 
-		private static string DeathPersistentSaveData_ToString(On.DeathPersistentSaveData.orig_ToString orig, DeathPersistentSaveData self)
+		private static string DeathPersistentSaveData_SaveToString(On.DeathPersistentSaveData.orig_SaveToString orig, DeathPersistentSaveData self, bool saveAsIfPlayerDied, bool saveAsIfPlayerQuit)
 		{
-			SaveTableToUnrecognized(_deathPersistentData, self, self.unrecognizedSaveStrings);
-			return orig(self);
+			SaveArgSetToUnrecognized(_deathPersistentData.GetValue(self, _ => new()), self.unrecognizedSaveStrings);
+			return orig(self, saveAsIfPlayerDied, saveAsIfPlayerQuit);
 		}
-
 		private static void DeathPersistentSaveData_FromString(On.DeathPersistentSaveData.orig_FromString orig, DeathPersistentSaveData self, string s)
 		{
 			orig(self, s);
@@ -170,7 +169,7 @@ namespace RegionKit.Modules.Atmo.Data
 
 		private static string MiscWorldSaveData_ToString(On.MiscWorldSaveData.orig_ToString orig, MiscWorldSaveData self)
 		{
-			SaveTableToUnrecognized(_normalData, self, self.unrecognizedSaveStrings);
+			SaveArgSetToUnrecognized(_normalData.GetValue(self, _ => new()), self.unrecognizedSaveStrings);
 			return orig(self);
 		}
 

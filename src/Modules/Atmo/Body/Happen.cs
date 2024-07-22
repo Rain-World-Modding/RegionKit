@@ -138,7 +138,7 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 		conditions = cfg.conditions;
 		conditions?.Populate((id, args) =>
 		{
-			HappenTrigger? nt = HappenBuilding.__CreateTrigger(id, args, game, this);
+			HappenTrigger? nt = HappenBuilding.__CreateTrigger(id, args, this);
 			triggers.Add(nt);
 			return nt.Active;
 		});

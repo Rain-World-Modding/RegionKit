@@ -44,10 +44,6 @@ public static class Conversion
 		return result;
 	}
 
-	public static void Register()
-	{
-	}
-
 	public static bool TryBoolFromString(string value, out bool result)
 	{
 		if (bool.TryParse(value, out var b))

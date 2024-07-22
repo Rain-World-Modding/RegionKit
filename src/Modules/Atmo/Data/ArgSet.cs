@@ -17,30 +17,30 @@ namespace RegionKit.Modules.Atmo.Data;
 ///		consistent argument syntax in various <see cref="Happen"/> actions.
 /// </para>
 /// </summary>
-public sealed class ArgSet : IList<NewArg>
+public sealed class ArgSet : IList<Arg>
 {
 	/// <summary>
 	/// Creates the instance from a given array of raw string arguments.
 	/// </summary>
 	/// <param name="rawargs"></param>
-	/// <param name="linkage">Whether to parse argument names and variable links on instantiation. On by default.</param>
-	public ArgSet(string[] rawargs, bool linkage = true)
+	/// <param name="world">Whether to parse argument names and variable links on instantiation. On by default.</param>
+	public ArgSet(string[] rawargs, World? world)
 	{
 		foreach (string arg in rawargs)
 		{
-			NewArg newarg = VarRegistry.ParseArg(arg, out var name);
+			Arg newarg = VarRegistry.ParseArg(arg, out var name, world);
 
 			_args.Add(newarg);
 			if (name is not null)
-			{ _named.Add(name, newarg); }
+			{ _named[name] = newarg; }
 		}
 	}
 	public ArgSet()
 	{
 	}
 
-	private readonly List<NewArg> _args = new();
-	private readonly Dictionary<string, NewArg> _named = new();
+	private readonly List<Arg> _args = new();
+	private readonly Dictionary<string, Arg> _named = new();
 	/// <summary>
 	/// Checks given names and returns first matching named argument, if any.
 	/// <para>
@@ -55,14 +55,20 @@ public sealed class ArgSet : IList<NewArg>
 	/// </summary>
 	/// <param name="names">Names to check</param>
 	/// <returns>An <see cref="NewArg"/> if one is found, null otherwise.</returns>
-	public NewArg? this[params string[] names]
+	public Arg? this[params string[] names]
 	{
 		get => _named.Where(n => names.Contains(n.Key)).Select(n => n.Value).FirstOrDefault();
 		set
 		{
 			if (value == null) return;
 			foreach (string name in names)
-			{ _named[name] = value; }
+			{
+
+				if (_named.TryGetValue(name, out var arg))
+				{ _args.Remove(arg); }
+				_named[name] = value;
+			}
+			_args.Add(value);
 		}
 	}
 #pragma warning disable CS1591
@@ -72,12 +78,12 @@ public sealed class ArgSet : IList<NewArg>
 	/// </summary>
 	/// <param name="index"></param>
 	/// <returns></returns>
-	public NewArg this[int index] { get => _args[index]; set => _args[index] = value; }
+	public Arg this[int index] { get => _args[index]; set => _args[index] = value; }
 	public int Count
 		=> _args.Count;
 	public bool IsReadOnly
 		=> false;
-	public void Add(NewArg item)
+	public void Add(Arg item)
 	{
 		_args.Add(item);
 	}
@@ -87,32 +93,32 @@ public sealed class ArgSet : IList<NewArg>
 		_args.Clear();
 	}
 
-	public bool Contains(NewArg item)
+	public bool Contains(Arg item)
 	{
 		return _args.Contains(item);
 	}
 
-	public void CopyTo(NewArg[] array, int arrayIndex)
+	public void CopyTo(Arg[] array, int arrayIndex)
 	{
 		_args.CopyTo(array, arrayIndex);
 	}
 
-	public IEnumerator<NewArg> GetEnumerator()
+	public IEnumerator<Arg> GetEnumerator()
 	{
 		return _args.GetEnumerator();
 	}
 
-	public int IndexOf(NewArg item)
+	public int IndexOf(Arg item)
 	{
 		return _args.IndexOf(item);
 	}
 
-	public void Insert(int index, NewArg item)
+	public void Insert(int index, Arg item)
 	{
 		_args.Insert(index, item);
 	}
 
-	public bool Remove(NewArg item)
+	public bool Remove(Arg item)
 	{
 		return _args.Remove(item);
 	}

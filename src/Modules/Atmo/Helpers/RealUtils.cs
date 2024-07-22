@@ -24,7 +24,7 @@ namespace RegionKit.Modules.Atmo.Helpers
 					vecres[i] = val;
 				}
 			}
-			LogDebug($"{str} is vector : {vecparsed}");
+			//LogDebug($"{str} is vector : {vecparsed}");
 			vec = vecres;
 			return vecparsed;
 		}

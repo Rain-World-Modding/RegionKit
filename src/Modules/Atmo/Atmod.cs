@@ -45,7 +45,6 @@ public static class Atmod
 	/// </summary>
 	public static void OnEnable()
 	{
-		Conversion.Register();
 		LogWarning($"Atmo booting... {THR.Thread.CurrentThread.ManagedThreadId}");
 		try
 		{
@@ -54,7 +53,6 @@ public static class Atmod
 			On.Room.Update += RunHappensRealUpd;
 			On.World.LoadWorld += FetchHappenSet;
 			On.OverWorld.LoadFirstWorld += SetTempSSN;
-			VarRegistry.__Init();
 			HappenBuilding.__InitBuiltins();
 			SaveVarRegistry.ApplyHooks();
 
@@ -96,7 +94,6 @@ public static class Atmod
 			On.AbstractRoom.Update -= RunHappensAbstUpd;
 			On.World.LoadWorld -= FetchHappenSet;
 			On.OverWorld.LoadFirstWorld -= SetTempSSN;
-			VarRegistry.__Clear();
 
 			LOG.ManualLogSource? cleanup_logger =
 				LOG.Logger.CreateLogSource("Atmo_Purge");

@@ -58,11 +58,11 @@ public static partial class HappenBuilding
 		AddNamedTrigger(new[] { "ghost", "echo" }, TMake_EchoPresence);
 		//todo: document all triggers below:
 		//do not document:
-		AddNamedTrigger(new[] { "thisbreaks" }, (args, rwg, ha) =>
+		AddNamedTrigger(new[] { "thisbreaks" }, (args, ha) =>
 		{
-			NewArg when = args.AtOr(0, "eval");
+			Arg when = args.AtOr(0, "eval");
 			EventfulTrigger evt = new(ha, args);
-			switch (((string)when))
+			switch (when.String)
 			{
 			case "upd": evt.On_Update += delegate { throw new Exception("Intentional exception on Update"); }; break;
 			case "sru": evt.Is_Active += delegate { throw new Exception("Intentional exception on ShouldRun"); }; break;
@@ -70,7 +70,7 @@ public static partial class HappenBuilding
 			return evt;
 		});
 	}
-	private static HappenTrigger? TMake_ExpeditionEnabled(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_ExpeditionEnabled(ArgSet args, Happen ha)
 	{
 		EventfulTrigger evt = new(ha, args)
 		{
@@ -78,7 +78,7 @@ public static partial class HappenBuilding
 		};
 		return evt;
 	}
-	private static HappenTrigger? TMake_JollyEnabled(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_JollyEnabled(ArgSet args, Happen ha)
 	{
 		EventfulTrigger evt = new(ha, args)
 		{
@@ -86,7 +86,7 @@ public static partial class HappenBuilding
 		};
 		return evt;
 	}
-	private static HappenTrigger? TMake_MMFEnabled(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_MMFEnabled(ArgSet args, Happen ha)
 	{
 		EventfulTrigger evt = new(ha, args)
 		{
@@ -94,7 +94,7 @@ public static partial class HappenBuilding
 		};
 		return evt;
 	}
-	private static HappenTrigger? TMake_MSCEnabled(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_MSCEnabled(ArgSet args, Happen ha)
 	{
 		EventfulTrigger evt = new(ha, args)
 		{
@@ -102,7 +102,7 @@ public static partial class HappenBuilding
 		};
 		return evt;
 	}
-	private static HappenTrigger? TMake_RemixModEnabled(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_RemixModEnabled(ArgSet args, Happen ha)
 	{
 		if (args.Count < 1)
 		{
@@ -111,11 +111,11 @@ public static partial class HappenBuilding
 		}
 		EventfulTrigger evt = new(ha, args)
 		{
-			Is_Active = (EventfulTrigger trigger) => ModManager.ActiveMods.Any(x => x.name == trigger.args[0].GetValue<string>())
+			Is_Active = (EventfulTrigger trigger) => ModManager.ActiveMods.Any(x => x.name == trigger.args[0].String)
 		};
 		return evt;
 	}
-	private static HappenTrigger? TMake_EchoPresence(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_EchoPresence(ArgSet args, Happen ha)
 	{
 		EventfulTrigger evt = new(ha, args)
 		{
@@ -126,15 +126,15 @@ public static partial class HappenBuilding
 	/// <summary>
 	/// Creates a trigger that is active based on difficulty. 
 	/// </summary>
-	private static HappenTrigger? TMake_Difficulty(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_Difficulty(ArgSet args, Happen ha)
 	{
 		return new EventfulTrigger(ha, args)
 		{
 			Is_Active = (EventfulTrigger trigger) =>
 			{
-				foreach (NewArg arg in trigger.args)
+				foreach (Arg arg in trigger.args)
 				{
-					arg.TryGetValue(out SlugcatStats.Name? name);
+					SlugcatStats.Name? name = arg.GetExtEnum<SlugcatStats.Name>();
 					if (name == trigger.owner!.Set.world.game.GetStorySession.characterStats.name) return true;
 				}
 				return false;
@@ -144,7 +144,7 @@ public static partial class HappenBuilding
 	/// <summary>
 	/// Creates a trigger that is active on given player counts.
 	/// </summary>
-	private static HappenTrigger? TMake_PlayerCount(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_PlayerCount(ArgSet args, Happen ha)
 	{
 		return new EventfulTrigger(ha, args)
 		{
@@ -154,7 +154,7 @@ public static partial class HappenBuilding
 	/// <summary>
 	/// Creates a new trigger that is active after set delay (in seconds). If one argument is given, the delay is static. If two+ arguments are given, delay is randomly selected between them. Returns null if zero args.
 	/// </summary>
-	private static HappenTrigger? TMake_Delay(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_Delay(ArgSet args, Happen ha)
 	{
 		if (args.Count < 1)
 		{
@@ -172,7 +172,7 @@ public static partial class HappenBuilding
 	/// Creates a trigger that is active after another happen. First argument is target happen, second is delay in seconds.
 	/// </summary>
 	/// <returns>Null if no arguments.</returns>
-	private static HappenTrigger? TMake_AfterOther(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_AfterOther(ArgSet args, Happen ha)
 	{
 		if (args.Count < 1)
 		{
@@ -185,8 +185,8 @@ public static partial class HappenBuilding
 	public sealed class AfterOtherTrigger : HappenTrigger
 	{
 		internal Happen? target;
-		internal string targetName => args.AtOr(0, "none").GetValue<string>();
-		internal int delay => (int?)(args.AtOr(1, 3f).GetValue<float>() * 40) ?? 40;
+		internal string targetName => args.AtOr(0, "none").String;
+		internal int delay => (int?)(args.AtOr(1, 3f).Float * 40) ?? 40;
 		internal bool tarWasOn;
 		internal bool amActive;
 		internal List<int> switchOn = new();
@@ -236,7 +236,7 @@ public static partial class HappenBuilding
 	/// Creates a trigger that is active, but turns off for a while if the happen stays on for too long. First argument is max tolerable time, second is time it takes to recover.
 	/// </summary>
 	/// <returns></returns>
-	private static HappenTrigger? TMake_Fry(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_Fry(ArgSet args, Happen ha)
 	{
 		return new FryTrigger(ha, args);
 	}
@@ -270,13 +270,13 @@ public static partial class HappenBuilding
 	/// <summary>
 	/// Creates a trigger that activates once player visits one of the provided rooms.
 	/// </summary>
-	private static HappenTrigger? TMake_Visit(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_Visit(ArgSet args, Happen ha)
 	{
 		return new AfterVisitTrigger(ha, args);
 	}
 	public sealed class AfterVisitTrigger : HappenTrigger
 	{
-		private string[] rooms => args.Select(x => x.GetValue<string>()).ToArray();
+		private string[] rooms => args.Select(x => x.String).ToArray();
 		private bool visit = false;
 		public AfterVisitTrigger(Happen owner, ArgSet args) : base(owner, args)
 		{
@@ -298,7 +298,7 @@ public static partial class HappenBuilding
 	/// <summary>
 	/// Creates a trigger that flickers on and off. Arguments are: min time on, max time on, min time off, max time off, start active (yes/no)
 	/// </summary>
-	private static HappenTrigger? TMake_Flicker(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_Flicker(ArgSet args, Happen ha)
 	{
 		return new Flicker(ha, args);
 	}
@@ -313,7 +313,7 @@ public static partial class HappenBuilding
 
 		public Flicker(Happen owner, ArgSet args) : base(owner, args)
 		{
-			ResetCounter(args.AtOr(4, true).GetValue<bool>());
+			ResetCounter(args.AtOr(4, true).Bool);
 		}
 		private void ResetCounter(bool next)
 		{
@@ -335,7 +335,7 @@ public static partial class HappenBuilding
 	/// <summary>
 	/// Creates a trigger that is always active.
 	/// </summary>
-	private static HappenTrigger? TMake_Always(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_Always(ArgSet args, Happen ha)
 	{
 		return new EventfulTrigger(ha, args)
 		{
@@ -346,31 +346,31 @@ public static partial class HappenBuilding
 	/// <summary>
 	/// Creates a trigger that is active each cycle with a given chance (default 50%)
 	/// </summary>
-	private static HappenTrigger? TMake_Maybe(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_Maybe(ArgSet args, Happen ha)
 	{
-		NewArg ch = args.AtOr(0, 0.5f);
+		Arg ch = args.AtOr(0, 0.5f);
 		//float rv = RND.value;
-		bool yes = RND.value < ch.GetValue<float>();
+		bool yes = RND.value < ch.Float;
 		//plog.DbgVerbose($"bet {yes}: {ch} / {rv}");
 		return new EventfulTrigger(ha, new() { yes })
 		{
-			Is_Active = (EventfulTrigger trigger) => trigger.args[0].GetValue<bool>(),
+			Is_Active = (EventfulTrigger trigger) => trigger.args[0].Bool,
 		};
 	}
 	/// <summary>
 	/// Creates a trigger that is active at given karma levels.
 	/// </summary>
-	private static HappenTrigger? TMake_OnKarma(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_OnKarma(ArgSet args, Happen ha)
 	{
 		return new EventfulTrigger(ha, args)
 		{
 			Is_Active = (EventfulTrigger trigger) =>
 			{
 				List<int> levels = new();
-				foreach (NewArg op in trigger.args)
+				foreach (Arg op in trigger.args)
 				{
-					if (op.TryGetValue<int>(out int r)) levels.Add(r);
-					string[]? spl = TXT.Regex.Split(op.GetValue<string>(), "\\s*-\\s*");
+					if (int.TryParse(op.Raw, out var r)) levels.Add(r);
+					string[]? spl = TXT.Regex.Split(op.String, "\\s*-\\s*");
 					if (spl.Length == 2)
 					{
 						int.TryParse(spl[0], out int min);
@@ -385,7 +385,7 @@ public static partial class HappenBuilding
 	/// <summary>
 	/// Creates a trigger that is active before rain, with an optional delay (in seconds).
 	/// </summary>
-	private static HappenTrigger? TMake_UntilRain(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_UntilRain(ArgSet args, Happen ha)
 	{
 		return new EventfulTrigger(ha, args)
 		{
@@ -395,7 +395,7 @@ public static partial class HappenBuilding
 	/// <summary>
 	/// Creates a trigger that is active after rain, with an optional delay (in seconds).
 	/// </summary>
-	private static HappenTrigger? TMake_AfterRain(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_AfterRain(ArgSet args, Happen ha)
 	{
 		return new EventfulTrigger(ha, args)
 		{
@@ -405,7 +405,7 @@ public static partial class HappenBuilding
 	/// <summary>
 	/// Creates a trigger that activates once every X seconds.
 	/// </summary>
-	private static HappenTrigger? TMake_EveryX(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_EveryX(ArgSet args, Happen ha)
 	{
 		if (args.Count < 1)
 		{
@@ -436,7 +436,7 @@ public static partial class HappenBuilding
 	/// <summary>
 	/// Creates a trigger that checks variable's equality against a given value. First argument is variable name, second is value to check against.
 	/// </summary>
-	private static HappenTrigger? TMake_VarEq(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_VarEq(ArgSet args, Happen ha)
 	{
 		if (args.Count < 2)
 		{
@@ -447,15 +447,14 @@ public static partial class HappenBuilding
 		{
 			Is_Active = (EventfulTrigger trigger) =>
 			{
-				NewArg tar = VarRegistry.GetVar(trigger.args[0].GetValue<string>(), trigger.owner!.Set.world);
-				return tar.GetValue<string>() == trigger.args[1].GetValue<string>();
+				return trigger.args[0].String == trigger.args[1].String;
 			},
 		};
 	}
 	/// <summary>
 	/// Creates a trigger that checks a variable's inequality against a given value. First argument is variable name, second is value to check against.
 	/// </summary>
-	public static HappenTrigger? TMake_VarNe(ArgSet args, RainWorldGame rwg, Happen ha)
+	public static HappenTrigger? TMake_VarNe(ArgSet args, Happen ha)
 	{
 		if (args.Count < 2)
 		{
@@ -466,15 +465,15 @@ public static partial class HappenBuilding
 		{
 			Is_Active = (EventfulTrigger trigger) =>
 			{
-				NewArg tar = VarRegistry.GetVar(trigger.args[0].GetValue<string>(), trigger.owner!.Set.world);
-				return tar.GetValue<string>() != trigger.args[1].GetValue<string>();
+				Arg tar = VarRegistry.GetVar(trigger.args[0].String, trigger.owner!.Set.world);
+				return tar.String != trigger.args[1].String;
 			},
 		};
 	}
 	/// <summary>
 	/// Creates a trigger that checks variable's match against a given regex. Responds to changing values.
 	/// </summary>
-	private static HappenTrigger? TMake_VarMatch(ArgSet args, RainWorldGame rwg, Happen ha)
+	private static HappenTrigger? TMake_VarMatch(ArgSet args, Happen ha)
 	{
 		if (args.Count < 2)
 		{
@@ -485,8 +484,8 @@ public static partial class HappenBuilding
 		{
 			Is_Active = (EventfulTrigger trigger) =>
 			{
-				NewArg tar = GetVar(trigger.args[0].GetValue<string>(), trigger.owner!.Set.world);
-				return new TXT.Regex(trigger.args[1].GetValue<string>())?.IsMatch(tar.GetValue<string>()) ?? false;
+				Arg tar = GetVar(trigger.args[0].String, trigger.owner!.Set.world);
+				return new TXT.Regex(trigger.args[1].String)?.IsMatch(tar.String) ?? false;
 			}
 		};
 	}
@@ -529,10 +528,10 @@ public static partial class HappenBuilding
 	public class FlashAction : HappenAction
 	{
 		Dictionary<Room, RoomFlasher> flashers = new();
-		NewArg color => args.AtOr(0, (Vector4)Color.white);
-		NewArg maxopacity => args.AtOr(1, 0.9f);
-		NewArg lerp => args["lerp"] ?? 0.04f;
-		NewArg step => args["step"] ?? 0.01f;
+		Arg color => args.AtOr(0, (Vector4)Color.white);
+		Arg maxopacity => args.AtOr(1, 0.9f);
+		Arg lerp => args["lerp"] ?? 0.04f;
+		Arg step => args["step"] ?? 0.01f;
 		public FlashAction(Happen owner, ArgSet args) : base(owner, args)
 		{
 		}
@@ -566,7 +565,7 @@ public static partial class HappenBuilding
 			{
 				base.Update(eu);
 				lastAlpha = alpha;
-				if (!init) alpha = Clamp(LerpAndTick(alpha, 0f, action.lerp.GetValue<float>(), action.step.GetValue<float>()), 0f, 1f);
+				if (!init) alpha = Clamp(LerpAndTick(alpha, 0f, action.lerp.Float, action.step.Float), 0f, 1f);
 				init = false;
 				if (alpha == 0f) Destroy();
 			}
@@ -578,7 +577,7 @@ public static partial class HappenBuilding
 			}
 			public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 			{
-				Vector4 vec = action.color.GetValue<Vector4>();
+				Vector4 vec = action.color.Vector;
 				Color color = new(vec.x, vec.y, vec.z);
 				sLeaser.sprites = new FSprite[1];
 				sLeaser.sprites[0] = new FSprite("pixel", true)
@@ -606,7 +605,7 @@ public static partial class HappenBuilding
 
 			public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 			{
-				sLeaser.sprites[0].alpha = Lerp(lastAlpha, alpha, timeStacker) * action.maxopacity.GetValue<float>();
+				sLeaser.sprites[0].alpha = Lerp(lastAlpha, alpha, timeStacker) * action.maxopacity.Float;
 			}
 		}
 
@@ -625,16 +624,16 @@ public static partial class HappenBuilding
 		{
 			On_RealizedUpdate = (action, room) =>
 			{
-				NewArg intensity = action.args[0], bkgonly = action.args.AtOr(1, false);
+				Arg intensity = action.args[0], bkgonly = action.args.AtOr(1, false);
 
 				if (room.lightning is null)
 				{
-					Lightning l = new(room: room, intensity.GetValue<float>(), bkgonly.GetValue<bool>());
+					Lightning l = new(room: room, intensity.Float, bkgonly.Bool);
 					room.lightning = l;
 					room.AddObject(l);
 					action.persistent.Add(l);
 				}
-				room.lightning.intensity = intensity.GetValue<float>();
+				room.lightning.intensity = intensity.Float;
 			},
 			On_AbstractUpdate = (action) =>
 			{
@@ -663,14 +662,14 @@ public static partial class HappenBuilding
 		{
 			On_RealizedUpdate = (action, room) =>
 			{
-				NewArg select = action.args["select", "filter", "who"] ?? ".*",
+				Arg select = action.args["select", "filter", "who"] ?? ".*",
 					duration = action.args["duration", "dur", "st"] ?? 10;
 				for (int i = 0; i < room.updateList.Count; i++)
 				{
 					UpdatableAndDeletable? uad = room.updateList[i];
-					if (uad is Creature c && TXT.Regex.IsMatch(c.Template.type.ToString(), select.GetValue<string>(), TXT.RegexOptions.IgnoreCase))
+					if (uad is Creature c && TXT.Regex.IsMatch(c.Template.type.ToString(), select.String, TXT.RegexOptions.IgnoreCase))
 					{
-						c.Stun(duration.GetValue<int>());
+						c.Stun(duration.Int);
 					}
 				}
 			}
@@ -687,7 +686,7 @@ public static partial class HappenBuilding
 			On_RealizedUpdate = (action, room) =>
 			{
 				var playersActive = action.persistent;
-				NewArg argcol = action.args[0], radius = action.args.AtOr(1, 300f);
+				Arg argcol = action.args[0], radius = action.args.AtOr(1, 300f);
 
 				foreach (UAD? uad in room.updateList)
 				{
@@ -697,8 +696,8 @@ public static partial class HappenBuilding
 					PlayerGraphics? pgraf = p.graphicsModule as PlayerGraphics;
 					if (pgraf?.lightSource is null) continue;
 					playersActive[p] = (pgraf.lightSource.color, pgraf.lightSource.setRad);
-					pgraf.lightSource.color = argcol.GetValue<Vector4>().ToOpaqueCol();
-					pgraf.lightSource.setRad = radius.GetValue<float>();
+					pgraf.lightSource.color = argcol.Vector.ToOpaqueCol();
+					pgraf.lightSource.setRad = radius.Float;
 				}
 			},
 			On_AbstractUpdate = (action) =>
@@ -739,7 +738,7 @@ public static partial class HappenBuilding
 		{
 			On_RealizedUpdate = (action, rm) =>
 			{
-				NewArg force = action.args[0],
+				Arg force = action.args[0],
 					filter = action.args["filter", "select"] ?? ".*",
 					forceVar = action.args["variance", "var"] ?? 0f,
 					spread = action.args["spread", "deviation", "dev"] ?? 0f;
@@ -750,13 +749,13 @@ public static partial class HappenBuilding
 
 					string objtype = obj.abstractPhysicalObject.type.ToString();
 					string? crittype = (obj as Creature)?.Template.type.ToString();
-					if (TXT.Regex.IsMatch(objtype, filter.GetValue<string>(), System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+					if (TXT.Regex.IsMatch(objtype, filter.String, System.Text.RegularExpressions.RegexOptions.IgnoreCase)
 					||
-					(crittype is not null && TXT.Regex.IsMatch(crittype, filter.GetValue<string>(), System.Text.RegularExpressions.RegexOptions.IgnoreCase)))
+					(crittype is not null && TXT.Regex.IsMatch(crittype, filter.String, System.Text.RegularExpressions.RegexOptions.IgnoreCase)))
 					{
 						foreach (BodyChunk ch in obj.bodyChunks)
 						{
-							ch.vel += (Vector2)force.GetValue<Vector4>();//RotateAroundOrigo((Vector2)(force.GetValue<Vector4>() * cvar.a), cvar.b);
+							ch.vel += (Vector2)force.Vector;//RotateAroundOrigo((Vector2)(force.Vector * cvar.a), cvar.b);
 						}
 					}
 				}
@@ -771,7 +770,7 @@ public static partial class HappenBuilding
 			__NotifyArgsMissing(Make_SoundLoopPersistent, "soundid");
 			//return;
 		}
-		if (args[0].GetValue<SoundID>().index == -1)
+		if (args[0].GetExtEnum<SoundID>().index == -1)
 		{
 			__NotifyArgsMissing(Make_SoundLoopPersistent, "soundid");
 			//return;
@@ -781,12 +780,12 @@ public static partial class HappenBuilding
 
 	public class PersistentSoundLoopAction : HappenAction
 	{
-		SoundID? soundID => sid.GetValue<SoundID>();
-		NewArg sid => args[0];
-		NewArg vol => args["vol", "volume"] ?? 1f;
-		NewArg pitch => args["pitch"] ?? 1f;
-		NewArg pan => args["pan"] ?? 0f;
-		NewArg limit => args["lim", "limit"] ?? float.PositiveInfinity;
+		SoundID? soundID => sid.GetExtEnum<SoundID>();
+		Arg sid => args[0];
+		Arg vol => args["vol", "volume"] ?? 1f;
+		Arg pitch => args["pitch"] ?? 1f;
+		Arg pan => args["pan"] ?? 0f;
+		Arg limit => args["lim", "limit"] ?? float.PositiveInfinity;
 
 		//so basically
 		//you need to:
@@ -795,7 +794,7 @@ public static partial class HappenBuilding
 		System.Runtime.CompilerServices.ConditionalWeakTable<RoomCamera, PersistentSoundPlayer> soundPlayers = new();
 		PersistentSoundPlayer getNewSoundPlayer(RoomCamera _cam)
 		{
-			DisembodiedLoopEmitter disembodiedEmitter = _cam.room.PlayDisembodiedLoop(soundID, vol.GetValue<float>(), pitch.GetValue<float>(), pan.GetValue<float>());
+			DisembodiedLoopEmitter disembodiedEmitter = _cam.room.PlayDisembodiedLoop(soundID, vol.Float, pitch.Float, pan.Float);
 			disembodiedEmitter.requireActiveUpkeep = false;
 			disembodiedEmitter.alive = true;
 			VerboseLog($"Creating new persistent loop {_cam.room.abstractRoom.name} {soundID}");
@@ -841,9 +840,9 @@ public static partial class HappenBuilding
 				else
 				{
 					existingplayer.alive = true;
-					existingplayer.loop.volume = owner.Active ? vol.GetValue<float>() : 0f;
-					existingplayer.loop.pitch = pitch.GetValue<float>();
-					existingplayer.loop.pan = pan.GetValue<float>();
+					existingplayer.loop.volume = owner.Active ? vol.Float : 0f;
+					existingplayer.loop.pitch = pitch.Float;
+					existingplayer.loop.pan = pan.Float;
 				}
 			}
 		}
@@ -945,12 +944,12 @@ public static partial class HappenBuilding
 		int timeAlive = 0;
 		Dictionary<Room, RoomSoundPlayerr> soundPlayers = new();
 
-		SoundID? soundid => sid.GetValue<SoundID>();
-		NewArg sid => args[0];
-		NewArg vol => args["vol", "volume"] ?? 1f;
-		NewArg pitch => args["pitch"] ?? 1f;
-		NewArg pan => args["pan"] ?? 0f;
-		NewArg limit => args["lim", "limit"] ?? float.PositiveInfinity;
+		SoundID? soundid => sid.GetExtEnum<SoundID>();
+		Arg sid => args[0];
+		Arg vol => args["vol", "volume"] ?? 1f;
+		Arg pitch => args["pitch"] ?? 1f;
+		Arg pan => args["pan"] ?? 0f;
+		Arg limit => args["lim", "limit"] ?? float.PositiveInfinity;
 		public SoundLoopAction(Happen owner, ArgSet args) : base(owner, args)
 		{
 		}
@@ -965,9 +964,9 @@ public static partial class HappenBuilding
 			mine.loop = new(mine)
 			{
 				destroyClipWhenDone = false,
-				Volume = vol.GetValue<float>(),
-				Pan = pan.GetValue<float>(),
-				Pitch = pitch.GetValue<float>(),
+				Volume = vol.Float,
+				Pan = pan.Float,
+				Pitch = pitch.Float,
 			};
 			mine.loop.sound = soundid;
 			mine.loop.InitSound();
@@ -1025,7 +1024,7 @@ public static partial class HappenBuilding
 			//return;
 		}
 
-		if (args[0].GetValue<SoundID>().index == -1)
+		if (args[0].GetExtEnum<SoundID>().index == -1)
 		{
 			LogError($"Happen {ha.name}: sound action: " +
 				$"Invalid SoundID ({args[0]})");
@@ -1035,12 +1034,12 @@ public static partial class HappenBuilding
 		{
 			On_RealizedUpdate = (action, room) =>
 			{
-				SoundID? soundid = action.args[0].GetValue<SoundID>();
-				NewArg sid = action.args[0];
-				string lastSid = sid.GetValue<string>();
+				SoundID? soundid = action.args[0].GetExtEnum<SoundID>();
+				Arg sid = action.args[0];
+				string lastSid = sid.String;
 				int cooldown = action.args["cd", "cooldown"]?.SecAsFrames ?? 2,
-					limit = action.args["lim", "limit"]?.GetValue<int>() ?? int.MaxValue;
-				NewArg
+					limit = action.args["lim", "limit"]?.Int ?? int.MaxValue;
+				Arg
 					vol = action.args["vol", "volume"] ?? 0.5f,
 					pitch = action.args["pitch"] ?? 1f
 					//pan = args["pan"]?.F32 ?? 1f
@@ -1051,7 +1050,7 @@ public static partial class HappenBuilding
 				{
 					if (room.updateList[i] is Player p)
 					{
-						ChunkSoundEmitter? em = room.PlaySound(soundid ?? SoundID.HUD_Karma_Reinforce_Bump, p.firstChunk, false, vol.GetValue<float>(), pitch.GetValue<float>());
+						ChunkSoundEmitter? em = room.PlaySound(soundid ?? SoundID.HUD_Karma_Reinforce_Bump, p.firstChunk, false, vol.Float, pitch.Float);
 						action.persistent = cooldown;
 						limit--;
 						return;
@@ -1060,15 +1059,7 @@ public static partial class HappenBuilding
 			},
 			On_AbstractUpdate = (action) =>
 			{
-				SoundID? soundid = action.args[0].GetValue<SoundID>();
-				NewArg sid = action.args[0];
-				string lastSid = sid.GetValue<string>();
 				if (action.persistent > 0) action.persistent--;
-				if (sid.GetValue<string>() != lastSid)
-				{
-					sid.TryGetValue(out soundid);
-				}
-				lastSid = sid.GetValue<string>();
 			}
 		};
 	}
@@ -1080,7 +1071,7 @@ public static partial class HappenBuilding
 			{
 				SaveState? ss = action.owner.game.GetStorySession?.saveState;//./deathPersistentSaveData;
 				if (ss is null) return;
-				ss.theGlow = action.args.AtOr(0, true).GetValue<bool>();
+				ss.theGlow = action.args.AtOr(0, true).Bool;
 			}
 		};
 	}
@@ -1092,34 +1083,24 @@ public static partial class HappenBuilding
 			{
 				DeathPersistentSaveData? ss = action.owner.game.GetStorySession?.saveState.deathPersistentSaveData;//./deathPersistentSaveData;
 				if (ss is null) return;
-				ss.theMark = action.args.AtOr(0, true).GetValue<bool>();
+				ss.theMark = action.args.AtOr(0, true).Bool;
 			}
 		};
 	}
 	private static HappenAction Make_LogCall(Happen ha, ArgSet args)
 	{
-		return new EventfulAction<string>(ha, args, "")
+		return new EventfulAction(ha, args)
 		{
 			On_Init = (action) =>
 			{
-				NewArg sev = action.args["sev", "severity"] ?? new NewArg(null, LOG.LogLevel.Message.ToString());
-				sev.TryGetValue(out LOG.LogLevel sevVal);
-				NewArg? onInit = action.args["init", "oninit"];
+				Arg sev = action.args["sev", "severity"] ?? LOG.LogLevel.Message.ToString();
+				LOG.LogLevel sevVal = sev.GetEnum<LOG.LogLevel>();
+				Arg? onInit = action.args["init", "oninit"];
 				if (onInit is not null)
 				{
-					UnityEngine.Debug.Log($"{action.owner.name}:\"{onInit.GetValue<string>()}\"");
-					Log(sevVal, $"{action.owner.name}:\"{onInit.GetValue<string>()}\"");
+					UnityEngine.Debug.Log($"{action.owner.name}:\"{onInit.String}\"");
+					Log(sevVal, $"{action.owner.name}:\"{onInit.String}\"");
 				}
-			},
-			On_AbstractUpdate = (action) =>
-			{
-				NewArg sev = action.args["sev", "severity"] ?? new NewArg(null, LOG.LogLevel.Message.ToString());
-				sev.TryGetValue(out LOG.LogLevel sevVal);
-				if (sev.GetValue<string>() != action.persistent)
-				{
-					sev.TryGetValue(out sevVal);
-				}
-				action.persistent = sev.GetValue<string>();
 			}
 		};
 	}
@@ -1135,7 +1116,7 @@ public static partial class HappenBuilding
 		{
 			On_Init = (action) =>
 			{
-				NewArg target = action.args[0];
+				Arg target = action.args[0];
 				action.owner.game.world.rainCycle.timer = target.SecAsFrames;
 			}
 		};
@@ -1154,12 +1135,12 @@ public static partial class HappenBuilding
 			{
 				DeathPersistentSaveData? dpsd = action.owner.game?.GetStorySession?.saveState?.deathPersistentSaveData;
 				if (dpsd is null || action.owner.game is null) return;
-				NewArg ts = action.args[0];
+				Arg ts = action.args[0];
 
 				int karma = dpsd.karma;
-				if (ts.Name is "add" or "+") karma += ts.GetValue<int>();
-				else if (ts.Name is "sub" or "substract" or "-") karma -= ts.GetValue<int>();
-				else karma = ts.GetValue<int>() - 1;
+				if (ts.Name is "add" or "+") karma += ts.Int;
+				else if (ts.Name is "sub" or "substract" or "-") karma -= ts.Int;
+				else karma = ts.Int - 1;
 				karma = Clamp(karma, 0, 9);
 				dpsd.karma = karma;
 				VerboseLog($"Setting karma to {ts} (result: {dpsd.karma})");
@@ -1175,11 +1156,11 @@ public static partial class HappenBuilding
 			{
 				DeathPersistentSaveData? dpsd = action.owner.game?.GetStorySession?.saveState?.deathPersistentSaveData;
 				if (dpsd is null || action.owner.game is null) return;
-				NewArg ts = action.args.AtOr(0, 0);
+				Arg ts = action.args.AtOr(0, 0);
 				int cap = dpsd.karmaCap;
-				if (ts.Name is "add" or "+") cap += ts.GetValue<int>();
-				else if (ts.Name is "sub" or "-") cap -= ts.GetValue<int>();
-				else cap = ts.GetValue<int>() - 1;
+				if (ts.Name is "add" or "+") cap += ts.Int;
+				else if (ts.Name is "sub" or "-") cap -= ts.Int;
+				else cap = ts.Int - 1;
 				cap = Clamp(cap, 4, 9);
 				dpsd.karmaCap = cap;
 				VerboseLog($"Setting max karma to {ts} (result: {dpsd.karmaCap})");
@@ -1194,7 +1175,7 @@ public static partial class HappenBuilding
 		{
 			On_RealizedUpdate = (action, room) =>
 			{
-				NewArg frac = action.args.AtOr(0, 0.5f);
+				Arg frac = action.args.AtOr(0, 0.5f);
 				for (int i = 0; i < room.updateList.Count; i++)
 				{
 					UAD? uad = room.updateList[i];
@@ -1202,7 +1183,7 @@ public static partial class HappenBuilding
 					
 					foreach (BodyChunk? bc in p.bodyChunks)
 					{
-						bc.vel.y += frac.GetValue<float>();
+						bc.vel.y += frac.Float;
 					}
 				}
 			}
@@ -1214,8 +1195,8 @@ public static partial class HappenBuilding
 		{
 			On_RealizedUpdate = (action, room) =>
 			{
-				NewArg intensity = action.args["int", "intensity"] ?? 1f, shake = action.args["shake"] ?? 0.5f;
-				room.ScreenMovement(null, RND.insideUnitCircle * intensity.GetValue<float>(), shake.GetValue<float>());
+				Arg intensity = action.args["int", "intensity"] ?? 1f, shake = action.args["shake"] ?? 0.5f;
+				room.ScreenMovement(null, RND.insideUnitCircle * intensity.Float, shake.Float);
 
 			}
 		};
@@ -1234,7 +1215,7 @@ public static partial class HappenBuilding
 				string[]? lastRoomPerCam = action.persistent;
 				if (lastRoomPerCam is null) return;
 				//todo: support for fade palettes? make sure they dont fuck with rain
-				NewArg palA = action.args[0];//["palA", "A", "1"];
+				Arg palA = action.args[0];//["palA", "A", "1"];
 				for (int i = 0; i < lastRoomPerCam.Length; i++)
 				{
 					RoomCamera? cam = room.game.cameras[i];
@@ -1243,8 +1224,8 @@ public static partial class HappenBuilding
 					{
 						if (palA is not null)
 						{
-							cam.ChangeMainPalette(palA.GetValue<int>());
-							VerboseLog($"changing palette in {room.abstractRoom.name} to {palA.GetValue<int>()}");
+							cam.ChangeMainPalette(palA.Int);
+							VerboseLog($"changing palette in {room.abstractRoom.name} to {palA.Int}");
 						}
 					}
 				}
@@ -1273,14 +1254,13 @@ public static partial class HappenBuilding
 		{
 			On_Init = (action) =>
 			{
-				NewArg target = VarRegistry.GetVar(action.args[0].GetValue<string>(), action.owner.Set.world);
-				var section = action.args[1].GetValue<SaveVarRegistry.DataSection>();
+				var section = action.args[1].GetEnum<SaveVarRegistry.DataSection>();
 
-				SaveVarRegistry.SetArg(action.owner.game.world, section, target.Name, target.Raw);
+				SaveVarRegistry.SetArg(action.owner.game.world, section, action.args[0].Name, action.args[0].Raw);
 			},
 			On_RealizedUpdate = (action, room) =>
 			{
-				if (!action.args.AtOr(2, false).GetValue<bool>()) return;
+				if (!action.args.AtOr(2, false).Bool) return;
 				action.Init();
 			}
 		};
@@ -1306,94 +1286,85 @@ public static partial class HappenBuilding
 		AddNamedMetafun(new[] { "FILEREADWRITE", "TEXTIO" }, MMake_FileReadWrite);
 		AddNamedMetafun(new[] { "GETVAR" }, MMake_GetSave);
 	}
-	private static NewArg? MMake_ListDirectory(string text, World world)
+	private static Arg? MMake_ListDirectory(string text, World world)
 	{
 		try
 		{
-			return new() { new Callback<string>(getter: () => AssetManager.ListDirectory(text).Stitch((x, y) => $"{x}:{y}")) };
+			return new CallbackArg() { () => AssetManager.ListDirectory(text).Stitch((x, y) => $"{x}:{y}") };
 		}
 		catch
 		{
 			LogError($"INVALID assetpath {text}");
-			return new();
+			return new StaticArg("");
 		}
 	}
-	private static NewArg? MMake_ResolveFilepath(string text, World world)
+	private static Arg? MMake_ResolveFilepath(string text, World world)
 	{
 		try
 		{
-			return new() { new Callback<string>(getter: () => AssetManager.ResolveFilePath(text))};
+			return new CallbackArg() { () => AssetManager.ResolveFilePath(text)};
 		}
 		catch
 		{
 			LogError($"INVALID assetpath {text}");
-			return new();
+			return new StaticArg("");
 		}
 	}
-	private static NewArg? MMake_AppFound(string text, World world)
+	private static Arg? MMake_AppFound(string text, World world)
 	{
 		uint.TryParse(text, out var id);
-		return new() { new Callback<bool>(getter: () => Steamworks.SteamApps.BIsSubscribedApp(new(id))) };
+		return new CallbackArg() { () => Steamworks.SteamApps.BIsSubscribedApp(new(id)) };
 	}
-	private static NewArg? MMake_ScreenRes(string text, World world)
+	private static Arg? MMake_ScreenRes(string text, World world)
 	{
-		return new()
+		return new CallbackArg()
 		{
-			new Callback<Vector4>(getter: () =>
-			{
-				Resolution res = UnityEngine.Screen.currentResolution;
-				return new Vector4(res.width, res.height, res.refreshRate, 0f);
-			}),
-			new Callback<string>(getter: () =>
-			{
-				Resolution res = UnityEngine.Screen.currentResolution;
-				return $"{res.width}x{res.height}@{res.refreshRate}";
-			})
+			() => { Resolution res = UnityEngine.Screen.currentResolution; return new Vector4(res.width, res.height, res.refreshRate, 0f); },
+			() => { Resolution res = UnityEngine.Screen.currentResolution; return $"{res.width}x{res.height}@{res.refreshRate}"; }
 
 		};
 	}
-	private static NewArg? MMake_CurrentRoom(string text, World world)
+	private static Arg? MMake_CurrentRoom(string text, World world)
 	{
 		if (!int.TryParse(text, out int camnum)) camnum = 0;
 		AbstractRoom? findAbsRoom(int cam) => world.game.cameras.AtOr(cam - 1, null)?.room?.abstractRoom;
 
 		Vector2 nosize = new(-1, -1);
-		return new()
+		return new CallbackArg()
 		{
-			new Callback<string>(getter: () => findAbsRoom(camnum)?.name ?? string.Empty),
-			new Callback<float>(getter: () => findAbsRoom(camnum)?.index ?? -1),
-			new Callback<Vector4>(getter: () => findAbsRoom(camnum)?.size.ToVector2() * 20f ?? nosize),
-			new Callback<bool>(getter: () => false),
+			() => findAbsRoom(camnum)?.name ?? string.Empty,
+			() => findAbsRoom(camnum)?.index ?? -1,
+			() => findAbsRoom(camnum)?.size.ToVector2() * 20f ?? nosize,
+			() => false,
 		};
 	}
-	private static NewArg? MMake_GetSave(string text, World world)
+	private static Arg? MMake_GetSave(string text, World world)
 	{
-		ArgSet args = new(text.Split(' '));
+		ArgSet args = new(text.Split(' '), world);
 
-		NewArg getSaveArg(World world)
+		Arg getSaveArg(World world)
 		{
-			NewArg target = VarRegistry.GetVar(args[0].GetValue<string>(), world);
-			var section = args[1].GetValue<SaveVarRegistry.DataSection>();
-			return SaveVarRegistry.GetArg(world, section, target.Raw);
+			SaveVarRegistry.DataSection section = args[1].GetEnum<SaveVarRegistry.DataSection>();
+			return SaveVarRegistry.GetArg(world, section, args[0].Raw);
 		};
 
-		return new()
+		return new RWCallbackArg(world)
 		{
-			new RWCallback<string>(world, getter: (world) => getSaveArg(world).GetValue<string>()),
-			new RWCallback<float>(world, getter: (world) => getSaveArg(world).GetValue<float>()),
-			new RWCallback<int>(world, getter: (world) => getSaveArg(world).GetValue<int>()),
-			new RWCallback<bool>(world, getter: (world) => getSaveArg(world).GetValue<bool>()),
-			new RWCallback<Vector4>(world, getter: (world) => getSaveArg(world).GetValue<Vector4>()),
+			(world) => getSaveArg(world).String,
+			(world) => getSaveArg(world).Float,
+			(world) => getSaveArg(world).Int,
+			(world) => getSaveArg(world).Bool,
+			(world) => getSaveArg(world).Vector,
 		};
 	}
 
-	private static NewArg? MMake_WWW(string text, World world)
+	private static Arg? MMake_WWW(string text, World world)
 	{
 		WWW? www = new WWW(text);
 		string? failed = null;
-		return new()
+		return new CallbackArg()
 		{
-			new Callback<string>(getter: () =>
+			() =>
 			{
 				if (failed is not null) return $"ERROR:{failed}";
 				try
@@ -1405,17 +1376,17 @@ public static partial class HappenBuilding
 					failed = ex.Message;
 					return failed;
 				}
-			})
+			}
 		};
 	}
-	private static NewArg? MMAke_FileRead(string text, World world)
+	private static Arg? MMAke_FileRead(string text, World world)
 	{
 		IO.FileInfo fi = new(text);
 		DateTime? lw = null;
 		string? contents = null;
-		return new()
+		return new CallbackArg()
 		{
-		new Callback<string>(getter: () =>
+		() =>
 			{
 				fi.Refresh();
 				if (fi.Exists)
@@ -1428,10 +1399,10 @@ public static partial class HappenBuilding
 					lw = fi.LastAccessTimeUtc;
 				}
 				return contents ?? string.Empty;
-			})
+			}
 		};
 	}
-	private static NewArg? MMake_FileReadWrite(string text, World world)
+	private static Arg? MMake_FileReadWrite(string text, World world)
 	{
 		LogWarning($"CAUTION: {nameof(MMake_FileReadWrite)} DOES NO SAFETY CHECKS! Atmo developers are not responsible for any accidental damage by write");
 		IO.FileInfo file = new(text);
@@ -1460,13 +1431,13 @@ public static partial class HappenBuilding
 			sw.Write(val);
 			sw.Flush();
 		}
-		return new() { new Callback<string>(getter: ReadFromFile, setter: WriteToFile) };
+		return new CallbackArg() { ReadFromFile };
 	}
-	private static NewArg? MMake_FMT(string text, World world)
+	private static Arg? MMake_FMT(string text, World world)
 	{
 		string[] bits = __FMT_Split.Split(text);
 		TXT.MatchCollection names = __FMT_Match.Matches(text);
-		NewArg[] variables = new NewArg[names.Count];
+		Arg[] variables = new Arg[names.Count];
 		for (int i = 0; i < names.Count; i++)
 		{
 			variables[i] = GetVar(names[i].Value, world);
@@ -1475,26 +1446,26 @@ public static partial class HappenBuilding
 		string format = bits.Stitch((x, y) => $"{x}{{{ind++}}}{y}");
 		object[] getStrs()
 		{
-			return variables.Select(x => x.GetValue<string>()).ToArray();
+			return variables.Select(x => x.String).ToArray();
 		}
-		return new() { new Callback<string>(getter: () => string.Format(format, getStrs())) };
+		return new CallbackArg() { () => string.Format(format, getStrs()) };
 
 	}
-	private static NewArg? MMake_SharpRandom(string text, World world)
+	private static Arg? MMake_SharpRandom(string text, World world)
 	{
-		ArgSet args = new(text.Split(' '));
-		(NewArg min, NewArg max) bounds = args switch
+		ArgSet args = new(text.Split(' '), world);
+		(Arg min, Arg max) bounds = args switch
 		{
-		[NewArg a, NewArg b] => (a, b),
-		[NewArg a] => (0f, a),
+		[Arg a, Arg b] => (a, b),
+		[Arg a] => (0f, a),
 			_ => (0f, 1f)
 		};
-		Callback<float>.Getter getValue = () => UnityEngine.Mathf.Lerp(bounds.min.GetValue<float>(), bounds.max.GetValue<float>(), UnityEngine.Random.value);
-		return new() { 
-			new Callback<float>(getter: getValue),
-			new Callback<int>(getter: () => (int)getValue()),
-			new Callback<string>(getter: () => getValue().ToString()),
-			new Callback<Vector4>(getter: () => new(getValue(), 0, 0, 0)),
+		CallbackArg.Getter<float> getValue = () => UnityEngine.Mathf.Lerp(bounds.min.Float, bounds.max.Float, UnityEngine.Random.value);
+		return new CallbackArg() { 
+			getValue,
+			() => (int)getValue(),
+			() => getValue().ToString(),
+			() => new(getValue(), 0, 0, 0),
 		};
 	}
 

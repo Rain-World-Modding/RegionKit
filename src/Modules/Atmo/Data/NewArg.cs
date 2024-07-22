@@ -85,13 +85,6 @@ public class NewArg : IEnumerable
 		result = default!;
 		return false;
 	}
-	public void SetValue<T>(T value, bool coerce = true)
-	{
-		SetAllProperties(Conversion.ConvertFrom<string, T>(value, out _));
-
-		if (dict.TryGetValue(typeof(T), out var prop))
-		{ prop.Value = value; }
-	}
 
 	#region coersion
 	private void SetAllConsts(string value)
@@ -110,21 +103,6 @@ public class NewArg : IEnumerable
 
 		if (!dict.ContainsKey(typeof(Vector4)) && Conversion.TryVecFromString(value, out Vector4 v))
 		{ this.Add(v); }
-	}
-
-	private void SetAllProperties(string value)
-	{
-		if (dict.TryGetValue(typeof(float), out var fi) && Conversion.TryFloatFromString(value, out float f))
-		{ fi.Value = f; }
-
-		if (dict.TryGetValue(typeof(int), out var ii) && Conversion.TryIntFromString(value, out int i))
-		{ ii.Value = i; }
-
-		if (dict.TryGetValue(typeof(bool), out var bi) && Conversion.TryBoolFromString(value, out bool b))
-		{ bi.Value = b; }
-
-		if (dict.TryGetValue(typeof(Vector4), out var vi) && Conversion.TryVecFromString(value, out Vector4 v))
-		{ vi.Value = v; }
 	}
 
 	private bool TryGetCoerced<T>(out T value)
@@ -256,6 +234,32 @@ public struct Callback<T> : IFakeProperty
 		set { if (value is T t) GenericValue = t; } 
 	}
 
+}
+public struct RWCallback<T> : IFakeProperty
+{
+	public RWCallback(World world, Getter? getter = null, Setter? setter = null)
+	{
+		FakeProp = (getter, setter);
+		this.world = world;
+	}
+
+	public delegate T Getter(World world);
+	public delegate void Setter(World world, T value);
+
+	private (Getter?, Setter?) FakeProp { get; set; }
+
+	private T GenericValue
+	{
+		get => FakeProp.Item1 is not null ? FakeProp.Item1.Invoke(world) : default!;
+		set => FakeProp.Item2?.Invoke(world, value);
+	}
+	object? IFakeProperty.Value
+	{
+		get => GenericValue;
+		set { if (value is T t) GenericValue = t; }
+	}
+
+	private World world;
 }
 
 public struct BackingField<T> : IFakeProperty

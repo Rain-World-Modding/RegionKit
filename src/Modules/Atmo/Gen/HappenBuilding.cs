@@ -5,7 +5,9 @@ using static RegionKit.Modules.Atmo.API.Backing;
 using RegionKit.Modules.Atmo.Body;
 using static RegionKit.Modules.Atmo.API.V0;
 using static RegionKit.Modules.Atmo.Body.HappenTrigger;
+using static RegionKit.Modules.Atmo.Body.HappenAction;
 using System.Reflection;
+using RegionKit.Modules.Atmo.Data;
 
 namespace RegionKit.Modules.Atmo.Gen;
 /// <summary>
@@ -17,15 +19,20 @@ public static partial class HappenBuilding
 	/// Populates a happen with callbacks. Called automatically by the constructor.
 	/// </summary>
 	/// <param name="happen"></param>
-	internal static void __NewHappen(Happen happen)
+	internal static HappenAction __NewHappen(string id, string[] args, Happen happen)
 	{
-		foreach (KeyValuePair<string, string[]> ac in happen.actions)
+		ArgSet argSet = new(args.Select(x => x.ApplyEscapes()).ToArray());
+		HappenAction? res = null;
+		if (__namedActions.TryGetValue(id, out var builder))
 		{
-			if (__namedActions.TryGetValue(ac.Key, out var builder))
-			{
-				builder.Invoke(happen, new(ac.Value));
-			}
+			res = builder.Invoke(happen, argSet);
 		}
+		if (res is null)
+		{
+			res = new EventfulAction(happen, argSet);
+		}
+		return res;
+
 		//API_MakeNewHappen?.Invoke(ha);
 	}
 	/// <summary>
@@ -38,17 +45,18 @@ public static partial class HappenBuilding
 	/// <returns>Resulting trigger; an always-active trigger if something went wrong.</returns>
 	internal static HappenTrigger __CreateTrigger(string id, string[] args, RainWorldGame rwg, Happen owner)
 	{
+		ArgSet argSet = new(args.Select(x => x.ApplyEscapes()).ToArray());
 		HappenTrigger? res = null;
 
 		if (__namedTriggers.TryGetValue(id, out var trigger))
 		{
-			res = trigger.Invoke(new(args.Select(x => x.ApplyEscapes()).ToArray()), rwg, owner);
+			res = trigger.Invoke(argSet, rwg, owner);
 		}
 
 		if (res is null)
 		{
 			LogWarning($"Failed to create a trigger! {id}, args: {args.Stitch()}. Replacing with a stub");
-			res = new EventfulTrigger() { On_ShouldRunUpdates = () => true };
+			res = new EventfulTrigger(owner, argSet) { Is_Active = (_) => true };
 		}
 		return res;
 	}

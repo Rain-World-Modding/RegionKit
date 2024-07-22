@@ -27,7 +27,7 @@ public partial class HappenTrigger
 			this.delay = (int?)(delay?.GetValue<float>() * 40) ?? 0;
 		}
 		private readonly int delay;
-		public override bool ShouldRunUpdates()
+		public override bool Active()
 		{
 			return game.world.rainCycle.TimeUntilRain + delay <= 0;
 		}
@@ -43,7 +43,7 @@ public partial class HappenTrigger
 			this.delay = (int?)(delay?.GetValue<float>() * 40) ?? 0;
 		}
 		private readonly int delay;
-		public override bool ShouldRunUpdates()
+		public override bool Active()
 		{
 			return game.world.rainCycle.TimeUntilRain + delay >= 0;
 		}
@@ -61,7 +61,7 @@ public partial class HappenTrigger
 
 		private readonly int period;
 		private int counter;
-		public override bool ShouldRunUpdates()
+		public override bool Active()
 		{
 			return counter is 0;
 		}
@@ -81,7 +81,7 @@ public partial class HappenTrigger
 			yes = UnityEngine.Random.value < chance.GetValue<float>();
 		}
 		private readonly bool yes;
-		public override bool ShouldRunUpdates()
+		public override bool Active()
 		{
 			return yes;
 		}
@@ -116,7 +116,7 @@ public partial class HappenTrigger
 				false => UnityEngine.Random.Range(minOff, maxOff),
 			};
 		}
-		public override bool ShouldRunUpdates()
+		public override bool Active()
 		{
 			return on;
 		}
@@ -145,7 +145,7 @@ public partial class HappenTrigger
 				}
 			}
 		}
-		public override bool ShouldRunUpdates()
+		public override bool Active()
 		{
 			return levels.Contains((game.Players[0].realizedCreature as Player)?.Karma ?? 0);
 		}
@@ -170,7 +170,7 @@ public partial class HappenTrigger
 					visit = true;
 				}
 		}
-		public override bool ShouldRunUpdates()
+		public override bool Active()
 		{
 			return visit;
 		}
@@ -185,23 +185,23 @@ public partial class HappenTrigger
 		private readonly int cd;
 		private int counter;
 		private bool active;
-		public Fry(NewArg limit, NewArg cd)
+		public Fry(NewArg limit, NewArg cd, Happen owner) : base(owner)
 		{
 			this.limit = (int)(limit.GetValue<float>() * 40f);
 			this.cd = (int)(cd.GetValue<float>() * 40f);
 			counter = 0;
 			active = true;
 		}
-		public override bool ShouldRunUpdates()
+		public override bool Active()
 		{
 			return active;
 		}
 
-		public override void EvalResults(bool res)
+		public override void Update()
 		{
-			if (active)
+			if (active && owner != null)
 			{
-				if (res) counter++; else { counter = 0; }
+				if (owner.Active) counter++; else { counter = 0; }
 				if (counter > limit) { active = false; counter = cd; }
 			}
 			else
@@ -265,7 +265,7 @@ public partial class HappenTrigger
 			}
 			tarWasOn = tar.Active;
 		}
-		public override bool ShouldRunUpdates()
+		public override bool Active()
 		{
 			return amActive;
 		}
@@ -296,7 +296,7 @@ public partial class HappenTrigger
 		{
 			delay = (int?)(d?.GetValue<float>() * 40f) ?? 2400;
 		}
-		public override bool ShouldRunUpdates()
+		public override bool Active()
 		{
 			return game.world.rainCycle.timer > delay;
 		}
@@ -314,7 +314,7 @@ public partial class HappenTrigger
 			BangBang(game, nameof(game));
 			accepted = args.Select(x => (int)x).ToArray();
 		}
-		public override bool ShouldRunUpdates()
+		public override bool Active()
 		{
 			return accepted.Contains(game.Players.Count);
 		}
@@ -336,7 +336,7 @@ public partial class HappenTrigger
 				if (name == game.GetStorySession.characterStats.name) enabled = true;
 			}
 		}
-		public override bool ShouldRunUpdates()
+		public override bool Active()
 		{
 			return enabled;//difficulties.Contains(game.GetStorySession.characterStats.name);
 		}

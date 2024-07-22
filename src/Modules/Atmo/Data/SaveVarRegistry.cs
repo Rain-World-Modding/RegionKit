@@ -24,6 +24,29 @@ namespace RegionKit.Modules.Atmo.Data
 			Volatile
 		}
 
+		public static void SetArg(World world, DataSection section, string? name, string value)
+		{
+			ArgSet set = GetSaveData(world, section);
+			if (name != null) set[name] = value;
+			else set.Add(value);
+		}
+		public static NewArg GetArg(World world, DataSection section, string? name, string? value = null)
+		{
+			ArgSet set = GetSaveData(world, section);
+			if (name != null)
+			{
+				NewArg? arg = set[name];
+				if (arg == null)
+				{
+					arg = 0;
+					set[name] = arg;
+				}
+				return arg;
+			}
+
+			return set.FirstOrDefault(n => n.Raw == value) ?? 0;
+		}
+
 		public static ArgSet GetSaveData(World world, DataSection section)
 		{
 			if (!world.game.IsStorySession) return new();
@@ -117,8 +140,8 @@ namespace RegionKit.Modules.Atmo.Data
 
 		private static void MiscProgressionData_FromString(On.PlayerProgression.MiscProgressionData.orig_FromString orig, PlayerProgression.MiscProgressionData self, string s)
 		{
+			orig(self, s);
 			LoadTableFromUnrecognized(_globalData, self, self.unrecognizedSaveStrings);
-			orig(self, s); ;
 		}
 
 		private static string RegionState_SaveToString(On.RegionState.orig_SaveToString orig, RegionState self)
@@ -129,8 +152,8 @@ namespace RegionKit.Modules.Atmo.Data
 
 		private static void RegionState_ctor(On.RegionState.orig_ctor orig, RegionState self, SaveState saveState, World world)
 		{
-			LoadTableFromUnrecognized(_regionData, self, self.unrecognizedSaveStrings);
 			orig(self, saveState, world);
+			LoadTableFromUnrecognized(_regionData, self, self.unrecognizedSaveStrings);
 		}
 
 		private static string DeathPersistentSaveData_ToString(On.DeathPersistentSaveData.orig_ToString orig, DeathPersistentSaveData self)
@@ -141,8 +164,8 @@ namespace RegionKit.Modules.Atmo.Data
 
 		private static void DeathPersistentSaveData_FromString(On.DeathPersistentSaveData.orig_FromString orig, DeathPersistentSaveData self, string s)
 		{
-			LoadTableFromUnrecognized(_deathPersistentData, self, self.unrecognizedSaveStrings);
 			orig(self, s);
+			LoadTableFromUnrecognized(_deathPersistentData, self, self.unrecognizedSaveStrings);
 		}
 
 		private static string MiscWorldSaveData_ToString(On.MiscWorldSaveData.orig_ToString orig, MiscWorldSaveData self)
@@ -153,8 +176,8 @@ namespace RegionKit.Modules.Atmo.Data
 
 		private static void MiscWorldSaveData_FromString(On.MiscWorldSaveData.orig_FromString orig, MiscWorldSaveData self, string s)
 		{
-			LoadTableFromUnrecognized(_normalData, self, self.unrecognizedSaveStrings);
 			orig(self, s);
+			LoadTableFromUnrecognized(_normalData, self, self.unrecognizedSaveStrings);
 		}
 		#endregion
 	}

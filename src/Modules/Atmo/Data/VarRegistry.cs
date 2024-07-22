@@ -39,7 +39,7 @@ public static partial class VarRegistry
 		LogDebug("Init VarRegistry hooks");
 		try
 		{
-			__FillSpecials();
+			//__FillSpecials();
 		}
 		catch (Exception ex)
 		{
@@ -62,13 +62,7 @@ public static partial class VarRegistry
 		}
 		if (raw.StartsWith("$"))
 		{
-			int? ss = __CurrentSaveslot;
-			SlugcatStats.Name? ch = __CurrentCharacter;
-			VerboseLog($"Linking variable {raw}: {ss}, {ch}");
-			if (ss is not null)
-			{
-				return VarRegistry.GetVar(raw.Substring(1), ss.Value, ch ?? __slugnameNotFound);
-			}
+			return VarRegistry.GetVar(raw.Substring(1), __temp_World);
 		}
 		return new(name, raw);
 	}
@@ -78,43 +72,41 @@ public static partial class VarRegistry
 	/// Fetches a stored variable. Creates a new one if does not exist. You can use prefixes to request death-persistent ("p_") and global ("g_") variables. Persistent variables follow the lifecycle of <see cref="DeathPersistentSaveData"/>; global variables are shared across the entire saveslot.
 	/// </summary>
 	/// <param name="name">Name of the variable, with prefix if needed. Must not be null.</param>
-	/// <param name="saveslot">Save slot to look up data from (<see cref="RainWorld"/>.options.saveSlot for current)</param>
-	/// <param name="character">Current character. 0 for survivor, 1 for monk, 2 for hunter.</param>
+	/// <param name="world">Save slot to look up data from (<see cref="RainWorld"/>.options.saveSlot for current)</param>
 	/// <returns>Variable requested; if there was no variable with given name before, GetVar creates a blank one from an empty string.</returns>
-	public static NewArg GetVar(string name, int saveslot, SlugcatStats.Name character = null!)
+	public static NewArg GetVar(string name, World world)
 	{
-		character ??= __slugnameNotFound;
 		BangBang(name, nameof(name));
-		if (name.StartsWith("$") && GetMetaFunction(name.Substring(1), saveslot, character) is NewArg meta)
+		if (name.StartsWith("$") && GetMetaFunction(name.Substring(1), world) is NewArg meta)
 		{
 			return meta;
 		}
-		if (GetSpecial(name) is NewArg spec)
+		if (GetSpecial(name, world) is NewArg spec)
 		{
 			return spec;
 		}
 		if (name.StartsWith(PREFIX_GLOBAL))
 		{
 			name = name.Substring(PREFIX_GLOBAL.Length);
-			LogDebug($"Reading global var {name} for slot {saveslot}");
-			return SaveVarRegistry.GetSaveData(__temp_World, SaveVarRegistry.DataSection.Global)[name] ?? new();
+			LogDebug($"Reading global var {name}");
+			return SaveVarRegistry.GetSaveData(world, SaveVarRegistry.DataSection.Global)[name] ?? new();
 		}
 		else if (name.StartsWith(PREFIX_VOLATILE))
 		{
 			name = name.Substring(PREFIX_VOLATILE.Length);
-			return SaveVarRegistry.GetSaveData(__temp_World, SaveVarRegistry.DataSection.Volatile)[name] ?? new();
+			return SaveVarRegistry.GetSaveData(world, SaveVarRegistry.DataSection.Volatile)[name] ?? new();
 		}
 		else if (name.StartsWith(PREFIX_PERSISTENT))
 		{
 
 			name = name.Substring(PREFIX_PERSISTENT.Length);
-			return SaveVarRegistry.GetSaveData(__temp_World, SaveVarRegistry.DataSection.Persistent)[name] ?? new();
+			return SaveVarRegistry.GetSaveData(world, SaveVarRegistry.DataSection.Persistent)[name] ?? new();
 		}
 		else if (name.StartsWith(PREFIX_REGION))
 		{
 
 			name = name.Substring(PREFIX_REGION.Length);
-			return SaveVarRegistry.GetSaveData(__temp_World, SaveVarRegistry.DataSection.Region)[name] ?? new();
+			return SaveVarRegistry.GetSaveData(world, SaveVarRegistry.DataSection.Region)[name] ?? new();
 		}
 		return new(null, name);
 	}

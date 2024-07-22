@@ -92,13 +92,17 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 	internal readonly System.Diagnostics.Stopwatch _sw = new();
 	#region fromcfg
 	/// <summary>
-	/// Activation expression. Populated by <see cref="HappenTrigger.ShouldRunUpdates"/> callbacks of items in <see cref="triggers"/>.
+	/// Activation expression. Populated by <see cref="HappenTrigger.Active"/> callbacks of items in <see cref="triggers"/>.
 	/// </summary>
 	public readonly PredicateInlay? conditions;
 	/// <summary>
 	/// All triggers associated with the happen.
 	/// </summary>
-	public readonly List<HappenTrigger> triggers;
+	public readonly List<HappenTrigger> triggers = new();
+	/// <summary>
+	/// All triggers associated with the happen.
+	/// </summary>
+	public readonly List<HappenAction> actions = new();
 	/// <summary>
 	/// name of the happen.
 	/// </summary>
@@ -106,7 +110,7 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 	/// <summary>
 	/// A set of actions with their parameters.
 	/// </summary>
-	public readonly Dictionary<string, string[]> actions;
+	//public readonly Dictionary<string, string[]> actions;
 	/// <summary>
 	/// Current game instance.
 	/// </summary>
@@ -127,94 +131,56 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 		Set = owner;
 		name = cfg.name;
 		this.game = game;
-		actions = cfg.actions;
+		foreach ((string id, string[] args) in cfg.actions)
+		{
+			actions.Add(HappenBuilding.__NewHappen(id, args, this));
+		}
 		conditions = cfg.conditions;
-		List<HappenTrigger> list_triggers = new();
 		conditions?.Populate((id, args) =>
 		{
 			HappenTrigger? nt = HappenBuilding.__CreateTrigger(id, args, game, this);
-			list_triggers.Add(nt);
-			return nt.ShouldRunUpdates;
+			triggers.Add(nt);
+			return nt.Active;
 		});
-		triggers = list_triggers;
-		HappenBuilding.__NewHappen(this);
 
 		if (actions.Count is 0) LogWarning($"Happen {this}: no actions! Possible missing 'WHAT:' clause");
 		if (conditions is null) LogWarning($"Happen {this}: did not receive conditions! Possible missing 'WHEN:' clause");
 	}
 	#region lifecycle cbs
-	internal void AbstUpdate(
-		AbstractRoom absroom,
-		int time)
+	internal void AbstUpdate(AbstractRoom absroom, int time)
 	{
-		if (On_AbstUpdate is null) return;
-		foreach (AbstractUpdate cb in On_AbstUpdate.GetInvocationList().Cast<AbstractUpdate>())
-		{
-			try
-			{
-				cb?.Invoke(absroom, time);
-			}
-			catch (Exception ex)
-			{
-				LogError(ErrorMessage(Site.abstup, cb, ex));
-				On_AbstUpdate -= cb;
-			}
-		}
 	}
-	/// <summary>
-	/// Attach to this to receive a call once per abstract update, for every affected room.
-	/// </summary>
-	public event AbstractUpdate? On_AbstUpdate;
-	internal void RealUpdate(Room room)
+	internal void RealizedUpdate(Room room)
 	{
 		_sw.Start();
-		if (On_RealUpdate is null) return;
-		foreach (RealizedUpdate cb in On_RealUpdate.GetInvocationList().Cast<RealizedUpdate>())
+		foreach (HappenAction action in actions)
 		{
-			try
-			{
-				cb?.Invoke(room);
-			}
-			catch (Exception ex)
-			{
-				LogError(ErrorMessage(Site.realup, cb, ex));
-				On_RealUpdate -= cb;
-			}
+			action.RealizedUpdate(room);
 		}
 		LogFrameTime(realup_times, _sw.Elapsed, realup_readings, STORE_CYCLES);
 		_sw.Reset();
 	}
 
-
-	/// <summary>
-	/// Attach to this to receive a call once per realized update, for every affected room.
-	/// </summary>
-	public event RealizedUpdate? On_RealUpdate;
 	internal void Init(World world)
 	{
 		InitRan = true;
-		if (On_Init is null) return;
-		foreach (Init cb in On_Init.GetInvocationList().Cast<Init>())
+		foreach (HappenAction action in actions)
 		{
 			try
 			{
-				cb?.Invoke(world);
+				action.Init();
 			}
 			catch (Exception ex)
 			{
 				LogError(ErrorMessage(
 					where: Site.init,
-					cb: cb,
+					cb: action.Init,
 					ex: ex,
 					resp: Response.none
 					));
 			}
 		}
 	}
-	/// <summary>
-	/// Subscribe to this to receive one call before abstract or realized update is first ran.
-	/// </summary>
-	public event Init? On_Init;
 	internal void CoreUpdate()
 	{
 		_sw.Start();
@@ -241,53 +207,14 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 		}
 		catch (Exception ex)
 		{
-#pragma warning disable IDE0031 // Use null propagation
-			LogError(ErrorMessage(
-				where: Site.eval,
-				cb: conditions is null ? null : conditions.Eval,
-				ex: ex,
-				resp: Response.none));
-#pragma warning restore IDE0031 // Use null propagation
+			LogError(ErrorMessage( where: Site.eval, cb: conditions is null ? null : conditions.Eval, ex: ex, resp: Response.none));
 		}
-		for (int tin = triggers.Count - 1; tin > -1; tin--)
-		{
-			try
-			{
-				triggers[tin]?.EvalResults(Active);
-			}
-			catch (Exception ex)
-			{
-				triggers.RemoveAt(tin);
+		foreach (HappenAction action in actions)
+		{ action.AbstractUpdate(); }
 
-				LogError(ErrorMessage(
-				where: Site.eval_res,
-				cb: conditions is null ? null : conditions.Eval,
-				ex: ex,
-				resp: Response.void_trigger));
-			}
-		}
-		if (On_CoreUpdate is null) return;
-
-		//todo: cast cost?
-		foreach (CoreUpdate cb in On_CoreUpdate.GetInvocationList())
-		{
-			try
-			{
-				cb(game);
-			}
-			catch (Exception ex)
-			{
-				LogError(ErrorMessage(Site.coreup, cb, ex));
-				On_CoreUpdate -= cb;
-			}
-		}
 		LogFrameTime(haeval_times, _sw.Elapsed, haeval_readings, STORE_CYCLES);
 		_sw.Reset();
 	}
-	/// <summary>
-	/// Subscribe to this to receive an update once per frame.
-	/// </summary>
-	public event CoreUpdate? On_CoreUpdate;
 	#endregion
 	public bool AffectsRoom(AbstractRoom? room) => room is not null ? this.Set.GetRoomsForHappen(this).Contains(room.name) : false;
 	/// <summary>
@@ -351,7 +278,7 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 	public override string ToString()
 	{
 		return $"{name}" +
-			$"[{(actions.Count == 0 ? string.Empty : actions.Select(x => $"{x.Key}").Aggregate(JoinWithComma))}]" +
+			$"[{(actions.Count == 0 ? string.Empty : actions.Select(x => $"{x}").Aggregate(JoinWithComma))}]" +
 			$"({triggers.Count} triggers)";
 	}
 	#endregion

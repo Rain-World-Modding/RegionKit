@@ -32,7 +32,7 @@ public delegate void CoreUpdate(RainWorldGame rwg);
 /// </summary>
 /// <param name="happen">Happen that needs lifetime callbacks attached. One of the its <see cref="Happen.actions"/> has a name you selected. Use its instance events to attach behaviour.</param>
 /// <param name="args">The event's arguments, taking from a WHAT: clause.</param>
-public delegate void Create_NamedHappenBuilder(Happen happen, ArgSet args);
+public delegate HappenAction? Create_NamedHappenBuilder(Happen happen, ArgSet args);
 /// <summary>
 /// Delegate for registering named triggers. Used by <see cref="V0.AddNamedTrigger"/> overloads.
 /// </summary>
@@ -47,5 +47,5 @@ public delegate HappenTrigger? Create_NamedTriggerFactory(ArgSet args, RainWorld
 /// <param name="saveslot">Current saveslot number.</param>
 /// <param name="character">Current character number.</param>
 /// <returns><see cref="IArgPayload"/> object linking to metafun's output; null if there was an error.</returns>
-public delegate NewArg? Create_NamedMetaFunction(string value, int saveslot, SlugcatStats.Name character);
+public delegate NewArg? Create_NamedMetaFunction(string value, World world);
 #pragma warning restore CS0419

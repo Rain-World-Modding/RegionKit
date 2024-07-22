@@ -20,10 +20,9 @@ public static partial class VarRegistry
 	/// Attempts constructing a metafunction under specified name for specified saveslot and character, wrapped in an Arg
 	/// </summary>
 	/// <param name="text">Raw text (including the name)</param>
-	/// <param name="saveslot">Save slot to look at</param>
-	/// <param name="character">Character to look at</param>
+	/// <param name="world">Save slot to look at</param>
 	/// <returns></returns>
-	public static NewArg? GetMetaFunction(string text, in int saveslot, in SlugcatStats.Name character)
+	public static NewArg? GetMetaFunction(string text, World world)
 	{
 		Match _is;
 		if (!(_is = __Metaf_Sub.Match(text)).Success) return null;
@@ -31,7 +30,7 @@ public static partial class VarRegistry
 		VerboseLog($"Attempting to create metafun from {text} (name {name}, match {_is.Value})");
 		if (__namedMetafuncs.TryGetValue(name, out var metaFunc))
 		{
-			NewArg? res = metaFunc.Invoke(_is.Value, saveslot, character);
+			NewArg? res = metaFunc.Invoke(_is.Value, world);
 			if (res != null) return res;
 		}
 		VerboseLog($"No metafun {name}, variable lookup continues as normal");
@@ -45,49 +44,22 @@ public static partial class VarRegistry
 	/// </summary>
 	/// <param name="name">Supposed var name</param>
 	/// <returns>null if not a special</returns>
-	public static NewArg? GetSpecial(string name)
+	public static NewArg? GetSpecial(string name, World world)
 	{
 		SpVar tp = __SpecialForName(name);
 		if (tp is SpVar.NONE) return null;
-		return __SpecialVars[tp];
+		return SpecialArg(tp, world);
 	}
 	internal static void __FillSpecials()
 	{
 		__SpecialVars.Clear();
 		foreach (SpVar tp in Enum.GetValues(typeof(SpVar)))
 		{
-			static RainWorldGame? FindRWG()
-				=> rainWorld?.processManager?.FindSubProcess<RainWorldGame>();
-			static int findKarma()
-				=> FindRWG()?.GetStorySession?.saveState.deathPersistentSaveData.karma ?? -1;
-			static int findKarmaCap()
-				=> FindRWG()?.GetStorySession?.saveState.deathPersistentSaveData.karmaCap ?? -1;
-			static int findClock() => FindRWG()?.world.rainCycle?.cycleLength ?? __temp_World?.rainCycle.cycleLength ?? -1;
+			World world = (rainWorld?.processManager?.FindSubProcess<RainWorldGame>()!.world)!;
 			try
 			{
-				__SpecialVars[tp] = tp switch
-				{
-					SpVar.NONE => new() { 0 },
-					SpVar.version => new() { Ver },
-					SpVar.time => new() { new Callback<string>(getter: DateTime.Now.ToString) },
-					SpVar.utctime => new() { new Callback<string>(getter: DateTime.UtcNow.ToString) },
-					SpVar.cycletime => new() 
-					{
-					new Callback<int>(findClock),
-					new Callback<float>(() => findClock() / 40),
-					new Callback<string>(() => $"{findClock() / 40} seconds / {findClock()} frames")
-					},
-					SpVar.root => new() { new Callback<string>(getter: Custom.RootFolderDirectory) },
-					SpVar.realm => new() { new Callback<bool>(getter: () => FindAssemblies("Realm").Count() > 0) },
-					SpVar.os => new() { new Callback<string>(getter: Environment.OSVersion.Platform.ToString) },
-					SpVar.memused => new() { new Callback<string>(getter: GC.GetTotalMemory(false).ToString) },
-					SpVar.memtotal => new() { new Callback<string>(getter: () => "???") },
-					SpVar.username => new() { Environment.UserName },
-					SpVar.machinename => new() { Environment.MachineName },
-					SpVar.karma => new() { new Callback<int>(getter: findKarma) },
-					SpVar.karmacap => new() { new Callback<int>(getter: findKarmaCap) },
-					_ => new() { 0 },
-				};
+				__SpecialVars[tp] = SpecialArg(tp, world);
+				
 			}
 			catch (Exception ex)
 			{
@@ -95,6 +67,34 @@ public static partial class VarRegistry
 			}
 		}
 	}
+
+	internal static NewArg SpecialArg(SpVar tp, World world)
+	{
+		return tp switch
+		{
+			SpVar.NONE => new() { 0 },
+			SpVar.version => new() { Ver },
+			SpVar.time => new() { new Callback<string>(getter: DateTime.Now.ToString) },
+			SpVar.utctime => new() { new Callback<string>(getter: DateTime.UtcNow.ToString) },
+			SpVar.cycletime => new()
+					{
+					new RWCallback<int>(world, (world) => world.rainCycle?.cycleLength ?? -1),
+					new RWCallback<float>(world, (world) => (world.rainCycle?.cycleLength ?? -1f) / 40f),
+					new RWCallback<string>(world, (world) => $"{(world.rainCycle?.cycleLength ?? -1f) / 40f} seconds / {(world.rainCycle?.cycleLength ?? -1f)} frames")
+					},
+			SpVar.root => new() { new Callback<string>(getter: Custom.RootFolderDirectory) },
+			SpVar.realm => new() { new Callback<bool>(getter: () => FindAssemblies("Realm").Count() > 0) },
+			SpVar.os => new() { new Callback<string>(getter: Environment.OSVersion.Platform.ToString) },
+			SpVar.memused => new() { new Callback<string>(getter: GC.GetTotalMemory(false).ToString) },
+			SpVar.memtotal => new() { new Callback<string>(getter: () => "???") },
+			SpVar.username => new() { Environment.UserName },
+			SpVar.machinename => new() { Environment.MachineName },
+			SpVar.karma => new() { new RWCallback<int>(world, getter: (world) => world.game.GetStorySession?.saveState.deathPersistentSaveData.karma ?? -1) },
+			SpVar.karmacap => new() { new RWCallback<int>(world, getter: (world) => world.game.GetStorySession?.saveState.deathPersistentSaveData.karmaCap ?? -1) },
+			_ => new() { 0 },
+		};
+	}
+
 	internal static SpVar __SpecialForName(string name)
 	{
 		return name.ToLower() switch

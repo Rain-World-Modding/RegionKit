@@ -271,7 +271,11 @@ public static class Atmod
 				if (ha.Active)
 				{
 					if (!ha.InitRan) { ha.Init(self.world); ha.InitRan = true; }
-					ha.RealUpdate(self);
+					ha.RealizedUpdate(self);
+				}
+				else
+				{
+					ha.InitRan = false;
 				}
 			}
 			catch (Exception e)

@@ -55,7 +55,16 @@ public sealed class ArgSet : IList<NewArg>
 	/// </summary>
 	/// <param name="names">Names to check</param>
 	/// <returns>An <see cref="NewArg"/> if one is found, null otherwise.</returns>
-	public NewArg? this[params string[] names] => _named.Where(n => names.Contains(n.Key)).Select(n => n.Value).FirstOrDefault();
+	public NewArg? this[params string[] names]
+	{
+		get => _named.Where(n => names.Contains(n.Key)).Select(n => n.Value).FirstOrDefault();
+		set
+		{
+			if (value == null) return;
+			foreach (string name in names)
+			{ _named[name] = value; }
+		}
+	}
 #pragma warning disable CS1591
 	#region interface
 	/// <summary>

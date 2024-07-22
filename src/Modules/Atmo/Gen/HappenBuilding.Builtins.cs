@@ -10,12 +10,9 @@ using IO = System.IO;
 using RegionKit.Modules.Atmo.Body;
 using static RegionKit.Modules.Atmo.API.V0;
 using static RegionKit.Modules.Atmo.Body.HappenTrigger;
+using static RegionKit.Modules.Atmo.Body.HappenAction;
 using static RegionKit.Modules.Atmo.Data.VarRegistry;
 using static UnityEngine.Mathf;
-using RoomFlasher = RegionKit.Modules.Atmo.Helpers.EventfulUAD.Extra<float, float, bool>;
-using RoomSoundPlayer = RegionKit.Modules.Atmo.Helpers.EventfulUAD.Extra<DisembodiedDynamicSoundLoop, System.Boolean>;
-using PersistentSoundPlayer = RegionKit.Modules.Atmo.Helpers.EventfulUAD.Extra<(DisembodiedLoopEmitter loop, System.Guid id, bool alive)>;
-using Microsoft.SqlServer.Server;
 
 namespace RegionKit.Modules.Atmo.Gen;
 public static partial class HappenBuilding
@@ -64,45 +61,44 @@ public static partial class HappenBuilding
 		AddNamedTrigger(new[] { "thisbreaks" }, (args, rwg, ha) =>
 		{
 			NewArg when = args.AtOr(0, "eval");
-			EventfulTrigger evt = new();
+			EventfulTrigger evt = new(ha, args);
 			switch (((string)when))
 			{
-			case "eval": evt.On_EvalResults += delegate { throw new Exception("Intentional exception on Eval"); }; break;
 			case "upd": evt.On_Update += delegate { throw new Exception("Intentional exception on Update"); }; break;
-			case "sru": evt.On_ShouldRunUpdates += delegate { throw new Exception("Intentional exception on ShouldRun"); }; break;
+			case "sru": evt.Is_Active += delegate { throw new Exception("Intentional exception on ShouldRun"); }; break;
 			}
 			return evt;
 		});
 	}
 	private static HappenTrigger? TMake_ExpeditionEnabled(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		EventfulTrigger evt = new()
+		EventfulTrigger evt = new(ha, args)
 		{
-			On_ShouldRunUpdates = () => ModManager.Expedition
+			Is_Active = (_) => ModManager.Expedition
 		};
 		return evt;
 	}
 	private static HappenTrigger? TMake_JollyEnabled(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		EventfulTrigger evt = new()
+		EventfulTrigger evt = new(ha, args)
 		{
-			On_ShouldRunUpdates = () => ModManager.JollyCoop
+			Is_Active = (_) => ModManager.JollyCoop
 		};
 		return evt;
 	}
 	private static HappenTrigger? TMake_MMFEnabled(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		EventfulTrigger evt = new()
+		EventfulTrigger evt = new(ha, args)
 		{
-			On_ShouldRunUpdates = () => ModManager.MMF
+			Is_Active = (_) => ModManager.MMF
 		};
 		return evt;
 	}
 	private static HappenTrigger? TMake_MSCEnabled(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		EventfulTrigger evt = new()
+		EventfulTrigger evt = new(ha, args)
 		{
-			On_ShouldRunUpdates = () => ModManager.MSC
+			Is_Active = (_) => ModManager.MSC
 		};
 		return evt;
 	}
@@ -113,17 +109,17 @@ public static partial class HappenBuilding
 			__NotifyArgsMissing(TMake_RemixModEnabled, "modid");
 			return null;
 		}
-		EventfulTrigger evt = new()
+		EventfulTrigger evt = new(ha, args)
 		{
-			On_ShouldRunUpdates = () => ModManager.ActiveMods.Any(x => x.name == args[0].GetValue<string>())
+			Is_Active = (EventfulTrigger trigger) => ModManager.ActiveMods.Any(x => x.name == trigger.args[0].GetValue<string>())
 		};
 		return evt;
 	}
 	private static HappenTrigger? TMake_EchoPresence(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		EventfulTrigger evt = new()
+		EventfulTrigger evt = new(ha, args)
 		{
-			On_ShouldRunUpdates = () => rwg.world?.worldGhost is not null
+			Is_Active = (EventfulTrigger trigger) => trigger.owner?.Set.world.worldGhost is not null
 		};
 		return evt;
 	}
@@ -132,15 +128,17 @@ public static partial class HappenBuilding
 	/// </summary>
 	private static HappenTrigger? TMake_Difficulty(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		bool enabled = false;
-		foreach (NewArg arg in args)
+		return new EventfulTrigger(ha, args)
 		{
-			arg.TryGetValue(out SlugcatStats.Name? name);
-			if (name == rwg.GetStorySession.characterStats.name) enabled = true;
-		}
-		return new EventfulTrigger()
-		{
-			On_ShouldRunUpdates = () => enabled,
+			Is_Active = (EventfulTrigger trigger) =>
+			{
+				foreach (NewArg arg in trigger.args)
+				{
+					arg.TryGetValue(out SlugcatStats.Name? name);
+					if (name == trigger.owner!.Set.world.game.GetStorySession.characterStats.name) return true;
+				}
+				return false;
+			},
 		};
 	}
 	/// <summary>
@@ -148,10 +146,9 @@ public static partial class HappenBuilding
 	/// </summary>
 	private static HappenTrigger? TMake_PlayerCount(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		int[] accepted = args.Select(x => (int)x).ToArray();
-		return new EventfulTrigger()
+		return new EventfulTrigger(ha, args)
 		{
-			On_ShouldRunUpdates = () => accepted.Contains(rwg.Players.Count)
+			Is_Active = (EventfulTrigger trigger) => trigger.args.Select(x => (int)x).Contains(trigger.owner!.Set.world.game.Players.Count)
 		};
 	}
 	/// <summary>
@@ -159,21 +156,16 @@ public static partial class HappenBuilding
 	/// </summary>
 	private static HappenTrigger? TMake_Delay(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		int? delay = args.Count switch
-		{
-			< 1 => null,
-			1 => args[0].SecAsFrames,
-			> 1 => RND.Range(args[0].SecAsFrames, args[1].SecAsFrames)
-		};
-		if (delay is null)
+		if (args.Count < 1)
 		{
 			__NotifyArgsMissing(TMake_Delay, "delay/delaymin+delaymax");
 			return null;
 		}
-		LogInfo($"Set delay: {delay.Value} ( {args.Select(x => x.SecAsFrames.ToString()).Stitch()} )");
-		return new EventfulTrigger()
+		int delay = args.Count > 1 ? RND.Range(args[0].SecAsFrames, args[1].SecAsFrames) : args[0].SecAsFrames;
+		LogInfo($"Set delay: {delay} ( {args.Select(x => x.SecAsFrames.ToString()).Stitch()} )");
+		return new EventfulTrigger(ha, new() { delay })
 		{
-			On_ShouldRunUpdates = () => rwg.world.rainCycle.timer > delay.Value
+			Is_Active = (EventfulTrigger trigger) => trigger.owner!.Set.world.rainCycle.timer > trigger.args[0].SecAsFrames
 		};
 	}
 	/// <summary>
@@ -187,53 +179,58 @@ public static partial class HappenBuilding
 			__NotifyArgsMissing(TMake_AfterOther, "name");
 			return null;
 		}
-		Happen? tar = null;
-		string tarname = args.AtOr(0, "none").GetValue<string>();
-		int delay = (int?)(args.AtOr(1, 3f).GetValue<float>() * 40) ?? 40;
-		bool tarWasOn = false;
-		bool amActive = false;
-		List<int> switchOn = new();
-		List<int> switchOff = new();
+		return new AfterOtherTrigger(ha, args);
+	}
 
-		return new EventfulTrigger()
+	public sealed class AfterOtherTrigger : HappenTrigger
+	{
+		internal Happen? target;
+		internal string targetName => args.AtOr(0, "none").GetValue<string>();
+		internal int delay => (int?)(args.AtOr(1, 3f).GetValue<float>() * 40) ?? 40;
+		internal bool tarWasOn;
+		internal bool amActive;
+		internal List<int> switchOn = new();
+		internal List<int> switchOff = new();
+		public AfterOtherTrigger(Happen owner, ArgSet args) : base(owner, args)
 		{
-			On_Update = () =>
+			//tar = owner.set.AllHappens.FirstOrDefault(x => x.name == tarname.Str);
+		}
+		public override void Update()
+		{
+			target ??= owner?.Set.AllHappens.FirstOrDefault(x => x.name == targetName);
+			if (target is null) return;
+			if (target.Active != tarWasOn)
 			{
-				tar ??= ha?.Set.AllHappens.FirstOrDefault(x => x.name == tarname);
-				if (tar is null) return;
-				if (tar.Active != tarWasOn)
+				if (target.Active)
 				{
-					if (tar.Active)
-					{
-						switchOn.Add(delay);
-					}
-					else
-					{
-						switchOff.Add(delay);
-					}
+					switchOn.Add(delay);
 				}
-				for (int i = 0; i < switchOn.Count; i++)
+				else
 				{
-					switchOn[i]--;
+					switchOff.Add(delay);
 				}
-				if (switchOn.FirstOrDefault() < 0)
-				{
-					switchOn.RemoveAt(0);
-					amActive = true;
-				}
-				for (int i = 0; i < switchOff.Count; i++)
-				{
-					switchOff[i]--;
-				}
-				if (switchOff.FirstOrDefault() < 0)
-				{
-					switchOff.RemoveAt(0);
-					amActive = false;
-				}
-				tarWasOn = tar.Active;
-			},
-			On_ShouldRunUpdates = () => amActive,
-		};
+			}
+			for (int i = 0; i < switchOn.Count; i++)
+			{
+				switchOn[i]--;
+			}
+			if (switchOn.FirstOrDefault() < 0)
+			{
+				switchOn.RemoveAt(0);
+				amActive = true;
+			}
+			for (int i = 0; i < switchOff.Count; i++)
+			{
+				switchOff[i]--;
+			}
+			if (switchOff.FirstOrDefault() < 0)
+			{
+				switchOff.RemoveAt(0);
+				amActive = false;
+			}
+			tarWasOn = target.Active;
+		}
+		public override bool Active() => amActive;
 	}
 	/// <summary>
 	/// Creates a trigger that is active, but turns off for a while if the happen stays on for too long. First argument is max tolerable time, second is time it takes to recover.
@@ -241,85 +238,108 @@ public static partial class HappenBuilding
 	/// <returns></returns>
 	private static HappenTrigger? TMake_Fry(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		int limit = (int)(args.AtOr(0, 10f).GetValue<float>() * 40f);
-		int cd = (int)(args.AtOr(1, 15f).GetValue<float>() * 40f);
+		return new FryTrigger(ha, args);
+	}
+	public class FryTrigger : HappenTrigger
+	{
 		int counter = 0;
 		bool active = true;
-		return new EventfulTrigger()
+		int limit => args.AtOr(0, 10f).SecAsFrames;
+		int cd => args.AtOr(1, 15f).SecAsFrames;
+
+		public FryTrigger(Happen owner, ArgSet args) : base(owner)
 		{
-			On_EvalResults = (res) =>
+		}
+
+		public override void Update()
+		{
+			if (active && owner != null)
 			{
-				if (active)
-				{
-					if (res) counter++; else { counter = 0; }
-					if (counter > limit) { active = false; counter = cd; }
-				}
-				else
-				{
-					counter--;
-					if (counter == 0) { active = true; counter = 0; }
-				}
-			},
-			On_ShouldRunUpdates = () => active
-		};
+				if (owner.Active) counter++; else { counter = 0; }
+				if (counter > limit) { active = false; counter = cd; }
+			}
+			else
+			{
+				counter--;
+				if (counter == 0) { active = true; counter = 0; }
+			}
+		}
+
+		public override bool Active() => active;
 	}
 	/// <summary>
 	/// Creates a trigger that activates once player visits one of the provided rooms.
 	/// </summary>
 	private static HappenTrigger? TMake_Visit(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		string[] rooms = args.Select(x => x.GetValue<string>()).ToArray();
-		bool visit = false;
-		return new EventfulTrigger()
-		{
-			On_Update = () =>
-			{
-				if (visit) return;
-				foreach (AbstractCreature? player in rwg.Players) if (rooms.Contains(player.Room.name))
-					{
-						visit = true;
-					}
-			},
-			On_ShouldRunUpdates = () => visit
-		};
-
-		//return new AfterVisit(game, args);
+		return new AfterVisitTrigger(ha, args);
 	}
+	public sealed class AfterVisitTrigger : HappenTrigger
+	{
+		private string[] rooms => args.Select(x => x.GetValue<string>()).ToArray();
+		private bool visit = false;
+		public AfterVisitTrigger(Happen owner, ArgSet args) : base(owner, args)
+		{
+		}
+		public override void Update()
+		{
+			if (visit) return;
+			foreach (AbstractCreature? player in owner!.Set.world.game.Players) if (rooms.Contains(player.Room.name))
+				{
+					visit = true;
+				}
+		}
+		public override bool Active()
+		{
+			return visit;
+		}
+	}
+
 	/// <summary>
 	/// Creates a trigger that flickers on and off. Arguments are: min time on, max time on, min time off, max time off, start active (yes/no)
 	/// </summary>
 	private static HappenTrigger? TMake_Flicker(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		int minOn = args.AtOr(0, 5.0f).SecAsFrames,
-			maxOn = args.AtOr(1, 5.0f).SecAsFrames,
-			minOff = args.AtOr(2, 5.0f).SecAsFrames,
-			maxOff = args.AtOr(3, 5.0f).SecAsFrames;
-		bool on = args.AtOr(4, true).GetValue<bool>();
-		int counter = 0;
+		return new Flicker(ha, args);
+	}
+	public sealed class Flicker : HappenTrigger
+	{
+		private int minOn => args.AtOr(0, 5.0f).SecAsFrames;
+		private int maxOn => args.AtOr(1, 5.0f).SecAsFrames;
+		private int minOff => args.AtOr(2, 5.0f).SecAsFrames;
+		private int maxOff => args.AtOr(3, 5.0f).SecAsFrames;
+		private bool on;
+		private int counter;
 
-		return new EventfulTrigger()
+		public Flicker(Happen owner, ArgSet args) : base(owner, args)
 		{
-			On_Update = () => { if (counter-- < 0) ResetCounter(!on); },
-			On_ShouldRunUpdates = () => on,
-		};
-		void ResetCounter(bool next)
+			ResetCounter(args.AtOr(4, true).GetValue<bool>());
+		}
+		private void ResetCounter(bool next)
 		{
 			on = next;
 			counter = on switch
 			{
-				true => RND.Range(minOn, maxOn),
-				false => RND.Range(minOff, maxOff),
+				true => UnityEngine.Random.Range(minOn, maxOn),
+				false => UnityEngine.Random.Range(minOff, maxOff),
 			};
 		}
+		public override bool Active()
+		{
+			return on;
+		}
+
+		public override void Update() { if (counter-- < 0) ResetCounter(!on); }
 	}
+
 	/// <summary>
 	/// Creates a trigger that is always active.
 	/// </summary>
 	private static HappenTrigger? TMake_Always(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		return new EventfulTrigger()
+		return new EventfulTrigger(ha, args)
 		{
-			On_ShouldRunUpdates = () => true
+			Is_Active = (_) => true
 		};
 	}
 
@@ -332,32 +352,34 @@ public static partial class HappenBuilding
 		//float rv = RND.value;
 		bool yes = RND.value < ch.GetValue<float>();
 		//plog.DbgVerbose($"bet {yes}: {ch} / {rv}");
-		return new EventfulTrigger()
+		return new EventfulTrigger(ha, new() { yes })
 		{
-			On_ShouldRunUpdates = () => yes,
+			Is_Active = (EventfulTrigger trigger) => trigger.args[0].GetValue<bool>(),
 		};
 	}
 	/// <summary>
 	/// Creates a trigger that is active at given karma levels.
 	/// </summary>
-	private static HappenTrigger? TMake_OnKarma(ArgSet args, RainWorldGame rwg, Happen _)
+	private static HappenTrigger? TMake_OnKarma(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		List<int> levels = new();
-		foreach (NewArg op in args)
+		return new EventfulTrigger(ha, args)
 		{
-			if (int.TryParse(op.GetValue<string>(), out int r)) levels.Add(r);
-			string[]? spl = TXT.Regex.Split(op.GetValue<string>(), "\\s*-\\s*");
-			if (spl.Length == 2)
+			Is_Active = (EventfulTrigger trigger) =>
 			{
-				int.TryParse(spl[0], out int min);
-				int.TryParse(spl[1], out int max);
-				for (int i = min; i <= max; i++) if (!levels.Contains(i)) levels.Add(i);
+				List<int> levels = new();
+				foreach (NewArg op in trigger.args)
+				{
+					if (op.TryGetValue<int>(out int r)) levels.Add(r);
+					string[]? spl = TXT.Regex.Split(op.GetValue<string>(), "\\s*-\\s*");
+					if (spl.Length == 2)
+					{
+						int.TryParse(spl[0], out int min);
+						int.TryParse(spl[1], out int max);
+						for (int i = min; i <= max; i++) if (!levels.Contains(i)) levels.Add(i);
+					}
+				}
+				return levels.Contains((trigger.owner!.Set.world.game.Players[0].realizedCreature as Player)?.Karma ?? 0);
 			}
-		}
-		return new EventfulTrigger()
-		{
-			On_ShouldRunUpdates = ()
-				=> levels.Contains((rwg.Players[0].realizedCreature as Player)?.Karma ?? 0)
 		};
 	}
 	/// <summary>
@@ -365,11 +387,9 @@ public static partial class HappenBuilding
 	/// </summary>
 	private static HappenTrigger? TMake_UntilRain(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		int delay = (int?)(args.AtOr(0, 0)?.GetValue<float>() * 40) ?? 0;
-		return new EventfulTrigger()
+		return new EventfulTrigger(ha, args)
 		{
-			On_ShouldRunUpdates = ()
-			=> rwg.world.rainCycle.TimeUntilRain + delay >= 0
+			Is_Active = (EventfulTrigger trigger) => trigger.owner!.Set.world.rainCycle.TimeUntilRain + args.AtOr(0, 0)?.SecAsFrames >= 0
 		};
 	}
 	/// <summary>
@@ -377,11 +397,9 @@ public static partial class HappenBuilding
 	/// </summary>
 	private static HappenTrigger? TMake_AfterRain(ArgSet args, RainWorldGame rwg, Happen ha)
 	{
-		int delay = (int?)(args.AtOr(0, 0)?.GetValue<float>() * 40) ?? 0;
-		return new EventfulTrigger()
+		return new EventfulTrigger(ha, args)
 		{
-			On_ShouldRunUpdates = ()
-			=> rwg.world.rainCycle.TimeUntilRain + delay <= 0
+			Is_Active = (EventfulTrigger trigger) => trigger.owner!.Set.world.rainCycle.TimeUntilRain + args.AtOr(0, 0).SecAsFrames <= 0
 		};
 	}
 	/// <summary>
@@ -394,15 +412,27 @@ public static partial class HappenBuilding
 			__NotifyArgsMissing(TMake_EveryX, "period");
 			return null;
 		}
-		int period = (int)(args[0].GetValue<float>() * 40f),
-			counter = 0;// ?? 10;
-
-		return new EventfulTrigger()
-		{
-			On_Update = () => { if (--counter < 0) counter = period; },
-			On_ShouldRunUpdates = () => { return counter == 0; }
-		};
+		return new EveryXTrigger(ha, args);
 	}
+
+	public sealed class EveryXTrigger : HappenTrigger
+	{
+		public EveryXTrigger(Happen ow, ArgSet args) : base(ow, args)
+		{
+		}
+
+		private int period => args[0].SecAsFrames;
+		private int counter;
+		public override bool Active()
+		{
+			return counter is 0;
+		}
+		public override void Update()
+		{
+			if (--counter < 0) counter = period;
+		}
+	}
+
 	/// <summary>
 	/// Creates a trigger that checks variable's equality against a given value. First argument is variable name, second is value to check against.
 	/// </summary>
@@ -413,11 +443,13 @@ public static partial class HappenBuilding
 			__NotifyArgsMissing(TMake_VarEq, "varname/value");
 			return null;
 		}
-		NewArg tar = VarRegistry.GetVar(args[0].GetValue<string>(), __CurrentSaveslot ?? -1, __CurrentCharacter ?? __slugnameNotFound);
-		NewArg val = args[1];
-		return new EventfulTrigger()
+		return new EventfulTrigger(ha, args)
 		{
-			On_ShouldRunUpdates = () => tar.GetValue<string>() == val.GetValue<string>(),
+			Is_Active = (EventfulTrigger trigger) =>
+			{
+				NewArg tar = VarRegistry.GetVar(trigger.args[0].GetValue<string>(), trigger.owner!.Set.world);
+				return tar.GetValue<string>() == trigger.args[1].GetValue<string>();
+			},
 		};
 	}
 	/// <summary>
@@ -430,11 +462,13 @@ public static partial class HappenBuilding
 			__NotifyArgsMissing(TMake_VarNe, "varname/value");
 			return null;
 		}
-		NewArg tar = VarRegistry.GetVar(args[0].GetValue<string>(), __CurrentSaveslot ?? -1, __CurrentCharacter ?? __slugnameNotFound);
-		NewArg val = args[1];
-		return new EventfulTrigger()
+		return new EventfulTrigger(ha, args)
 		{
-			On_ShouldRunUpdates = () => tar.GetValue<string>() != val.GetValue<string>(),
+			Is_Active = (EventfulTrigger trigger) =>
+			{
+				NewArg tar = VarRegistry.GetVar(trigger.args[0].GetValue<string>(), trigger.owner!.Set.world);
+				return tar.GetValue<string>() != trigger.args[1].GetValue<string>();
+			},
 		};
 	}
 	/// <summary>
@@ -447,32 +481,12 @@ public static partial class HappenBuilding
 			__NotifyArgsMissing(TMake_VarMatch, "varname/pattern");
 			return null;
 		}
-		NewArg tar = VarRegistry.GetVar(args[0].GetValue<string>(), __CurrentSaveslot ?? -1, __CurrentCharacter ?? __slugnameNotFound);
-		NewArg val = args[1];
-		TXT.Regex? matcher = null;
-		string? prev_val = null;
-
-		return new EventfulTrigger()
+		return new EventfulTrigger(ha, args)
 		{
-			On_Update = () =>
+			Is_Active = (EventfulTrigger trigger) =>
 			{
-				try
-				{
-					if (prev_val != val.GetValue<string>())
-					{
-						matcher = new(val.GetValue<string>());
-						prev_val = val.GetValue<string>();
-					}
-				}
-				catch (Exception ex)
-				{
-					LogWarning($"Error creating a regex from variable input \"{val.GetValue<string>()}\": {ex.Message}");
-					matcher = null;
-				}
-			},
-			On_ShouldRunUpdates = () =>
-			{
-				return matcher?.IsMatch(tar.GetValue<string>()) ?? false;
+				NewArg tar = GetVar(trigger.args[0].GetValue<string>(), trigger.owner!.Set.world);
+				return new TXT.Regex(trigger.args[1].GetValue<string>())?.IsMatch(tar.GetValue<string>()) ?? false;
 			}
 		};
 	}
@@ -504,223 +518,242 @@ public static partial class HappenBuilding
 		AddNamedAction(new[] { "soundlooppers" }, Make_SoundLoopPersistent);
 		//do not document:
 	}
-	private static void Make_Flash(Happen ha, ArgSet args)
+	private static HappenAction Make_Flash(Happen ha, ArgSet args)
 	{
-		NewArg
-			color = args.AtOr(0, (Vector4)Color.white),
-			maxopacity = args.AtOr(1, 0.9f),
-			lerp = args["lerp"] ?? 0.04f,
-			step = args["step"] ?? 0.01f;
 		List<Guid> flashers = new();
 		//fields are:
 		//currentpow, oldpow, alive
-		ha.On_RealUpdate += (room) =>
+		return new FlashAction(ha, args);
+	}
+
+	public class FlashAction : HappenAction
+	{
+		Dictionary<Room, RoomFlasher> flashers = new();
+		NewArg color => args.AtOr(0, (Vector4)Color.white);
+		NewArg maxopacity => args.AtOr(1, 0.9f);
+		NewArg lerp => args["lerp"] ?? 0.04f;
+		NewArg step => args["step"] ?? 0.01f;
+		public FlashAction(Happen owner, ArgSet args) : base(owner, args)
 		{
-			var myFlasher = (RoomFlasher)room.updateList.FirstOrDefault(x => x is RoomFlasher flasher && flashers.Contains(flasher.id));
-			if (myFlasher is null)
+		}
+
+		public override void RealizedUpdate(Room room)
+		{
+			if (!flashers.TryGetValue(room, out var myFlasher))
 			{
-				myFlasher = new(1f, 1f, true);
-				VerboseLog("Creating new room flasher " + myFlasher.id);
-				flashers.Add(myFlasher.id);
-				myFlasher.onUpdate = (_) =>
-				{
-					myFlasher._1 = myFlasher._0;
-					if (!myFlasher._2) myFlasher._0 = Clamp(LerpAndTick(myFlasher._0, 0f, lerp.GetValue<float>(), step.GetValue<float>()), 0f, 1f);
-					myFlasher._2 = false;
-					if (myFlasher._0 == 0f) myFlasher.Destroy();
-				};
-				myFlasher.onInitSprites = (leaser, cam) =>
-				{
-					leaser.sprites = new FSprite[1];
-					leaser.sprites[0] = new FSprite("pixel", true)
-					{
-						scaleX = 1366f,
-						scaleY = 768f,
-						anchorX = 0f,
-						anchorY = 0f,
-						color = Color.white
-					};
-					myFlasher.AddToContainer(leaser, cam, null);
-				};
-				myFlasher.onAddToContainer = (leaser, cam, cont) =>
-				{
-					leaser.sprites[0].RemoveFromContainer();
-					//todo: u sure it should be HUD or HUD2?
-					cont ??= cam.ReturnFContainer("HUD");
-					cont.AddChild(leaser.sprites[0]);
-					//leaser.sprites[0].addT
-				};
-				myFlasher.onDestroy = () => { flashers.Remove(myFlasher.id); };
-				myFlasher.onDraw = (leaser, cam, ts, cpos) =>
-				{
-					leaser.sprites[0].alpha = Lerp(myFlasher._1, myFlasher._0, ts) * maxopacity.GetValue<float>();
-				};
-				myFlasher._0 = 1f;
-				myFlasher._1 = 1f;
+				myFlasher = new(this);
+				VerboseLog("Creating new room flasher " + myFlasher);
+				flashers[room] = myFlasher;
+
 				room.AddObject(myFlasher);
 			}
-			myFlasher._0 = 1f;
-		};
+			myFlasher.alpha = 1f;
+		}
+
+		public class RoomFlasher : UpdatableAndDeletable, IDrawable
+		{
+			public float alpha = 1f;
+			float lastAlpha = 1f;
+			bool init = true;
+			public FlashAction action;
+
+			public RoomFlasher(FlashAction action)
+			{
+				this.action = action;
+			}
+
+			public override void Update(bool eu)
+			{
+				base.Update(eu);
+				lastAlpha = alpha;
+				if (!init) alpha = Clamp(LerpAndTick(alpha, 0f, action.lerp.GetValue<float>(), action.step.GetValue<float>()), 0f, 1f);
+				init = false;
+				if (alpha == 0f) Destroy();
+			}
+
+			public override void Destroy()
+			{
+				action.flashers.Remove(this.room);
+				base.Destroy();
+			}
+			public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
+			{
+				Vector4 vec = action.color.GetValue<Vector4>();
+				Color color = new(vec.x, vec.y, vec.z);
+				sLeaser.sprites = new FSprite[1];
+				sLeaser.sprites[0] = new FSprite("pixel", true)
+				{
+					scaleX = 1366f,
+					scaleY = 768f,
+					anchorX = 0f,
+					anchorY = 0f,
+					color = color
+				};
+				AddToContainer(sLeaser, rCam, null);
+			}
+			public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+			{
+				sLeaser.sprites[0].RemoveFromContainer();
+				//todo: u sure it should be HUD or HUD2?
+				newContatiner ??= rCam.ReturnFContainer("HUD");
+				newContatiner.AddChild(sLeaser.sprites[0]);
+				//leaser.sprites[0].addT
+			}
+
+			public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
+			{
+			}
+
+			public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
+			{
+				sLeaser.sprites[0].alpha = Lerp(lastAlpha, alpha, timeStacker) * action.maxopacity.GetValue<float>();
+			}
+		}
+
 	}
-	private static void Make_Lightning(Happen ha, ArgSet args)
+
+
+	private static HappenAction Make_Lightning(Happen ha, ArgSet args)
 	{
 		VerboseLog("Making lightning!");
 		if (args.Count < 1)
 		{
 			__NotifyArgsMissing(source: Make_Lightning, "intensity");
 		}
-		NewArg
-			intensity = args[0],
-			bkgonly = args.AtOr(1, false);
-		Dictionary<Room, bool> registered = new();
-		ha.On_RealUpdate += (rm) =>
-		{
-			registered.EnsureAndGet(rm, () =>
-			{
-				VerboseLog($"Lightning for room {rm.abstractRoom.name}");
-				if (rm.lightning is not null)
-				{
-					VerboseLog($"Woops, not mine");
-					return false;
-				}
-				Lightning l = new(room: rm, intensity.GetValue<float>(), bkgonly.GetValue<bool>());
-				rm.lightning = l;
-				rm.AddObject(l);
-				return true;
-			});
-			rm.lightning.intensity = intensity.GetValue<float>();
-		};
-		ha.On_CoreUpdate += (_) =>
-		{
-			if (!ha.Active)
-			{
-				foreach ((Room rm, bool mine) in registered)
-				{
-					if (mine)
-					{
-						rm.RemoveObject(rm.lightning);
-						rm.lightning = null;
-					}
-					VerboseLog($"Removing lightning for {rm.abstractRoom.name}");
-				}
-				registered.Clear();
-			}
 
-		};
-	}
-	private static void Make_Stun(Happen ha, ArgSet args)
-	{
-		NewArg select = args["select", "filter", "who"] ?? ".*",
-			duration = args["duration", "dur", "st"] ?? 10;
-		VerboseLog($"Making stun:");
-		ha.On_RealUpdate += (rm) =>
+		return new EventfulAction<List<Lightning>>(ha, args, new())
 		{
-			for (int i = 0; i < rm.updateList.Count; i++)
+			On_RealizedUpdate = (action, room) =>
 			{
-				UpdatableAndDeletable? uad = rm.updateList[i];
-				if
-				(uad is Creature c && TXT.Regex.IsMatch(
-					c.Template.type.ToString(),
-					select.GetValue<string>(),
-					System.Text.RegularExpressions.RegexOptions.IgnoreCase)
-				)
+				NewArg intensity = action.args[0], bkgonly = action.args.AtOr(1, false);
+
+				if (room.lightning is null)
 				{
-					c.Stun(duration.GetValue<int>());
+					Lightning l = new(room: room, intensity.GetValue<float>(), bkgonly.GetValue<bool>());
+					room.lightning = l;
+					room.AddObject(l);
+					action.persistent.Add(l);
+				}
+				room.lightning.intensity = intensity.GetValue<float>();
+			},
+			On_AbstractUpdate = (action) =>
+			{
+				List<Lightning> lightnings = action.persistent;
+				for (int i = lightnings.Count - 1; i >= 0; i--)
+				{
+					if (lightnings[i].slatedForDeletetion)
+					{
+						lightnings.RemoveAt(i);
+					}
+					else if (!action.owner.Active)
+					{
+						Room room = lightnings[i].room;
+						room.RemoveObject(lightnings[i]);
+						room.lightning = null;
+					}
 				}
 			}
 		};
 	}
-	private static void Make_Tempglow(Happen ha, ArgSet args)
+
+
+	private static HappenAction Make_Stun(Happen ha, ArgSet args)
+	{
+		return new EventfulAction(ha, args)
+		{
+			On_RealizedUpdate = (action, room) =>
+			{
+				NewArg select = action.args["select", "filter", "who"] ?? ".*",
+					duration = action.args["duration", "dur", "st"] ?? 10;
+				for (int i = 0; i < room.updateList.Count; i++)
+				{
+					UpdatableAndDeletable? uad = room.updateList[i];
+					if (uad is Creature c && TXT.Regex.IsMatch(c.Template.type.ToString(), select.GetValue<string>(), TXT.RegexOptions.IgnoreCase))
+					{
+						c.Stun(duration.GetValue<int>());
+					}
+				}
+			}
+		};
+	}
+	private static HappenAction Make_Tempglow(Happen ha, ArgSet args)
 	{
 		if (args.Count < 1)
 		{
 			__NotifyArgsMissing(Make_Tempglow, "color");
 		}
-		NewArg argcol = args[0],
-			radius = args.AtOr(1, 300f);
-		Dictionary<Player, bool> playersActive = new();
-		ha.On_RealUpdate += (rm) =>
+		return new EventfulAction<Dictionary<Player, (Color, float?)>>(ha, args, new())
 		{
-			foreach (UAD? uad in rm.updateList)
+			On_RealizedUpdate = (action, room) =>
 			{
-				if (uad is Player p)
+				var playersActive = action.persistent;
+				NewArg argcol = action.args[0], radius = action.args.AtOr(1, 300f);
+
+				foreach (UAD? uad in room.updateList)
 				{
+					if (uad is not Player p) continue;
+
 					p.glowing = true;
 					PlayerGraphics? pgraf = p.graphicsModule as PlayerGraphics;
-					playersActive.Set(p, true);
 					if (pgraf?.lightSource is null) continue;
+					playersActive[p] = (pgraf.lightSource.color, pgraf.lightSource.setRad);
 					pgraf.lightSource.color = argcol.GetValue<Vector4>().ToOpaqueCol();
 					pgraf.lightSource.setRad = radius.GetValue<float>();
 				}
-			}
-		};
-		ha.On_CoreUpdate += (game) =>
-		{
-			foreach (AbstractCreature? absp in game.Players)
+			},
+			On_AbstractUpdate = (action) =>
 			{
-				if (absp.realizedCreature is Player p)
+				var playersActive = action.persistent;
+				if (action.owner.Active) return;
+				foreach (AbstractCreature? absp in action.owner.game.Players)
 				{
-					if (!playersActive.EnsureAndGet(p, static () => false))
-					{
-						p.glowing = game.GetStorySession?.saveState.theGlow ?? false;
-						if (p.graphicsModule is PlayerGraphics pgraf && pgraf.lightSource is not null)
-						{
-							pgraf.lightSource.setRad = 300f;
-							pgraf.lightSource.color
-								= PlayerGraphics.SlugcatColor(p.playerState.slugcatCharacter);
-							if (!p.glowing)
-							{
-								pgraf.lightSource.stayAlive = false;
-								pgraf.lightSource = null;
-							}
-						}
+					if (absp.realizedCreature is not Player p || p.slatedForDeletetion) continue;
 
-					}
-					else
+					if (!playersActive.TryGetValue(p, out var value)) continue;
+
+					p.glowing = action.owner.game.GetStorySession?.saveState.theGlow ?? false;
+					if (p.graphicsModule is PlayerGraphics pgraf && pgraf.lightSource is not null)
 					{
-						playersActive[p] = false;
+						pgraf.lightSource.setRad = value.Item2;
+						pgraf.lightSource.color = value.Item1;
+						if (!p.glowing)
+						{
+							pgraf.lightSource.stayAlive = false;
+							pgraf.lightSource = null;
+						}
 					}
+
+					playersActive.Remove(p);
 				}
 			}
 		};
 	}
-	private static void Make_Fling(Happen ha, ArgSet args)
+	private static HappenAction Make_Fling(Happen ha, ArgSet args)
 	{
 		if (args.Count < 1)
 		{
 			__NotifyArgsMissing(Make_Fling, "force");
 		}
 
-		NewArg force = args[0],
-			filter = args["filter", "select"] ?? ".*",
-			forceVar = args["variance", "var"] ?? 0f,
-			spread = args["spread", "deviation", "dev"] ?? 0f;
-		VerboseLog($"{force} ({force.Raw}) ({force.GetValue<Vector4>()}), {filter.Raw} / {filter.GetValue<string>()}, {spread}");
-		Dictionary<int, VT<float, float>> variance = new();
-		ha.On_RealUpdate += (rm) =>
+		return new EventfulAction(ha, args)
 		{
-			foreach (UpdatableAndDeletable? uad in rm.updateList)
+			On_RealizedUpdate = (action, rm) =>
 			{
-				if (uad is PhysicalObject obj)
+				NewArg force = action.args[0],
+					filter = action.args["filter", "select"] ?? ".*",
+					forceVar = action.args["variance", "var"] ?? 0f,
+					spread = action.args["spread", "deviation", "dev"] ?? 0f;
+
+				foreach (UpdatableAndDeletable? uad in rm.updateList)
 				{
+					if (uad is not PhysicalObject obj) continue;
+
 					string objtype = obj.abstractPhysicalObject.type.ToString();
 					string? crittype = (obj as Creature)?.Template.type.ToString();
-					if
-					(
-						TXT.Regex.IsMatch(objtype, filter.GetValue<string>(), System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+					if (TXT.Regex.IsMatch(objtype, filter.GetValue<string>(), System.Text.RegularExpressions.RegexOptions.IgnoreCase)
 					||
-					(
-						crittype is not null && TXT.Regex.IsMatch(crittype, filter.GetValue<string>(), System.Text.RegularExpressions.RegexOptions.IgnoreCase))
-					)
+					(crittype is not null && TXT.Regex.IsMatch(crittype, filter.GetValue<string>(), System.Text.RegularExpressions.RegexOptions.IgnoreCase)))
 					{
-						VT<float, float> cvar = variance.EnsureAndGet
-						(obj.GetHashCode(), () => new(
-							1f.Deviate(forceVar.GetValue<float>()),
-							0f.Deviate(spread.GetValue<float>()),
-							"FlingDeviation",
-							"force",
-							"angle")
-						);
 						foreach (BodyChunk ch in obj.bodyChunks)
 						{
 							ch.vel += (Vector2)force.GetValue<Vector4>();//RotateAroundOrigo((Vector2)(force.GetValue<Vector4>() * cvar.a), cvar.b);
@@ -729,35 +762,32 @@ public static partial class HappenBuilding
 				}
 			}
 		};
-		ha.On_CoreUpdate += (rwg) =>
-		{
-			if (!ha.Active)
-			{
-				if (variance.Count is not 0) LogWarning("Clearing variance");
-				variance.Clear();
-			}
-		};
 	}
 
-	private static void Make_SoundLoopPersistent(Happen ha, ArgSet args)
+	private static HappenAction Make_SoundLoopPersistent(Happen ha, ArgSet args)
 	{
 		if (args.Count == 0)
 		{
 			__NotifyArgsMissing(Make_SoundLoopPersistent, "soundid");
-			return;
+			//return;
 		}
-		if (!SoundID.TryParse(typeof(SoundID), args[0].GetValue<string>(), true, out ExtEnumBase r_soundid))
+		if (args[0].GetValue<SoundID>().index == -1)
 		{
 			__NotifyArgsMissing(Make_SoundLoopPersistent, "soundid");
-			return;
+			//return;
 		}
-		SoundID? soundid = (SoundID)r_soundid;
-		NewArg
-			sid = args[0],
-			vol = args["vol", "volume"] ?? 1f,
-			pitch = args["pitch"] ?? 1f,
-			pan = args["pan"] ?? 0f,
-			limit = args["lim", "limit"] ?? float.PositiveInfinity;
+		return new PersistentSoundLoopAction(ha, args);
+	}
+
+	public class PersistentSoundLoopAction : HappenAction
+	{
+		SoundID? soundID => sid.GetValue<SoundID>();
+		NewArg sid => args[0];
+		NewArg vol => args["vol", "volume"] ?? 1f;
+		NewArg pitch => args["pitch"] ?? 1f;
+		NewArg pan => args["pan"] ?? 0f;
+		NewArg limit => args["lim", "limit"] ?? float.PositiveInfinity;
+
 		//so basically
 		//you need to:
 		//- keep 1 soundloop per camera
@@ -765,38 +795,25 @@ public static partial class HappenBuilding
 		System.Runtime.CompilerServices.ConditionalWeakTable<RoomCamera, PersistentSoundPlayer> soundPlayers = new();
 		PersistentSoundPlayer getNewSoundPlayer(RoomCamera _cam)
 		{
-			sid.TryGetValue(out SoundID? soundID);
 			DisembodiedLoopEmitter disembodiedEmitter = _cam.room.PlayDisembodiedLoop(soundID, vol.GetValue<float>(), pitch.GetValue<float>(), pan.GetValue<float>());
 			disembodiedEmitter.requireActiveUpkeep = false;
 			disembodiedEmitter.alive = true;
 			VerboseLog($"Creating new persistent loop {_cam.room.abstractRoom.name} {soundID}");
-			PersistentSoundPlayer persistentPlayer = new((disembodiedEmitter, Guid.NewGuid(), true));
-			persistentPlayer.onDestroy += () =>
-			{
-				persistentPlayer._0.loop.Destroy();
-				//soundPlayers.Remove(persistentPlayer._0.id)
-			};
-			persistentPlayer.onUpdate += (eu) =>
-			{
-				if (!persistentPlayer._0.alive) persistentPlayer.Destroy();
-				persistentPlayer._0.alive = false;
-			};
-
-			return persistentPlayer;
+			return new(disembodiedEmitter, true);
 			//return disembodiedEmitter;
 		}
 
-
-		ha.On_RealUpdate += (room) =>
+		public PersistentSoundLoopAction(Happen owner, ArgSet args) : base(owner, args)
 		{
+		}
 
+		public override void RealizedUpdate(Room room)
+		{
 			for (int i = 0; i < room.game.cameras.Length; i++)
 			{
 				RoomCamera cam = room.game.cameras[i];
-				if (cam.room != room)
-				{
-					continue;
-				}
+				if (cam.room != room) continue;
+
 				PersistentSoundPlayer soundPlayer = soundPlayers.GetValue(cam, getNewSoundPlayer);
 				// soundPlayer._0.loop.soundStillPlaying = true;
 				// soundPlayer._0.loop.alive = true;
@@ -809,28 +826,55 @@ public static partial class HappenBuilding
 					soundPlayer.room = room;
 				}
 			}
-		};
-		ha.On_CoreUpdate += (game) =>
+		}
+
+		public override void AbstractUpdate()
 		{
-			foreach (RoomCamera cam in game.cameras)
+			foreach (RoomCamera cam in owner.game.cameras)
 			{
 				if (!soundPlayers.TryGetValue(cam, out var existingplayer) || existingplayer is null) continue;
-				if (!ha.AffectsRoom(existingplayer.room?.abstractRoom) || !ha.Active)
+				if (!owner.AffectsRoom(existingplayer.room?.abstractRoom) || !owner.Active)
 				{
 					existingplayer.Destroy();
 					soundPlayers.Remove(cam);
 				}
 				else
 				{
-					existingplayer._0.alive = true;
-					existingplayer._0.loop.volume = ha.Active ? vol.GetValue<float>() : 0f;
-					existingplayer._0.loop.pitch = pitch.GetValue<float>();
-					existingplayer._0.loop.pan = pan.GetValue<float>();
+					existingplayer.alive = true;
+					existingplayer.loop.volume = owner.Active ? vol.GetValue<float>() : 0f;
+					existingplayer.loop.pitch = pitch.GetValue<float>();
+					existingplayer.loop.pan = pan.GetValue<float>();
 				}
 			}
-		};
+		}
+
+		public class PersistentSoundPlayer : UpdatableAndDeletable
+		{
+			public DisembodiedLoopEmitter loop;
+			public bool alive;
+
+			public PersistentSoundPlayer(DisembodiedLoopEmitter loop, bool alive)
+			{
+				this.loop = loop;
+				this.alive = alive;
+			}
+
+			public override void Destroy()
+			{
+				loop.Destroy();
+				base.Destroy();
+			}
+
+			public override void Update(bool eu)
+			{
+				base.Update(eu);
+				if (!alive) Destroy();
+				alive = false;
+			}
+		}
 	}
-	private static void Make_SoundLoop(Happen ha, ArgSet args)
+
+	private static HappenAction Make_SoundLoop(Happen ha, ArgSet args)
 	{
 		//BUG: doesn't turn off when exiting into a room where the happen isnt active. need to kill them manually?
 		//does not work in HI (???). does not automatically get discontinued when leaving an affected room.
@@ -838,21 +882,8 @@ public static partial class HappenBuilding
 		if (args.Count == 0)
 		{
 			__NotifyArgsMissing(Make_SoundLoop, "soundid");
-			return;
+			//return;
 		}
-		if (!SoundID.TryParse(typeof(SoundID), args[0].GetValue<string>(), true, out ExtEnumBase r_soundid))
-		{
-			__NotifyArgsMissing(Make_SoundLoop, "soundid");
-			return;
-		}
-		SoundID? soundid = (SoundID)r_soundid;
-		NewArg
-			sid = args[0],
-			vol = args["vol", "volume"] ?? 1f,
-			pitch = args["pitch"] ?? 1f,
-			pan = args["pan"] ?? 0f,
-			limit = args["lim", "limit"] ?? float.PositiveInfinity;
-		string lastSid = sid.GetValue<string>();
 		int timeAlive = 0;
 		List<Guid> soundPlayers = new();
 		// VerboseLog($"Creating action soundloop {activePlayers.GetHashCode()}");
@@ -906,220 +937,269 @@ public static partial class HappenBuilding
 		// 	//wasActive = ha.Active;
 		// 	if (!ha.Active) activePlayers.Clear();
 		// };
-		ha.On_RealUpdate += (room) =>
+		return new SoundLoopAction(ha, args);
+	}
+
+	public class SoundLoopAction : HappenAction
+	{
+		int timeAlive = 0;
+		Dictionary<Room, RoomSoundPlayerr> soundPlayers = new();
+
+		SoundID? soundid => sid.GetValue<SoundID>();
+		NewArg sid => args[0];
+		NewArg vol => args["vol", "volume"] ?? 1f;
+		NewArg pitch => args["pitch"] ?? 1f;
+		NewArg pan => args["pan"] ?? 0f;
+		NewArg limit => args["lim", "limit"] ?? float.PositiveInfinity;
+		public SoundLoopAction(Happen owner, ArgSet args) : base(owner, args)
 		{
-			RoomSoundPlayer mine = (RoomSoundPlayer)room.updateList.FirstOrDefault(x => x is RoomSoundPlayer player && soundPlayers.Contains(player.id));
-			if (mine is not null)
+		}
+
+		public override void RealizedUpdate(Room room)
+		{
+			if(soundPlayers.TryGetValue(room, out _))
 			{
 				return;
 			}
-			mine = new(null!, false);
-			VerboseLog("Creating new loop holder " + mine.id);
-			soundPlayers.Add(mine.id);
-			mine._0 = new(mine)
+			RoomSoundPlayerr mine = new(null!, false, this);
+			mine.loop = new(mine)
 			{
 				destroyClipWhenDone = false,
 				Volume = vol.GetValue<float>(),
 				Pan = pan.GetValue<float>(),
 				Pitch = pitch.GetValue<float>(),
 			};
-			mine.room = room;
-			mine.onUpdate = (eu) =>
+			mine.loop.sound = soundid;
+			mine.loop.InitSound();
+			soundPlayers[room] = mine;
+			room.AddObject(mine);
+		}
+
+		public override void AbstractUpdate()
+		{
+			if (!owner.Active) soundPlayers.Clear();
+		}
+
+		public class RoomSoundPlayerr : UpdatableAndDeletable
+		{
+			public DisembodiedDynamicSoundLoop loop;
+			bool alive;
+			private readonly SoundLoopAction action;
+
+			public RoomSoundPlayerr(DisembodiedDynamicSoundLoop loop, bool alive, SoundLoopAction action)
 			{
-				if (!ha.Active || timeAlive > limit.SecAsFrames)
+				this.loop = loop;
+				this.alive = alive;
+				this.action = action;
+			}
+
+			public override void Update(bool eu)
+			{
+				base.Update(eu);
+				if (!action.owner.Active || action.timeAlive > action.limit.SecAsFrames)
 				{
-					mine.Destroy();
-					mine._0.Stop();
+					Destroy();
+					loop.Stop();
 					return;
 				}
-				bool shouldMakeSound = mine.room.BeingViewed;
-				Action? neededChange = (shouldMakeSound, mine._1) switch
+				bool shouldMakeSound = room.BeingViewed;
+				Action? neededChange = (shouldMakeSound, alive) switch
 				{
 					(true, false) => null,//mine._0.Start,
 					(false, true) => null,//mine._0.Stop,
 					_ => null
 				};
 				neededChange?.Invoke();
-				if (neededChange is not null) LogDebug($"{mine.id} {neededChange.Method.Name}");
-				mine._0.Update();
-				mine._1 = shouldMakeSound;
-			};
-			mine.onInit = () =>
-			{
-				VerboseLog($"playing sound {sid} in room {mine.room?.abstractRoom.name}");
-			};
-			mine._0.sound = soundid;
-			mine._0.InitSound();
-			room.AddObject(mine);
-		};
-		ha.On_CoreUpdate += (rwg) =>
-		{
-			if (!ha.Active) soundPlayers.Clear();
-		};
+				loop.Update();
+				alive = shouldMakeSound;
+			}
+		}
 	}
-	private static void Make_Sound(Happen ha, ArgSet args)
+
+
+	private static HappenAction Make_Sound(Happen ha, ArgSet args)
 	{
 		if (args.Count == 0)
 		{
 			__NotifyArgsMissing(Make_Sound, "soundid");
-			return;
+			//return;
 		}
 
-		if (!ExtEnumBase.TryParse(typeof(SoundID), args[0].GetValue<string>(), false, out ExtEnumBase objsid))
+		if (args[0].GetValue<SoundID>().index == -1)
 		{
 			LogError($"Happen {ha.name}: sound action: " +
 				$"Invalid SoundID ({args[0]})");
-			return;
+			//return;
 		}
-		SoundID? soundid = (SoundID)objsid;
-		NewArg sid = args[0];
-		string lastSid = sid.GetValue<string>();
-		int cooldown = args["cd", "cooldown"]?.SecAsFrames ?? 2,
-			limit = args["lim", "limit"]?.GetValue<int>() ?? int.MaxValue;
-		NewArg
-			vol = args["vol", "volume"] ?? 0.5f,
-			pitch = args["pitch"] ?? 1f
-			//pan = args["pan"]?.F32 ?? 1f
-			;
-		int counter = 1;
-		ha.On_RealUpdate += (room) =>
+		return new EventfulAction<int>(ha, args, 1)
 		{
-			if (counter != 0) return;
-			if (limit < 1) return;
-			for (int i = 0; i < room.updateList.Count; i++)
+			On_RealizedUpdate = (action, room) =>
 			{
-				if (room.updateList[i] is Player p)
+				SoundID? soundid = action.args[0].GetValue<SoundID>();
+				NewArg sid = action.args[0];
+				string lastSid = sid.GetValue<string>();
+				int cooldown = action.args["cd", "cooldown"]?.SecAsFrames ?? 2,
+					limit = action.args["lim", "limit"]?.GetValue<int>() ?? int.MaxValue;
+				NewArg
+					vol = action.args["vol", "volume"] ?? 0.5f,
+					pitch = action.args["pitch"] ?? 1f
+					//pan = args["pan"]?.F32 ?? 1f
+					;
+				if (action.persistent != 0) return;
+				if (limit < 1) return;
+				for (int i = 0; i < room.updateList.Count; i++)
 				{
-					ChunkSoundEmitter? em = room.PlaySound(soundid ?? SoundID.HUD_Karma_Reinforce_Bump, p.firstChunk, false, vol.GetValue<float>(), pitch.GetValue<float>());
-					counter = cooldown;
-					limit--;
-					return;
+					if (room.updateList[i] is Player p)
+					{
+						ChunkSoundEmitter? em = room.PlaySound(soundid ?? SoundID.HUD_Karma_Reinforce_Bump, p.firstChunk, false, vol.GetValue<float>(), pitch.GetValue<float>());
+						action.persistent = cooldown;
+						limit--;
+						return;
+					}
 				}
-			}
-		};
-		ha.On_CoreUpdate += (rwg) =>
-		{
-			if (counter > 0) counter--;
-			if (sid.GetValue<string>() != lastSid)
+			},
+			On_AbstractUpdate = (action) =>
 			{
-				sid.TryGetValue(out soundid);
+				SoundID? soundid = action.args[0].GetValue<SoundID>();
+				NewArg sid = action.args[0];
+				string lastSid = sid.GetValue<string>();
+				if (action.persistent > 0) action.persistent--;
+				if (sid.GetValue<string>() != lastSid)
+				{
+					sid.TryGetValue(out soundid);
+				}
+				lastSid = sid.GetValue<string>();
 			}
-			lastSid = sid.GetValue<string>();
 		};
 	}
-	private static void Make_Glow(Happen ha, ArgSet args)
+	private static HappenAction Make_Glow(Happen ha, ArgSet args)
 	{
-		NewArg enabled = args.AtOr(0, true);
-		ha.On_Init += (w) =>
+		return new EventfulAction(ha, args)
 		{
-			SaveState? ss = w.game.GetStorySession?.saveState;//./deathPersistentSaveData;
-			if (ss is null) return;
-			ss.theGlow = enabled.GetValue<bool>();
-		};
-	}
-	private static void Make_Mark(Happen ha, ArgSet args)
-	{
-		NewArg enabled = args.AtOr(0, true);
-		ha.On_Init += (w) =>
-		{
-			DeathPersistentSaveData? dspd = w.game.GetStorySession?.saveState.deathPersistentSaveData;
-			if (dspd is null) return;
-			dspd.theMark = enabled.GetValue<bool>();
-		};
-	}
-	private static void Make_LogCall(Happen ha, ArgSet args)
-	{
-		NewArg sev = args["sev", "severity"] ?? new NewArg(null, LOG.LogLevel.Message.ToString());
-		sev.TryGetValue(out LOG.LogLevel sevVal);
-		string lastSev = sev.GetValue<string>();
-
-		NewArg? onInit = args["init", "oninit"];
-		NewArg? onAbst = args["abst", "abstractupdate", "abstup"];
-		if (onInit is not null) ha.On_Init += (w) =>
-		{
-			UnityEngine.Debug.Log($"{ha.name}:\"{onInit.GetValue<string>()}\"");
-			Log(sevVal, $"{ha.name}:\"{onInit.GetValue<string>()}\"");
-		};
-		if (onAbst is not null) ha.On_AbstUpdate += (abstr, t) =>
-		{
-			Log(sevVal, $"{ha.name}:\"{onAbst.GetValue<string>()}\":{abstr.name}:{t}");
-		};
-		ha.On_CoreUpdate += (_) =>
-		{
-			if (sev.GetValue<string>() != lastSev)
+			On_Init = (action) => 
 			{
-				sev.TryGetValue(out sevVal);
+				SaveState? ss = action.owner.game.GetStorySession?.saveState;//./deathPersistentSaveData;
+				if (ss is null) return;
+				ss.theGlow = action.args.AtOr(0, true).GetValue<bool>();
 			}
-			lastSev = sev.GetValue<string>();
 		};
 	}
-	private static void Make_SetRainTimer(Happen ha, ArgSet args)
+	private static HappenAction Make_Mark(Happen ha, ArgSet args)
+	{
+		return new EventfulAction(ha, args)
+		{
+			On_Init = (action) =>
+			{
+				DeathPersistentSaveData? ss = action.owner.game.GetStorySession?.saveState.deathPersistentSaveData;//./deathPersistentSaveData;
+				if (ss is null) return;
+				ss.theMark = action.args.AtOr(0, true).GetValue<bool>();
+			}
+		};
+	}
+	private static HappenAction Make_LogCall(Happen ha, ArgSet args)
+	{
+		return new EventfulAction<string>(ha, args, "")
+		{
+			On_Init = (action) =>
+			{
+				NewArg sev = action.args["sev", "severity"] ?? new NewArg(null, LOG.LogLevel.Message.ToString());
+				sev.TryGetValue(out LOG.LogLevel sevVal);
+				NewArg? onInit = action.args["init", "oninit"];
+				if (onInit is not null)
+				{
+					UnityEngine.Debug.Log($"{action.owner.name}:\"{onInit.GetValue<string>()}\"");
+					Log(sevVal, $"{action.owner.name}:\"{onInit.GetValue<string>()}\"");
+				}
+			},
+			On_AbstractUpdate = (action) =>
+			{
+				NewArg sev = action.args["sev", "severity"] ?? new NewArg(null, LOG.LogLevel.Message.ToString());
+				sev.TryGetValue(out LOG.LogLevel sevVal);
+				if (sev.GetValue<string>() != action.persistent)
+				{
+					sev.TryGetValue(out sevVal);
+				}
+				action.persistent = sev.GetValue<string>();
+			}
+		};
+	}
+	private static HappenAction Make_SetRainTimer(Happen ha, ArgSet args)
 	{
 		if (args.Count < 1)
 		{
 			__NotifyArgsMissing(Make_SetRainTimer, "value");
-			return;
+			//return;
 		}
-		NewArg target = args[0];
-		//int.TryParse(args.AtOr(0, "0").GetValue<string>(), out var target);
-		ha.On_Init += (w) =>
+
+		return new EventfulAction(ha, args)
 		{
-			VerboseLog($"Force setting rain timer to {target.SecAsFrames} frames ({target.GetValue<float>()} seconds)");
-			w.rainCycle.timer = target.SecAsFrames;
+			On_Init = (action) =>
+			{
+				NewArg target = action.args[0];
+				action.owner.game.world.rainCycle.timer = target.SecAsFrames;
+			}
 		};
 	}
-	private static void Make_SetKarma(Happen ha, ArgSet args)
+	private static HappenAction Make_SetKarma(Happen ha, ArgSet args)
 	{
 		if (args.Count < 1)
 		{
 			__NotifyArgsMissing(Make_SetKarma, "level");
-			return;
+			//return;
 		}
 
-		ha.On_Init += (w) =>
+		return new EventfulAction(ha, args)
 		{
-			DeathPersistentSaveData? dpsd = w.game?.GetStorySession?.saveState?.deathPersistentSaveData;
-			if (dpsd is null || w.game is null) return;
-			NewArg ts = args[0];
-
-			int karma = dpsd.karma;
-			if (ts.Name is "add" or "+") karma += ts.GetValue<int>();
-			else if (ts.Name is "sub" or "substract" or "-") karma -= ts.GetValue<int>();
-			else karma = ts.GetValue<int>() - 1;
-			karma = Clamp(karma, 0, 9);
-			dpsd.karma = karma;
-			VerboseLog($"Setting karma to {ts} (result: {dpsd.karma})");
-			foreach (RoomCamera cam in w.game.cameras) { cam?.hud.karmaMeter?.UpdateGraphic(); }
-		};
-	}
-	private static void Make_SetMaxKarma(Happen ha, ArgSet args)
-	{
-		ha.On_Init += (w) =>
-		{
-			DeathPersistentSaveData? dpsd = w.game?.GetStorySession?.saveState?.deathPersistentSaveData;
-			if (dpsd is null || w.game is null) return;
-			NewArg ts = args.AtOr(0, 0);
-			int cap = dpsd.karmaCap;
-			if (ts.Name is "add" or "+") cap += ts.GetValue<int>();
-			else if (ts.Name is "sub" or "-") cap -= ts.GetValue<int>();
-			else cap = ts.GetValue<int>() - 1;
-			cap = Clamp(cap, 4, 9);
-			dpsd.karmaCap = cap;
-			VerboseLog($"Setting max karma to {ts} (result: {dpsd.karmaCap})");
-			foreach (RoomCamera? cam in w.game.cameras) { cam?.hud.karmaMeter?.UpdateGraphic(); }
-		};
-	}
-	private static void Make_Playergrav(Happen ha, ArgSet args)
-	{
-		NewArg frac = args.AtOr(0, 0.5f);
-		//float.TryParse(args.AtOr(0, "0.5"), out var frac);
-		ha.On_RealUpdate += (room) =>
-		{
-			for (int i = 0; i < room.updateList.Count; i++)
+			On_Init = (action) =>
 			{
-				UAD? uad = room.updateList[i];
-				if (uad is Player p)
+				DeathPersistentSaveData? dpsd = action.owner.game?.GetStorySession?.saveState?.deathPersistentSaveData;
+				if (dpsd is null || action.owner.game is null) return;
+				NewArg ts = action.args[0];
+
+				int karma = dpsd.karma;
+				if (ts.Name is "add" or "+") karma += ts.GetValue<int>();
+				else if (ts.Name is "sub" or "substract" or "-") karma -= ts.GetValue<int>();
+				else karma = ts.GetValue<int>() - 1;
+				karma = Clamp(karma, 0, 9);
+				dpsd.karma = karma;
+				VerboseLog($"Setting karma to {ts} (result: {dpsd.karma})");
+				foreach (RoomCamera cam in action.owner.game.cameras) { cam?.hud.karmaMeter?.UpdateGraphic(); }
+			}
+		};
+	}
+	private static HappenAction Make_SetMaxKarma(Happen ha, ArgSet args)
+	{
+		return new EventfulAction(ha, args)
+		{
+			On_Init = (action) =>
+			{
+				DeathPersistentSaveData? dpsd = action.owner.game?.GetStorySession?.saveState?.deathPersistentSaveData;
+				if (dpsd is null || action.owner.game is null) return;
+				NewArg ts = action.args.AtOr(0, 0);
+				int cap = dpsd.karmaCap;
+				if (ts.Name is "add" or "+") cap += ts.GetValue<int>();
+				else if (ts.Name is "sub" or "-") cap -= ts.GetValue<int>();
+				else cap = ts.GetValue<int>() - 1;
+				cap = Clamp(cap, 4, 9);
+				dpsd.karmaCap = cap;
+				VerboseLog($"Setting max karma to {ts} (result: {dpsd.karmaCap})");
+				foreach (RoomCamera? cam in action.owner.game.cameras) { cam?.hud.karmaMeter?.UpdateGraphic(); }
+
+			}
+		};
+	}
+	private static HappenAction Make_Playergrav(Happen ha, ArgSet args)
+	{
+		return new EventfulAction(ha, args)
+		{
+			On_RealizedUpdate = (action, room) =>
+			{
+				NewArg frac = action.args.AtOr(0, 0.5f);
+				for (int i = 0; i < room.updateList.Count; i++)
 				{
+					UAD? uad = room.updateList[i];
+					if (uad is not Player p) continue;
+					
 					foreach (BodyChunk? bc in p.bodyChunks)
 					{
 						bc.vel.y += frac.GetValue<float>();
@@ -1128,125 +1208,80 @@ public static partial class HappenBuilding
 			}
 		};
 	}
-	private static void Make_Rumble(Happen ha, ArgSet args)
+	private static HappenAction Make_Rumble(Happen ha, ArgSet args)
 	{
-		NewArg intensity = args["int", "intensity"] ?? 1f,
-			shake = args["shake"] ?? 0.5f;
-		ha.On_RealUpdate += (room) =>
+		return new EventfulAction(ha, args)
 		{
-			room.ScreenMovement(null, RND.insideUnitCircle * intensity.GetValue<float>(), shake.GetValue<float>());
+			On_RealizedUpdate = (action, room) =>
+			{
+				NewArg intensity = action.args["int", "intensity"] ?? 1f, shake = action.args["shake"] ?? 0.5f;
+				room.ScreenMovement(null, RND.insideUnitCircle * intensity.GetValue<float>(), shake.GetValue<float>());
+
+			}
 		};
 	}
-	private static void Make_ChangePalette(Happen ha, ArgSet args)
+	private static HappenAction Make_ChangePalette(Happen ha, ArgSet args)
 	{
 		if (args.Count < 1)
 		{
 			__NotifyArgsMissing(Make_ChangePalette, "pal");
-			return;
+			//return;
 		}
-		//todo: support for fade palettes? make sure they dont fuck with rain
-		NewArg palA = args[0];//["palA", "A", "1"];
-		string[]? lastRoomPerCam = null;
-		ha.On_RealUpdate += (rm) =>
+		return new EventfulAction<string[]?>(ha, args, null)
 		{
-			if (lastRoomPerCam is null) return;
-			for (int i = 0; i < lastRoomPerCam.Length; i++)
+			On_RealizedUpdate = (action, room) =>
 			{
-				RoomCamera? cam = rm.game.cameras[i];
-				if (cam.room != rm || !rm.BeingViewed || cam.AboutToSwitchRoom) continue;
-				if (cam.room.abstractRoom.name != lastRoomPerCam[i])
+				string[]? lastRoomPerCam = action.persistent;
+				if (lastRoomPerCam is null) return;
+				//todo: support for fade palettes? make sure they dont fuck with rain
+				NewArg palA = action.args[0];//["palA", "A", "1"];
+				for (int i = 0; i < lastRoomPerCam.Length; i++)
 				{
-					if (palA is not null)
+					RoomCamera? cam = room.game.cameras[i];
+					if (cam.room != room || !room.BeingViewed || cam.AboutToSwitchRoom) continue;
+					if (cam.room.abstractRoom.name != lastRoomPerCam[i])
 					{
-						cam.ChangeMainPalette(palA.GetValue<int>());
-						VerboseLog($"changing palette in {rm.abstractRoom.name} to {palA.GetValue<int>()}");
+						if (palA is not null)
+						{
+							cam.ChangeMainPalette(palA.GetValue<int>());
+							VerboseLog($"changing palette in {room.abstractRoom.name} to {palA.GetValue<int>()}");
+						}
 					}
 				}
+			},
+			On_AbstractUpdate = (action) =>
+			{
+				string[]? lastRoomPerCam = action.persistent;
+				if (lastRoomPerCam is null) lastRoomPerCam = new string[action.owner.game.cameras.Length];
+				else 
+					for (int i = 0; i < action.owner.game.cameras.Length; i++)
+					{
+						lastRoomPerCam[i] = action.owner.game.cameras[i].room.abstractRoom.name;
+					}
 			}
 		};
-		ha.On_CoreUpdate += (rwg) =>
-		{
-			if (lastRoomPerCam is null) lastRoomPerCam = new string[rwg.cameras.Length];
-			else for (int i = 0; i < rwg.cameras.Length; i++)
-				{
-					lastRoomPerCam[i] = rwg.cameras[i].room.abstractRoom.name;
-				}
-		};
 	}
-	private static void Make_SetVar(Happen ha, ArgSet args)
+	private static HappenAction Make_SetVar(Happen ha, ArgSet args)
 	{
 		if (args.Count < 2)
 		{
 			__NotifyArgsMissing(Make_SetVar, "varname", "value");
-			return;
+			//return;
 		}
-		NewArg argn = args[0],
-			argv = args[1],
-			continuous = args.AtOr(2, false),
-			forceType = args["dt", "datatype", "format"] ?? nameof(ArgType.STRING),
-			target = VarRegistry.GetVar(argn.GetValue<string>(), __CurrentSaveslot ?? 0, __CurrentCharacter ?? __slugnameNotFound)
-			;
-		forceType.TryGetValue(out ArgType datatype);
 
-		Type type = datatype switch
+		return new EventfulAction(ha, args)
 		{
-			ArgType.DECIMAL => typeof(float),
-			ArgType.BOOLEAN => typeof(bool),
-			ArgType.INTEGER => typeof(int),
-			ArgType.VECTOR => typeof(Vector4),
-			_ => typeof(string)
-		};
+			On_Init = (action) =>
+			{
+				NewArg target = VarRegistry.GetVar(action.args[0].GetValue<string>(), action.owner.Set.world);
+				var section = action.args[1].GetValue<SaveVarRegistry.DataSection>();
 
-		string? dt_last_str = forceType.GetValue<string>();
-		ha.On_Init += (_) =>
-		{
-			switch (datatype)
+				SaveVarRegistry.SetArg(action.owner.game.world, section, target.Name, target.Raw);
+			},
+			On_RealizedUpdate = (action, room) =>
 			{
-			case ArgType.DECIMAL:
-				target.SetValue(argv.GetValue<float>());
-				break;
-			case ArgType.INTEGER:
-				target.SetValue(argv.GetValue<int>());
-				break;
-			case ArgType.BOOLEAN:
-				target.SetValue(argv.GetValue<bool>());
-				break;
-			case ArgType.VECTOR:
-				target.SetValue(argv.GetValue<Vector4>());
-				break;
-			default:
-				target.SetValue(argv.GetValue<string>());
-				break;
-			}
-		};
-		ha.On_CoreUpdate += (_) =>
-		{
-			if (dt_last_str != forceType.GetValue<string>())
-			{
-				forceType.TryGetValue(out datatype);
-				VerboseLog($"Updating DT preference to {datatype}");
-			}
-			dt_last_str = forceType.GetValue<string>();
-			if (continuous.GetValue<bool>())
-			{
-				switch (datatype)
-				{
-				case ArgType.DECIMAL:
-					target.SetValue(argv.GetValue<float>());
-					break;
-				case ArgType.INTEGER:
-					target.SetValue(argv.GetValue<int>());
-					break;
-				case ArgType.BOOLEAN:
-					target.SetValue(argv.GetValue<bool>());
-					break;
-				case ArgType.VECTOR:
-					target.SetValue(argv.GetValue<Vector4>());
-					break;
-				default:
-					target.SetValue(argv.GetValue<string>());
-					break;
-				}
+				if (!action.args.AtOr(2, false).GetValue<bool>()) return;
+				action.Init();
 			}
 		};
 	}
@@ -1269,8 +1304,9 @@ public static partial class HappenBuilding
 		AddNamedMetafun(new[] { "RESOLVEFILEPATH", "ASSETPATH" }, MMake_ResolveFilepath);
 		//do not document:
 		AddNamedMetafun(new[] { "FILEREADWRITE", "TEXTIO" }, MMake_FileReadWrite);
+		AddNamedMetafun(new[] { "GETVAR" }, MMake_GetSave);
 	}
-	private static NewArg? MMake_ListDirectory(string text, int ss, SlugcatStats.Name ch)
+	private static NewArg? MMake_ListDirectory(string text, World world)
 	{
 		try
 		{
@@ -1282,7 +1318,7 @@ public static partial class HappenBuilding
 			return new();
 		}
 	}
-	private static NewArg? MMake_ResolveFilepath(string text, int ss, SlugcatStats.Name ch)
+	private static NewArg? MMake_ResolveFilepath(string text, World world)
 	{
 		try
 		{
@@ -1294,12 +1330,12 @@ public static partial class HappenBuilding
 			return new();
 		}
 	}
-	private static NewArg? MMake_AppFound(string text, int ss, SlugcatStats.Name ch)
+	private static NewArg? MMake_AppFound(string text, World world)
 	{
 		uint.TryParse(text, out var id);
 		return new() { new Callback<bool>(getter: () => Steamworks.SteamApps.BIsSubscribedApp(new(id))) };
 	}
-	private static NewArg? MMake_ScreenRes(string text, int ss, SlugcatStats.Name ch)
+	private static NewArg? MMake_ScreenRes(string text, World world)
 	{
 		return new()
 		{
@@ -1316,15 +1352,10 @@ public static partial class HappenBuilding
 
 		};
 	}
-	private static NewArg? MMake_CurrentRoom(string text, int ss, SlugcatStats.Name ch)
+	private static NewArg? MMake_CurrentRoom(string text, World world)
 	{
-		if (!int.TryParse(
-			text,
-			out int camnum)) camnum = 1;
-		static AbstractRoom? findAbsRoom(int cam) => rainWorld?
-				.processManager.FindSubProcess<RainWorldGame>()?
-				.cameras.AtOr(cam - 1, null)?
-				.room?.abstractRoom;
+		if (!int.TryParse(text, out int camnum)) camnum = 0;
+		AbstractRoom? findAbsRoom(int cam) => world.game.cameras.AtOr(cam - 1, null)?.room?.abstractRoom;
 
 		Vector2 nosize = new(-1, -1);
 		return new()
@@ -1335,8 +1366,28 @@ public static partial class HappenBuilding
 			new Callback<bool>(getter: () => false),
 		};
 	}
+	private static NewArg? MMake_GetSave(string text, World world)
+	{
+		ArgSet args = new(text.Split(' '));
 
-	private static NewArg? MMake_WWW(string text, int ss, SlugcatStats.Name ch)
+		NewArg getSaveArg(World world)
+		{
+			NewArg target = VarRegistry.GetVar(args[0].GetValue<string>(), world);
+			var section = args[1].GetValue<SaveVarRegistry.DataSection>();
+			return SaveVarRegistry.GetArg(world, section, target.Raw);
+		};
+
+		return new()
+		{
+			new RWCallback<string>(world, getter: (world) => getSaveArg(world).GetValue<string>()),
+			new RWCallback<float>(world, getter: (world) => getSaveArg(world).GetValue<float>()),
+			new RWCallback<int>(world, getter: (world) => getSaveArg(world).GetValue<int>()),
+			new RWCallback<bool>(world, getter: (world) => getSaveArg(world).GetValue<bool>()),
+			new RWCallback<Vector4>(world, getter: (world) => getSaveArg(world).GetValue<Vector4>()),
+		};
+	}
+
+	private static NewArg? MMake_WWW(string text, World world)
 	{
 		WWW? www = new WWW(text);
 		string? failed = null;
@@ -1357,7 +1408,7 @@ public static partial class HappenBuilding
 			})
 		};
 	}
-	private static NewArg? MMAke_FileRead(string text, int ss, SlugcatStats.Name ch)
+	private static NewArg? MMAke_FileRead(string text, World world)
 	{
 		IO.FileInfo fi = new(text);
 		DateTime? lw = null;
@@ -1380,7 +1431,7 @@ public static partial class HappenBuilding
 			})
 		};
 	}
-	private static NewArg? MMake_FileReadWrite(string text, int ss, SlugcatStats.Name ch)
+	private static NewArg? MMake_FileReadWrite(string text, World world)
 	{
 		LogWarning($"CAUTION: {nameof(MMake_FileReadWrite)} DOES NO SAFETY CHECKS! Atmo developers are not responsible for any accidental damage by write");
 		IO.FileInfo file = new(text);
@@ -1411,14 +1462,14 @@ public static partial class HappenBuilding
 		}
 		return new() { new Callback<string>(getter: ReadFromFile, setter: WriteToFile) };
 	}
-	private static NewArg? MMake_FMT(string text, int ss, SlugcatStats.Name ch)
+	private static NewArg? MMake_FMT(string text, World world)
 	{
 		string[] bits = __FMT_Split.Split(text);
 		TXT.MatchCollection names = __FMT_Match.Matches(text);
 		NewArg[] variables = new NewArg[names.Count];
 		for (int i = 0; i < names.Count; i++)
 		{
-			variables[i] = GetVar(names[i].Value, ss, ch);
+			variables[i] = GetVar(names[i].Value, world);
 		}
 		int ind = 0;
 		string format = bits.Stitch((x, y) => $"{x}{{{ind++}}}{y}");
@@ -1429,7 +1480,7 @@ public static partial class HappenBuilding
 		return new() { new Callback<string>(getter: () => string.Format(format, getStrs())) };
 
 	}
-	private static NewArg? MMake_SharpRandom(string text, int ss, SlugcatStats.Name ch)
+	private static NewArg? MMake_SharpRandom(string text, World world)
 	{
 		ArgSet args = new(text.Split(' '));
 		(NewArg min, NewArg max) bounds = args switch

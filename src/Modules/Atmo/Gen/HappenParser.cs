@@ -3,8 +3,6 @@ using static RegionKit.Modules.Atmo.Atmod;
 
 using System.Text;
 using RegionKit.Modules.Atmo.Body;
-
-using static PredicateInlay;
 using System.Text.RegularExpressions;
 
 namespace RegionKit.Modules.Atmo.Gen;
@@ -30,7 +28,8 @@ public class HappenParser
 			{LineKind.Other, new Regex(".*", OPTIONS) }
 	};
 	private static readonly LineKind[] __happenProps = new[] { LineKind.HappenWhere, LineKind.HappenWhen, LineKind.HappenWhat, LineKind.HappenEnd };
-	internal static readonly Regex __roomSeparator = new("[\\s\\t]*,[\\s\\t]*|[\\s\\t]+", OPTIONS);
+	internal static readonly Regex _splitCommaIgnoreWhitespace = new("[\\s\\t]*,[\\s\\t]*", OPTIONS);
+	internal static readonly Regex _splitWhitespace = new("[\\s\\t]+", OPTIONS);
 	#endregion statfields
 	private readonly Dictionary<string, RoomGroup> _allGroups = new();
 	private readonly List<HappenConfig> _allHappens = new();
@@ -149,7 +148,7 @@ public class HappenParser
 			return;
 		}
 
-		foreach (string? ss in __roomSeparator.Split(line))
+		foreach (string? ss in _splitCommaIgnoreWhitespace.Split(line))
 		{
 			if (string.IsNullOrWhiteSpace(ss)) continue;
 			defaultOps = ss[0] switch
@@ -192,15 +191,15 @@ public class HappenParser
 				case LineKind.HappenWhat:
 				{
 					VerboseLog("HappenParse: Recognized WHAT clause");
-					PredicateInlay.Token[]? tokens = PredicateInlay.Tokenize(payload).ToArray();
-					for (int i = 0; i < tokens.Length; i++)
+
+
+					foreach (string happen in _splitCommaIgnoreWhitespace.Split(payload))
 					{
-						PredicateInlay.Token tok = tokens[i];
-						if (tok.type == PredicateInlay.TokenType.Word)
-						{
-							PredicateInlay.Leaf leaf = PredicateInlay.MakeLeaf(tokens, in i) ?? new();
-							_currentHappen.actions.Set(leaf.funcName, leaf.args.Select(x => x.ApplyEscapes()).ToArray());
-						}
+						int layers = 0;
+						string[] strings = ConsolidateLiterals(_splitWhitespace.Split(happen));
+						if (strings.Length == 0) continue;
+						VerboseLog($"new action: [{strings[0]}], [{string.Join(", ", strings.Skip(1).Select(s => s.ApplyEscapes()))}]");
+						_currentHappen.actions.Add((strings[0], strings.Skip(1).Select(s => s.ApplyEscapes()).ToArray()));
 					}
 				}
 				break;
@@ -213,14 +212,7 @@ public class HappenParser
 							break;
 						}
 						VerboseLog("HappenParse: Recognized WHEN clause");
-						_currentHappen.conditions = new PredicateInlay(
-							expression: payload,
-							exchanger: null,
-							logger: (data) =>
-							{
-								LogWarning($"{_currentHappen.name}: {data}");
-							},
-							mendOnThrow: true);
+						_currentHappen.conditions = _splitWhitespace.Split(payload);
 					}
 					catch (Exception ex)
 					{
@@ -239,6 +231,36 @@ public class HappenParser
 				break;
 			}
 		}
+	}
+
+	internal static string[] ConsolidateLiterals(string[] array)
+	{
+		int layers = 0;
+		List<string> strings = new List<string>();
+
+		for (int i = 0; i < array.Length; i++)
+		{
+			string str = array[i];
+
+			if (str.StartsWith("'") && str.EndsWith("'") && layers == 0)
+			{
+				strings.Add(str[1..^1]);
+				continue;
+			}
+			else if (str.StartsWith("'"))
+			{
+				if (layers == 0) strings.Add(str[1..]);
+				layers++;
+			}
+			else if (str.EndsWith("'"))
+			{
+				layers--;
+				if (layers == 0) strings[^1] += " " + str[..^1];
+			}
+			else if (layers == 0) strings.Add(str);
+			else strings[^1] += " " + str;
+		}
+		return strings.ToArray();
 	}
 
 	private void _FinalizeHappen()

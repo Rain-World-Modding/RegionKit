@@ -106,7 +106,7 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 1)
 		{
-			__NotifyArgsMissing(TMake_RemixModEnabled, "modid");
+			__NotifyArgsMissing(nameof(TMake_RemixModEnabled), "modid");
 			return null;
 		}
 		EventfulTrigger evt = new(ha, args)
@@ -158,7 +158,7 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 1)
 		{
-			__NotifyArgsMissing(TMake_Delay, "delay/delaymin+delaymax");
+			__NotifyArgsMissing(nameof(TMake_Delay), "delay/delaymin+delaymax");
 			return null;
 		}
 		int delay = args.Count > 1 ? RND.Range(args[0].SecAsFrames, args[1].SecAsFrames) : args[0].SecAsFrames;
@@ -176,7 +176,7 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 1)
 		{
-			__NotifyArgsMissing(TMake_AfterOther, "name");
+			__NotifyArgsMissing(nameof(TMake_AfterOther), "name");
 			return null;
 		}
 		return new AfterOtherTrigger(ha, args);
@@ -409,7 +409,7 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 1)
 		{
-			__NotifyArgsMissing(TMake_EveryX, "period");
+			__NotifyArgsMissing(nameof(TMake_EveryX), "period");
 			return null;
 		}
 		return new EveryXTrigger(ha, args);
@@ -440,7 +440,7 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 2)
 		{
-			__NotifyArgsMissing(TMake_VarEq, "varname/value");
+			__NotifyArgsMissing(nameof(TMake_VarEq), "varname/value");
 			return null;
 		}
 		return new EventfulTrigger(ha, args)
@@ -458,14 +458,14 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 2)
 		{
-			__NotifyArgsMissing(TMake_VarNe, "varname/value");
+			__NotifyArgsMissing(nameof(TMake_VarNe), "varname/value");
 			return null;
 		}
 		return new EventfulTrigger(ha, args)
 		{
 			Is_Active = (EventfulTrigger trigger) =>
 			{
-				Arg tar = VarRegistry.GetVar(trigger.args[0].String, trigger.owner!.Set.world);
+				Arg tar = trigger.args[0].String;
 				return tar.String != trigger.args[1].String;
 			},
 		};
@@ -477,14 +477,14 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 2)
 		{
-			__NotifyArgsMissing(TMake_VarMatch, "varname/pattern");
+			__NotifyArgsMissing(nameof(TMake_VarMatch), "varname/pattern");
 			return null;
 		}
 		return new EventfulTrigger(ha, args)
 		{
 			Is_Active = (EventfulTrigger trigger) =>
 			{
-				Arg tar = GetVar(trigger.args[0].String, trigger.owner!.Set.world);
+				Arg tar = trigger.args[0];
 				return new TXT.Regex(trigger.args[1].String)?.IsMatch(tar.String) ?? false;
 			}
 		};
@@ -617,7 +617,7 @@ public static partial class HappenBuilding
 		VerboseLog("Making lightning!");
 		if (args.Count < 1)
 		{
-			__NotifyArgsMissing(source: Make_Lightning, "intensity");
+			__NotifyArgsMissing(nameof(Make_Lightning), "intensity");
 		}
 
 		return new EventfulAction<List<Lightning>>(ha, args, new())
@@ -679,7 +679,7 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 1)
 		{
-			__NotifyArgsMissing(Make_Tempglow, "color");
+			__NotifyArgsMissing(nameof(Make_Tempglow), "color");
 		}
 		return new EventfulAction<Dictionary<Player, (Color, float?)>>(ha, args, new())
 		{
@@ -731,7 +731,7 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 1)
 		{
-			__NotifyArgsMissing(Make_Fling, "force");
+			__NotifyArgsMissing(nameof(Make_Fling), "force");
 		}
 
 		return new EventfulAction(ha, args)
@@ -767,12 +767,12 @@ public static partial class HappenBuilding
 	{
 		if (args.Count == 0)
 		{
-			__NotifyArgsMissing(Make_SoundLoopPersistent, "soundid");
+			__NotifyArgsMissing(nameof(Make_SoundLoopPersistent), "soundid");
 			//return;
 		}
 		if (args[0].GetExtEnum<SoundID>().index == -1)
 		{
-			__NotifyArgsMissing(Make_SoundLoopPersistent, "soundid");
+			__NotifyArgsMissing(nameof(Make_SoundLoopPersistent), "soundid");
 			//return;
 		}
 		return new PersistentSoundLoopAction(ha, args);
@@ -880,7 +880,7 @@ public static partial class HappenBuilding
 		//Breaks with warp.
 		if (args.Count == 0)
 		{
-			__NotifyArgsMissing(Make_SoundLoop, "soundid");
+			__NotifyArgsMissing(nameof(Make_SoundLoop), "soundid");
 			//return;
 		}
 		int timeAlive = 0;
@@ -1020,7 +1020,7 @@ public static partial class HappenBuilding
 	{
 		if (args.Count == 0)
 		{
-			__NotifyArgsMissing(Make_Sound, "soundid");
+			__NotifyArgsMissing(nameof(Make_Sound), "soundid");
 			//return;
 		}
 
@@ -1108,7 +1108,7 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 1)
 		{
-			__NotifyArgsMissing(Make_SetRainTimer, "value");
+			__NotifyArgsMissing(nameof(Make_SetRainTimer), "value");
 			//return;
 		}
 
@@ -1125,7 +1125,7 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 1)
 		{
-			__NotifyArgsMissing(Make_SetKarma, "level");
+			__NotifyArgsMissing(nameof(Make_SetKarma), "level");
 			//return;
 		}
 
@@ -1205,7 +1205,7 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 1)
 		{
-			__NotifyArgsMissing(Make_ChangePalette, "pal");
+			__NotifyArgsMissing(nameof(Make_ChangePalette), "pal");
 			//return;
 		}
 		return new EventfulAction<string[]?>(ha, args, null)
@@ -1246,7 +1246,7 @@ public static partial class HappenBuilding
 	{
 		if (args.Count < 2)
 		{
-			__NotifyArgsMissing(Make_SetVar, "varname", "value");
+			__NotifyArgsMissing(nameof(Make_SetVar), "varname", "value");
 			//return;
 		}
 
@@ -1440,7 +1440,7 @@ public static partial class HappenBuilding
 		Arg[] variables = new Arg[names.Count];
 		for (int i = 0; i < names.Count; i++)
 		{
-			variables[i] = GetVar(names[i].Value, world);
+			variables[i] = ParseArg(names[i].Value, out _, world);
 		}
 		int ind = 0;
 		string format = bits.Stitch((x, y) => $"{x}{{{ind++}}}{y}");
@@ -1470,8 +1470,8 @@ public static partial class HappenBuilding
 	}
 
 	#endregion
-	private static void __NotifyArgsMissing(Delegate source, params string[] args)
+	private static void __NotifyArgsMissing(string source, params string[] args)
 	{
-		UnityEngine.Debug.LogWarning($"{nameof(HappenBuilding)}.{source.Method.Name}: Missing argument(s): {args.Stitch()}");
+		UnityEngine.Debug.LogWarning($"{nameof(HappenBuilding)}.{source}: Missing argument(s): {args.Stitch()}");
 	}
 }

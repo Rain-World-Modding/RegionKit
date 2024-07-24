@@ -18,11 +18,11 @@ public struct HappenConfig
 	/// <summary>
 	/// List of action names with parameters.
 	/// </summary>
-	public Dictionary<string, string[]> actions;
+	public List<(string, string[])> actions;
 	/// <summary>
 	/// An eval tree for activation conditions.
 	/// </summary>
-	public PredicateInlay? conditions;
+	public string[] conditions;
 	/// <summary>
 	/// Creates a blank config with given name.
 	/// </summary>

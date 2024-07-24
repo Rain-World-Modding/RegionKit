@@ -46,7 +46,7 @@ namespace RegionKit.Modules.Atmo.Body;
 ///		</description>
 ///	</item>
 /// <item>
-///		<term><see cref="conditions"/></term> 
+///		<term><see cref="condition"/></term> 
 ///		<description>
 ///			A <seealso cref="HappenTrigger"/> created from the WHEN expression,
 ///			which determines when the Happen should be active or not. 
@@ -94,11 +94,7 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 	/// <summary>
 	/// Activation expression. Populated by <see cref="HappenTrigger.Active"/> callbacks of items in <see cref="triggers"/>.
 	/// </summary>
-	public readonly PredicateInlay? conditions;
-	/// <summary>
-	/// All triggers associated with the happen.
-	/// </summary>
-	public readonly List<HappenTrigger> triggers = new();
+	public readonly HappenTrigger condition;
 	/// <summary>
 	/// All triggers associated with the happen.
 	/// </summary>
@@ -135,16 +131,10 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 		{
 			actions.Add(HappenBuilding.__NewHappen(id, args, this));
 		}
-		conditions = cfg.conditions;
-		conditions?.Populate((id, args) =>
-		{
-			HappenTrigger? nt = HappenBuilding.__CreateTrigger(id, args, this);
-			triggers.Add(nt);
-			return nt.Active;
-		});
+		condition = HappenBuilding.BuildHappenTrigger(HappenParser.ConsolidateLiterals(cfg.conditions), this);
 
 		if (actions.Count is 0) LogWarning($"Happen {this}: no actions! Possible missing 'WHAT:' clause");
-		if (conditions is null) LogWarning($"Happen {this}: did not receive conditions! Possible missing 'WHEN:' clause");
+		if (condition is null) LogWarning($"Happen {this}: did not receive conditions! Possible missing 'WHEN:' clause");
 	}
 	#region lifecycle cbs
 	internal void AbstUpdate(AbstractRoom absroom, int time)
@@ -184,30 +174,21 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 	internal void CoreUpdate()
 	{
 		_sw.Start();
-		for (int tin = triggers.Count - 1; tin > -1; tin--)
-		{
-			try
-			{
-				triggers[tin].Update();
-			}
-			catch (Exception ex)
-			{
-				HappenTrigger tr = triggers[tin];
-				triggers.RemoveAt(tin);
-				LogError(ErrorMessage(
-					where: Site.triggerupdate,
-					cb: tr.Update,
-					ex: ex,
-					resp: Response.void_trigger));
-			}
-		}
 		try
 		{
-			Active = conditions?.Eval() ?? true;
+			condition.Update();
 		}
 		catch (Exception ex)
 		{
-			LogError(ErrorMessage( where: Site.eval, cb: conditions is null ? null : conditions.Eval, ex: ex, resp: Response.none));
+			LogError(ErrorMessage(where: Site.triggerupdate, cb: condition.Update, ex: ex, resp: Response.void_trigger));
+		}
+		try
+		{
+			Active = condition?.Active() ?? true;
+		}
+		catch (Exception ex)
+		{
+			LogError(ErrorMessage( where: Site.eval, cb: condition.Active, ex: ex, resp: Response.none));
 		}
 		foreach (HappenAction action in actions)
 		{ action.AbstractUpdate(); }
@@ -279,7 +260,7 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 	{
 		return $"{name}" +
 			$"[{(actions.Count == 0 ? string.Empty : actions.Select(x => $"{x}").Aggregate(JoinWithComma))}]" +
-			$"({triggers.Count} triggers)";
+			$"({condition} triggers)";
 	}
 	#endregion
 	#region nested

@@ -17,6 +17,12 @@ public class _Module
 
 	public static Material RKLevelSnowMaterial;
 
+	public static bool sbCameraScroll = false;
+
+	public static FieldInfo _AbstractRoomMod_texture_offset;
+	public static MethodInfo _AbstractRoomMod_Get_Attached_Fields;
+	public static MethodInfo _RoomCameraMod_Is_Type_Camera_Not_Used;
+
 	public static readonly int ColoredSnowTex = Shader.PropertyToID("_RKColoredSnowTex");
 	public static readonly int ColoredSnowSources = Shader.PropertyToID("_RKColoredSnowSources");
 	public static readonly int ColoredSnowSources2 = Shader.PropertyToID("_RKColoredSnowSources2");
@@ -81,6 +87,29 @@ public class _Module
 			};
 
 			RegisterFullyManagedObjectType(snowSourceSettingsFields.ToArray(), typeof(ColoredSnowGroupUAD), "ColoredSnowGroup", DECORATIONS_POM_CATEGORY);
+
+			foreach (ModManager.Mod mod in ModManager.ActiveMods)
+			{
+				if (mod.id == "SBCameraScroll")
+				{
+					sbCameraScroll = true;
+
+					Assembly assembly = Assembly.Load("SBCameraScroll");
+					Type roomMod = assembly.GetType("SBCameraScroll.AbstractRoomMod");
+
+					Type attachedFieldsType = roomMod.GetNestedType("Attached_Fields", BindingFlags.NonPublic | BindingFlags.Public);
+
+					_AbstractRoomMod_texture_offset = attachedFieldsType.GetField("texture_offset", BindingFlags.Public | BindingFlags.Instance);
+
+					_AbstractRoomMod_Get_Attached_Fields = roomMod.GetMethod("Get_Attached_Fields", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+
+					Type roomCameraMod = assembly.GetType("SBCameraScroll.RoomCameraMod");
+
+					_RoomCameraMod_Is_Type_Camera_Not_Used = roomCameraMod.GetMethod("Is_Type_Camera_Not_Used", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+
+					break;
+				}
+			}
 		}
 	}
 

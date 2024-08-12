@@ -47,6 +47,11 @@ public class ColoredSnowSourceUAD : UpdatableAndDeletable
 	{
 		Vector2 cam = this.room.cameraPositions[camIndex];
 
+		if (_Module.sbCameraScroll)
+		{
+			cam = (Vector2)_Module._AbstractRoomMod_texture_offset.GetValue(_Module._AbstractRoomMod_Get_Attached_Fields.Invoke(null, new object[] { room.abstractRoom }));
+		}
+
 		if (data.pos.x > cam.x - data.radius && data.pos.x < cam.x + data.radius + 1400f && data.pos.y > cam.y - data.radius && data.pos.y < cam.y + data.radius + 800f)
 		{
 			return 1;
@@ -59,8 +64,21 @@ public class ColoredSnowSourceUAD : UpdatableAndDeletable
 	{
 		Vector2 vector = room.cameraPositions[room.game.cameras[0].currentCameraPosition];
 
+		bool cnu = true;
+		if (_Module.sbCameraScroll)
+		{
+			vector = (Vector2)_Module._AbstractRoomMod_texture_offset.GetValue(_Module._AbstractRoomMod_Get_Attached_Fields.Invoke(null, new object[] { room.abstractRoom }));
+			cnu = (bool)_Module._RoomCameraMod_Is_Type_Camera_Not_Used.Invoke(null, new object[] { room.game.cameras[0] });
+		}
+
 		float width = 1400f;
 		float height = 800f;
+
+		if (!cnu)
+		{
+			width = room.game.cameras[0].levelGraphic.width;
+			height = room.game.cameras[0].levelGraphic.height;
+		}
 
 		Vector4[] array = new Vector4[3];
 		Vector2 vector2 = Custom.EncodeFloatRG((data.pos.x - vector.x) / width * 0.3f + 0.3f);

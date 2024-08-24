@@ -398,7 +398,7 @@ public static class ExtendedGates
 				}
 				else
 				{
-					LogWarning($"[ExtendedGates] couldn't find gate atlas element [{element}] for lock [{self.requirement.value}], using default");
+					LogfixWarning($"[ExtendedGates] couldn't find gate atlas element [{element}] for lock [{self.requirement.value}], using default");
 					sLeaser.sprites[1].element = Futile.atlasManager.GetElementWithName("gateSymbol0");
 				}
 				self.symbolDirty = false;
@@ -420,7 +420,7 @@ public static class ExtendedGates
 			}
 			else
 			{
-				LogWarning($"[ExtendedGates] couldn't find map atlas element [{element}] for lock [{req.value}], using default");
+				LogfixWarning($"[ExtendedGates] couldn't find map atlas element [{element}] for lock [{req.value}], using default");
 				self.symbolSprite.element = Futile.atlasManager.GetElementWithName("smallKarmaNoRing-1");
 			}
 		}

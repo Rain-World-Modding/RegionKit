@@ -42,7 +42,7 @@ public sealed class HappenSet
 		}
 		else
 		{
-			LogWarning($"No atmo file found for {file?.FullName ?? "NULL"}, leaving blank");
+			LogfixWarning($"No atmo file found for {file?.FullName ?? "NULL"}, leaving blank");
 		}
 
 		//subregions as groups
@@ -151,7 +151,7 @@ public sealed class HappenSet
 		BangBang(world, nameof(world));
 		HappenSet? res = null;
 
-		System.IO.FileInfo fi = new(AssetManager.ResolveFilePath($"world/{world.name}/{world.name}.atmo"));
+		System.IO.FileInfo fi = new(AssetManager.ResolveFilePath($"world/{world.name}/{world.name}_atmo.txt"));
 		res = new(world, fi);
 		return res;
 	}

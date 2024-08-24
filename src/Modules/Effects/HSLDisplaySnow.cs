@@ -38,7 +38,7 @@ namespace RegionKit.Modules.Effects
 			}
 			catch (Exception ex)
 			{
-				LogWarning($"Error on eff HSLDisplaySnow init {ex}");
+				LogfixWarning($"Error on eff HSLDisplaySnow init {ex}");
 			}
 		}
 	}

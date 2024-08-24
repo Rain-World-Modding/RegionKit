@@ -71,7 +71,7 @@ public static partial class VarRegistry
 	/// <returns></returns>
 	public static Arg? GetMetaFunction(string text, World world)
 	{
-		string[] result = HappenParser.ConsolidateLiterals(text.Split(' '));
+		string[] result = text.Split(' ');
 		if (result.Length == 0 || string.IsNullOrWhiteSpace(result[0])) return null;
 		string name = result[0];
 		string value = string.Join(" ", result.Skip(1));

@@ -17,3 +17,5 @@ global using static RegionKit.Extras.PrimitivesTools;
 global using static RegionKit.Extras.RainWorldTools;
 global using static RegionKit.Extras.LanguageHacks;
 global using static RWCustom.Custom;
+global using static RegionKit.Logfix;
+

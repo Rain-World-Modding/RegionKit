@@ -35,7 +35,7 @@ namespace RegionKit.Modules.Effects
 			}
 			catch (Exception ex)
 			{
-				LogWarning($"Error on eff MossWaterRGB init {ex}");
+				LogfixWarning($"Error on eff MossWaterRGB init {ex}");
 			}
 		}
 	}

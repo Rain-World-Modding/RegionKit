@@ -60,7 +60,7 @@ internal static class EchoParser
 				}
 				else
 				{
-					LogWarning("[Echo Extender] An echo for this region already exists, skipping.");
+					LogfixWarning("[Echo Extender] An echo for this region already exists, skipping.");
 				}
 				__echoSettings.SetKey(GetEchoID(regionInitials), settings);
 			}

@@ -24,7 +24,7 @@ namespace RegionKit.Modules.Effects
 			}
 			catch (Exception ex)
 			{
-				LogWarning($"Error on eff ReflectiveWater init {ex}");
+				LogfixWarning($"Error on eff ReflectiveWater init {ex}");
 			}
 		}
 	}
@@ -96,7 +96,7 @@ namespace RegionKit.Modules.Effects
 				}
 				else
 				{
-					LogWarning("ReflectiveWater must be loaded after MossWaterUnlit!");
+					LogfixWarning("ReflectiveWater must be loaded after MossWaterUnlit!");
 				}
 			}
 		}

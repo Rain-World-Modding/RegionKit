@@ -29,7 +29,7 @@ namespace RegionKit.Modules.Effects
 			}
 			catch (Exception ex)
 			{
-				LogWarning($"Error on eff MossWaterRGB init {ex}");
+				LogfixWarning($"Error on eff MossWaterRGB init {ex}");
 			}
 		}
 	}
@@ -113,7 +113,7 @@ namespace RegionKit.Modules.Effects
 				}
 				else
 				{
-					LogWarning("MossWaterRGB must be loaded after MossWaterUnlit!");
+					LogfixWarning("MossWaterRGB must be loaded after MossWaterUnlit!");
 				}
 			}
 		}

@@ -1,6 +1,5 @@
 ﻿using RegionKit.Modules.Atmo.API;
 using RegionKit.Modules.Atmo.Data;
-using RegionKit.Modules.Atmo.Helpers;
 using static RegionKit.Modules.Atmo.API.Backing;
 using static RegionKit.Modules.Atmo.Atmod;
 using LOG = BepInEx.Logging;
@@ -45,7 +44,7 @@ public static class Atmod
 	/// </summary>
 	public static void OnEnable()
 	{
-		LogWarning($"Atmo booting... {THR.Thread.CurrentThread.ManagedThreadId}");
+		LogfixWarning($"Atmo booting... {THR.Thread.CurrentThread.ManagedThreadId}");
 		try
 		{
 			On.AbstractRoom.Update += RunHappensAbstUpd;
@@ -70,7 +69,7 @@ public static class Atmod
 			switch (ex)
 			{
 			case TypeLoadException or System.IO.FileNotFoundException:
-				LogWarning("DevConsole not present");
+				LogfixWarning("DevConsole not present");
 				break;
 			default:
 				LogError($"Unexpected error on devconsole apply:" +
@@ -240,6 +239,10 @@ public static class Atmod
 					if (!ha.InitRan) { ha.Init(self.world); ha.InitRan = true; }
 					ha.AbstUpdate(self, timePassed);
 				}
+				else
+				{
+					ha.InitRan = false;
+				}
 			}
 			catch (Exception e)
 			{
@@ -247,6 +250,7 @@ public static class Atmod
 			}
 		}
 	}
+
 	/// <summary>
 	/// Runs realized updates for events in a room
 	/// </summary>
@@ -269,6 +273,7 @@ public static class Atmod
 				{
 					if (!ha.InitRan) { ha.Init(self.world); ha.InitRan = true; }
 					ha.RealizedUpdate(self);
+
 				}
 				else
 				{
@@ -285,6 +290,7 @@ public static class Atmod
 
 	public static void VerboseLog(string message)
 	{
+		return;
 		UnityEngine.Debug.Log(message);
 	}
 

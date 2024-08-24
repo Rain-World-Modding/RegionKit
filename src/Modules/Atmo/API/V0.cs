@@ -41,7 +41,7 @@ public static class V0
 	{
 		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length)
 		{
-			LogWarning($"Invalid action name: {name}");
+			LogfixWarning($"Invalid action name: {name}");
 			return;
 		}
 		if (__namedActions.ContainsKey(name)) { return; }
@@ -79,7 +79,7 @@ public static class V0
 	{
 		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length)
 		{
-			LogWarning($"Invalid trigger name: {name}");
+			LogfixWarning($"Invalid trigger name: {name}");
 			return;
 		}
 		if (__namedTriggers.ContainsKey(name)) return;
@@ -118,7 +118,7 @@ public static class V0
 	{
 		if (System.Text.RegularExpressions.Regex.Match(name, "\\w+").Length != name.Length)
 		{
-			LogWarning($"Invalid metafun name: {name}");
+			LogfixWarning($"Invalid metafun name: {name}");
 			return false;
 		}
 		if (__namedMetafuncs.ContainsKey(name)) return false;

@@ -1,5 +1,4 @@
-﻿using RegionKit.Modules.Atmo.Helpers;
-
+﻿
 namespace RegionKit.Modules.Atmo.Data;
 
 public static class Conversion
@@ -76,8 +75,21 @@ public static class Conversion
 
 	public static bool TryVecFromString(string value, out Vector4 result)
 	{
-		if (RealUtils.TryParseVec4(value, out var i))
-		{ result = i; return true; }
+		string[] spl;
+		Vector4 vecres = default;
+		bool vecparsed = false;
+
+		if ((spl = System.Text.RegularExpressions.Regex.Split(value, "\\s*;\\s*")).Length is 2 or 3 or 4)
+		{
+			vecparsed = true;
+			for (int i = 0; i < spl.Length; i++)
+			{
+				if (!float.TryParse(spl[i], out float val)) vecparsed = false;
+				vecres[i] = val;
+			}
+		}
+		if (vecparsed)
+		{ result = vecres; return true; }
 
 		if (float.TryParse(value, out var f))
 		{ result = new(f, 0f, 0f, 0f); return true; }

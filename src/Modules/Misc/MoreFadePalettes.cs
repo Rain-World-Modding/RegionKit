@@ -143,7 +143,7 @@ internal static class MoreFadePalettes
 			c.Emit(OpCodes.Ldarg_0);
 			c.EmitDelegate(ApplyMoreFades);
 		}
-		else { LogWarning("il hook for RoomCamera.ApplyFade failed"); }
+		else { LogfixWarning("il hook for RoomCamera.ApplyFade failed"); }
 	}
 
 	private static void ApplyMoreFades(RoomCamera self)

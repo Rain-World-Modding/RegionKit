@@ -51,7 +51,7 @@ internal static class _Module
 		if (!foundany)
 		{
 
-			LogWarning("Found no particle presets");
+			LogfixWarning("Found no particle presets");
 		}
 
 

@@ -127,7 +127,7 @@ public struct EchoSettings
 					settings.MinimumKarmaCap = intval;
 					break;
 				case "difficulties":
-					LogWarning($"[Echo Extender] 'difficulties' is obsolete! New format is [({trimmed})SpawnOnDifficulty]");
+					LogfixWarning($"[Echo Extender] 'difficulties' is obsolete! New format is [({trimmed})SpawnOnDifficulty]");
 					if(RainWorldTools.StringMatchesSlugcat(trimmed,name)) settings.SpawnOnDifficulty = true;
 					//settings.SpawnOnDifficulty = split[1].Split(',').Select(s => new SlugcatStats.Name(s.Trim(), false)).ToArray();
 					break;
@@ -142,13 +142,13 @@ public struct EchoSettings
 					settings.DefaultFlip = floatval;
 					break;
 				default:
-					LogWarning($"[Echo Extender] Setting '{pass.Trim().ToLower()}' not found! Skipping : " + row);
+					LogfixWarning($"[Echo Extender] Setting '{pass.Trim().ToLower()}' not found! Skipping : " + row);
 					break;
 				}
 			}
 			catch (Exception ex)
 			{
-				LogWarning($"[Echo Extender] Failed to parse line \"{row}\" : {ex}");
+				LogfixWarning($"[Echo Extender] Failed to parse line \"{row}\" : {ex}");
 			}
 		}
 

@@ -429,7 +429,7 @@ namespace RegionKit.Modules.TheMast
 				if (witnesses > 0)
 				{
 					LogMessage($"pearl chain theft noticed by {witnesses} scavengers!");
-					if (witnesses == 4) LogWarning("Good luck.");
+					if (witnesses == 4) LogfixWarning("Good luck.");
 				}
 			}
 

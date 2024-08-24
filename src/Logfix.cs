@@ -1,5 +1,4 @@
-global using static RegionKit.Logfix;
-
+﻿
 namespace RegionKit;
 
 internal static class Logfix
@@ -50,7 +49,7 @@ internal static class Logfix
 		__Impl_LogMessage(__WrapDataWithCSInfo(data, _callerFilePath, _callerLineNumber, _callerMemberName));
 	}
 	internal static LevelLogCallback __Impl_LogMessage { get; private set; } = (data) => __DefaultImpl_Log(BepInEx.Logging.LogLevel.Message, data);
-	internal static void LogWarning(
+	internal static void LogfixWarning(
 		object data,
 		[System.Runtime.CompilerServices.CallerFilePath] string? _callerFilePath = null,
 		[System.Runtime.CompilerServices.CallerLineNumber] int _callerLineNumber = 0,
@@ -107,7 +106,7 @@ internal static class Logfix
 		{
 			return;
 		}
-		LogWarning($"Detected buffered log lines! Count: {__bufferedLogMessages.Count}, max {MAX_BUFFERED_LINES}, discarded {__discardedLogMessageCount}");
+		LogfixWarning($"Detected buffered log lines! Count: {__bufferedLogMessages.Count}, max {MAX_BUFFERED_LINES}, discarded {__discardedLogMessageCount}");
 		while (__bufferedLogMessages.TryDequeue(out BufferedLogMessage result))
 		{
 			(BepInEx.Logging.LogLevel level, string data, DateTime when) = result;

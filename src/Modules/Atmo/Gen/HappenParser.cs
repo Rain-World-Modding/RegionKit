@@ -1,5 +1,4 @@
-﻿using RegionKit.Modules.Atmo.Helpers;
-using static RegionKit.Modules.Atmo.Atmod;
+﻿using static RegionKit.Modules.Atmo.Atmod;
 
 using System.Text;
 using RegionKit.Modules.Atmo.Body;
@@ -32,7 +31,7 @@ public class HappenParser
 	internal static readonly Regex _splitWhitespace = new("[\\s\\t]+", OPTIONS);
 	#endregion statfields
 	private readonly Dictionary<string, RoomGroup> _allGroups = new();
-	private readonly List<HappenConfig> _allHappens = new();
+	private readonly Dictionary<Happen, RoomGroup> _allHappens = new();
 	private readonly string[] _allLines;
 	private int _index = 0;
 	/// <summary>
@@ -45,24 +44,27 @@ public class HappenParser
 	private bool _aborted;
 	private string _currentLine = string.Empty;
 	private ParsePhase _phase = ParsePhase.None;
-	private HappenConfig _currentHappen;
+	private Happen? _currentHappen;
 	private RoomGroup? _currentGroup = null;
+
+	private HappenSet set;
 	#endregion fields
 	/// <summary>
 	/// Creates a parser for a specified file. <see cref="_Advance"/> the return value until it's <see cref="done"/>.
 	/// </summary>
 	/// <param name="file">Input file.</param>
-	public HappenParser(System.IO.FileInfo file)
+	public HappenParser(System.IO.FileInfo file, HappenSet set)
 	{
 		BangBang(file, nameof(file));
 		VerboseLog($"HappenParse: booting for file: {file.FullName}");
 		if (!file.Exists)
 		{
 			_aborted = true;
-			LogWarning($"HappenParse: file does not exist. aborted");
+			LogfixWarning($"HappenParse: file does not exist. aborted");
 			_allLines = new string[0];
 			return;
 		}
+		this.set = set;
 		_allLines = System.IO.File.ReadAllLines(file.FullName, Encoding.UTF8);
 	}
 	internal void _Advance()
@@ -88,7 +90,8 @@ public class HappenParser
 					}
 					else if (happn_que.Success)
 					{
-						_currentHappen = new(_currentLine.Substring(happn_que.Length));
+						_currentHappen = new(_currentLine.Substring(happn_que.Length), set, set.world.game); 
+						_allHappens[_currentHappen] = new(_currentHappen.name);
 						VerboseLog($"HappenParse: Beginning happen block: {_currentHappen.name}");
 						_phase = ParsePhase.Happen;
 
@@ -114,7 +117,7 @@ public class HappenParser
 	{
 		if (_currentGroup is null || string.IsNullOrWhiteSpace(_currentLine))
 		{
-			LogWarning($"Error parsing group: current group is null! aborting!");
+			LogfixWarning($"Error parsing group: current group is null! aborting!");
 			_phase = ParsePhase.None;
 			return;
 		}
@@ -143,7 +146,7 @@ public class HappenParser
 			}
 			catch (Exception ex)
 			{
-				LogWarning($"HappenParse: error creating a regular expression in group block!\n{ex}\nSource line: {line}");
+				LogfixWarning($"HappenParse: error creating a regular expression in group block!\n{ex}\nSource line: {line}");
 			}
 			return;
 		}
@@ -172,6 +175,13 @@ public class HappenParser
 
 	private void _ParseHappen()
 	{
+		if (_currentHappen is null)
+		{
+			LogfixWarning($"Error parsing happen: current happen is null! aborting!");
+			_phase = ParsePhase.None;
+			return;
+		}
+
 		foreach (LineKind prop in __happenProps)
 		{
 			Match match = LineMatchers[prop].Match(_currentLine);
@@ -182,49 +192,28 @@ public class HappenParser
 				switch (prop)
 				{
 				case LineKind.HappenWhere:
-				{
 					VerboseLog("HappenParse: Recognized WHERE clause");
-
-					ParseGroupFromLine(_currentHappen.myGroup, payload, WhereOps.Group);
-				}
-				break;
-				case LineKind.HappenWhat:
-				{
-					VerboseLog("HappenParse: Recognized WHAT clause");
-
-
-					foreach (string happen in _splitCommaIgnoreWhitespace.Split(payload))
-					{
-						int layers = 0;
-						string[] strings = ConsolidateLiterals(_splitWhitespace.Split(happen));
-						if (strings.Length == 0) continue;
-						VerboseLog($"new action: [{strings[0]}], [{string.Join(", ", strings.Skip(1).Select(s => s.ApplyEscapes()))}]");
-						_currentHappen.actions.Add((strings[0], strings.Skip(1).Select(s => s.ApplyEscapes()).ToArray()));
-					}
-				}
-				break;
-				case LineKind.HappenWhen:
-					try
-					{
-						if (_currentHappen.conditions is not null)
-						{
-							LogWarning("HappenParse: Duplicate WHEN clause! Skipping! (Did you forget to close a previous Happen with END HAPPEN?)");
-							break;
-						}
-						VerboseLog("HappenParse: Recognized WHEN clause");
-						_currentHappen.conditions = _splitWhitespace.Split(payload);
-					}
-					catch (Exception ex)
-					{
-						LogError($"HappenParse: Error creating eval tree from a WHEN block for {_currentHappen.name}:\n{ex}");
-						_currentHappen.conditions = null;
-					}
+					ParseGroupFromLine(_allHappens[_currentHappen], payload, WhereOps.Group);
 					break;
+
+				case LineKind.HappenWhat:
+					VerboseLog("HappenParse: Recognized WHAT clause");
+					_currentHappen.AddActions(NewParser.ParseActions(_currentHappen, payload));
+					break;
+
+				case LineKind.HappenWhen:
+					VerboseLog("HappenParse: Recognized WHEN clause");
+					_currentHappen.AddTrigger(NewParser.ParseTriggerLine(_currentHappen, payload));
+					break;
+
 				case LineKind.HappenEnd:
 					VerboseLog("HappenParse: finishing a happen block");
-					_FinalizeHappen();
+					if (!_currentHappen.Finalize())
+					{ _allHappens.Remove(_currentHappen); }
+					_currentHappen = null;
 					_phase = ParsePhase.None;
 					break;
+
 				default:
 					break;
 				}
@@ -233,46 +222,10 @@ public class HappenParser
 		}
 	}
 
-	internal static string[] ConsolidateLiterals(string[] array)
-	{
-		int layers = 0;
-		List<string> strings = new List<string>();
-
-		for (int i = 0; i < array.Length; i++)
-		{
-			string str = array[i];
-
-			if (str.StartsWith("'") && str.EndsWith("'") && layers == 0)
-			{
-				strings.Add(str[1..^1]);
-				continue;
-			}
-			else if (str.StartsWith("'"))
-			{
-				if (layers == 0) strings.Add(str[1..]);
-				layers++;
-			}
-			else if (str.EndsWith("'"))
-			{
-				layers--;
-				if (layers == 0) strings[^1] += " " + str[..^1];
-			}
-			else if (layers == 0) strings.Add(str);
-			else strings[^1] += " " + str;
-		}
-		return strings.ToArray();
-	}
-
-	private void _FinalizeHappen()
-	{
-		_allHappens.Add(_currentHappen);
-		_currentHappen = default;
-	}
-
 	private void _FinalizeGroup()
 	{
 		if (_currentGroup is null)
-		{ LogWarning("HappenParse: attempted to finalize group while group is null!"); }
+		{ LogfixWarning("HappenParse: attempted to finalize group while group is null!"); }
 		else
 		{
 			string name = _currentGroup.name;
@@ -318,35 +271,35 @@ public class HappenParser
 		BangBang(file, "file");
 		BangBang(set, "set");
 		BangBang(game, "rwg");
-		HappenParser p = new(file);
+		HappenParser p = new(file, set);
 		for (int i = 0; i < p._allLines.Length; i++)
 		{
 			p._Advance();
 		}
 		if (p._currentGroup is not null)
 		{
-			LogWarning($"HappenParse: Group {p._currentGroup.name} missing END! Last block in file, auto wrapping");
+			LogfixWarning($"HappenParse: Group {p._currentGroup.name} missing END! Last block in file, auto wrapping");
 			p._FinalizeGroup();
 		}
-		if (p._currentHappen.name is not null)
+		if (p._currentHappen is not null)
 		{
-			LogWarning($"HappenParse: Happen {p._currentHappen.name} missing END! Last block in file, auto wrapping");
+			LogfixWarning($"HappenParse: Happen {p._currentHappen.name} missing END! Last block in file, auto wrapping");
 
 		}
-		foreach (KeyValuePair<string, RoomGroup> groupPre in p._allGroups)
+		foreach (RoomGroup group in p._allGroups.Values)
 		{
-			RoomGroup group = groupPre.Value;
 			group.EvaluateMatchers(game.world);
 			group.EvaluateGroups(p._allGroups);
 		}
 		set.InsertGroups(p._allGroups.Values.ToList());
-		foreach (HappenConfig cfg in p._allHappens)
+		foreach ((Happen happen, RoomGroup group) in p._allHappens)
 		{
-			cfg.myGroup.EvaluateMatchers(game.world);
-			cfg.myGroup.EvaluateGroups(p._allGroups);
+			LogMessage($"evaluate and add [{happen.name}] with rooms [{string.Join(", ", group.Rooms)}]");
 
-			var ha = new Happen(cfg, set, game);
-			set.InsertHappen(ha, cfg.myGroup);
+			group.EvaluateMatchers(game.world);
+			group.EvaluateGroups(p._allGroups);
+
+			set.InsertHappen(happen, group);
 		}
 	}
 }

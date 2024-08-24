@@ -1,5 +1,4 @@
 ﻿using RegionKit.Modules.Atmo.Data;
-using RegionKit.Modules.Atmo.Helpers;
 using static RegionKit.Modules.Atmo.Atmod;
 using LOG = BepInEx.Logging;
 using TXT = System.Text.RegularExpressions;
@@ -11,7 +10,6 @@ using RegionKit.Modules.Atmo.Body;
 using static RegionKit.Modules.Atmo.API.V0;
 using static RegionKit.Modules.Atmo.Body.HappenTrigger;
 using static RegionKit.Modules.Atmo.Body.HappenAction;
-using static RegionKit.Modules.Atmo.Data.VarRegistry;
 using static UnityEngine.Mathf;
 
 namespace RegionKit.Modules.Atmo.Gen;
@@ -738,6 +736,7 @@ public static partial class HappenBuilding
 		{
 			On_RealizedUpdate = (action, rm) =>
 			{
+				LogMessage("fling with force " + action.args[0]);
 				Arg force = action.args[0],
 					filter = action.args["filter", "select"] ?? ".*",
 					forceVar = action.args["variance", "var"] ?? 0f,
@@ -1404,7 +1403,7 @@ public static partial class HappenBuilding
 	}
 	private static Arg? MMake_FileReadWrite(string text, World world)
 	{
-		LogWarning($"CAUTION: {nameof(MMake_FileReadWrite)} DOES NO SAFETY CHECKS! Atmo developers are not responsible for any accidental damage by write");
+		LogfixWarning($"CAUTION: {nameof(MMake_FileReadWrite)} DOES NO SAFETY CHECKS! Atmo developers are not responsible for any accidental damage by write");
 		IO.FileInfo file = new(text);
 		DateTime? lwt = null;//file.LastWriteTimeUtc;
 		string pl = string.Empty;
@@ -1433,14 +1432,19 @@ public static partial class HappenBuilding
 		}
 		return new CallbackArg() { ReadFromFile };
 	}
+
 	private static Arg? MMake_FMT(string text, World world)
 	{
+		//wip
+		//ArgSet set = NewParser.ParseFMT(text, world);
+		//return new CallbackArg() { () => string.Concat(set.Select(x => x.String)) };
+
 		string[] bits = __FMT_Split.Split(text);
 		TXT.MatchCollection names = __FMT_Match.Matches(text);
 		Arg[] variables = new Arg[names.Count];
 		for (int i = 0; i < names.Count; i++)
 		{
-			variables[i] = ParseArg(names[i].Value, out _, world);
+			variables[i] = VarRegistry.ParseArg(names[i].Value, out _, world);
 		}
 		int ind = 0;
 		string format = bits.Stitch((x, y) => $"{x}{{{ind++}}}{y}");
@@ -1460,12 +1464,11 @@ public static partial class HappenBuilding
 		[Arg a] => (0f, a),
 			_ => (0f, 1f)
 		};
-		CallbackArg.Getter<float> getValue = () => UnityEngine.Mathf.Lerp(bounds.min.Float, bounds.max.Float, UnityEngine.Random.value);
-		return new CallbackArg() { 
-			getValue,
-			() => (int)getValue(),
-			() => getValue().ToString(),
-			() => new(getValue(), 0, 0, 0),
+		return new CallbackArg() {
+			() => Mathf.Lerp(bounds.min.Float, bounds.max.Float, UnityEngine.Random.value),
+			() => (int)((CallbackArg.Getter<float>)(() => Mathf.Lerp(bounds.min.Float, bounds.max.Float, UnityEngine.Random.value)))(),
+			() => ((CallbackArg.Getter<float>)(() => Mathf.Lerp(bounds.min.Float, bounds.max.Float, UnityEngine.Random.value)))().ToString(),
+			() => new(((CallbackArg.Getter<float>)(() => Mathf.Lerp(bounds.min.Float, bounds.max.Float, UnityEngine.Random.value)))(), 0, 0, 0),
 		};
 	}
 

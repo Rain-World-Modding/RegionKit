@@ -102,7 +102,7 @@ internal class BigKarmaShrine : UpdatableAndDeletable
 			c.EmitDelegate(ChangeFrameRate);
 		}
 		else
-		{ LogWarning("il hook to RawUpdate failed"); }
+		{ LogfixWarning("il hook to RawUpdate failed"); }
 	}
 
 	public static float ChangeFrameRate(float originalFPS)

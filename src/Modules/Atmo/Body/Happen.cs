@@ -94,7 +94,7 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 	/// <summary>
 	/// Activation expression. Populated by <see cref="HappenTrigger.Active"/> callbacks of items in <see cref="triggers"/>.
 	/// </summary>
-	public readonly HappenTrigger condition;
+	public HappenTrigger condition;
 	/// <summary>
 	/// All triggers associated with the happen.
 	/// </summary>
@@ -120,22 +120,37 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 	/// Make sure it is properly instantiated, and none of the fields are unexpectedly null.</param>
 	/// <param name="owner">HappenSet this happen will belong to. Must not be null.</param>
 	/// <param name="game">Current game instance. Must not be null.</param>
-	public Happen(HappenConfig cfg, HappenSet owner, RainWorldGame game)
+	public Happen(string name, HappenSet owner, RainWorldGame game)
 	{
 		BangBang(owner, nameof(owner));
 		BangBang(game, nameof(game));
 		Set = owner;
-		name = cfg.name;
+		this.name = name;
 		this.game = game;
-		foreach ((string id, string[] args) in cfg.actions)
-		{
-			actions.Add(HappenBuilding.__NewHappen(id, args, this));
-		}
-		condition = HappenBuilding.BuildHappenTrigger(HappenParser.ConsolidateLiterals(cfg.conditions), this);
-
-		if (actions.Count is 0) LogWarning($"Happen {this}: no actions! Possible missing 'WHAT:' clause");
-		if (condition is null) LogWarning($"Happen {this}: did not receive conditions! Possible missing 'WHEN:' clause");
 	}
+
+	public void AddActions(List<HappenAction> actions)
+	{
+		this.actions.AddRange(actions);
+	}
+
+	public void AddTrigger(HappenTrigger? trigger)
+	{
+		if (condition is not null)
+		{
+			LogfixWarning("HappenParse: Duplicate WHEN clause! Skipping! (Did you forget to close a previous Happen with END HAPPEN?)");
+			return;
+		}
+		condition = trigger!;
+	}
+
+	public bool Finalize()
+	{
+		if (actions.Count is 0) LogfixWarning($"Happen {this}: no actions! Possible missing 'WHAT:' clause");
+		if (condition is null) LogfixWarning($"Happen {this}: did not receive conditions! Possible missing 'WHEN:' clause");
+		return condition is not null;
+	}
+
 	#region lifecycle cbs
 	internal void AbstUpdate(AbstractRoom absroom, int time)
 	{
@@ -143,9 +158,15 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 	internal void RealizedUpdate(Room room)
 	{
 		_sw.Start();
+		LogMessage("action count is " + actions.Count);
 		foreach (HappenAction action in actions)
 		{
-			action.RealizedUpdate(room);
+			LogMessage("action realized update");
+			try
+			{
+				action.RealizedUpdate(room);
+			}
+			catch (Exception e) { LogError("exception in action\n" + e); }
 		}
 		LogFrameTime(realup_times, _sw.Elapsed, realup_readings, STORE_CYCLES);
 		_sw.Reset();
@@ -176,7 +197,7 @@ public sealed class Happen : IEquatable<Happen>, IComparable<Happen>
 		_sw.Start();
 		try
 		{
-			condition.Update();
+			condition?.Update();
 		}
 		catch (Exception ex)
 		{

@@ -1,4 +1,4 @@
-namespace RegionKit;
+﻿namespace RegionKit.API;
 
 public class ModNotInitializedException : Exception
 {
@@ -8,6 +8,6 @@ public class ModNotInitializedException : Exception
 	}
 	public static void ThrowIfModNotInitialized()
 	{
-		if (RegionKit.Mod.__inst is null) throw new ModNotInitializedException();
+		if (__inst is null) throw new ModNotInitializedException();
 	}
 }

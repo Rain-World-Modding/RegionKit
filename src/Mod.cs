@@ -44,7 +44,6 @@ public class Mod : BepInEx.BaseUnityPlugin
 		Logfix.__SwitchToBepinexLogger(Logger);
 		On.RainWorld.OnModsInit += Init;
 		//Init();
-		TheRitual.Commence();
 	}
 
 	private void Init(On.RainWorld.orig_OnModsInit orig, RainWorld self)

@@ -1,4 +1,5 @@
 ﻿using Menu.Remix.MixedUI;
+using RegionKit.OptionsMenu;
 
 namespace RegionKit;
 
@@ -36,7 +37,8 @@ public sealed class ModOptions : OptionsTemplate
 
 	// MENU
 
-	public const int TAB_COUNT = 2;
+	public const int TAB_COUNT = 3;
+	private const int TB_INDEX = 2;
 
     public override void Initialize()
     {
@@ -47,6 +49,14 @@ public sealed class ModOptions : OptionsTemplate
 
         InitGeneral(ref tabIndex);
 		InitCredits(ref tabIndex);
+		Tabs[TB_INDEX] = new TurboBakerTab(this);
+		(Tabs[TB_INDEX] as TurboBakerTab)!.Initialize();
+	}
+
+	public override void Update()
+	{
+		base.Update();
+		(Tabs[TB_INDEX] as TurboBakerTab)!.Update();
 	}
 
 
@@ -130,6 +140,11 @@ public sealed class ModOptions : OptionsTemplate
 
 		AddTextLabel("Vigaro", translate: false, color: hexToColor("eaba2a"));
 		AddTextLabel("forthbridge", translate: false, color: hexToColor("8b41ff"));
+		DrawTextLabels(ref Tabs[tabIndex]);
+
+		AddNewLine(1);
+
+		AddTextLabel("Alduris", translate: false, color: hexToColor("fc770a"));
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddNewLine(1);

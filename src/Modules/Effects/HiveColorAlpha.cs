@@ -15,12 +15,14 @@ public class HiveColorAlpha : UpdatableAndDeletable
 
 	private static void PostRoomLoad(Room self)
 	{
-		for (var k = 0; k < self.roomSettings.effects.Count; k++)
+		List<RoomSettings.RoomEffect> efs = self.roomSettings.effects;
+		for (var k = 0; k < efs.Count; k++)
 		{
-			if (self.roomSettings.effects[k].type == _Enums.HiveColorAlpha)
+			if (efs[k].type == _Enums.HiveColorAlpha)
 			{
 				LogDebug($"HiveColorAlpha in room {self.abstractRoom.name}");
 				self.AddObject(new HiveColorAlpha(self));
+				break;
 			}
 		}
 	}

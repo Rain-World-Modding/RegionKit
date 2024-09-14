@@ -129,11 +129,11 @@ public abstract class ParticleBehaviourProvider : ManagedData
 		/// <summary>
 		/// Default oscillation params
 		/// </summary>
-		protected Modules.Machinery.OscillationParams _osParamsDefault => new(amp, frq, phase, Mathf.Sin);
+		protected Modules.Machinery.OscillationParams _osParamsDefault => new(0f, amp, frq, phase, Mathf.Sin);
 		/// <summary>
 		/// Max deviation from default
 		/// </summary>
-		protected Modules.Machinery.OscillationParams _osParamsDeviate => new(ampFluke, frqFluke, phaseFluke, Mathf.Cos);
+		protected Modules.Machinery.OscillationParams _osParamsDeviate => new(0f, ampFluke, frqFluke, phaseFluke, Mathf.Cos);
 		/// <summary>
 		/// Returns waviness params for new module
 		/// </summary>

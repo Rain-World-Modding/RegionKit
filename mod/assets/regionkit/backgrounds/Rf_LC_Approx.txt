@@ -1,0 +1,18 @@
+Type: RoofTopView
+PROTECTED
+OffsetX: 0
+OffsetY: 5000
+---------------
+floorLevel: 26
+daySky: AtC_sky
+duskSky: AtC_duskSky
+nightSky: AtC_nightSky
+DistantBuilding: Rf_HoleFix, -2676, -17, 1, 0
+
+Floor: floor, 0, 43000, 5, 99
+
+Building: city2, 150, -95220, 420.5, 2: scale|5: anchor|0.5, -0.02
+Building: city1, 20, -51500, 340, 2: scale|5: anchor|0.5, -0.02
+Building: city3, 30, -30000, 260, 2: scale|5: anchor|0.5, -0.02
+Building: city2, -100, 0, 180, 2: scale|5: anchor|0.5, -0.02
+Building: city1, 550, 41000, 100, 2: scale|5: anchor|0.5, -0.02

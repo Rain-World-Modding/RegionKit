@@ -9,7 +9,7 @@ global using RWCustom;
 global using UnityEngine;
 global using static Pom.Pom;
 global using static RegionKit.Mod;
-global using static RegionKit.ModNotInitializedException;
+global using static RegionKit.API.ModNotInitializedException;
 global using static RegionKit.Extras.CollectionTools;
 global using static RegionKit.Extras.ReflectionTools;
 global using static RegionKit.Extras.RngTools;

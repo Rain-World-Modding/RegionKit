@@ -49,7 +49,7 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 	private readonly PistonData? _assignedMData;
 
 	internal readonly PlacedObject? _PO;
-	private double _lt = 0f;
+	private float _lt = 0f;
 	private Vector2 _OriginPoint => _PO?.pos ?? _assignedMData?.forcePos ?? default;
 	private float _EffRot => _PistonData.align ? ((int)_PistonData.rotation / 45 * 45) : _PistonData.rotation;
 	private float _Shift
@@ -57,17 +57,7 @@ public class SimplePiston : UpdatableAndDeletable, IDrawable
 		get
 		{
 			var res = _PistonData.amplitude;
-			Func<double, double> chosenFunc;
-			switch (_PistonData.opmode)
-			{
-			default:
-			case OperationMode.Sinal:
-				chosenFunc = Math.Sin;
-				break;
-			case OperationMode.Cosinal:
-				chosenFunc = Math.Cos;
-				break;
-			}
+			Func<float, float> chosenFunc = _Module.__defaultOscillators[_PistonData.opmode];
 			res *= (float)chosenFunc((_lt + _PistonData.phase) * _PistonData.frequency);
 			return res;
 		}

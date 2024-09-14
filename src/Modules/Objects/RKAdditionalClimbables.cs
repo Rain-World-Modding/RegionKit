@@ -3,6 +3,7 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace RegionKit.Modules.Objects;
 
@@ -29,7 +30,7 @@ internal static class RKAdditionalClimbables
 			x => x.MatchCall<Vector2>("Distance"),
 			x => x.MatchLdarg(2),
 			x => x.MatchLdarg(4),
-			x => x.MatchCall(typeof(RWCustom.Custom), "LerpMap")))
+			x => x.MatchCall(typeof(Custom), "LerpMap")))
 		{
 			c.Emit(OpCodes.Ldarg, 6);
 			c.Emit(OpCodes.Add);
@@ -43,7 +44,7 @@ internal static class RKAdditionalClimbables
 		//if the player isn't holding a vine anymore, remove their vinepos
 		//this is critical for JumpAllowed to work, particularly in Yeek.Update where AnimationIndex has been reset already
 		if (self.animation != Player.AnimationIndex.VineGrab)
-		{ self.vinePos = null; }
+			self.vinePos = null;
 		orig(self, eu);
 	}
 
@@ -52,26 +53,24 @@ internal static class RKAdditionalClimbables
 		int count = 0;
 		var c = new ILCursor(il);
 		while (c.TryGotoNext(MoveType.After,
-			x => x.MatchLdfld<Creature.Grasp>("grabber"),
-			x => x.MatchIsinst<Player>(),
+			x => x.MatchLdloc(0),
 			x => x.MatchLdfld<Player>("bodyMode"),
 			x => x.MatchLdsfld<Player.BodyModeIndex>("ClimbingOnBeam"),
 			x => x.MatchCall(out _)))
 		{
 			c.Emit(OpCodes.Ldarg_0);
-			c.EmitDelegate((bool flag, MoreSlugcats.Yeek yeek) => JumpAllowed(flag, (yeek.grabbedBy[0].grabber as Player)!));
+			c.EmitDelegate((bool orig, MoreSlugcats.Yeek yeek) => JumpAllowed(orig, (yeek.grabbedBy[0].grabber as Player)!));
 			count++;
 		}
-		if (count == 0) LogError("Couldn't ILHook Yeek.Update!"); 
-		else if (count != 3) LogError("Couldn't ILHook Yeek.Update!");
+		if (count == 0)
+			LogError("Couldn't ILHook Yeek.Update!"); 
+		else if (count != 3)
+			LogError("Couldn't ILHook Yeek.Update!");
 	}
 
-	private static bool JumpAllowed(bool flag, Player player)
-	{
-			return flag || player.room?.climbableVines is ClimbableVinesSystem sys
-				&& player.vinePos is ClimbableVinesSystem.VinePosition vPos
-				&& sys.vines.Count > 0 && sys.GetVineObject(vPos) is IClimbJumpVine v && v.JumpAllowed();
-	}
+	private static bool JumpAllowed(bool flag, Player player) => flag || player.room?.climbableVines is ClimbableVinesSystem sys
+		&& player.vinePos is ClimbableVinesSystem.VinePosition vPos
+		&& sys.vines.Count > 0 && sys.GetVineObject(vPos) is IClimbJumpVine v && v.JumpAllowed();
 
 	internal static void Undo()
 	{
@@ -79,6 +78,9 @@ internal static class RKAdditionalClimbables
 		IL.Player.UpdateAnimation -= PlayerUpdateAnimation;
 		IL.Player.Jump -= PlayerJump;
 		IL.Player.MovementUpdate -= PlayerMovementUpdate;
+		IL.MoreSlugcats.Yeek.Update -= Yeek_Update;
+		On.Player.MovementUpdate -= Player_MovementUpdate;
+		IL.ClimbableVinesSystem.OverlappingSegment -= ClimbableVinesSystem_OverlappingSegment;
 	}
 
 	private static void PlayerMovementUpdate(ILContext il)
@@ -167,9 +169,10 @@ internal static class RKAdditionalClimbables
 	private static void ClimbableVineRendererAIMapReady(On.MoreSlugcats.ClimbableVineRenderer.orig_AIMapReady orig, MoreSlugcats.ClimbableVineRenderer self)
 	{
 		orig(self);
-		for (var i = 0; i < self.room.roomSettings.placedObjects.Count; i++)
+		List<PlacedObject> pObjs = self.room.roomSettings.placedObjects;
+		for (var i = 0; i < pObjs.Count; i++)
 		{
-			PlacedObject pObj = self.room.roomSettings.placedObjects[i];
+			PlacedObject pObj = pObjs[i];
 			if (pObj.active && pObj.type == _Enums.ClimbableWire)
 			{
 				var wire = new ClimbableWire(self.room, self.totalSprites, pObj);
@@ -216,31 +219,35 @@ public class ClimbableWire : MoreSlugcats.ClimbableVine, IClimbJumpVine
 	///<inheritdoc/>
 	public ClimbableWire(Room room, int firstSprite, PlacedObject placedObject) : base(room, firstSprite, placedObject)
     {
-        var lgt = IntClamp((int)((placedObject.data as ClimbWireData)!._lgt + ((placedObject.data as PlacedObject.ResizableObjectData)!.handlePos.magnitude * 1.1f + 50f) / 4f), 2, 400);
-        var lgtGr = IntClamp((int)((placedObject.data as ClimbWireData)!._lgt + ((placedObject.data as PlacedObject.ResizableObjectData)!.handlePos.magnitude * 1.1f + 50f) / 11f), 2, 400);
+		Vector2 hPos = (placedObject.data as PlacedObject.ResizableObjectData)!.handlePos;
+		var lgt = IntClamp((int)((placedObject.data as ClimbWireData)!._lgt + (hPos.magnitude * 1.1f + 50f) / 4f), 2, 400);
+        var lgtGr = IntClamp((int)((placedObject.data as ClimbWireData)!._lgt + (hPos.magnitude * 1.1f + 50f) / 11f), 2, 400);
         _pObj = placedObject;
         baseColor = room.game.cameras[0].currentPalette.blackColor;
         conRad = 10f;
         segments = new Vector2[Mathf.Max(2, (int)Mathf.Clamp(lgt / conRad, 2f, 400f)), 3];
-        Vector2 spawnPosA = placedObject.pos, spawnPosB = placedObject.pos + (placedObject.data as PlacedObject.ResizableObjectData)!.handlePos;
-        for (var i = 0; i < segments.GetLength(0); i++)
+		Vector2[,] segs = segments;
+        Vector2 spawnPosA = placedObject.pos, spawnPosB = placedObject.pos + hPos;
+		var l0 = segs.GetLength(0);
+		for (var i = 0; i < l0; i++)
         {
-            var t = i / (float)(segments.GetLength(0) - 1);
-            segments[i, 0] = Vector2.Lerp(spawnPosA, spawnPosB, t) + RNV() * UnityEngine.Random.value;
-            segments[i, 1] = segments[i, 0];
-            segments[i, 2] = RNV() * UnityEngine.Random.value;
+            var t = i / (float)(l0 - 1);
+            segs[i, 0] = Vector2.Lerp(spawnPosA, spawnPosB, t) + RNV() * UnityEngine.Random.value;
+            segs[i, 1] = segs[i, 0];
+            segs[i, 2] = RNV() * UnityEngine.Random.value;
         }
-        ropes = new Rope[segments.GetLength(0) - 1];
-        for (var i = 0; i < ropes.Length; i++)
-            ropes[i] = new(room, segments[i, 0], segments[i + 1, 0], 2f);
+        ropes = new Rope[l0 - 1];
+		Rope[] rps = ropes;
+		for (var i = 0; i < rps.Length; i++)
+			rps[i] = new(room, segs[i, 0], segs[i + 1, 0], 2f);
         conRad *= 3f;
         possList = new();
-        for (var j = 0; j < segments.GetLength(0); j++)
-            possList.Add(segments[j, 0]);
+        for (var j = 0; j < l0; j++)
+            possList.Add(segs[j, 0]);
         graphic = new ClimbableWireGraphics(this, lgtGr, firstSprite);
     }
 
-    SoundID IClimbJumpVine.GrabSound() => SoundID.Slugcat_Grab_Beam;
+	SoundID IClimbJumpVine.GrabSound() => SoundID.Slugcat_Grab_Beam;
 
     SoundID IClimbJumpVine.ClimbSound() => SoundID.Slugcat_Climb_Along_Horizontal_Beam;
 
@@ -317,17 +324,17 @@ public class ClimbablePole : UpdatableAndDeletable, IClimbJumpVine, IDrawable
 	public override void Update(bool eu)
     {
         base.Update(eu);
-        if (_data is not null)
+        if (_data is ClimbJumpVineData d)
         {
-            _effectColor = (int)(_data._colorType - 1);
-            if (_data.owner is PlacedObject pObj)
+            _effectColor = (int)(d._colorType - 1);
+            if (d.owner is PlacedObject pObj)
             {
                 _pos[0] = pObj.pos;
-                _pos[1] = pObj.pos + _data.handlePos;
-                _pos[2] = pObj.pos + _data.handlePos / 2f;
+                _pos[1] = pObj.pos + d.handlePos;
+                _pos[2] = pObj.pos + d.handlePos / 2f;
             }
-            _length = _data.Rad;
-            _rotation = VecToDeg(_data.handlePos.normalized);
+            _length = d.Rad;
+            _rotation = VecToDeg(d.handlePos.normalized);
         }
     }
 
@@ -353,7 +360,7 @@ public class ClimbablePole : UpdatableAndDeletable, IClimbJumpVine, IDrawable
 
     void IDrawable.InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
     {
-        sLeaser.sprites = new FSprite[1] 
+        sLeaser.sprites = new FSprite[] 
         { 
             new("pixel")
 		    {
@@ -426,7 +433,7 @@ public class ClimbJumpVineData : PlacedObject.ResizableObjectData
     }
 
 	///<inheritdoc/>
-	public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs($"{BaseSaveString()}~{_panelPos.x}~{_panelPos.y}~{_colorType}", "~", unrecognizedAttributes);
+	public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs(SaveState.SetCustomData(this, $"{BaseSaveString()}~{_panelPos.x}~{_panelPos.y}~{_colorType}"), "~", unrecognizedAttributes);
 
 	internal enum Color
 	{
@@ -459,7 +466,7 @@ public class ClimbWireData : ClimbJumpVineData
     }
 
 	///<inheritdoc/>
-	public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs($"{BaseSaveString()}~{_panelPos.x}~{_panelPos.y}~{_colorType}~{_lgt}", "~", unrecognizedAttributes);
+	public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs(SaveState.SetCustomData(this, $"{BaseSaveString()}~{_panelPos.x}~{_panelPos.y}~{_colorType}~{_lgt}"), "~", unrecognizedAttributes);
 }
 
 /// <summary>
@@ -486,13 +493,18 @@ public class ClimbJumpVineRepresentation : ResizeableObjectRepresentation
         MoveSprite(_panelLine, absPos);
         (pObj.data as ClimbJumpVineData)!._panelPos = (subNodes[_panel] as Panel)!.pos;
         fSprites[_panelLine].scaleY = (subNodes[_panel] as Panel)!.pos.magnitude;
-        fSprites[_panelLine].rotation = Custom.AimFromOneVectorToAnother(absPos, (subNodes[_panel] as Panel)!.absPos);
+        fSprites[_panelLine].rotation = AimFromOneVectorToAnother(absPos, (subNodes[_panel] as Panel)!.absPos);
     }
 
-	private class LgtSlider : Slider
+	private sealed class LgtSlider : Slider
 	{
-		private ClimbWireData Data => ((parentNode.parentNode as ClimbJumpVineRepresentation)!.pObj.data as ClimbWireData)!;
+		private ClimbWireData Data
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get =>((parentNode.parentNode as ClimbJumpVineRepresentation)!.pObj.data as ClimbWireData)!;
+		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal LgtSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, "Length: ", false, 110f) { }
 
 		public override void Refresh()
@@ -515,11 +527,15 @@ public class ClimbJumpVineRepresentation : ResizeableObjectRepresentation
 		}
 	}
 
-	private class ClimbJumpVineControlPanel : Panel, IDevUISignals
+	private sealed class ClimbJumpVineControlPanel : Panel, IDevUISignals
 	{
-		private ClimbJumpVineData Data => ((parentNode as ClimbJumpVineRepresentation)!.pObj.data as ClimbJumpVineData)!;
+		private ClimbJumpVineData Data
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => ((parentNode as ClimbJumpVineRepresentation)!.pObj.data as ClimbJumpVineData)!;
+		}
 
-		internal ClimbJumpVineControlPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new(250f, 25f), "")
+		internal ClimbJumpVineControlPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new(250f, 25f), string.Empty)
 		{
 			fLabels[0].text = (parentNode as ClimbJumpVineRepresentation)!.pObj.type.ToString();
 			subNodes.Add(new Button(owner, "Clr_Button", this, new(5f, 5f), 240f, "Color: " + Data._colorType));

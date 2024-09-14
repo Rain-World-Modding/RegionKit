@@ -14,7 +14,7 @@ public class Drawable : CosmeticSprite
 		new FloatField("depth", 0f, 1f, 1f, displayName: "Depth"),
 		new StringField("shader", "Basic", "Shader"),
 		new EnumField<FContainer>("container", FContainer.Foreground, displayName: "FContainer"),
-		new IntegerField("alpha", 1, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Alpha"),
+		new IntegerField("alpha", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Alpha"),
 		new BooleanField("useColour", false, displayName: "Use Colour"),
 		new ColorField("colour", Color.white, ManagedFieldWithPanel.ControlType.slider, "Colour")
 	};
@@ -98,6 +98,7 @@ public class Drawable : CosmeticSprite
 		try
 		{
 			sLeaser.sprites[0].SetElementByName(_Data.GetValue<string>("spriteName"));
+			UpdateUV(sLeaser);
 		}
 		catch (FutileException)
 		{
@@ -105,6 +106,7 @@ public class Drawable : CosmeticSprite
 			{
 				LoadFile(_Data.GetValue<string>("spriteName") ?? "INVALID_SPRITE_NAME");
 				sLeaser.sprites[0].SetElementByName(_Data.GetValue<string>("spriteName"));
+				UpdateUV(sLeaser);
 			}
 			catch (Exception e) when (e is FutileException)
 			{
@@ -129,6 +131,16 @@ public class Drawable : CosmeticSprite
 		var col = _Data.GetValue<Color>("colour");
 		col.a = _Data.GetValue<int>("alpha") / 255f;
 		sLeaser.sprites[0].color = _Data.GetValue<bool>("useColour") ? col : new Color(Color.white.r, Color.white.g, Color.white.b, _Data.GetValue<int>("alpha") / 255f);
+	}
+
+	public void UpdateUV(RoomCamera.SpriteLeaser sLeaser)
+	{
+		sLeaser.sprites[0].SetElementByName(_Data.GetValue<string>("spriteName"));
+		var mesh = (TriangleMesh)sLeaser.sprites[0];
+		mesh.UVvertices[0] = mesh.element.uvBottomLeft;
+		mesh.UVvertices[1] = mesh.element.uvBottomRight;
+		mesh.UVvertices[2] = mesh.element.uvTopLeft;
+		mesh.UVvertices[3] = mesh.element.uvTopRight;
 	}
 
 	public void LoadFile(string fileName)

@@ -1,26 +1,71 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using DevInterface;
-using IL.MoreSlugcats;
-using UnityEngine;
-using static IL.PlacedObject;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 
 namespace RegionKit.Modules.Objects;
 
 
 internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 {
+	public class PostCorrector : UpdatableAndDeletable
+	{
+		Player player;
+		ShortcutCannon cannon;
+		int timer = 0;
+		float origWaterRetardation = 0;
+
+		public int TimerLength => !player.submerged ? 5 : (int)(Mathf.Pow(cannon.amount * 5, 1.2f) - 4f);
+
+		public PostCorrector(Player player, ShortcutCannon cannon)
+		{
+			this.player = player;
+			this.cannon = cannon;
+			origWaterRetardation = player.waterRetardationImmunity;
+		}
+
+		public override void Update(bool eu)
+		{
+			base.Update(eu);
+			timer++;
+			if (timer > TimerLength || player.room != room)
+			{ Destroy(); player.waterRetardationImmunity = origWaterRetardation; GetPostCorrector(player).Value = null!; return; }
+
+			if (player.submerged)
+			{
+				player.waterRetardationImmunity = LerpMap(timer, TimerLength / 2, TimerLength, 1f, origWaterRetardation, 1.5f);
+			}
+
+			(player.graphicsModule as PlayerGraphics)!.legsDirection = new Vector2(0f, -1f);
+			EvenVelocity(player);
+		}
+
+		public float JumpBoostMultiplier() => LerpMap(cannon.boostMultiplier(), 0.4f, 2.5f, 0.25f, 0.5f);
+
+		public float SlideFrictionResult(float orig, float oldOrig) => LerpMap(timer, 1, TimerLength, oldOrig, orig); //not used anymore, timer too short to matter
+	}
+
+	public static void EvenVelocity(Player player)
+	{
+		if (player.bodyChunks.Length == 2 && player.bodyChunks[0].vel.magnitude < player.bodyChunks[1].vel.magnitude)
+		{
+			(player.bodyChunks[0].vel, player.bodyChunks[1].vel) = (player.bodyChunks[1].vel, player.bodyChunks[0].vel);
+		}
+		
+	}
+
 	private static ConditionalWeakTable<Room, List<ShortcutCannon>> _shortcutCannonsInRoom = new();
+	private static ConditionalWeakTable<Player, StrongBox<PostCorrector>> _shortcutCannonHelpers = new();
 
 	public static List<ShortcutCannon> GetShortcutCannons(Room room) => _shortcutCannonsInRoom.GetValue(room, _ => new());
 
-	public static bool TryGetSuperShortcut(Room room, IntVector2 pos, out ShortcutCannon? shortcut)
+	public static StrongBox<PostCorrector> GetPostCorrector(Player p) => _shortcutCannonHelpers.GetValue(p, _ => new());
+
+	public static bool TryGetSuperShortcut(Room room, IntVector2 pos, out ShortcutCannon shortcut)
 	{
-		shortcut = null;
+		//the entire point of this method is so you don't do stuff with a null value
+		//so outputting a nullable is very silly
+		shortcut = null!;
 		foreach (ShortcutCannon ss in GetShortcutCannons(room))
 		{
 			if (room.GetTilePosition(ss.pObj.pos) == pos)
@@ -35,14 +80,73 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 
 	public static void Apply()
 	{
-		On.ShortcutHelper.Update += ShortcutHelper_Update;
 		On.ShortcutGraphics.GenerateSprites += ShortcutGraphics_GenerateSprites;
+		On.Player.SpitOutOfShortCut += Player_SpitOutOfShortCut;
+		IL.ShortcutHelper.Update += ShortcutHelper_Update;
+		IL.Player.UpdateBodyMode += Player_UpdateBodyMode;
 	}
 
 	public static void Undo()
 	{
-		On.ShortcutHelper.Update -= ShortcutHelper_Update;
+		IL.ShortcutHelper.Update -= ShortcutHelper_Update;
+		On.Player.SpitOutOfShortCut -= Player_SpitOutOfShortCut;
 		On.ShortcutGraphics.GenerateSprites -= ShortcutGraphics_GenerateSprites;
+		IL.Player.UpdateBodyMode -= Player_UpdateBodyMode;
+	}
+
+
+	private static void Player_UpdateBodyMode(ILContext il)
+	{
+		var c = new ILCursor(il);
+
+		//changes the velocity when corridor boosting, 2 matches, 1 for each body chunk
+		for (int j = 0; j < 2; j++)
+		{
+			if (c.TryGotoNext(MoveType.After,
+			x => x.MatchLdflda<BodyChunk>(nameof(BodyChunk.vel)),
+			x => x.MatchLdflda<Vector2>(nameof(Vector2.y)),
+			x => x.MatchDup(),
+			x => x.MatchLdindR4(),
+			x => x.MatchLdcR4(j == 0 ? 15f : 10f)
+			))
+			{
+				c.Emit(OpCodes.Ldarg_0);
+				c.EmitDelegate((float orig, Player self) => GetPostCorrector(self).Value == null ? orig : orig * GetPostCorrector(self).Value.JumpBoostMultiplier());
+			}
+			else { LogError("ShortcutCannon failed to il match Player.UpdateBodyMode jump boost " + j); }
+		}
+
+		//changes the velocity when pushing a direction into a wall, mainly for wall sliding
+		//4 different matches for each cardinal direction
+		int index = 0;
+		for (int j = 0; j < 4; j++)
+		{
+			if (c.TryGotoNext(MoveType.After,
+				x => x.MatchLdloc(out index),
+				x => x.MatchLdelemRef(),
+				x => x.MatchLdfld<BodyChunk>(nameof(BodyChunk.pos)),
+				x => x.MatchCallvirt<Room>(nameof(Room.GetTilePosition)),
+				x => x.MatchCallvirt<Room>(nameof(Room.MiddleOfTile)),
+				x => x.MatchLdfld(out _),
+				x => x.MatchSub(),
+				x => x.MatchLdcR4(0.2f),
+				x => x.MatchMul(),
+				x => x.MatchSub()
+				))
+			{
+				c.Emit(OpCodes.Ldloc, index);
+				c.Emit(OpCodes.Ldarg_0);
+				c.EmitDelegate((Func<float, int, Player, float>)(j switch
+				{
+					0 => (float orig, int i, Player self) => GetPostCorrector(self).Value == null ? orig : self.bodyChunks[i].vel.y,
+					1 => (float orig, int i, Player self) => GetPostCorrector(self).Value == null ? orig : self.bodyChunks[1 - i].vel.y,
+					2 => (float orig, int i, Player self) => GetPostCorrector(self).Value == null ? orig : self.bodyChunks[i].vel.x,
+					3 => (float orig, int i, Player self) => GetPostCorrector(self).Value == null ? orig : self.bodyChunks[1 - i].vel.x,
+					_ => (float orig, int i, Player self) => orig
+				}));
+			}
+			else { LogError("ShortcutCannon failed to il match Player.UpdateBodyMode friction slide " + j); }
+		}
 	}
 
 	private static void ShortcutGraphics_GenerateSprites(On.ShortcutGraphics.orig_GenerateSprites orig, ShortcutGraphics self)
@@ -50,165 +154,82 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		orig(self);
 		for (int l = 0; l < self.room.shortcuts.Length; l++)
 		{
-			if (TryGetSuperShortcut(self.room, self.room.shortcuts[l].StartTile, out ShortcutCannon? superShortcut))
+			if (TryGetSuperShortcut(self.room, self.room.shortcuts[l].StartTile, out ShortcutCannon superShortcut))
 			{
-				self.entranceSprites[l, 0].element = Futile.atlasManager.GetElementWithName($"Shortcutcannon_Symbol_{superShortcut?.amount}flip");
+				self.entranceSprites[l, 0].element = Futile.atlasManager.GetElementWithName($"Shortcutcannon_Symbol_{superShortcut.amount}flip");
 
 				int endIndex = Array.IndexOf(self.room.shortcutsIndex, self.room.shortcuts[l].DestTile);
 				if (endIndex != -1 && self.room.shortcuts[l].shortCutType == ShortcutData.Type.Normal)
-				{ self.entranceSprites[endIndex, 0].element = Futile.atlasManager.GetElementWithName($"Shortcutcannon_Symbol_{superShortcut?.amount}"); }
+				{ self.entranceSprites[endIndex, 0].element = Futile.atlasManager.GetElementWithName($"Shortcutcannon_Symbol_{superShortcut.amount}"); }
 			}
 		}
 	}
 
-	private static void ShortcutHelper_Update(On.ShortcutHelper.orig_Update orig, ShortcutHelper self, bool eu)
+	static int countdown = 0;
+
+	private static void ShortcutHelper_Update(ILContext il)
 	{
-		Dictionary<BodyChunk, Vector2[]> UpdatePos = new();
-
-		foreach (AbstractCreature absPlayer in self.room.game.Players)
+		var c = new ILCursor(il);
+		ILLabel label = null!;
+		if (c.TryGotoNext(MoveType.After,
+			x => x.MatchLdsfld<Player.AnimationIndex>(nameof(Player.AnimationIndex.DownOnFours)),
+			x => x.MatchCall(typeof(ExtEnum<Player.AnimationIndex>).GetMethod("op_Equality")),
+			x => x.MatchBrtrue(out label)) && label != null)
 		{
-			if (absPlayer.realizedCreature is Player player && absPlayer.realizedCreature.room == self.room && absPlayer.realizedCreature.Consious && absPlayer.realizedCreature.grabbedBy.Count == 0)
+			c.MoveAfterLabels();
+			c.Emit(OpCodes.Ldarg_0);
+			c.Emit(OpCodes.Ldloc_1);
+			c.Emit(OpCodes.Ldloc, 4);
+			c.EmitDelegate((ShortcutHelper self, Player player, int i) =>
 			{
-				IntVector2 playerInput = new IntVector2(player.input[0].x, player.input[0].y);
-
-				foreach (ShortcutHelper.ShortcutPusher pusher in self.pushers)
+				if (TryGetSuperShortcut(self.room, self.pushers[i].shortCutPos, out ShortcutCannon shortcutCannon))
 				{
-					if (!TryGetSuperShortcut(self.room, pusher.shortCutPos, out ShortcutCannon? shortcutCannon))
-					{ continue; }
-					float boost_mul = shortcutCannon?.boostMultiplier() ?? 0f;
-					float boost_amount = shortcutCannon?.amount ?? 0f;
-					bool locked = self.room.lockedShortcuts.Contains(pusher.shortCutPos);
-
-					if ((locked) && (!pusher.floor || player.GoThroughFloors) && (pusher.shortcutDir.y <= 0 || (!(player.animation == Player.AnimationIndex.BellySlide) && !(player.animation == Player.AnimationIndex.DownOnFours))))
-					{
-						bool holdAway = (playerInput.x != 0 && playerInput.x == -pusher.shortcutDir.x) || (playerInput.y != 0 && playerInput.y == -pusher.shortcutDir.y);
-						bool jumping = player.input[0].jmp || player.jumpBoost > 0f || pusher.validNeighbors.Count > 0;
-
-						for (int k = 0; k < player.bodyChunks.Length; k++)
-						{
-							if (holdAway && player.input[0].jmp && !player.input[1].jmp && Custom.DistLess(pusher.pushPos, player.bodyChunks[k].pos, 30f + player.bodyChunks[k].rad))
-							{
-								//booster
-								//player.bodyChunks[k].vel = Vector2.Lerp(player.bodyChunks[k].vel, pusher.shortcutDir.ToVector2() * 6f + new Vector2(0f, (pusher.shortcutDir.x != 0) ? 6f : 0f), 0.5f);
-							}
-							else if (jumping)
-							{
-								/*
-								float num = 20f + player.bodyChunks[k].rad + Custom.LerpMap(pusher.swell, 0.5f, 1f, -5f, 10f, 3f) - ((playerInput.y != 0 && playerInput.y == -pusher.shortcutDir.y) ? 5f : 0f);
-								pusher.swellUp = (Custom.DistLess(pusher.pushPos, player.bodyChunks[k].pos, Mathf.Max(20f + player.bodyChunks[k].rad, num - 1f)) && holdAway);
-								if (Custom.DistLess(pusher.pushPos, player.bodyChunks[k].pos, num))
-								{
-									float num2 = Mathf.InverseLerp(num - (holdAway ? 2.5f : 5f), num - 20f, Vector2.Distance(pusher.pushPos, player.bodyChunks[k].pos));
-
-									player.bodyChunks[k].vel *= Mathf.Lerp(1f, 0.5f, num2);
-									BodyChunk bodyChunk = player.bodyChunks[k];
-									bodyChunk.vel.y = bodyChunk.vel.y + player.gravity * self.room.gravity * num2;
-									player.bodyChunks[k].vel += (Vector2)Vector3.Slerp(Custom.DirVec(pusher.pushPos, player.bodyChunks[k].pos), pusher.shortcutDir.ToVector2(), 0.9f) * (holdAway ? 3f : 0.9f) * num2;
-									player.bodyChunks[k].pos += (Vector2)Vector3.Slerp(Custom.DirVec(pusher.pushPos, player.bodyChunks[k].pos), pusher.shortcutDir.ToVector2(), 0.9f) * (holdAway ? 3f : 0.9f) * num2;
-									if (holdAway && pusher.shortcutDir.x != 0)
-									{
-										player.bodyChunks[k].vel.y = Mathf.Lerp(player.bodyChunks[k].vel.y, Mathf.Clamp(player.bodyChunks[k].vel.y, -2f, 20f), 0.75f);
-									}
-								}*/
-							}
-
-							float chunkDistToEntrance = 10f + player.bodyChunks[k].rad;
-							if (locked)
-							{
-								//chunkDistToEntrance *= Mathf.InverseLerp(0f, 500f, player.timeSinceSpawned);
-							}
-
-							if (Vector2.Distance(player.bodyChunks[k].pos, pusher.pushPos) < chunkDistToEntrance)
-							{
-
-								if (pusher.shortcutDir.x != 0)
-								{
-									player.bodyChunks[k].vel.x += (pusher.pushPos.x + chunkDistToEntrance * pusher.shortcutDir.x - player.bodyChunks[k].pos.x) * boost_mul;
-									Vector2 cannonOffset = new Vector2((pusher.pushPos.x + chunkDistToEntrance * pusher.shortcutDir.x - player.bodyChunks[k].pos.x) * boost_mul, 0f);
-									UpdatePos.Add(player.bodyChunks[k], new Vector2[] { cannonOffset, player.bodyChunks[k].pos });
-
-									//upwards correction
-									player.bodyChunks[k].vel.y += Math.Abs((pusher.pushPos.x + chunkDistToEntrance * pusher.shortcutDir.x - player.bodyChunks[k].pos.x) * (boost_amount * 0.1f * self.room.gravity));
-								}
-								else
-								{
-									player.bodyChunks[k].vel.y += (pusher.pushPos.y + chunkDistToEntrance * pusher.shortcutDir.y - player.bodyChunks[k].pos.y) * boost_mul;
-
-									Vector2 cannonOffset = new Vector2(0f, (pusher.pushPos.y + chunkDistToEntrance * pusher.shortcutDir.y - player.bodyChunks[k].pos.y) * boost_mul);
-									UpdatePos.Add(player.bodyChunks[k], new Vector2[] { cannonOffset, player.bodyChunks[k].pos });
-								}
-							}
-						}
-					}
+					CannonLaunch(self, player, self.pushers[i], shortcutCannon);
+					return true;
 				}
+				return false;
+			});
+			c.Emit(OpCodes.Brtrue, label);
+		}
+		else { LogError("ShortcutCannon failed to il match ShortcutHelper.Update"); }
+	}
+
+	private static void CannonLaunch(ShortcutHelper self, Player player, ShortcutHelper.ShortcutPusher pusher, ShortcutCannon shortcutCannon)
+	{
+		for (int k = 0; k < player.bodyChunks.Length; k++)
+		{
+			float chunkDistToEntrance = 10f + player.bodyChunks[k].rad;
+
+			if (Vector2.Distance(player.bodyChunks[k].pos, pusher.pushPos) < chunkDistToEntrance)
+			{
+				Vector2 add = pusher.pushPos + (IntVector2ToVector2(pusher.shortcutDir) * chunkDistToEntrance) - player.bodyChunks[k].pos;
+				add *= shortcutCannon.boostMultiplier();
+
+				//upwards correction
+				if (pusher.shortcutDir.x != 0)
+				{ add.y = Math.Abs(add.x * 0.15f * self.room.gravity); }
+				else { add.x = 0f; }
+
+				player.bodyChunks[k].vel += add;
+				EvenVelocity(player);
 			}
 		}
+	}
 
-		orig(self, eu);
+	private static void Player_SpitOutOfShortCut(On.Player.orig_SpitOutOfShortCut orig, Player self, IntVector2 pos, Room newRoom, bool spitOutAllSticks)
+	{
+		orig(self, pos, newRoom, spitOutAllSticks);
+		if (!TryGetSuperShortcut(newRoom, pos, out var shortcutCannon)) return;
 
-		if (UpdatePos.Count <= 0) return;
+		GetPostCorrector(self).Value?.Destroy();
+		GetPostCorrector(self).Value = new(self, shortcutCannon);
+		newRoom.AddObject(GetPostCorrector(self).Value);
 
-		foreach (KeyValuePair<BodyChunk, Vector2[]> chunk in UpdatePos)
-		{ chunk.Key.pos += chunk.Value[0]; }
-
-		while (UpdatePos.Count > 0)
+		Vector2 a = IntVector2ToVector2(newRoom.ShorcutEntranceHoleDirection(pos));
+		for (int i = 0; i < self.bodyChunks.Length; i++)
 		{
-			//find fastest chunk in owner
-			KeyValuePair<BodyChunk, Vector2[]> fastestChunk = UpdatePos.ElementAt(0);
-			foreach (BodyChunk chunk2 in fastestChunk.Key.owner.bodyChunks.ToArray())
-			{
-				if ((chunk2.vel.magnitude > fastestChunk.Key.vel.magnitude) && UpdatePos.ContainsKey(chunk2))
-				{ fastestChunk = new(chunk2, UpdatePos[chunk2]); }
-			}
-
-			//remove chunks from update
-			foreach (BodyChunk chunk2 in fastestChunk.Key.owner.bodyChunks)
-			{
-				if (UpdatePos.ContainsKey(chunk2))
-				{ UpdatePos.Remove(chunk2); }
-			}
-
-			if (fastestChunk.Key.owner is Player player && player.bodyChunks.Length == 2 &&
-				player.bodyChunks.IndexOf(fastestChunk.Key) != 0)
-			{
-				//swap positions
-				(player.bodyChunks[0].vel, player.bodyChunks[1].vel) = (player.bodyChunks[1].vel, player.bodyChunks[0].vel);
-				(player.bodyChunks[0].pos, player.bodyChunks[1].pos) = (player.bodyChunks[1].pos, player.bodyChunks[0].pos);
-			}
+			self.bodyChunks[i].HardSetPosition(self.bodyChunks[i].pos + (a * 10));
 		}
-
-		//proper fix, but has strange results
-		/*while (UpdatePos.Count > 0)
-		{
-			KeyValuePair<BodyChunk, Vector2[]> fastestChunk = UpdatePos.ElementAt(0);
-
-			//locate fastest chunk that was boosted
-			foreach (BodyChunk chunk2 in fastestChunk.Key.owner.bodyChunks.ToArray())
-			{
-				if ((chunk2.vel.magnitude > fastestChunk.Key.vel.magnitude) && UpdatePos.ContainsKey(chunk2))
-				{ fastestChunk = new(chunk2, UpdatePos[chunk2]); }
-			}
-
-			foreach (BodyChunk chunk2 in fastestChunk.Key.owner.bodyChunks)
-			{
-				if (UpdatePos.ContainsKey(chunk2))
-				{ 
-					chunk2.pos += chunk2.pos - UpdatePos[chunk2][1]; //remove previous adjustment
-					UpdatePos.Remove(chunk2);
-				}
-
-				chunk2.pos += fastestChunk.Value[0] + (fastestChunk.Value[1] - fastestChunk.Key.pos);
-				chunk2.vel = fastestChunk.Key.vel;
-			}
-
-			LogMessage($"bodychunk pos");
-			int m = 0;
-			foreach (BodyChunk chunk in fastestChunk.Key.owner.bodyChunks)
-			{
-				LogMessage($"[{m}] [{chunk.pos}] [{chunk.vel}]");
-				m++;
-			}
-		}*/
 	}
 
 	public PlacedObject pObj;
@@ -221,10 +242,13 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 	{
 		return amount switch
 		{
-			1 => -0.55f,
-			2 => -0.1f,
-			3 => 0.7f,
-			4 => 2.5f,
+			1 => 0.4f,
+			2 => 0.735f,
+			3 => 0.97f,
+			4 => 1.22f,
+			5 => 1.58f,
+			6 => 1.9f,
+			7 => 2.5f,
 			_ => 0f,
 		};
 	}
@@ -253,15 +277,10 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		if (shortcutIndex == -1) return;
 		foreach (RoomCamera camera in room.game.cameras)
 		{
-			if (camera.room == room)
+			if (camera.room == room && !camera.shortcutGraphics.waitingForRoomToGenerateShortcuts)
 			{
-				foreach (FSprite fsprite in camera.shortcutGraphics.entranceSprites)
-				{ fsprite?.RemoveFromContainer(); }
-
-				foreach (FSprite fsprite in camera.shortcutGraphics.sprites.Values)
-				{ fsprite?.RemoveFromContainer(); }
-
-				camera.shortcutGraphics.GenerateSprites();
+				//this just resets sprites
+				camera.shortcutGraphics.NewRoom();
 			}
 		}
 		room.lockedShortcuts.Remove(room.shortcuts[shortcutIndex].StartTile);
@@ -323,7 +342,7 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 
 internal class shortcutCannonData : ManagedData
 {
-	[IntegerField("boost", 1, 4, 2)]
+	[IntegerField("boost", 1, 7, 2)]
 	public int boost;
 	public shortcutCannonData(PlacedObject po) : base(po, new ManagedField[] { })
 	{

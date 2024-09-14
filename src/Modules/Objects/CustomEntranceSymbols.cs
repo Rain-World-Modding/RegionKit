@@ -81,7 +81,7 @@ public class CESData : PlacedObject.Data
 	}
 
 	///<inheritdoc/>
-	public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs($"{_panelPos.x}~{_panelPos.y}~{_imageName}~{_rotation}", "~", unrecognizedAttributes);
+	public override string ToString() => SaveUtils.AppendUnrecognizedStringAttrs(SaveState.SetCustomData(this, $"{_panelPos.x}~{_panelPos.y}~{_imageName}~{_rotation}"), "~", unrecognizedAttributes);
 }
 
 /// <summary>

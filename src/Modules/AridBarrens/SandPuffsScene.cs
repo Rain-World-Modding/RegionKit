@@ -54,7 +54,7 @@ public partial class SandPuffsScene : BackgroundScene, INotifyWhenRoomIsReady
 		{
 			for (int j = 0; j < this.room.TileHeight; j++)
 			{
-				if (this.room.aimap.getAItile(i, j).terrainProximity == 1)
+				if (this.room.aimap.getTerrainProximity(i, j) == 1)
 				{
 					this._closeToWallTiles.Add(new IntVector2(i, j));
 				}

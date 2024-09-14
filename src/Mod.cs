@@ -1,6 +1,6 @@
-﻿using System.Reflection;
-using RegionKit.Modules.Effects;
+﻿using RegionKit.Modules.Effects;
 using RegionKit.Modules.GateCustomization;
+using RegionKit.Modules.RoomSlideShow;
 
 namespace RegionKit;
 /// <summary>
@@ -10,7 +10,7 @@ namespace RegionKit;
 [BepInEx.BepInPlugin(MOD_GUID, MOD_FRIENDLYNAME, MOD_VERSION)]
 public class Mod : BepInEx.BaseUnityPlugin
 {
-	internal const string MOD_VERSION = "3.12";
+	internal const string MOD_VERSION = "3.15.2";
 	internal const string MOD_FRIENDLYNAME = "RegionKit";
 	internal const string MOD_GUID = "rwmodding.coreorg.rk";
 	internal const string RK_POM_CATEGORY = "RegionKit";
@@ -27,6 +27,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 	/// <inheritdoc/>
 	public void OnEnable()
 	{
+		__inst = this;
 
 		_writeTraceConfig = Config.Bind("main", "writeTrace", false, "Write additional spammy debug lines");
 		__writeTrace = _writeTraceConfig.Value;
@@ -43,33 +44,44 @@ public class Mod : BepInEx.BaseUnityPlugin
 		Logfix.__SwitchToBepinexLogger(Logger);
 		On.RainWorld.OnModsInit += Init;
 		//Init();
-		TheRitual.Commence();
 	}
 
 	private void Init(On.RainWorld.orig_OnModsInit orig, RainWorld self)
 	{
+		System.Diagnostics.Stopwatch
+			totalTime = new(),
+			perModule = new();
+		List<(ModuleInfo, TimeSpan)> enableTimes = new();
 		try { orig(self); }
 		catch (Exception ex) { LogFatal($"Caught error in init-orig: {ex}"); }
 		try
 		{
-
 			if (!_modulesSetUp)
 			{
 				ScanAssemblyForModules(typeof(Mod).Assembly);
+				totalTime.Start();
+
 				foreach (var mod in _modules)
 				{
+					perModule.Restart();
 					RunEnableOn(mod);
+					enableTimes.Add((mod, perModule.Elapsed));
 				}
+				totalTime.Stop();
 			}
 			_modulesSetUp = true;
 			_Assets.LoadResources();
-
-			MossWaterUnlit.MossLoadResources(self);
-			GateCustomization.LoadShaders(self);
+			ModOptions.RegisterOI("regionkit");
 		}
 		catch (Exception ex)
 		{
 			LogError($"Error on init: {ex}");
+		}
+		finally
+		{
+			LogDebug($"Total load time {totalTime.Elapsed}");
+			LogDebug($"Load time for modules: ");
+			foreach ((ModuleInfo module, TimeSpan elapsed) in enableTimes) LogDebug($"\t{module.name} : {elapsed}");
 		}
 	}
 
@@ -141,6 +153,8 @@ public class Mod : BepInEx.BaseUnityPlugin
 	///<inheritdoc/>
 	public void ScanAssemblyForModules(System.Reflection.Assembly asm)
 	{
+		System.Diagnostics.Stopwatch scanTime = new();
+		scanTime.Start();
 		Type[] types;
 		types = asm.GetTypesSafe(out var err);
 		if (err is not null)
@@ -153,6 +167,8 @@ public class Mod : BepInEx.BaseUnityPlugin
 			if (t.IsGenericTypeDefinition) continue;
 			TryRegisterModule(t);
 		}
+		scanTime.Stop();
+		LogDebug($"Scanned {asm.FullName} for modules in {scanTime.Elapsed}");
 	}
 
 	///<inheritdoc/>

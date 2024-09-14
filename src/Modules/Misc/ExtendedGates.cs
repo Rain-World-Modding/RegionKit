@@ -428,6 +428,7 @@ public static class ExtendedGates
 
 	private static bool DoesPlayerDeserveAltArt(RainWorldGame game)
 	{
+		if (!ModOptions.AltGateArt.Value) return false;
 		SaveState? saveState = (game.session as StoryGameSession)?.saveState;
 		if (saveState == null) return false;
 		WinState? winState = saveState.deathPersistentSaveData?.winState;

@@ -15,6 +15,7 @@ namespace RegionKit.Modules.Effects
 		// By ASlightlyOvergrownCactus
 		public static readonly object mossSprite = new();
 		static bool loaded = false;
+		public static AssetBundle mossBundle;
 		const int vertsPerColumn = 64;
 		internal static void Apply()
 		{
@@ -36,9 +37,7 @@ namespace RegionKit.Modules.Effects
 		{
 			if (!loaded)
 			{
-				LogMessage("entered loading / loading status: " + loaded);
 				loaded = true;
-				AssetBundle mossBundle;
 
 				mossBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/liquidshaderpack"));
 
@@ -83,7 +82,6 @@ namespace RegionKit.Modules.Effects
 						tris[triIndex++] = new TriangleMesh.Triangle(i, i + 1 + vertsPerColumn, i + vertsPerColumn);
 					}
 				}
-				LogMessage("got here");
 				sLeaser.sprites[index] = new TriangleMesh("Futile_White", tris, true)
 				{
 					data = mossSprite,

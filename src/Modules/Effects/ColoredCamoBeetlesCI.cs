@@ -1,4 +1,6 @@
-﻿namespace RegionKit.Modules.Effects;
+﻿using System.Runtime.CompilerServices;
+
+namespace RegionKit.Modules.Effects;
 
 /// <summary>
 /// By LB/M4rbleL1ne
@@ -26,17 +28,19 @@ internal static class ColoredCamoBeetlesCI
 
 	private static void PostRoomLoad(Room self)
 	{
-		for (var i = 0; i < self.roomSettings.effects.Count; i++)
+		List<RoomSettings.RoomEffect> efs = self.roomSettings.effects;
+		for (var i = 0; i < efs.Count; i++)
 		{
-			RoomSettings.RoomEffect ef = self.roomSettings.effects[i];
+			RoomSettings.RoomEffect ef = efs[i];
 			if (ef.type == _Enums.ColoredCamoBeetles)
 			{
-				if (self.insectCoordinator == null)
+				if (self.insectCoordinator is null)
 				{
 					self.insectCoordinator = new(self);
 					self.AddObject(self.insectCoordinator);
 				}
 				self.insectCoordinator.AddEffect(ef);
+				break;
 			}
 		}
 	}
@@ -61,23 +65,23 @@ internal static class ColoredCamoBeetlesCI
 
 	private static bool InsectCoordinatorTileLegalForInsect(On.InsectCoordinator.orig_TileLegalForInsect orig, CosmeticInsect.Type type, Room room, Vector2 testPos)
 	{
-		var res = orig(type, room, testPos);
 		if (type == _Enums.ColoredCamoBeetle)
-			res = !room.GetTile(testPos).AnyWater;
-		return res;
+			return !room.GetTile(testPos).AnyWater;
+		return orig(type, room, testPos);
 	}
 
 	private static void InsectCoordinatorCreateInsect(On.InsectCoordinator.orig_CreateInsect orig, InsectCoordinator self, CosmeticInsect.Type type, Vector2 pos, InsectCoordinator.Swarm swarm)
 	{
 		if (type == _Enums.ColoredCamoBeetle)
 		{
-			if (!InsectCoordinator.TileLegalForInsect(type, self.room, pos) || self.room.world.rainCycle.TimeUntilRain < UnityEngine.Random.Range(1200, 1600))
+			Room rm = self.room;
+			if (!InsectCoordinator.TileLegalForInsect(type, rm, pos) || rm.world.rainCycle.TimeUntilRain < UnityEngine.Random.Range(1200, 1600))
 				return;
-			if (!self.room.readyForAI || self.room.aimap.getAItile(pos).terrainProximity < 5)
+			if (!rm.readyForAI || rm.aimap.getTerrainProximity(pos) < 5)
 			{
 				for (var j = 0; j < 5; j++)
 				{
-					Vector2? vector2 = SharedPhysics.ExactTerrainRayTracePos(self.room, pos, pos + RNV() * 100f);
+					Vector2? vector2 = SharedPhysics.ExactTerrainRayTracePos(rm, pos, pos + RNV() * 100f);
 					if (vector2.HasValue)
 					{
 						pos = vector2.Value;
@@ -85,14 +89,14 @@ internal static class ColoredCamoBeetlesCI
 					}
 				}
 			}
-			var cosmeticInsect = new ColoredCamoBeetleInsect(self.room, pos);
+			var cosmeticInsect = new ColoredCamoBeetleInsect(rm, pos);
 			self.allInsects.Add(cosmeticInsect);
-			if (swarm != null)
+			if (swarm is not null)
 			{
 				swarm.members.Add(cosmeticInsect);
 				cosmeticInsect.mySwarm = swarm;
 			}
-			self.room.AddObject(cosmeticInsect);
+			rm.AddObject(cosmeticInsect);
 		}
 		else
 			orig(self, type, pos, swarm);
@@ -104,13 +108,17 @@ internal static class ColoredCamoBeetlesCI
 /// </summary>
 public class ColoredCamoBeetleInsect : Beetle
 {
-    private float _lerper;
+	private float _lerper;
 	private bool _lerpUp = true;
-    internal const float ADD = .075f;
+	internal const float ADD = .075f;
 	private readonly int _effectColor;
 	private int _middleSleepCtr;
 
-	private bool CanMiddleSleep => _middleSleepCtr > 0 && stressed < .6f && room?.GetTile(pos).wallbehind is true;
+	private bool CanMiddleSleep
+	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		get => _middleSleepCtr > 0 && stressed < .6f && room?.GetTile(pos).wallbehind is true;
+	}
 
 	/// <summary>
 	/// Insect ctor
@@ -179,13 +187,14 @@ public class ColoredCamoBeetleInsect : Beetle
     public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
     {
         base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
-        sLeaser.sprites[0].scaleX *= 1.4f;
-        sLeaser.sprites[0].scaleY *= 1.45f;
+		FSprite[] sprites = sLeaser.sprites;
+		sprites[0].scaleX *= 1.4f;
+        sprites[0].scaleY *= 1.45f;
         Color eCol = rCam.currentPalette.texture.GetPixel(30, 5 - _effectColor * 2), bCol = rCam.currentPalette.blackColor;
-        for (var i = 0; i < sLeaser.sprites.Length; i++)
+        for (var i = 0; i < sprites.Length; i++)
         {
-            sLeaser.sprites[i].color = Color.Lerp(bCol, eCol, _lerper);
-            sLeaser.sprites[i].alpha = (stressed - .4f) * 2f;
+            sprites[i].color = Color.Lerp(bCol, eCol, _lerper);
+            sprites[i].alpha = (stressed - .4f) * 2f;
         }
     }
 }

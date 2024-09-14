@@ -5,7 +5,7 @@ namespace RegionKit.Modules.Machinery.V1;
 public class SimpleCogData : BaseMachineryData
 {
 	internal Vector2 forcepos;
-	internal OperationMode opmode => GetValue<OperationMode>("opmode");
+	internal OscillationMode opmode => GetValue<OscillationMode>("opmode");
 	[FloatField("AVSamp", 0.1f, 15f, 1f, increment: 0.1f, displayName: "AV shift amplitude", control: ManagedFieldWithPanel.ControlType.text)]
 	internal float angVelShiftAmp;
 	[FloatField("AVSfrq", 0.1f, 3f, 1f, increment: 0.05f, displayName: "AV shift frequency", control: ManagedFieldWithPanel.ControlType.text)]
@@ -18,7 +18,7 @@ public class SimpleCogData : BaseMachineryData
 
 	public SimpleCogData(PlacedObject? owner) : base(owner, new ManagedField[]
 	{
-			new EnumField<OperationMode>("opmode", OperationMode.Cosinal, displayName:"Operation mode")
+			new EnumField<OscillationMode>("opmode", OscillationMode.Cosinal, displayName:"Operation mode")
 	})
 	{
 

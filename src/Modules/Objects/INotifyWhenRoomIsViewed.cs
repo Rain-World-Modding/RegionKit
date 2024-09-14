@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace RegionKit
+namespace RegionKit.Modules.Objects
 {
 	/// <summary>
-	/// NOTE: notify methods registered in <see cref="RegionKit.Modules.Objects._Module"/>
+	/// NOTE: notify methods registered in <see cref="_Module"/>
 	/// </summary>
 	public interface INotifyWhenRoomIsViewed
 	{

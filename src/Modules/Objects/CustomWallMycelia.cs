@@ -7,13 +7,13 @@ public class CustomWallMyceliaData : ManagedData
     [Vector2Field("size", 100, 100, Vector2Field.VectorReprType.circle)]
     public Vector2 size;
 
-    [ColorField(nameof(stalkGradStart), 0, 0, 0, ct: ManagedFieldWithPanel.ControlType.slider, DisplayName: "Stalk Gradient Start")]
+    [ColorField(nameof(stalkGradStart), 0, 0, 0, controlType: ManagedFieldWithPanel.ControlType.slider, DisplayName: "Stalk Gradient Start")]
     public Color stalkGradStart;
 
-    [ColorField(nameof(stalkGradEnd), 0.1f, 0.3f, 0.287f, ct: ManagedFieldWithPanel.ControlType.slider, DisplayName: "Stalk Gradient End")]
+    [ColorField(nameof(stalkGradEnd), 0.1f, 0.3f, 0.287f, controlType: ManagedFieldWithPanel.ControlType.slider, DisplayName: "Stalk Gradient End")]
     public Color stalkGradEnd;
 
-    [ColorField(nameof(tipColor), 0, 0, 1, ct: ManagedFieldWithPanel.ControlType.slider, DisplayName: "Tip Color")]
+    [ColorField(nameof(tipColor), 0, 0, 1, controlType: ManagedFieldWithPanel.ControlType.slider, DisplayName: "Tip Color")]
     public Color tipColor;
 
     public CustomWallMyceliaData(PlacedObject owner) : base(owner, null)

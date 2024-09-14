@@ -27,7 +27,7 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 		_CommonHooks.PostRoomLoad += PostRoomLoad;
 	}
 
-	private static void RoomCamera_ApplyEffectColorsToPaletteTexture(On.RoomCamera.orig_ApplyEffectColorsToPaletteTexture orig, RoomCamera self, ref Texture2D texture, int color1, int color2)
+	/*private static void RoomCamera_ApplyEffectColorsToPaletteTexture(On.RoomCamera.orig_ApplyEffectColorsToPaletteTexture orig, RoomCamera self, ref Texture2D texture, int color1, int color2)
 	{
 		//unused attempt to make this into a sane hook
 		//unfortunately, when palettes are applied, RoomCamera.room is actually the previous room for some stupid reason
@@ -49,7 +49,7 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 				texture.SetPixels(30, colorA ? 10 : 12, 2, 2, clrArA, 0);
 			}
 		}
-	}
+	}*/
 
 	internal static void Undo()
 	{
@@ -60,9 +60,10 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 
 	private static void PostRoomLoad(Room self)
 	{
-		for (var k = 0; k < self.roomSettings.effects.Count; k++)
+		List<RoomSettings.RoomEffect> efs = self.roomSettings.effects;
+		for (var k = 0; k < efs.Count; k++)
 		{
-			RoomSettings.RoomEffect effect = self.roomSettings.effects[k];
+			RoomSettings.RoomEffect effect = efs[k];
 			if (effect.type == ReplaceEffectColorA || effect.type == ReplaceEffectColorB)
 			{
 				LogDebug($"ReplaceEffectColor in room {self.abstractRoom.name}");
@@ -79,8 +80,10 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 		base.Update(eu);
 		if (room?.game is RainWorldGame game)
 		{
-			foreach (RoomCamera cam in game.cameras)
+			RoomCamera[] cams = game.cameras;
+			for (var i = 0; i < cams.Length; i++)
 			{
+				RoomCamera cam = cams[i];
 				if (cam.room?.roomSettings is RoomSettings rs)
 				{
 					RoomSettings.RoomEffect.Type type = _colorB ? ReplaceEffectColorB : ReplaceEffectColorA;
@@ -95,9 +98,9 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 							cam.fadeTexB.SetPixels(30, _colorB ? 2 : 4, 2, 2, clrArA, 0);
 							cam.fadeTexB.SetPixels(30, _colorB ? 10 : 12, 2, 2, clrArA, 0);
 						}
-						foreach (RoomSettings.FadePalette fade in Misc.MoreFadePalettes.MoreFadeTextures(cam).Keys.ToList())
+						foreach (RoomSettings.FadePalette fade in Misc.MoreFadePalettes.MoreFadeTextures(cam).Keys)
 						{
-							if (fade != null && fade.palette != -1)
+							if (fade is not null && fade.palette != -1)
 							{
 								Misc.MoreFadePalettes.MoreFadeTextures(cam)[fade].SetPixels(30, _colorB ? 2 : 4, 2, 2, clrArA, 0);
 								Misc.MoreFadePalettes.MoreFadeTextures(cam)[fade].SetPixels(30, _colorB ? 10 : 12, 2, 2, clrArA, 0);

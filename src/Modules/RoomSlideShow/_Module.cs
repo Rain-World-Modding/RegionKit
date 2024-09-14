@@ -1,4 +1,4 @@
-using IO = System.IO;
+﻿using IO = System.IO;
 
 namespace RegionKit.Modules.RoomSlideShow;
 
@@ -41,8 +41,8 @@ public static class _Module
 	{
 		try
 		{
-			RegisterManagedObject<SlideShowUAD, SlideShowMeshData, ManagedRepresentation>("SlideShow", RK_POM_CATEGORY);
-			RegisterManagedObject<SlideShowUAD, SlideShowRectData, ManagedRepresentation>("SlideShowRect", RK_POM_CATEGORY);
+			RegisterManagedObject<SlideShowUAD, SlideShowMeshData, ManagedRepresentation>("SlideShow", Objects._Module.OBJECTS_POM_CATEGORY);
+			RegisterManagedObject<SlideShowUAD, SlideShowRectData, ManagedRepresentation>("SlideShowRect", Objects._Module.OBJECTS_POM_CATEGORY);
 		}
 		catch (Exception ex)
 		{

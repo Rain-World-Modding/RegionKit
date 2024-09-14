@@ -52,6 +52,22 @@ public static class RainWorldTools
 			if (rm.updateList[i] is T t) yield return t;
 		}
 	}
+
+	internal static D? FindPlacedObjectData<D>(this RoomSettings roomSettings)
+	{
+		for (int i = 0; i < roomSettings.placedObjects.Count; i++)
+		{
+			if (roomSettings.placedObjects[i]?.data is D d) return d;
+		}
+		return default;
+	}
+	internal static IEnumerable<D> FindAllPlacedObjectsData<D>(this RoomSettings roomSettings)
+	{
+		for (int i = 0; i < roomSettings.placedObjects.Count; i++)
+		{
+			if (roomSettings.placedObjects[i]?.data is D d) yield return d;
+		}
+	}
 	public static IEnumerable<IntVector2> ReturnTiles(this IntRect ir)
 	{
 		for (int i = ir.left; i <= ir.right; i++)
@@ -64,11 +80,11 @@ public static class RainWorldTools
 	}
 	public static FContainer ReturnFContainer(this RoomCamera rcam, ContainerCodes cc)
 		=> rcam.ReturnFContainer(cc.ToString());
-	public static IEnumerable<IRoomZone> GetZones(this Room room, params int[] tags)
+	public static IEnumerable<Modules.RoomZones.IRoomZone> GetZones(this Room room, params int[] tags)
 	{
 		foreach (UpdatableAndDeletable uad in room.updateList)
 		{
-			if (uad is IRoomZone zone && tags.Contains(zone.Tag)) yield return zone;
+			if (uad is Modules.RoomZones.IRoomZone zone && tags.Contains(zone.Tag)) yield return zone;
 		}
 	}
 
@@ -118,6 +134,13 @@ public static class RainWorldTools
 		}
 
 		return inverted != include;
+	}
+
+	public static bool TryGetElementWithName(this FAtlasManager manager, string elementName, out FAtlasElement? result)
+	{
+		bool has = manager.DoesContainElementWithName(elementName);
+		result = has ? manager.GetElementWithName(elementName) : null;
+		return has;
 	}
 
 	/// <summary>

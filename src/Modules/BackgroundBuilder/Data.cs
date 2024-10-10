@@ -952,11 +952,61 @@ internal static class Data
 			}
 		}
 
+		[BackgroundData]
+		public int rubbleCount
+		{
+			get => _rubbleCount ?? Scene?.elements.Where(x => x is Rubble).Count() ?? 16;
+			set
+			{
+				redoRubble |= value != rubbleCount;
+				_rubbleCount = value;
+			}
+		}
+
+		[BackgroundData]
+		public float rubbleStartDepth
+		{
+			get => _rubbleStartDepth ?? 1.5f;
+			set
+			{
+				redoRubble |= value != rubbleStartDepth;
+				_rubbleStartDepth = value;
+			}
+		}
+
+		[BackgroundData]
+		public float rubbleEndDepth
+		{
+			get => _rubbleEndDepth ?? 8f;
+			set
+			{
+				redoRubble |= value != rubbleEndDepth;
+				_rubbleEndDepth = value;
+			}
+		}
+
+		[BackgroundData]
+		public float curveRubbleDepth
+		{
+			get => _curveRubbleDepth ?? 1.5f;
+			set
+			{
+				redoRubble |= value != curveRubbleDepth;
+				_curveRubbleDepth = value;
+			}
+		}
+
 		#region backingfields
 		private Vector2? _origin;
 		private bool? lCMode;
 		private float? _floorLevel;
+		private int? _rubbleCount;
+		private float? _rubbleStartDepth;
+		private float? _rubbleEndDepth;
+		private float? _curveRubbleDepth;
 		#endregion
+
+		public bool redoRubble;
 
 		public RoofTopView? Scene { get => _Scene is RoofTopView acv ? acv : null; set => _Scene = value; }
 
@@ -967,6 +1017,12 @@ internal static class Data
 			Scene = rtv;
 
 			base.MakeScene(self);
+
+			if (redoRubble)
+			{
+				RedoRubble(Scene);
+				redoRubble = false;
+			}
 		}
 
 		public void UpdateFloorLevel(float difference)
@@ -976,6 +1032,17 @@ internal static class Data
 			{
 				if (element is RoofTopView.DistantBuilding or Building or Floor or RoofTopView.Smoke or Rubble)
 				{ element.pos.y += difference; }
+			}
+		}
+
+		public void RedoRubble(RoofTopView scene)
+		{
+			scene.elements.RemoveAll(x => { if (x is Rubble) { x.Destroy(); return true; } return false; });
+
+			for (int i = 0; i < rubbleCount; i++)
+			{
+				float f = (float)i / (rubbleCount - 1);
+				scene.AddElement(new RoofTopView.Rubble(scene, "Rf_Rubble", new Vector2(0f, scene.floorLevel), Mathf.Lerp(rubbleStartDepth, rubbleEndDepth, Mathf.Pow(f, curveRubbleDepth)), i));
 			}
 		}
 

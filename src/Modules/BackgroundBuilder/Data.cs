@@ -115,6 +115,7 @@ internal static class Data
 		else if (type == typeof(bool)) return str == "True";
 		else if (type == typeof(int)) return int.Parse(str);
 		else if (type == typeof(float)) return float.Parse(str);
+		else if (type.IsEnum) return Enum.Parse(type, str);
 		else if (type == typeof(Color)) return hexToColor(str);
 		else if (type == typeof(Vector2))
 		{
@@ -371,6 +372,19 @@ internal static class Data
 
 	public partial class BGSceneData
 	{
+		[BackgroundData(backingFieldName = nameof(_defaultContainer), name = "DefaultContainer")]
+		public ContainerCodes defaultContainer
+		{
+			get => _defaultContainer ?? ContainerCodes.Water;
+			set
+			{
+				_defaultContainer = value;
+				//lol we're not updating all containers...
+			}
+		}
+		private ContainerCodes? _defaultContainer = null;
+
+
 		public virtual List<string> Serialize()
 		{
 			List<string> list = new();

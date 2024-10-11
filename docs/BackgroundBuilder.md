@@ -81,9 +81,25 @@ will adjust the background position relative to the room position,
 like how AboveCloudsView does  
 example - *origin: 0,0*
 
+`rubbleCount:` (default 16)  
+the number of rubble layers
+
+`rubbleStartDepth:` (default 1.5)  
+the depth of the closest rubble layer
+
+`rubbleEndDepth:` (default 8)  
+the depth of the furthest rubble layer  
+
+`curveRubbleDepth:` (default 1.5)  
+sets how exponential the rubble layers' spread will be
+a higher number will pull more rubble layers forward
+
 
 ## AboveCloudsView and RoofTopView Settings  
 (the following work with either background type)  
+
+`DefaultContainer:` (default Water)  
+which container all background elements should be placed in
 
 `daySky:` (default AtC_Sky)  
 the image to use as the background during day
@@ -182,6 +198,12 @@ example: *anchor|0.5,-0.02*
 
 Determines the anchor position for sprites when positioning  
 Used by Metropolis to have building sprites move relative to their base
+
+`container`  
+example: *container|Foreground*
+
+Determines the container for this individual element  
+Useful for avoiding objects from removing the visuals of certain devtools objects
 
 `spriteName`  
 example: *spriteName|clouds3*

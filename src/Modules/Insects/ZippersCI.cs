@@ -1,6 +1,6 @@
 ﻿using Random = UnityEngine.Random;
 
-namespace RegionKit.Modules.Effects
+namespace RegionKit.Modules.Insects
 {
 	internal static class ZippersCI
 	{

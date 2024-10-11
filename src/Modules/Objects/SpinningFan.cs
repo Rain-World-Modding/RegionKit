@@ -50,7 +50,7 @@ internal class SpinningFan : UpdatableAndDeletable, IDrawable
 		{
 			new("assets/regionkit/sprites/fan", true)
 			{
-				shader = rCam.game.rainWorld.Shaders["ColoredSprite2"]
+				shader = rCam.game.rainWorld.Shaders["LegacyColoredSprite2"]
 			}
 		};
 		AddToContainer(sLeaser, rCam, null);

@@ -33,6 +33,7 @@ public static class _Module
 		RGBElectricDeath.REDLoadResources(rainworld);
 		HSLDisplaySnow.RDSLoadResources(rainworld);
 		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
+		LegacyColoredSprite2.LegacyColoredSprite2Load(rainworld);
 	}
 	internal static void Enable()
 	{

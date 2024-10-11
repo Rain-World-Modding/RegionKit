@@ -12,6 +12,7 @@ namespace RegionKit.OptionsMenu
 	/// </summary>
 	public class TurboBakerTab : OpTab
 	{
+		private const bool DEBUG = false;
 		private const float RegionCheckboxHeight = 30;
 		private const float ThreadLabelHeight = 20;
 
@@ -53,10 +54,10 @@ namespace RegionKit.OptionsMenu
 				new OpLabel(45f, 560f, "Rebake All Rooms"),
 				new OpCheckBox(HiddenSlugcats, 10, 520),
 				new OpLabel(45f, 520f, "Include Hidden Slugcats"),
-				new OpSlider(Threads, new Vector2(6, 295), 200, true),
-				new OpLabel(45f, 395f, "Baking Threads"),
-				scrollBox = new OpScrollBox(Vector2.zero, new Vector2(120f, 280), Regions.Count * RegionCheckboxHeight, false, false),
-				new OpLabel(130f, 140, "Regions"),
+				new OpDragger(Threads, 10, 480),
+				new OpLabel(45f, 480f, "Baking Threads"),
+				scrollBox = new OpScrollBox(Vector2.zero, new Vector2(120f, 440f), Regions.Count * RegionCheckboxHeight, false, false),
+				new OpLabel(10f, 450, "Regions:"),
 				BakeButton = new OpSimpleButton(new Vector2(130, 0), new Vector2(80, 30), "Bake!"),
 				StatusLabel = new OpLabel(250, 5, "")
 			};
@@ -132,6 +133,7 @@ namespace RegionKit.OptionsMenu
 		public void BakeClick(UIfocusable trigger)
 		{
 			var regionsToBake = Regions.Where(x => x.Value.GetValueBool()).Select(x => x.Key).ToList();
+			if (DEBUG) LogInfo("REGIONS TO BAKE (prior): " + string.Join(", ", regionsToBake));
 			if (regionsToBake.Count == 0)
 			{
 				trigger.PlaySound(SoundID.MENU_Error_Ping);
@@ -141,117 +143,126 @@ namespace RegionKit.OptionsMenu
 			Baking = true;
 			trigger.greyedOut = true;
 			BakeStartTime = DateTime.Now;
-			owner._SaveConfigFile();
-			BeginTurboBake();
-		}
-
-		private async void BeginTurboBake()
-		{
-			await Task.Run(TurboBake);
+			TurboBake();
 		}
 
 		public void TurboBake()
 		{
-			bool includeHiddenSlugcats = HiddenSlugcats.Value;
-			bool forceRebake = ForceBake.Value;
-
-			var regionsToBake = Regions.Where(x => x.Value.GetValueBool()).Select(x => x.Key).ToList();
-
-			var worldLoaders = new List<WorldLoader>();
-			foreach (string? slugcatName in ExtEnumBase.GetNames(typeof(SlugcatStats.Name)))
+			try
 			{
-				var slugcat = new SlugcatStats.Name(slugcatName);
+				bool includeHiddenSlugcats = HiddenSlugcats.Value;
+				bool forceRebake = ForceBake.Value;
 
-				if (!includeHiddenSlugcats && SlugcatStats.HiddenOrUnplayableSlugcat(slugcat)) continue;
+				var regionsToBake = Regions.Where(x => x.Value.GetValueBool()).Select(x => x.Key).ToList();
+				if (DEBUG) LogInfo("REGIONS TO BAKE: " + string.Join(", ", regionsToBake));
 
-				IEnumerable<Region> regions = Region.LoadAllRegions(slugcat).Where(x => regionsToBake.Contains(x.name));
-
-				foreach (Region? region in regions)
+				var worldLoaders = new List<WorldLoader>();
+				foreach (string slugcatName in ExtEnumBase.GetNames(typeof(SlugcatStats.Name)))
 				{
-					var worldLoader = new WorldLoader(null, slugcat, false, region.name, region, RainWorld.LoadSetupValues(true));
-					worldLoader.NextActivity();
-					while (!worldLoader.Finished)
-					{
-						worldLoader.Update();
-					}
-					worldLoaders.Add(worldLoader);
-				}
-			}
+					var slugcat = new SlugcatStats.Name(slugcatName);
 
-			var queuedRooms = new List<string>();
-			foreach (WorldLoader worldLoader in worldLoaders)
-			{
-				World world = worldLoader.ReturnWorld();
+					if (!includeHiddenSlugcats && SlugcatStats.HiddenOrUnplayableSlugcat(slugcat)) continue;
 
-				for (int i = 0; i < worldLoader.roomAdder.Count; i++)
-				{
-					string roomName = worldLoader.roomAdder[i][0];
-					if (queuedRooms.Contains(worldLoader.roomAdder[i][0]))
-					{
-						LogInfo("Skipping already prepared room: " + roomName);
-						continue;
-					}
-					queuedRooms.Add(roomName);
-					LogInfo("Started preparing room: " + roomName);
+					IEnumerable<Region> regions = Region.LoadAllRegions(slugcat).Where(x => regionsToBake.Contains(x.name));
 
-					var roomText = File.ReadAllLines(WorldLoader.FindRoomFile(roomName, false, ".txt"));
-					if (int.Parse(roomText[9].Split('|')[0], NumberStyles.Any, CultureInfo.InvariantCulture) < world.preProcessingGeneration || forceRebake)
+					foreach (Region region in regions)
 					{
-						AbstractRoom abstractRoom = worldLoader.abstractRooms[i];
-						int generation = world.preProcessingGeneration;
-						var room = new Room(null, world, abstractRoom);
-						var roomPreparer = new RoomPreparer(room, false, false, false);
-						var taskData = new TaskData(abstractRoom.name)
+						var worldLoader = new WorldLoader(null, slugcat, false, region.name, region, RainWorld.LoadSetupValues(true));
+						worldLoader.NextActivity();
+						while (!worldLoader.Finished)
 						{
-							Size = room.Width * room.Height
-						};
-						LogInfo("Done preparing room: " + abstractRoom.name);
-
-						var task = new Action(() =>
-						{
-							try
-							{
-								LogInfo("Started baking room: " + abstractRoom.name);
-								lock (taskData)
-								{
-									taskData.StartTime = DateTime.Now;
-								}
-								taskData.Started = true;
-
-								RunToCompletion(roomPreparer);
-
-								abstractRoom.InitNodes(roomPreparer.ReturnRoomConnectivity(), roomText[1]);
-								roomText[9] = RoomPreprocessor.ConnMapToString(generation, abstractRoom.nodes);
-								roomText[10] = RoomPreprocessor.CompressAIMapsToString(room.aimap);
-								File.WriteAllLines(WorldLoader.FindRoomFile(abstractRoom.name, false, ".txt"), roomText);
-
-								LogInfo("Done baking room: " + abstractRoom.name);
-								lock (taskData)
-								{
-									taskData.EndTime = DateTime.Now;
-								}
-								taskData.Finished = true;
-							}
-							catch (Exception ex)
-							{
-								LogError(ex);
-							}
-						});
-
-						taskData.BakingTask = task;
-						Tasks.Add(taskData);
-					}
-					else
-					{
-						LogInfo("Skipping already baked room: " + roomName);
+							worldLoader.Update();
+						}
+						worldLoaders.Add(worldLoader);
+						if (DEBUG) LogInfo("Loaded world " + region.name + " for " + slugcatName);
 					}
 				}
+
+				if (DEBUG) LogInfo("ITERATING WORLDLOADER LIST");
+
+				var queuedRooms = new List<string>();
+				foreach (WorldLoader worldLoader in worldLoaders)
+				{
+					if (DEBUG) LogInfo("Retrieving world " + worldLoader.worldName + " for " + worldLoader.playerCharacter.value);
+					World world = worldLoader.ReturnWorld();
+
+					for (int i = 0; i < worldLoader.roomAdder.Count; i++)
+					{
+						string roomName = worldLoader.roomAdder[i][0];
+						if (queuedRooms.Contains(worldLoader.roomAdder[i][0]))
+						{
+							LogInfo("Skipping already prepared room: " + roomName);
+							continue;
+						}
+						queuedRooms.Add(roomName);
+						LogInfo("Started preparing room: " + roomName);
+
+						var roomText = File.ReadAllLines(WorldLoader.FindRoomFile(roomName, false, ".txt"));
+						if (int.Parse(roomText[9].Split('|')[0], NumberStyles.Any, CultureInfo.InvariantCulture) < world.preProcessingGeneration || forceRebake)
+						{
+							AbstractRoom abstractRoom = worldLoader.abstractRooms[i];
+							int generation = world.preProcessingGeneration;
+							var room = new Room(null, world, abstractRoom);
+							var roomPreparer = new RoomPreparer(room, false, false, false);
+							var taskData = new TaskData(abstractRoom.name)
+							{
+								Size = room.Width * room.Height
+							};
+							LogInfo("Done preparing room: " + abstractRoom.name);
+
+							var task = new Action(() =>
+							{
+								try
+								{
+									LogInfo("Started baking room: " + abstractRoom.name);
+									lock (taskData)
+									{
+										taskData.StartTime = DateTime.Now;
+									}
+									taskData.Started = true;
+
+									RunToCompletion(roomPreparer);
+
+									abstractRoom.InitNodes(roomPreparer.ReturnRoomConnectivity(), roomText[1]);
+									roomText[9] = RoomPreprocessor.ConnMapToString(generation, abstractRoom.nodes);
+									roomText[10] = RoomPreprocessor.CompressAIMapsToString(room.aimap);
+									File.WriteAllLines(WorldLoader.FindRoomFile(abstractRoom.name, false, ".txt"), roomText);
+
+									LogInfo("Done baking room: " + abstractRoom.name);
+									lock (taskData)
+									{
+										taskData.EndTime = DateTime.Now;
+									}
+									taskData.Finished = true;
+								}
+								catch (Exception ex)
+								{
+									LogError(ex);
+								}
+							});
+
+							taskData.BakingTask = task;
+							Tasks.Add(taskData);
+						}
+						else
+						{
+							LogInfo("Skipping already baked room: " + roomName);
+						}
+					}
+				}
+
+				Tasks = Tasks.OrderByDescending(x => x.Size).ToList();
+
+				ActualBakeStartTime = DateTime.Now;
+				new Thread(() => Parallel.Invoke(new ParallelOptions { MaxDegreeOfParallelism = Threads.Value }, Tasks.Select(x => x.BakingTask).ToArray())).Start();
+
+				if (DEBUG) LogInfo("Created thread");
 			}
-
-			Tasks = Tasks.OrderByDescending(x => x.Size).ToList();
-
-			ActualBakeStartTime = DateTime.Now;
-			new Thread(() => Parallel.Invoke(new ParallelOptions { MaxDegreeOfParallelism = Threads.Value }, Tasks.Select(x => x.BakingTask).ToArray())).Start();
+			catch (Exception e)
+			{
+				LogError(e);
+				BakeButton.PlaySound(SoundID.MENU_Error_Ping);
+			}
 		}
 
 		private static void RunToCompletion(RoomPreparer preparer)

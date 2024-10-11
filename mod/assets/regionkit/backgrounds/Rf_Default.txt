@@ -11,6 +11,11 @@ nightSky: Rf_NightSky
 Floor: floor, 0, 0, 1, 12
 DistantBuilding: Rf_HoleFix, -2676, -17, 1, 0
 
+rubbleCount: 16
+rubbleStartDepth: 1.5
+rubbleEndDepth: 8
+curveRubbleDepth: 1.5
+
 Building: city2, 1780, 0, 11.5, 3
 Building: city1, 880, 0, 10.5, 3
 DistantBuilding: RF_CityA, 300, -25.5, 8.5, 0

@@ -1,32 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Menu.Remix.MixedUI;
-using static TurboBaker.TurboBaker;
+using Menu.Remix.MixedUI.ValueTypes;
 
 namespace RegionKit.OptionsMenu
 {
+	/// <summary>
+	/// Vigaro's Turbo Baker ported to RegionKit by Alduris
+	/// </summary>
 	public class TurboBakerTab : OpTab
 	{
 		private const float RegionCheckboxHeight = 30;
 		private const float ThreadLabelHeight = 20;
 
-		public static List<TaskData> Tasks = new();
-		public static List<OpLabel> ThreadLabels = new();
-		public static OpLabel StatusLabel;
-		public static DateTime BakeStartTime;
-		public static DateTime ActualBakeStartTime;
-		public static bool Baking;
+		public List<TaskData> Tasks = new();
+		public List<OpLabel> ThreadLabels = new();
+		public OpLabel? StatusLabel;
+		public OpSimpleButton BakeButton = null!;
+		public DateTime BakeStartTime;
+		public DateTime ActualBakeStartTime;
+		public bool Baking = false;
 
 		public readonly Configurable<int> Threads;
 		public readonly Configurable<bool> ForceBake;
 		public readonly Configurable<bool> HiddenSlugcats;
-		public readonly Dictionary<string, Configurable<bool>> Regions = new();
+		public readonly Dictionary<string, OpCheckBox> Regions = new();
 
 		private int _updateTimer;
 
@@ -35,12 +35,18 @@ namespace RegionKit.OptionsMenu
 			Threads = owner.config.Bind(nameof(Threads), Mathf.CeilToInt(Environment.ProcessorCount * 0.5f), new ConfigAcceptableRange<int>(1, Environment.ProcessorCount));
 			ForceBake = owner.config.Bind(nameof(ForceBake), false);
 			HiddenSlugcats = owner.config.Bind(nameof(HiddenSlugcats), false);
+
+			var regions = Region.GetFullRegionOrder();
+
+			foreach (var region in regions)
+			{
+				Regions[region] = null!;
+			}
 		}
 
 		public void Initialize()
 		{
 			OpScrollBox scrollBox = null!;
-			OpSimpleButton bakeButton = null!;
 			UIelement[] elements = new UIelement[]
 			{
 				new OpCheckBox(ForceBake, 10, 560),
@@ -51,7 +57,7 @@ namespace RegionKit.OptionsMenu
 				new OpLabel(45f, 395f, "Baking Threads"),
 				scrollBox = new OpScrollBox(Vector2.zero, new Vector2(120f, 280), Regions.Count * RegionCheckboxHeight, false, false),
 				new OpLabel(130f, 140, "Regions"),
-				bakeButton = new OpSimpleButton(new Vector2(130, 0), new Vector2(80, 30), "Bake!"),
+				BakeButton = new OpSimpleButton(new Vector2(130, 0), new Vector2(80, 30), "Bake!"),
 				StatusLabel = new OpLabel(250, 5, "")
 			};
 
@@ -63,7 +69,7 @@ namespace RegionKit.OptionsMenu
 				AddItems(label);
 			}
 
-			bakeButton.OnClick += BakeClick;
+			BakeButton.OnClick += BakeClick;
 
 			AddItems(elements);
 
@@ -71,13 +77,13 @@ namespace RegionKit.OptionsMenu
 			for (int i = 0; i < acronyms.Count; i++)
 			{
 				string region = acronyms[i];
-				Configurable<bool> configurable = Regions[region];
 
 				float posY = (Regions.Count - i - 1) * RegionCheckboxHeight;
-				var checkBox = new OpCheckBox(configurable, 10, posY);
+				var checkBox = new OpCheckBox(OIUtil.CosmeticBind(false), 10, posY);
 				var label = new OpLabel(45, posY, region);
 
 				scrollBox.AddItems(checkBox, label);
+				Regions[region] = checkBox;
 			}
 		}
 
@@ -113,16 +119,35 @@ namespace RegionKit.OptionsMenu
 			statusText += $"Baked Rooms: {finished}/{Tasks.Count}\r\n";
 			statusText += $"Baking Time: {elapsed.Hours * 60 + elapsed.Minutes:D2}:{elapsed.Seconds:D2}\r\n";
 
-			StatusLabel.text = statusText;
+			StatusLabel!.text = statusText;
+
+			if (finished == Tasks.Count)
+			{
+				Baking = false;
+				Tasks.Clear();
+				BakeButton.greyedOut = false;
+			}
 		}
 
 		public void BakeClick(UIfocusable trigger)
 		{
+			var regionsToBake = Regions.Where(x => x.Value.GetValueBool()).Select(x => x.Key).ToList();
+			if (regionsToBake.Count == 0)
+			{
+				trigger.PlaySound(SoundID.MENU_Error_Ping);
+				return;
+			}
+
 			Baking = true;
 			trigger.greyedOut = true;
 			BakeStartTime = DateTime.Now;
 			owner._SaveConfigFile();
-			TurboBake();
+			BeginTurboBake();
+		}
+
+		private async void BeginTurboBake()
+		{
+			await Task.Run(TurboBake);
 		}
 
 		public void TurboBake()
@@ -130,7 +155,7 @@ namespace RegionKit.OptionsMenu
 			bool includeHiddenSlugcats = HiddenSlugcats.Value;
 			bool forceRebake = ForceBake.Value;
 
-			var regionsToBake = Regions.Where(x => x.Value.Value).Select(x => x.Key).ToList();
+			var regionsToBake = Regions.Where(x => x.Value.GetValueBool()).Select(x => x.Key).ToList();
 
 			var worldLoaders = new List<WorldLoader>();
 			foreach (string? slugcatName in ExtEnumBase.GetNames(typeof(SlugcatStats.Name)))
@@ -176,8 +201,10 @@ namespace RegionKit.OptionsMenu
 						int generation = world.preProcessingGeneration;
 						var room = new Room(null, world, abstractRoom);
 						var roomPreparer = new RoomPreparer(room, false, false, false);
-						var taskData = new TaskData(abstractRoom.name);
-						taskData.Size = room.Width * room.Height;
+						var taskData = new TaskData(abstractRoom.name)
+						{
+							Size = room.Width * room.Height
+						};
 						LogInfo("Done preparing room: " + abstractRoom.name);
 
 						var task = new Action(() =>
@@ -278,5 +305,15 @@ namespace RegionKit.OptionsMenu
 			}
 		}
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+		// Made by Alduris
+		internal sealed class OIUtil : OptionInterface
+		{
+			private OIUtil() { }
+			public static readonly OIUtil Instance = new();
+
+			public static Configurable<T> CosmeticBind<T>(T init) => new(Instance, null, init, null);
+			public static Configurable<T> CosmeticRange<T>(T val, T min, T max) where T : IComparable => new(val, new ConfigAcceptableRange<T>(min, max));
+		}
 	}
 }

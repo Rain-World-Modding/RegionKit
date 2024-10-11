@@ -35,10 +35,6 @@ public static class _Enums
 	/// Zipper effect enum
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type Zippers = new(nameof(Zippers), true);
-	/// <summary>
-	/// Circuit fly effect enum
-	/// </summary>
-	public static RoomSettings.RoomEffect.Type CircuitFlies = new(nameof(CircuitFlies), true);
 	
 	/// <summary>
 	/// Glowing Swimmer insect enum

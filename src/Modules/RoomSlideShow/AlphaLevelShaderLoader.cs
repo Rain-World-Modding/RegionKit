@@ -18,6 +18,8 @@ namespace RegionKit.Modules.RoomSlideShow
 				loaded = true;
 				var bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/alphalevelcolorbundle"));
 				rw.Shaders["AlphaLevelColor"] = FShader.CreateShader("AlphaLevelColor", bundle.LoadAsset<Shader>("Assets/shaders 1.9.03/RM_LeveIltem_3.shader"));
+				rw.Shaders["WaterWarble"] = FShader.CreateShader("WaterWarble", bundle.LoadAsset<Shader>("Assets/shaders 1.9.03/WaterWarble.shader"));
+
 			}
 		}
 	}

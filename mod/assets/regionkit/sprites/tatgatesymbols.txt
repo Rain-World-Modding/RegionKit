@@ -1,0 +1,124 @@
+{"frames": {
+
+"gateSymbol1txt.png":
+{
+	"frame": {"x":0,"y":0,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbol2txt.png":
+{
+	"frame": {"x":62,"y":0,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbol3txt.png":
+{
+	"frame": {"x":124,"y":0,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbol4txt.png":
+{
+	"frame": {"x":186,"y":0,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbol5txt.png":
+{
+	"frame": {"x":248,"y":0,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbolForbiddenalt.png":
+{
+	"frame": {"x":0,"y":149,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbolGlowalt.png":
+{
+	"frame": {"x":62,"y":149,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"smallKarmaComsmarkalt.png":
+{
+	"frame": {"x":124,"y":149,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbolOpenalt.png":
+{
+	"frame": {"x":186,"y":124,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbolUwualt.png":
+{
+	"frame": {"x":248,"y":124,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbol10reinforcedalt.png":
+{
+	"frame": {"x":0,"y":298,"w":62,"h":155},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":155},
+	"sourceSize": {"w":62,"h":155}
+},
+"gateSymbolConstruction.png":
+{
+	"frame": {"x":62,"y":298,"w":62,"h":155},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":155},
+	"sourceSize": {"w":62,"h":155}
+},
+"gateSymbolConstructionalt.png":
+{
+	"frame": {"x":124,"y":298,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"smallKarmaConstruction.png":
+{
+	"frame": {"x":186,"y":298,"w":45,"h":45},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
+	"sourceSize": {"w":45,"h":45}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "TatGateSymbols.png",
+	"format": "RGBA8888",
+	"size": {"w":310,"h":453},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:3e9eb9b947c740902ee7e65bbf8fe2da:d10dd3d420afd446438b2b6412ad61f0:91174c6b396ff50d7f2cfb4e2396d231$"
+}
+}

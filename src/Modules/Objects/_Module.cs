@@ -51,7 +51,7 @@ public static class _Module
 			//new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.Loaded)), typeof(_Module).GetMethodAllContexts(nameof(Room_Loaded))),
 			//new Hook(typeof(GHalo).GetMethodAllContexts("get_Speed"), _mt.GetMethodAllContexts(nameof(halo_speed)))
 		};
-		WaterSpoutObjRep.Register();
+		WaterSpout.Register();
 		PopupsMod.Register();
 
 		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", GAMEPLAY_POM_CATEGORY);
@@ -115,6 +115,7 @@ public static class _Module
 		CustomWallMycelia.Apply();
 		GuardProtectNode.Apply();
 		SlipperyZone.ApplyHooks();
+		WaterSpout.Apply();
 
 		LoadShaders();
 	}
@@ -138,6 +139,8 @@ public static class _Module
 		BigKarmaShrine.Undo();
 		CustomWallMycelia.Undo();
 		GuardProtectNode.Undo();
+		SlipperyZone.Undo();
+		WaterSpout.Undo();
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)

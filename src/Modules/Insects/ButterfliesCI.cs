@@ -1,7 +1,7 @@
 ﻿using Random = UnityEngine.Random;
 using DevInterface;
 
-namespace RegionKit.Modules.Effects
+namespace RegionKit.Modules.Insects
 {
 	internal static class ButterfliesCI
 	{

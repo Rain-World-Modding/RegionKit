@@ -41,21 +41,12 @@ internal static class SuperstructureFusesHook
 
 		// Compute new depth to override its current value.
 		Vector2 thisPos = @this.pos;
-		float cameraDepth;
-		switch (@this.depth)
+		var cameraDepth = @this.depth switch
 		{
-		case 0:
-			cameraDepth = LAYER_1_CAMERA_DEPTH;
-			break;
-		case 1:
-			cameraDepth = LAYER_2_CAMERA_DEPTH;
-			break;
-		case 2:
-		default:
-			cameraDepth = LAYER_3_CAMERA_DEPTH;
-			break;
-		}
-
+			0 => LAYER_1_CAMERA_DEPTH,
+			1 => LAYER_2_CAMERA_DEPTH,
+			_ => LAYER_3_CAMERA_DEPTH,
+		};
 		int index = 0;
 		for (int x = 0; x < @this.lights.GetLength(0); x++)
 		{
@@ -76,20 +67,12 @@ internal static class SuperstructureFusesHook
 
 		// Compute the sprite depth. This is the same as the vanilla behavior, save for layer 1.
 		originalMethod(@this, sLeaser, rCam);
-		float renderDepth;
-		switch (@this.depth)
+		var renderDepth = @this.depth switch
 		{
-		case 0:
-			renderDepth = LAYER_1_RENDER_DEPTH;
-			break;
-		case 1:
-			renderDepth = LAYER_2_RENDER_DEPTH;
-			break;
-		case 2:
-		default:
-			renderDepth = LAYER_3_RENDER_DEPTH;
-			break;
-		}
+			0 => LAYER_1_RENDER_DEPTH,
+			1 => LAYER_2_RENDER_DEPTH,
+			_ => LAYER_3_RENDER_DEPTH,
+		};
 		for (int index = 0; index < sLeaser.sprites.Length; index++)
 		{
 			sLeaser.sprites[index].alpha = renderDepth;

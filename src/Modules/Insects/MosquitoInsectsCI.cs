@@ -1,4 +1,4 @@
-﻿namespace RegionKit.Modules.Effects;
+﻿namespace RegionKit.Modules.Insects;
 
 /// <summary>
 /// By LB/M4rbleL1ne

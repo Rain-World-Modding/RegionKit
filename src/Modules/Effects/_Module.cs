@@ -35,12 +35,9 @@ public static class _Module
 		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
 		LegacyColoredSprite2.LegacyColoredSprite2Load(rainworld);
 	}
+
 	internal static void Enable()
 	{
-		GlowingSwimmersCI.Apply();
-		ColoredCamoBeetlesCI.Apply();
-		MosquitoInsectsCI.Apply();
-		ButterfliesCI.Apply();
 		ColorRoomEffect.Apply();
 		ReplaceEffectColor.Apply();
 		HiveColorAlpha.Apply();
@@ -60,10 +57,6 @@ public static class _Module
 
 	internal static void Disable()
 	{
-		GlowingSwimmersCI.Undo();
-		ColoredCamoBeetlesCI.Undo();
-		MosquitoInsectsCI.Undo();
-		ButterfliesCI.Undo();
 		ColorRoomEffect.Undo();
 		ReplaceEffectColor.Undo();
 		HiveColorAlpha.Undo();
@@ -85,11 +78,7 @@ public static class _Module
 			type == _Enums.ReplaceEffectColorB ||
 			type == _Enums.FogOfWarSolid ||
 			type == _Enums.FogOfWarDarkened ||
-			type == _Enums.GlowingSwimmers ||
-			type == _Enums.ColoredCamoBeetles ||
-			type == _Enums.MosquitoInsects ||
-			type == _Enums.ButterfliesA ||
-			type == _Enums.ButterfliesB ||
+
 			type == _Enums.PWMalfunction ||
 			type == _Enums.HiveColorAlpha ||
 			type == _Enums.MossWater ||

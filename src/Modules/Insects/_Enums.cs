@@ -14,6 +14,7 @@
 		/// Mosquito Insect effect enum
 		/// </summary>
 		public static RoomSettings.RoomEffect.Type MosquitoInsects = new(nameof(MosquitoInsects), true);
+		/// <summary>
 		/// Butterfly A effect enum
 		/// </summary>
 		public static RoomSettings.RoomEffect.Type ButterfliesA = new(nameof(ButterfliesA), true);

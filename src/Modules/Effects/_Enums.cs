@@ -44,7 +44,6 @@ public static class _Enums
 	/// Effect category
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type ReflectiveWater = new(nameof(ReflectiveWater), true);
-
 	/// <summary>
 	/// Effect category
 	/// </summary>
@@ -53,6 +52,18 @@ public static class _Enums
 	/// Effect category
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type HSLDisplaySnow = new(nameof(HSLDisplaySnow), true);
+	/// <summary>
+	/// FT dense fog
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type DenseFog = new(nameof(DenseFog), true);
+	/// <summary>
+	/// FT dense fog volume changer
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type DenseFogSoundVolume = new(nameof(DenseFogSoundVolume), true);
+	/// <summary>
+	/// FT dense fog sound
+	/// </summary>
+	public static SoundID FT_Fog_PreDeath = new(nameof(FT_Fog_PreDeath), true);
 	/// <summary>
 	/// Effect category
 	/// </summary>

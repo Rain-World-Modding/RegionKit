@@ -48,4 +48,8 @@ public class _Enums
 	/// Colored light beam
 	/// </summary>
 	public static PlacedObject.Type ColoredLightBeam = new(nameof(ColoredLightBeam), true);
+	/// <summary>
+	/// LB's spinning fan light
+	/// </summary>
+	public static PlacedObject.Type FanLight = new(nameof(FanLight), true);
 }

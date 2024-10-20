@@ -1,7 +1,6 @@
 ﻿using DevInterface;
 using EffExt;
 using RegionKit.Modules.RoomSlideShow;
-using RegionKit.Modules.ShaderTools;
 
 namespace RegionKit.Modules.Effects;
 
@@ -52,6 +51,7 @@ public static class _Module
 		RGBElectricDeath.Apply();
 		HSLDisplaySnow.Apply();
 		MurkyWater.Apply();
+		DenseFogHooks.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -68,6 +68,7 @@ public static class _Module
 		RGBElectricDeath.Undo();
 		HSLDisplaySnow.Undo();
 		MurkyWater.Undo();
+		DenseFogHooks.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -84,6 +85,8 @@ public static class _Module
 			type == _Enums.MossWater ||
 			type == _Enums.MurkyWater ||
 			type == _Enums.ReflectiveWater ||
+			type == _Enums.DenseFog ||
+			type == _Enums.DenseFogSoundVolume ||
 			type == EchoExtender._Enums.EchoPresenceOverride)
 			res = _Enums.RegionKit;
 		return res;

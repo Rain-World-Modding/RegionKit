@@ -73,12 +73,16 @@ public class ColoredSnowGroupUAD : UpdatableAndDeletable
 
 	public Color getRGBA()
 	{
-		return new Color((float)data.r / 255.0f, (float)data.g / 255.0f, (float)data.b / 255.0f, (float)data.s / 255.0f);
+		Color result = data.color;
+		result.a = data.s / 255.0f;
+		return result;
 	}
 
 	public Color getERGBA()
 	{
-		return new Color((float)data.er / 255.0f, (float)data.eg / 255.0f, (float)data.eb / 255.0f, (float)data.es / 255.0f);
+		Color result = data.rainColor;
+		result.a = data.s / 255.0f;
+		return result;
 	}
 
 	public Color getBlendedRGBA(float blend)
@@ -89,15 +93,10 @@ public class ColoredSnowGroupUAD : UpdatableAndDeletable
 
 public class ColoredSnowGroupData
 {
-
+	public Color color;
+	public Color rainColor;
 	public int palette;
-	public int r;
-	public int g;
-	public int b;
 	public int s;
-	public int er;
-	public int eg;
-	public int eb;
 	public int es;
 	public int from;
 	public int to;
@@ -105,13 +104,7 @@ public class ColoredSnowGroupData
 	public ColoredSnowGroupData()
 	{
 		this.palette = 0;
-		this.r = 0;
-		this.g = 0;
-		this.b = 0;
 		this.s = 0;
-		this.er = 0;
-		this.eg = 0;
-		this.eb = 0;
 		this.es = 0;
 		this.from = 0;
 		this.to = 0;
@@ -122,13 +115,9 @@ public class ColoredSnowGroupData
 		ManagedData data = ((ManagedData)placedObject.data);
 
 		this.palette = data.GetValue<int>("palette");
-		this.r = data.GetValue<int>("r");
-		this.g = data.GetValue<int>("g");
-		this.b = data.GetValue<int>("b");
+		this.color = data.GetValue<Color>("color");
 		this.s = data.GetValue<int>("s");
-		this.er = data.GetValue<int>("er");
-		this.eg = data.GetValue<int>("eg");
-		this.eb = data.GetValue<int>("eb");
+		this.rainColor = data.GetValue<Color>("rainColor");
 		this.es = data.GetValue<int>("es");
 		this.from = data.GetValue<int>("front");
 		this.to = data.GetValue<int>("back");
@@ -137,13 +126,9 @@ public class ColoredSnowGroupData
 	public void copy(ColoredSnowGroupData data)
 	{
 		this.palette = data.palette;
-		this.r = data.r;
-		this.g = data.g;
-		this.b = data.b;
+		this.color = data.color;
 		this.s = data.s;
-		this.er = data.er;
-		this.eg = data.eg;
-		this.eb = data.eb;
+		this.rainColor = data.rainColor;
 		this.es = data.es;
 		this.from = data.from;
 		this.to = data.to;
@@ -152,13 +137,9 @@ public class ColoredSnowGroupData
 	public static bool operator ==(ColoredSnowGroupData a, ColoredSnowGroupData b)
 	{
 		return a.palette == b.palette &&
-		a.r == b.r &&
-		a.g == b.g &&
-		a.b == b.b &&
+		a.color == b.color &&
 		a.s == b.s &&
-		a.er == b.er &&
-		a.eg == b.eg &&
-		a.eb == b.eb &&
+		a.rainColor == b.rainColor &&
 		a.es == b.es &&
 		a.from == b.from &&
 		a.to == b.to;
@@ -166,13 +147,9 @@ public class ColoredSnowGroupData
 	public static bool operator !=(ColoredSnowGroupData a, ColoredSnowGroupData b)
 	{
 		return a.palette != b.palette ||
-		a.r != b.r ||
-		a.g != b.g ||
-		a.b != b.b ||
+		a.color != b.color ||
 		a.s != b.s ||
-		a.er != b.er ||
-		a.eg != b.eg ||
-		a.eb != b.eb ||
+		a.color != b.color ||
 		a.es != b.es ||
 		a.from != b.from ||
 		a.to != b.to;

@@ -76,13 +76,9 @@ public class _Module
 				new IntegerField("palette", 0, 255, 0, ManagedFieldWithPanel.ControlType.arrows, "Group"),
 				new IntegerField("front", 0, 30, 0, ManagedFieldWithPanel.ControlType.slider, "From Depth"),
 				new IntegerField("back", 0, 30, 30, ManagedFieldWithPanel.ControlType.slider, "To Depth"),
-				new IntegerField("r", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Red"),
-				new IntegerField("g", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Green"),
-				new IntegerField("b", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Blue"),
+				new ColorField("color", new(1f, 1f, 1f), ManagedFieldWithPanel.ControlType.button, "Color"),
 				new IntegerField("s", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Blend"),
-				new IntegerField("er", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Rain Red"),
-				new IntegerField("eg", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Rain Green"),
-				new IntegerField("eb", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Rain Blue"),
+				new ColorField("rainColor", new(1f, 1f, 1f), ManagedFieldWithPanel.ControlType.button, "Rain Color"),
 				new IntegerField("es", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Rain Blend")
 			};
 

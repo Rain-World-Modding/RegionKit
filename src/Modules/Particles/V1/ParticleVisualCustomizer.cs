@@ -1,4 +1,4 @@
-using static UnityEngine.Mathf;
+﻿using static UnityEngine.Mathf;
 
 namespace RegionKit.Modules.Particles.V1;
 #region spawners
@@ -53,10 +53,10 @@ public class ParticleVisualCustomizer : ManagedData, IParticleVisualProvider
 	///<inheritdoc/>
 	public ParticleVisualCustomizer(PlacedObject owner) : base(owner, new ManagedField[]
 		{
-			new ColorField("sColBase", new Color(1f, 1f, 1f), displayName:"Sprite color"),
-			new ColorField("sColFluke", new Color(0f, 0f, 0f), displayName:"Sprite color fluke"),
-			new ColorField("lColBase", new Color(1f, 1f,1f), displayName:"Light color"),
-			new ColorField("lColFluke", new Color(0f, 0f, 0f), displayName:"Light color fluke"),
+			new ColorField("sColBase", new Color(1f, 1f, 1f), ManagedFieldWithPanel.ControlType.button, displayName:"Sprite color"),
+			new ColorField("sColFluke", new Color(0f, 0f, 0f), ManagedFieldWithPanel.ControlType.button, displayName:"Sprite color fluke"),
+			new ColorField("lColBase", new Color(1f, 1f,1f), ManagedFieldWithPanel.ControlType.button, displayName:"Light color"),
+			new ColorField("lColFluke", new Color(0f, 0f, 0f), ManagedFieldWithPanel.ControlType.button, displayName:"Light color fluke"),
 			new Vector2Field("p2", new Vector2(40f, 0f), Vector2Field.VectorReprType.circle),
 			new EnumField<ContainerCodes>("cc", ContainerCodes.Foreground, null, displayName:"Container")
 		})

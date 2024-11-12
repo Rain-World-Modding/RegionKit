@@ -107,7 +107,7 @@ namespace RegionKit.Modules.Insects
 		public int zipCooldown;
 		public Color zipColor;
 		public Color fadeColor;
-		private LightSource light;
+		private LightSource light = null!;
 
 		public Zipper(Room room, Vector2 pos) : base(room, pos, _Enums.Zipper)
 		{
@@ -248,7 +248,7 @@ namespace RegionKit.Modules.Insects
 			else if (light != null)
 			{
 				light.Destroy();
-				light = null;
+				light = null!;
 			}
 
 			base.Update(eu);
@@ -323,7 +323,7 @@ namespace RegionKit.Modules.Insects
 			{
 				sLeaser.sprites[0].color = Color.Lerp(fadeColor, zipColor, glowFac * 2f - 1f);
 			}
-			else
+			else if (room != null)
 			{
 				sLeaser.sprites[0].color = Color.Lerp(rCam.currentPalette.blackColor, fadeColor, Mathf.Max(glowFac * 2f, Mathf.Sqrt(room.Darkness(pos)) * 2f / 3f));
 			}

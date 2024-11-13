@@ -116,6 +116,7 @@ public static class _Module
 		SlipperyZone.ApplyHooks();
 		WaterSpout.Apply();
 		FanLightHooks.Apply();
+		NoBatflyLurkZoneHooks.Apply();
 
 		LoadShaders();
 	}
@@ -142,6 +143,7 @@ public static class _Module
 		SlipperyZone.Undo();
 		WaterSpout.Undo();
 		FanLightHooks.Undo();
+		NoBatflyLurkZoneHooks.Undo();
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)
@@ -163,7 +165,8 @@ public static class _Module
 			type == _Enums.ClimbableWire ||
 			type == EchoExtender._Enums.EEGhostSpot ||
 			type == TheMast._Enums.PlacedWind ||
-			type == TheMast._Enums.PlacedPearlChain)
+			type == TheMast._Enums.PlacedPearlChain ||
+			type == _Enums.NoBatflyLurkZone)
 			res = new ObjectsPage.DevObjectCategories(GAMEPLAY_POM_CATEGORY);
 		return res;
 	}
@@ -367,6 +370,19 @@ public static class _Module
 			self.tempNodes.Add(pObjRep);
 			self.subNodes.Add(pObjRep);
 		}
+		else if (tp == _Enums.NoBatflyLurkZone)
+		{
+			if (pObj is null)
+			{
+				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
+				{
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
+				});
+			}
+			var pObjRep = new ResizeableObjectRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString(), true);
+			self.tempNodes.Add(pObjRep);
+			self.subNodes.Add(pObjRep);
+		}
 		else
 			orig(self, tp, pObj);
 		//orig.Invoke(self, tp, pObj); -> this will add a duplicate PlacedObjectRepresentation
@@ -413,6 +429,10 @@ public static class _Module
 		else if (self.type == _Enums.FanLight)
 		{
 			self.data = new FanLightData(self);
+		}
+		else if (self.type == _Enums.NoBatflyLurkZone)
+		{
+			self.data = new PlacedObject.ResizableObjectData(self);
 		}
 		orig(self);
 	}

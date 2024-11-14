@@ -69,6 +69,8 @@ internal static class BackgroundElementData
 
 		public float? spriteScale = null;
 
+		public ContainerCodes? container = null;
+
 		public BackgroundScene.BackgroundSceneElement? element;
 
 		public List<string> unrecognizedTags;
@@ -87,6 +89,7 @@ internal static class BackgroundElementData
 			List<string> tags = new();
 			if (anchorPos is Vector2 v) tags.Add($"anchor|{v.x}, {v.y}");
 			if (spriteScale is float f) tags.Add($"scale|{f}");
+			if (container is ContainerCodes c) tags.Add($"container|{c}");
 			return " : " + string.Join(" : ", tags.Concat(unrecognizedTags));
 		}
 
@@ -125,6 +128,13 @@ internal static class BackgroundElementData
 					return true;
 				}
 				else return false;
+			case "container":
+				if (Enum.TryParse(value, false, out ContainerCodes result))
+				{
+					container = result;
+					return true;
+				}
+				return false;
 			default: return false;
 			}
 		}

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using RegionKit.Extras;
 using static AboveCloudsView;
 using static RoofTopView;
 
@@ -16,12 +17,31 @@ internal static class BackgroundUpdates
 		//On.BackgroundScene.Update += BackgroundScene_Update;
 		On.BackgroundScene.BackgroundSceneElement.DrawSprites += BackgroundSceneElement_DrawSprites;
 		On.BackgroundScene.BackgroundSceneElement.InitiateSprites += BackgroundSceneElement_InitiateSprites;
+		On.BackgroundScene.BackgroundSceneElement.AddToContainer += BackgroundSceneElement_AddToContainer;
 		//On.BackgroundScene.BackgroundSceneElement.DrawPos += BackgroundSceneElement_DrawPos;
 		On.RoofTopView.Building.InitiateSprites += Building_InitiateSprites;
 		On.RoofTopView.DistantBuilding.InitiateSprites += Building_InitiateSprites;
 		On.AboveCloudsView.DistantBuilding.InitiateSprites += Building_InitiateSprites;
 		On.AboveCloudsView.DistantLightning.InitiateSprites += Building_InitiateSprites;
 		On.RoofTopView.Smoke.InitiateSprites += Building_InitiateSprites;
+	}
+
+	private static void BackgroundSceneElement_AddToContainer(On.BackgroundScene.BackgroundSceneElement.orig_AddToContainer orig, BackgroundScene.BackgroundSceneElement self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+	{
+		if (self.room.roomSettings.BackgroundData().sceneData.defaultContainer is ContainerCodes container)
+		{
+			try { newContatiner = rCam.ReturnFContainer(container); }
+			catch (Exception e) { LogError("[BackgroundBuilder]: failed to set background element default container\n" + e); }
+
+		}
+
+		if (self.CData().dataElement?.container is ContainerCodes container2)
+		{
+			try { newContatiner = rCam.ReturnFContainer(container2); }
+			catch (Exception e) { LogError("[BackgroundBuilder]: failed to set background element specific container\n" + e); }
+		}
+
+		orig(self, sLeaser, rCam, newContatiner);
 	}
 
 	private static void Building_InitiateSprites<T, S>(T orig, S self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)

@@ -1,6 +1,5 @@
 ﻿using MonoMod.RuntimeDetour;
 using DevInterface;
-using static Pom.Pom;
 
 namespace RegionKit.Modules.Objects;
 ///<inheritdoc/>
@@ -51,7 +50,7 @@ public static class _Module
 			//new Hook(typeof(Room).GetMethodAllContexts(nameof(Room.Loaded)), typeof(_Module).GetMethodAllContexts(nameof(Room_Loaded))),
 			//new Hook(typeof(GHalo).GetMethodAllContexts("get_Speed"), _mt.GetMethodAllContexts(nameof(halo_speed)))
 		};
-		WaterSpoutObjRep.Register();
+		WaterSpout.Register();
 		PopupsMod.Register();
 
 		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", GAMEPLAY_POM_CATEGORY);
@@ -115,6 +114,9 @@ public static class _Module
 		CustomWallMycelia.Apply();
 		GuardProtectNode.Apply();
 		SlipperyZone.ApplyHooks();
+		WaterSpout.Apply();
+		FanLightHooks.Apply();
+		NoBatflyLurkZoneHooks.Apply();
 
 		LoadShaders();
 	}
@@ -138,6 +140,10 @@ public static class _Module
 		BigKarmaShrine.Undo();
 		CustomWallMycelia.Undo();
 		GuardProtectNode.Undo();
+		SlipperyZone.Undo();
+		WaterSpout.Undo();
+		FanLightHooks.Undo();
+		NoBatflyLurkZoneHooks.Undo();
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)
@@ -149,7 +155,8 @@ public static class _Module
 			type == _Enums.PWLightrod ||
 			type == _Enums.UpsideDownWaterFall ||
 			type == _Enums.LittlePlanet ||
-			type == _Enums.RainbowNoFade)
+			type == _Enums.RainbowNoFade ||
+			type == _Enums.FanLight)
 			res = new ObjectsPage.DevObjectCategories(DECORATIONS_POM_CATEGORY);
 		else if (
 			type == _Enums.NoWallSlideZone ||
@@ -158,7 +165,8 @@ public static class _Module
 			type == _Enums.ClimbableWire ||
 			type == EchoExtender._Enums.EEGhostSpot ||
 			type == TheMast._Enums.PlacedWind ||
-			type == TheMast._Enums.PlacedPearlChain)
+			type == TheMast._Enums.PlacedPearlChain ||
+			type == _Enums.NoBatflyLurkZone)
 			res = new ObjectsPage.DevObjectCategories(GAMEPLAY_POM_CATEGORY);
 		return res;
 	}
@@ -203,6 +211,9 @@ public static class _Module
 				self.SetLightBeamBlink(coloredLightBeam, m);
 				coloredLightBeam._baseColorMode = (pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType is ColoredLightBeam.ColoredLightBeamData.ColorType.Environment;
 				coloredLightBeam._effectColor = (int)(pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType - 1;
+				break;
+			case nameof(_Enums.FanLight):
+				self.AddObject(new FanLightObject(self, pObj, (pObj.data as FanLightData)!));
 				break;
 			case nameof(_Enums.ClimbablePole):
 				self.AddObject(new ClimbablePole(self, (ClimbJumpVineData)pObj.data));
@@ -346,6 +357,32 @@ public static class _Module
 			self.tempNodes.Add(pObjRep);
 			self.subNodes.Add(pObjRep);
 		}
+		else if (tp == _Enums.FanLight)
+		{
+			if (pObj is null)
+			{
+				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
+				{
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
+				});
+			}
+			var pObjRep = new FanLightRepresentation(self.owner, $"{tp}_Rep", self, pObj);
+			self.tempNodes.Add(pObjRep);
+			self.subNodes.Add(pObjRep);
+		}
+		else if (tp == _Enums.NoBatflyLurkZone)
+		{
+			if (pObj is null)
+			{
+				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
+				{
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
+				});
+			}
+			var pObjRep = new ResizeableObjectRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString(), true);
+			self.tempNodes.Add(pObjRep);
+			self.subNodes.Add(pObjRep);
+		}
 		else
 			orig(self, tp, pObj);
 		//orig.Invoke(self, tp, pObj); -> this will add a duplicate PlacedObjectRepresentation
@@ -389,7 +426,15 @@ public static class _Module
 		{
 			self.data = new ClimbWireData(self);
 		}
-		orig.Invoke(self);
+		else if (self.type == _Enums.FanLight)
+		{
+			self.data = new FanLightData(self);
+		}
+		else if (self.type == _Enums.NoBatflyLurkZone)
+		{
+			self.data = new PlacedObject.ResizableObjectData(self);
+		}
+		orig(self);
 	}
 
 	internal delegate void Room_Void_None(Room instance);

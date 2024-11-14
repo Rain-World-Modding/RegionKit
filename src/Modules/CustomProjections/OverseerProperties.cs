@@ -72,12 +72,17 @@ internal class OverseerProperties
 			{ guideColor = result; }
 			break;
 
+		case "inspectorColor":
+			if (TryParseOverseerColor(line[1], out var result2))
+			{ inspectorColor = result2; }
+			break;
+
 		default:
 			if (line[0].StartsWith("overseersColorOverride"))
 			{
 				int start = line[0].IndexOf('(') + 1, end = line[0].IndexOf(')');
-				if (start != -1 && start < end && TryParseOverseerColor(line[0].Substring(start, end - start), out var result2) && float.TryParse(line[1], out var num))
-				{ overseerColorChances[result2] = num; }
+				if (start != -1 && start < end && TryParseOverseerColor(line[0].Substring(start, end - start), out var result3) && float.TryParse(line[1], out var num))
+				{ overseerColorChances[result3] = num; }
 			}
 			break;
 		}
@@ -121,6 +126,8 @@ internal class OverseerProperties
 	public int guideID  => guideColor is Color color? GetOverseerID(color) : -1;
 
 	private Color? guideColor = null;
+	public int inspectorID => inspectorColor is Color color ? GetOverseerID(color) : -1;
+	private Color? inspectorColor = null;
 
 	public Dictionary<Color, float> overseerColorChances = new();
 
@@ -141,7 +148,7 @@ internal class OverseerProperties
 
 	public Color GetOverseerColor(int id) => overseerColorLookup[id];
 
-	public static bool BaseIndex(int num) => num <= (ModManager.MSC ? 2 : 5) && num >= 0;
+	public static bool BaseIndex(int num) => num <= (ModManager.MSC ? 5 : 2) && num >= 0;
 
 	public static List<Color> BaseGameColors => new()
 	{

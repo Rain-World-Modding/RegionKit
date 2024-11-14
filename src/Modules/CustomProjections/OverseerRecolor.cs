@@ -8,6 +8,7 @@ namespace RegionKit.Modules.CustomProjections;
 internal static class OverseerRecolor
 {
 	static Hook? ColorHook;
+	static Hook? InspectorColorHook;
 	public static void Apply()
 	{
 		On.OverseerAbstractAI.ctor += OverseerAbstractAI_ctor;
@@ -16,6 +17,9 @@ internal static class OverseerRecolor
 
 		var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 		ColorHook = new Hook(typeof(OverseerGraphics).GetProperty(nameof(OverseerGraphics.MainColor), flags).GetGetMethod(), OverseerGraphics_MainColor_Get);
+
+		On.MoreSlugcats.Inspector.InitiateGraphicsModule += Inspector_InitiateGraphicsModule;
+		InspectorColorHook = new Hook(typeof(MoreSlugcats.Inspector).GetProperty(nameof(MoreSlugcats.Inspector.OwneriteratorColor), flags).GetGetMethod(), Inspector_OwnerIteratorColor_Get);
 	}
 
 	public static void Undo()
@@ -24,6 +28,9 @@ internal static class OverseerRecolor
 		On.OverseerAbstractAI.SetAsPlayerGuide -= OverseerAbstractAI_SetAsPlayerGuide;
 		On.HologramLight.InitiateSprites -= HologramLight_InitiateSprites;
 		ColorHook?.Undo();
+
+		On.MoreSlugcats.Inspector.InitiateGraphicsModule -= Inspector_InitiateGraphicsModule;
+		InspectorColorHook?.Undo();
 	}
 
 	private static void HologramLight_InitiateSprites(On.HologramLight.orig_InitiateSprites orig, HologramLight self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
@@ -72,5 +79,29 @@ internal static class OverseerRecolor
 			if (Random.value < properties.overseerColorChances[color])
 			{ self.ownerIterator = properties.GetOverseerID(color); }
 		}
+	}
+
+	public static Color Inspector_OwnerIteratorColor_Get(Func<MoreSlugcats.Inspector, Color> orig, MoreSlugcats.Inspector self)
+	{
+		int id = self.ownerIterator;
+
+		Color result = orig(self);
+
+		if (result == OverseerProperties.BaseGameColors[0] && id != 0)
+		{
+			if (OverseerProperties.GetOverseerProperties(self.room?.world.region).overseerColorLookup.TryGetValue(id, out var color))
+			{ return color; }
+		}
+		return result;
+	}
+
+	private static void Inspector_InitiateGraphicsModule(On.MoreSlugcats.Inspector.orig_InitiateGraphicsModule orig, MoreSlugcats.Inspector self)
+	{
+		if (self.ownerIterator == -1)
+		{
+			int id = OverseerProperties.GetOverseerProperties(self.abstractCreature.Room.world.region).inspectorID;
+			if (id != -1) self.ownerIterator = id;
+		}
+		orig(self);
 	}
 }

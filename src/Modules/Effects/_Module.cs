@@ -1,7 +1,6 @@
 ﻿using DevInterface;
 using EffExt;
 using RegionKit.Modules.RoomSlideShow;
-using RegionKit.Modules.ShaderTools;
 
 namespace RegionKit.Modules.Effects;
 
@@ -33,13 +32,11 @@ public static class _Module
 		RGBElectricDeath.REDLoadResources(rainworld);
 		HSLDisplaySnow.RDSLoadResources(rainworld);
 		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
+		LegacyColoredSprite2.LegacyColoredSprite2Load(rainworld);
 	}
+
 	internal static void Enable()
 	{
-		GlowingSwimmersCI.Apply();
-		ColoredCamoBeetlesCI.Apply();
-		MosquitoInsectsCI.Apply();
-		ButterfliesCI.Apply();
 		ColorRoomEffect.Apply();
 		ReplaceEffectColor.Apply();
 		HiveColorAlpha.Apply();
@@ -54,15 +51,12 @@ public static class _Module
 		RGBElectricDeath.Apply();
 		HSLDisplaySnow.Apply();
 		MurkyWater.Apply();
+		DenseFogHooks.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
 	internal static void Disable()
 	{
-		GlowingSwimmersCI.Undo();
-		ColoredCamoBeetlesCI.Undo();
-		MosquitoInsectsCI.Undo();
-		ButterfliesCI.Undo();
 		ColorRoomEffect.Undo();
 		ReplaceEffectColor.Undo();
 		HiveColorAlpha.Undo();
@@ -74,6 +68,7 @@ public static class _Module
 		RGBElectricDeath.Undo();
 		HSLDisplaySnow.Undo();
 		MurkyWater.Undo();
+		DenseFogHooks.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -84,16 +79,14 @@ public static class _Module
 			type == _Enums.ReplaceEffectColorB ||
 			type == _Enums.FogOfWarSolid ||
 			type == _Enums.FogOfWarDarkened ||
-			type == _Enums.GlowingSwimmers ||
-			type == _Enums.ColoredCamoBeetles ||
-			type == _Enums.MosquitoInsects ||
-			type == _Enums.ButterfliesA ||
-			type == _Enums.ButterfliesB ||
+
 			type == _Enums.PWMalfunction ||
 			type == _Enums.HiveColorAlpha ||
 			type == _Enums.MossWater ||
 			type == _Enums.MurkyWater ||
 			type == _Enums.ReflectiveWater ||
+			type == _Enums.DenseFog ||
+			type == _Enums.DenseFogSoundVolume ||
 			type == EchoExtender._Enums.EchoPresenceOverride)
 			res = _Enums.RegionKit;
 		return res;

@@ -65,6 +65,32 @@ public static class ExtendedGates
 			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaUwu";
 			public bool Requirement(Gate gate) => uwu != null;
 		}
+		public class Construction : LockData
+		{
+			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolConstruction";
+			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaConstruction";
+			public bool Requirement(Gate gate) => false;
+
+			public static bool RegionGateUnderConstruction(string gateName, string currentRegionName)
+			{
+				string[] arrayName = gateName.Split('_');
+
+				string otherRegionName = "ERROR!";
+				bool regionNameFound = false;
+				if (arrayName.Length == 3)
+				{
+					for (int i = 1; i < 3; i++)
+					{
+						if (Region.EquivalentRegion(arrayName[i], currentRegionName))
+						{
+							regionNameFound = true;
+						}
+						else { otherRegionName = arrayName[i]; }
+					}
+				}
+				return regionNameFound == true && otherRegionName != "ERROR!" && !Region.GetFullRegionOrder().Contains(otherRegionName);
+			}
+		}
 		public class Numerical : LockData
 		{
 			public Numerical(Req req) => this.req = req;
@@ -124,10 +150,20 @@ public static class ExtendedGates
 				return num >= req.GetKarmaLevel();
 			}
 		}
-		public class NumericalAlt : Numerical
+		public class Alt : LockData
 		{
-			public NumericalAlt(Req req) : base(req) { }
-			public override string GateElementName(GateKarmaGlyph glyph) => base.GateElementName(glyph) + "alt";
+			protected LockData wrapped;
+			public Alt(LockData wrapped) { this.wrapped = wrapped; }
+			public virtual string GateElementName(GateKarmaGlyph glyph) => wrapped.GateElementName(glyph) + ALT_POSTFIX;
+
+			public string MapElementName(Map.GateMarker gateMarker) => wrapped.MapElementName(gateMarker);
+
+			public bool Requirement(Gate regionGate) => wrapped.Requirement(regionGate);
+		}
+		public class Txt : Alt
+		{
+			public Txt(LockData wrapped) : base(wrapped) { }
+			public override string GateElementName(GateKarmaGlyph glyph) => wrapped.GateElementName(glyph) + TXT_POSTFIX;
 		}
 		internal record DelegateDriven(
 			Req req,
@@ -143,6 +179,8 @@ public static class ExtendedGates
 
 	public static Dictionary<Req, ExtendedLocks.LockData> ExLocks = new();
 
+	public static Dictionary<Req, ExtendedLocks.LockData> SpecialConditions = new();
+
 	private static readonly ConditionalWeakTable<RegionGate, List<string>> _Tags = new();
 	public static List<string> Tags(this RegionGate p) => _Tags.GetValue(p, _ => new());
 
@@ -150,6 +188,7 @@ public static class ExtendedGates
 	{
 		ExLocks = new()
 		{
+			[_Enums.Construction] = new ExtendedLocks.Construction(),
 			[_Enums.Open] = new ExtendedLocks.Open(),
 			[_Enums.Forbidden] = new ExtendedLocks.Forbidden(),
 			[_Enums.CommsMark] = new ExtendedLocks.ComsMark(),
@@ -163,8 +202,33 @@ public static class ExtendedGates
 			[_Enums.TenKarma] = new ExtendedLocks.Numerical(_Enums.TenKarma),
 		};
 
-		foreach (Req req in _Enums.alt)
-		{ ExLocks[req] = new ExtendedLocks.NumericalAlt(req); }
+		foreach (Req alt in _Enums.alt)
+		{
+			Req baseReq = new(alt.value[..^ALT_POSTFIX.Length], false);
+
+			if (ExLocks.TryGetValue(baseReq, out var data))
+			{ ExLocks[alt] = new ExtendedLocks.Alt(data); }
+
+			else if (int.TryParse(baseReq.value, out _))
+			{ ExLocks[alt] = new ExtendedLocks.Alt(new ExtendedLocks.Numerical(baseReq)); }
+
+			else { LogError("ExtendedGates failed to register alt lock for " + alt.value[..^ALT_POSTFIX.Length]); }
+		}
+
+
+
+		foreach (Req txt in _Enums.txt)
+		{
+			Req baseReq = new(txt.value[..^TXT_POSTFIX.Length], false);
+
+			if (ExLocks.TryGetValue(baseReq, out var data))
+			{ ExLocks[txt] = new ExtendedLocks.Txt(data); }
+
+			else if (int.TryParse(baseReq.value, out _))
+			{ ExLocks[txt] = new ExtendedLocks.Txt(new ExtendedLocks.Numerical(baseReq)); }
+
+			else { LogError("ExtendedGates failed to register txt lock for " + txt.value[..^TXT_POSTFIX.Length]); }
+		}
 	}
 
 	internal const string Version = "1.4";
@@ -182,12 +246,17 @@ public static class ExtendedGates
 		{
 			str = str[..^ALT_POSTFIX.Length];
 		}
+		else if (str.EndsWith(TXT_POSTFIX))
+		{
+			str = str[..^TXT_POSTFIX.Length];
+		}
 		if (int.TryParse(str, out int result))
 		{ return result - 1; }
 
 		return -1;
 	}
 	internal const string ALT_POSTFIX = "alt";
+	internal const string TXT_POSTFIX = "txt";
 
 	internal static void Enable()
 	{
@@ -205,6 +274,7 @@ public static class ExtendedGates
 
 		On.GateKarmaGlyph.DrawSprites += GateKarmaGlyph_DrawSprites;
 		On.HUD.Map.GateMarker.ctor += GateMarker_ctor;
+		On.HUD.Map.MapData.KarmaOfGate += MapData_KarmaOfGate;
 
 		uwu = null;
 		foreach (System.Reflection.Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
@@ -232,6 +302,7 @@ public static class ExtendedGates
 
 		On.GateKarmaGlyph.DrawSprites -= GateKarmaGlyph_DrawSprites;
 		On.HUD.Map.GateMarker.ctor -= GateMarker_ctor;
+		On.HUD.Map.MapData.KarmaOfGate += MapData_KarmaOfGate;
 	}
 	#region misc fixes
 	private static void RegionGateGraphics_DrawSprites(On.RegionGateGraphics.orig_DrawSprites orig, RegionGateGraphics self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
@@ -334,6 +405,16 @@ public static class ExtendedGates
 			self.karmaRequirements[1] = MoreSlugcats.MoreSlugcatsEnums.GateRequirement.OELock;
 		}
 
+		if (ExtendedLocks.Construction.RegionGateUnderConstruction(self.room.abstractRoom.name, self.room.world.region.name))
+		{
+			//find alt construction
+			Req altConstruction = _Enums.alt.FirstOrDefault(x => x.value[..^ALT_POSTFIX.Length] == _Enums.Construction.value);
+			altConstruction ??= _Enums.Construction; //use default if alt isn't found (shouldn't happen)
+
+			self.karmaRequirements[0] = _Enums.alt.Contains(self.karmaRequirements[0]) ? altConstruction : _Enums.Construction;
+			self.karmaRequirements[1] = _Enums.alt.Contains(self.karmaRequirements[1]) ? altConstruction : _Enums.Construction;
+		}
+
 		//guard clause, stop crashing when there are no locks!
 		for (int i = 0; i < self.karmaRequirements.Length; i++)
 		{
@@ -426,6 +507,18 @@ public static class ExtendedGates
 		}
 	}
 
+	private static Req MapData_KarmaOfGate(On.HUD.Map.MapData.orig_KarmaOfGate orig, Map.MapData self, PlayerProgression progression, World initWorld, string roomName)
+	{
+		var result = orig(self, progression, initWorld, roomName);
+
+		if (ExtendedLocks.Construction.RegionGateUnderConstruction(roomName, initWorld.region.name))
+		{
+			return _Enums.Construction;
+		}
+
+		return result;
+	}
+
 	private static bool DoesPlayerDeserveAltArt(RainWorldGame game)
 	{
 		if (!ModOptions.AltGateArt.Value) return false;
@@ -466,6 +559,7 @@ public static class ExtendedGates
 
 		return true;
 	}
+
 
 	#endregion GATEHOOKS
 

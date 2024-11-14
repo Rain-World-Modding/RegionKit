@@ -23,7 +23,7 @@ public class ColouredLightSource : UpdatableAndDeletable
 	private ManagedData? _data;
 
 	internal static readonly ManagedField[] __fields = {
-		new ColorField("lightCol", Color.white, ManagedFieldWithPanel.ControlType.slider, "Light Colour"),
+		new ColorField("lightCol", Color.white, ManagedFieldWithPanel.ControlType.button, "Light Colour"),
 		new Vector2Field("radius", Vector2.up, Vector2Field.VectorReprType.circle),
 		new FloatField("alphaChannel", 0f, 1f, 1f, displayName: "Alpha"),
 		new BooleanField("flatLight", false, ManagedFieldWithPanel.ControlType.button, "Flat"),

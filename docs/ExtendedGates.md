@@ -32,6 +32,8 @@ The "OELock" tag (case-sensitive) is used to make a gate Forbidden unless the re
 
 To use the alternate art for karma gates sprites, type number + "alt" (case-sensitive) with no space between instead of just the karma number. Special requirement gates do not have alternate art.
 
+There is also "txt" (case-sensitive) art for vanilla karma levels, used in the same way as alt art.
+
 Example of locks.txt contents<!-- (you cannot currently use comments and empty lines in the locks file)-->:  
 <!--// A gate within a region that can be crossed with enough karma in one direction, and is freely crossed in the other in the same cycle.  
 // There may or may not be a stash in the other side, the player can get to it and come back out through the same gate without need for a shelter.  

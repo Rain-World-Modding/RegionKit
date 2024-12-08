@@ -94,74 +94,6 @@
             Whether all shelters should wait for player to hold down in order to start closing.
             </summary>
         </member>
-        <member name="T:RegionKit.AttachedField`2">
-            <summary>
-            A collection that attaches values to objects using <see cref="T:System.WeakReference"/>. By Slime_Cubed
-            </summary>
-            <remarks>
-            This is like ConditionalWeakTable, but with one major drawback:
-            values that reference the key will stop the key from being garbage collected.
-            <para>Make sure that each instance of <typeparamref name="TValue"/> contains
-            no references to the key, otherwise a memory leak may occur!</para>
-            </remarks>
-            <typeparam name="TKey">The type to attach the value to.</typeparam>
-            <typeparam name="TValue">The type the the attached value.</typeparam>
-        </member>
-        <member name="E:RegionKit.AttachedField`2.OnCulled">
-            <summary>
-            Called after a key is garbage collected.
-            </summary>
-        </member>
-        <member name="M:RegionKit.AttachedField`2.Set(`0,`1)">
-            <summary>
-            Updates or attaches a value to an object.
-            </summary>
-            <param name="obj">The object to attach to.</param>
-            <param name="value">The value to set.</param>
-        </member>
-        <member name="M:RegionKit.AttachedField`2.Unset(`0)">
-            <summary>
-            Detaches a value from an object.
-            </summary>
-            <param name="obj">The object to remove the attached value from.</param>
-        </member>
-        <member name="M:RegionKit.AttachedField`2.Get(`0)">
-            <summary>
-            Retrieves a stored value for a given object.
-            </summary>
-            <param name="obj">The object to get from.</param>
-            <returns>The previously set value for this object, or default(<typeparamref name="TValue"/>) if unset.</returns>
-        </member>
-        <member name="M:RegionKit.AttachedField`2.TryGet(`0,`1@)">
-            <summary>
-            Checks for and retrieves a stored value for a given object.
-            </summary>
-            <param name="obj">The object to get from.</param>
-            <param name="value">The previously set value for this obejct.</param>
-            <returns>True if a value exists for <paramref name="obj"/>, false otherwise.</returns>
-        </member>
-        <member name="P:RegionKit.AttachedField`2.Item(`0)">
-            <summary>
-            Sets or retrieves the value attached to object.
-            </summary>
-            <param name="obj">The object key.</param>
-            <returns>The attached value, or default(<typeparamref name="TValue"/>) if the value has not been set.</returns>
-        </member>
-        <member name="M:RegionKit.AttachedField`2.Clear">
-            <summary>
-            Clears all entries.
-            </summary>
-        </member>
-        <member name="P:RegionKit.AttachedField`2.Count">
-            <summary>
-            The number of entries currently stored.
-            </summary>
-        </member>
-        <member name="M:RegionKit.AttachedField`2.CullDead">
-            <summary>
-            Removes entries for which the key has been garbage collected.
-            </summary>
-        </member>
         <member name="T:RegionKit.ContainerCodes">
             <summary>
             Lists container codes for RoomCamera
@@ -498,21 +430,6 @@
             <param name="clamped">whether to clamp the result to reasonable values</param>
             <returns>resulting colour</returns>
         </member>
-        <member name="T:RegionKit.INotifyWhenRoomIsViewed">
-            <summary>
-            NOTE: notify methods registered in <see cref="T:RegionKit.Modules.Objects._Module"/>
-            </summary>
-        </member>
-        <member name="M:RegionKit.INotifyWhenRoomIsViewed.RoomViewed">
-            <summary>
-            Called when the room is viewed
-            </summary>
-        </member>
-        <member name="M:RegionKit.INotifyWhenRoomIsViewed.RoomNoLongerViewed">
-            <summary>
-            Called when the room is no longer viewed
-            </summary>
-        </member>
         <member name="T:RegionKit.Mod">
             <summary>
             Main plugin class
@@ -694,6 +611,16 @@
             Undoes hooks.
             </summary>
         </member>
+        <member name="M:RegionKit.Modules.BackgroundBuilder.BackgroundElementData.DefaultNeutralPos(UnityEngine.Vector2,System.Single)">
+            <summary>
+            A simplification of BackgroundBuilder.PosFromDrawPosAtNeutralCam
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.BackgroundBuilder.Data.BackgroundDataAttribute.backingFieldName">
+            <summary>
+            if backingFieldName isn't null, the serializer will only write if the backing field is assigned
+            </summary>
+        </member>
         <member name="M:RegionKit.Modules.BackgroundBuilder.Data.RoomBGData.HasData">
             <summary>
             Checks if data was loaded from txt or serialized from background
@@ -724,6 +651,11 @@
             returns the string lines that goes in room settings.txt files
             </summary>
         </member>
+        <member name="M:RegionKit.Modules.BackgroundBuilder.Data.DayNightSceneData.ColorUpdate">
+            <summary>
+            this method is mostly copied from AboveCloudsView.Update \ RoofTopView.Update
+            </summary>
+        </member>
         <member name="M:RegionKit.Modules.ConcealedGarden.CGDrySpot.WaterFluxOffset">
             <summary>
             Get the WaterFluxOffset if settings say to
@@ -738,6 +670,16 @@
         <member name="M:RegionKit.Modules.ConcealedGarden.CGDrySpot.OriginalFlood(RoomRain)">
             <summary>
             the original roomRain.FloodLevel rewritten to be readable - kept around for reference
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.DevUIMisc.FadePaletteTemplate.IsFadeTemplate(RoomSettings,System.Int32)">
+            <summary>
+            use -1 for the fade palette, 0+ for fade screen
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.DevUIMisc.FadePaletteTemplate.SetFadeTemplate(RoomSettings,System.Int32,System.Boolean)">
+            <summary>
+            use -1 for the fade palette, 0+ for fade screen
             </summary>
         </member>
         <member name="T:RegionKit.Modules.EchoExtender.EchoSettings">
@@ -847,51 +789,6 @@
             Undoes hooks
             </summary>
         </member>
-        <member name="T:RegionKit.Modules.Effects.ColoredCamoBeetlesCI">
-            <summary>
-            By LB/M4rbleL1ne
-            Colored camo beetle insect
-            </summary>
-        </member>
-        <member name="T:RegionKit.Modules.Effects.ColoredCamoBeetleInsect">
-            <summary>
-            New insect that can camo and uses one of the effect colors when stressed
-            </summary>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.ColoredCamoBeetleInsect.#ctor(Room,UnityEngine.Vector2)">
-            <summary>
-            Insect ctor
-            </summary>
-            <param name="room"></param>
-            <param name="pos"></param>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.ColoredCamoBeetleInsect.Update(System.Boolean)">
-            <summary>
-            Update
-            </summary>
-            <param name="eu"></param>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.ColoredCamoBeetleInsect.Act">
-            <summary>
-            Act
-            </summary>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.ColoredCamoBeetleInsect.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
-            <summary>
-            Initiate sprites
-            </summary>
-            <param name="sLeaser"></param>
-            <param name="rCam"></param>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.ColoredCamoBeetleInsect.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
-            <summary>
-            Draw sprites
-            </summary>
-            <param name="sLeaser"></param>
-            <param name="rCam"></param>
-            <param name="timeStacker"></param>
-            <param name="camPos"></param>
-        </member>
         <member name="T:RegionKit.Modules.Effects.ColorRoomEffect">
             <summary>
             Adds three sliders to room effects whose values range from 0 to 255.
@@ -943,79 +840,6 @@
             Controls sprites and logic for line-of-sight limiting fog. Copies behavior from the Line of Sight mod.
             </summary>
         </member>
-        <member name="T:RegionKit.Modules.Effects.GlowingSwimmersCI">
-            <summary>
-            By LB/M4rbleL1ne
-            Glowing swimmer insect
-            </summary>
-        </member>
-        <member name="T:RegionKit.Modules.Effects.GlowingSwimmer">
-            <summary>
-            By LB/M4rbleL1ne
-            Glowing swimmer
-            </summary>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.GlowingSwimmer.#ctor(Room,UnityEngine.Vector2)">
-            <summary>
-            Glowing Swimmer
-            </summary>
-            <param name="room"></param>
-            <param name="pos"></param>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.GlowingSwimmer.Update(System.Boolean)">
-            <summary>
-            Update
-            </summary>
-            <param name="eu"></param>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.GlowingSwimmer.Reset(UnityEngine.Vector2)">
-            <summary>
-            Reset
-            </summary>
-            <param name="resetPos"></param>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.GlowingSwimmer.Act">
-            <summary>
-            Act
-            </summary>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.GlowingSwimmer.WallCollision(RWCustom.IntVector2,System.Boolean)">
-            <summary>
-            Wall collision
-            </summary>
-            <param name="dir"></param>
-            <param name="first"></param>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.GlowingSwimmer.EmergeFromGround(UnityEngine.Vector2)">
-            <summary>
-            Emerge from ground
-            </summary>
-            <param name="emergePos"></param>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.GlowingSwimmer.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
-            <summary>
-            Initiate sprites
-            </summary>
-            <param name="sLeaser"></param>
-            <param name="rCam"></param>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.GlowingSwimmer.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
-            <summary>
-            Draw sprites
-            </summary>
-            <param name="sLeaser"></param>
-            <param name="rCam"></param>
-            <param name="timeStacker"></param>
-            <param name="camPos"></param>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.GlowingSwimmer.ApplyPalette(RoomCamera.SpriteLeaser,RoomCamera,RoomPalette)">
-            <summary>
-            Apply palette
-            </summary>
-            <param name="sLeaser"></param>
-            <param name="rCam"></param>
-            <param name="palette"></param>
-        </member>
         <member name="T:RegionKit.Modules.Effects.HiveColorAlpha">
             <summary>
             Sets the alpha of the bat hive color in the room
@@ -1029,33 +853,6 @@
             <summary>
             HiveColorAlpha Update method.
             </summary>
-        </member>
-        <member name="T:RegionKit.Modules.Effects.MosquitoInsectsCI">
-            <summary>
-            By LB/M4rbleL1ne
-            Mosquito-like cosmetic insect
-            </summary>
-        </member>
-        <member name="T:RegionKit.Modules.Effects.MosquitoInsect">
-            <summary>
-            By LB/M4rbleL1ne
-            Mosquito-like cosmetic insect
-            </summary>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.MosquitoInsect.#ctor(Room,UnityEngine.Vector2)">
-            <inheritdoc/>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.MosquitoInsect.Update(System.Boolean)">
-            <inheritdoc/>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.MosquitoInsect.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
-            <inheritdoc/>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.MosquitoInsect.ApplyPalette(RoomCamera.SpriteLeaser,RoomCamera,RoomPalette)">
-            <inheritdoc/>
-        </member>
-        <member name="M:RegionKit.Modules.Effects.MosquitoInsect.AddToContainer(RoomCamera.SpriteLeaser,RoomCamera,FContainer)">
-            <inheritdoc/>
         </member>
         <member name="T:RegionKit.Modules.Effects.ReplaceEffectColor">
             <summary>
@@ -1082,36 +879,6 @@
             Special kind of BrokenZeroG from Substratum
             </summary>
             <returns></returns>
-        </member>
-        <member name="F:RegionKit.Modules.Effects._Enums.GlowingSwimmers">
-            <summary>
-            Glowing Swimmer effect enum
-            </summary>
-        </member>
-        <member name="F:RegionKit.Modules.Effects._Enums.ColoredCamoBeetles">
-            <summary>
-            Colored Camo Beetle effect enum
-            </summary>
-        </member>
-        <member name="F:RegionKit.Modules.Effects._Enums.MosquitoInsects">
-            <summary>
-            Mosquito Insect effet enum
-            </summary>
-        </member>
-        <member name="F:RegionKit.Modules.Effects._Enums.GlowingSwimmerInsect">
-            <summary>
-            Glowing Swimmer insect enum
-            </summary>
-        </member>
-        <member name="F:RegionKit.Modules.Effects._Enums.ColoredCamoBeetle">
-            <summary>
-            Colored Camo Beetle insect enum
-            </summary>
-        </member>
-        <member name="F:RegionKit.Modules.Effects._Enums.MosquitoInsect">
-            <summary>
-            Mosquito Insect enum
-            </summary>
         </member>
         <member name="F:RegionKit.Modules.Effects._Enums.ReplaceEffectColorA">
             <summary>
@@ -1141,6 +908,41 @@
         <member name="F:RegionKit.Modules.Effects._Enums.IceWater">
             <summary>
             Effect category
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.MurkyWater">
+            <summary>
+            Effect category
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.ReflectiveWater">
+            <summary>
+            Effect category
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.RGBElectricDeath">
+            <summary>
+            Effect category
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.HSLDisplaySnow">
+            <summary>
+            Effect category
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.DenseFog">
+            <summary>
+            FT dense fog
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.DenseFogSoundVolume">
+            <summary>
+            FT dense fog volume changer
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.FT_Fog_PreDeath">
+            <summary>
+            FT dense fog sound
             </summary>
         </member>
         <member name="F:RegionKit.Modules.Effects._Enums.RegionKit">
@@ -1195,6 +997,228 @@
         </member>
         <member name="P:RegionKit.Modules.Iggy.ToolTip.source">
             <summary>Node that gave the tooltip. Used to prevent duplicates when requesting a tooltip.</summary>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.Butterfly">
+            <summary>
+            By Alduris
+            Moth-like creature.
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.ColoredCamoBeetlesCI">
+            <summary>
+            By LB/M4rbleL1ne
+            Colored camo beetle insect
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.ColoredCamoBeetleInsect">
+            <summary>
+            New insect that can camo and uses one of the effect colors when stressed
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.ColoredCamoBeetleInsect.#ctor(Room,UnityEngine.Vector2)">
+            <summary>
+            Insect ctor
+            </summary>
+            <param name="room"></param>
+            <param name="pos"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.ColoredCamoBeetleInsect.Update(System.Boolean)">
+            <summary>
+            Update
+            </summary>
+            <param name="eu"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.ColoredCamoBeetleInsect.Act">
+            <summary>
+            Act
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.ColoredCamoBeetleInsect.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
+            <summary>
+            Initiate sprites
+            </summary>
+            <param name="sLeaser"></param>
+            <param name="rCam"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.ColoredCamoBeetleInsect.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <summary>
+            Draw sprites
+            </summary>
+            <param name="sLeaser"></param>
+            <param name="rCam"></param>
+            <param name="timeStacker"></param>
+            <param name="camPos"></param>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.GlowingSwimmersCI">
+            <summary>
+            By LB/M4rbleL1ne
+            Glowing swimmer insect
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.GlowingSwimmer">
+            <summary>
+            By LB/M4rbleL1ne
+            Glowing swimmer
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.#ctor(Room,UnityEngine.Vector2)">
+            <summary>
+            Glowing Swimmer
+            </summary>
+            <param name="room"></param>
+            <param name="pos"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.Update(System.Boolean)">
+            <summary>
+            Update
+            </summary>
+            <param name="eu"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.Reset(UnityEngine.Vector2)">
+            <summary>
+            Reset
+            </summary>
+            <param name="resetPos"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.Act">
+            <summary>
+            Act
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.WallCollision(RWCustom.IntVector2,System.Boolean)">
+            <summary>
+            Wall collision
+            </summary>
+            <param name="dir"></param>
+            <param name="first"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.EmergeFromGround(UnityEngine.Vector2)">
+            <summary>
+            Emerge from ground
+            </summary>
+            <param name="emergePos"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
+            <summary>
+            Initiate sprites
+            </summary>
+            <param name="sLeaser"></param>
+            <param name="rCam"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <summary>
+            Draw sprites
+            </summary>
+            <param name="sLeaser"></param>
+            <param name="rCam"></param>
+            <param name="timeStacker"></param>
+            <param name="camPos"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.ApplyPalette(RoomCamera.SpriteLeaser,RoomCamera,RoomPalette)">
+            <summary>
+            Apply palette
+            </summary>
+            <param name="sLeaser"></param>
+            <param name="rCam"></param>
+            <param name="palette"></param>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.MosquitoInsectsCI">
+            <summary>
+            By LB/M4rbleL1ne
+            Mosquito-like cosmetic insect
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.MosquitoInsect">
+            <summary>
+            By LB/M4rbleL1ne
+            Mosquito-like cosmetic insect
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.MosquitoInsect.#ctor(Room,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.MosquitoInsect.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.MosquitoInsect.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.MosquitoInsect.ApplyPalette(RoomCamera.SpriteLeaser,RoomCamera,RoomPalette)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.MosquitoInsect.AddToContainer(RoomCamera.SpriteLeaser,RoomCamera,FContainer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.Zipper">
+            <summary>
+            By Alduris
+            Fly-like that zips around brightly sometimes
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.GlowingSwimmers">
+            <summary>
+            Glowing Swimmer effect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.ColoredCamoBeetles">
+            <summary>
+            Colored Camo Beetle effect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.MosquitoInsects">
+            <summary>
+            Mosquito Insect effect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.ButterfliesA">
+            <summary>
+            Butterfly A effect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.ButterfliesB">
+            <summary>
+            Butterfly B effect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.Zippers">
+            <summary>
+            Zipper effect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.GlowingSwimmerInsect">
+            <summary>
+            Glowing Swimmer insect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.ColoredCamoBeetle">
+            <summary>
+            Colored Camo Beetle insect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.MosquitoInsect">
+            <summary>
+            Mosquito Insect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.ButterflyA">
+            <summary>
+            Butterfly A enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.ButterflyB">
+            <summary>
+            Butterfly B enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.Zipper">
+            <summary>
+            Zipper enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.RegionKit">
+            <summary>
+            Insect category
+            </summary>
         </member>
         <member name="T:RegionKit.Modules.Machinery.MachineryID">
             <summary>
@@ -1595,6 +1619,21 @@
         <member name="M:RegionKit.Modules.Objects.Drawable.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
             <inheritdoc/>
         </member>
+        <member name="T:RegionKit.Modules.Objects.INotifyWhenRoomIsViewed">
+            <summary>
+            NOTE: notify methods registered in <see cref="T:RegionKit.Modules.Objects._Module"/>
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.INotifyWhenRoomIsViewed.RoomViewed">
+            <summary>
+            Called when the room is viewed
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.INotifyWhenRoomIsViewed.RoomNoLongerViewed">
+            <summary>
+            Called when the room is no longer viewed
+            </summary>
+        </member>
         <member name="T:RegionKit.Modules.Objects.LittlePlanet">
             <summary>
             By LB/M4rbleL1ne
@@ -1863,6 +1902,11 @@
             The radius of ColorifierUAD object within which it applies RGB overwrite
             </summary>
         </member>
+        <member name="M:RegionKit.Modules.Objects.SlipperyZone.BodyChunk_checkAgainstSlopesVertically(MonoMod.Cil.ILContext)">
+            <summary>
+            makes slopes slippy
+            </summary>
+        </member>
         <member name="T:RegionKit.Modules.Objects.SpinningFan">
             <summary>
             A fan that turns on and off depending on room power level
@@ -1946,6 +1990,16 @@
         <member name="F:RegionKit.Modules.Objects._Enums.ColoredLightBeam">
             <summary>
             Colored light beam
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.FanLight">
+            <summary>
+            LB's spinning fan light
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.NoBatflyLurkZone">
+            <summary>
+            Prevents batflies from lurking in an area (by pushing them away and somewhat telling them not to pathfind over there)
             </summary>
         </member>
         <member name="T:RegionKit.Modules.Objects._Module">
@@ -2719,6 +2773,21 @@
             Height, multiplier
             </summary>
         </member>
+        <member name="F:RegionKit.Modules.ShaderTools.ShaderBuffers.DEPTH_AND_STENCIL_BUFFER_BITS">
+            <summary>
+            The amount of bits needed to activate the stencil buffer.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShaderTools._Module.Enable">
+            <summary>
+            Applies hooks.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShaderTools._Module.Disable">
+            <summary>
+            Undoes hooks.
+            </summary>
+        </member>
         <member name="M:RegionKit.Modules.ShelterBehaviors.HoldToTriggerTutorialObject.#ctor(Room,PlacedObject)">
             <inheritdoc/>
         </member>
@@ -2947,20 +3016,163 @@
             Wind system
             </summary>
         </member>
+        <member name="T:RegionKit.OptionsMenu.TurboBakerTab">
+            <summary>
+            Vigaro's Turbo Baker ported to RegionKit by Alduris
+            </summary>
+        </member>
         <member name="M:RegionKit._Assets.GetStream(System.String[])">
             <summary>
             Returns an asset stream, taking from merged assets or ER. Dispose of it properly!
-            </summary>
-        </member>
-        <member name="T:Joar">
-            <summary>
-            summon him to die instantly
             </summary>
         </member>
         <member name="T:RainSong">
             <summary>
             Allows specifying a song file per region that will play when rain is coming
             </summary>
+        </member>
+        <member name="M:SharpVoronoiLib.GenericClipping.ClipEdge(SharpVoronoiLib.VoronoiEdge,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Combination of personal ray clipping alg and cohen sutherland
+            </summary>
+        </member>
+        <member name="T:SharpVoronoiLib.VoronoiSiteMergeQuery">
+            <summary>
+            Defines the signature for <see cref="T:SharpVoronoiLib.ISiteMergingAlgorithm"/> query callback to user code.
+            This basically asks the question - should these two sites be merged into one (and which one)?
+            </summary>
+        </member>
+        <member name="T:SharpVoronoiLib.VoronoiEdge">
+            <summary>
+            The line segment making the Voronoi cells, i.e. the points equidistant to the two nearest Voronoi sites.
+            These are the lines in the <see cref="P:SharpVoronoiLib.VoronoiSite.Cell"/>.
+            This has <see cref="T:SharpVoronoiLib.VoronoiPoint"/> end points, i.e. <see cref="P:SharpVoronoiLib.VoronoiEdge.Start"/> and <see cref="P:SharpVoronoiLib.VoronoiEdge.End"/>.
+            This has the two <see cref="T:SharpVoronoiLib.VoronoiSite"/>s they separate, i.e. <see cref="P:SharpVoronoiLib.VoronoiEdge.Right"/> and <see cref="P:SharpVoronoiLib.VoronoiEdge.Left"/>.
+            This connects in a <see cref="P:SharpVoronoiLib.VoronoiEdge.Neighbours"/> node graph to other <see cref="T:SharpVoronoiLib.VoronoiEdge"/>s, i.e. shares end points with them.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiEdge.Start">
+            <summary>
+            One of the two points making up this line segment, the other being <see cref="P:SharpVoronoiLib.VoronoiEdge.End"/>.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiEdge.End">
+            <summary>
+            One of the two points making up this line segment, the other being <see cref="P:SharpVoronoiLib.VoronoiEdge.Start"/>.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiEdge.Right">
+            <summary>
+            One of the two sites that this edge separates, the other being <see cref="P:SharpVoronoiLib.VoronoiEdge.Left"/>.
+            Can be null if this is a border edge and there are no sites within the bounds.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiEdge.Left">
+            <summary>
+            One of the two sites that this edge separates, the other being <see cref="P:SharpVoronoiLib.VoronoiEdge.Right"/>.
+            Can be null if this is a border edge.
+             </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiEdge.Mid">
+            <summary>
+            The mid-point between <see cref="P:SharpVoronoiLib.VoronoiEdge.Start"/> and <see cref="P:SharpVoronoiLib.VoronoiEdge.End"/> points.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiEdge.Length">
+            <summary>
+            The length of this line segment, i.e. the distance between <see cref="P:SharpVoronoiLib.VoronoiEdge.Start"/> and <see cref="P:SharpVoronoiLib.VoronoiEdge.End"/> points.
+            </summary>
+        </member>
+        <member name="T:SharpVoronoiLib.VoronoiPoint">
+            <summary>
+            The vertices/nodes of the Voronoi cells, i.e. the points equidistant to three or more Voronoi sites.
+            These are the end points of a <see cref="T:SharpVoronoiLib.VoronoiEdge"/>.
+            These are the <see cref="P:SharpVoronoiLib.VoronoiSite.Points"/>.
+            Also used for some other derived locations.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiPoint.BorderLocation">
+            <summary>
+            Specifies if this point is on the border of the bounds and where.
+            </summary>
+            <remarks>
+            Using this would be preferrable to comparing against the X/Y values due to possible precision issues.
+            </remarks>
+        </member>
+        <member name="T:SharpVoronoiLib.PointBorderLocation">
+            <remarks>
+            Note that these are ordered clock-wise starting at bottom-left
+            </remarks>
+        </member>
+        <member name="T:SharpVoronoiLib.VoronoiSite">
+            <summary>
+            The point/site/seed on the Voronoi plane.
+            This has a <see cref="P:SharpVoronoiLib.VoronoiSite.Cell"/> of <see cref="T:SharpVoronoiLib.VoronoiEdge"/>s.
+            This has <see cref="P:SharpVoronoiLib.VoronoiSite.Points"/> of <see cref="T:SharpVoronoiLib.VoronoiPoint"/>s that are the edge end points, i.e. the cell's vertices.
+            This also has <see cref="P:SharpVoronoiLib.VoronoiSite.Neighbours"/>, i.e. <see cref="T:SharpVoronoiLib.VoronoiSite"/>s across the <see cref="T:SharpVoronoiLib.VoronoiEdge"/>s.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.Cell">
+            <summary>
+            The edges that make up this cell.
+            The vertices of these edges are the <see cref="P:SharpVoronoiLib.VoronoiSite.Points"/>.
+            These are also known as Thiessen polygons.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.ClockwiseCell">
+             <summary>
+            
+             If the site lies on any of the edges (or corners), then the starting order is not defined.
+             </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.Neighbours">
+            <summary>
+            The sites across the edges.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.Points">
+            <summary>
+            The vertices of the <see cref="P:SharpVoronoiLib.VoronoiSite.Cell"/>.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.ClockwisePoints">
+            <summary>
+            
+            If the site lies on any of the edges (or corners), then the starting order is not defined.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.LiesOnEdge">
+            <summary>
+            Whether this site lies directly on exactly one of its <see cref="P:SharpVoronoiLib.VoronoiSite.Cell"/>'s edges.
+            This happens when sites overlap or are on the border.
+            This won't be set if instead <see cref="P:SharpVoronoiLib.VoronoiSite.LiesOnCorner"/> is set, i.e. the site lies on the intersection of 2 of its edges.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.LiesOnCorner">
+            <summary>
+            Whether this site lies directly on the intersection point of two of its <see cref="P:SharpVoronoiLib.VoronoiSite.Cell"/>'s edges.
+            This happens when sites overlap or are on the border's corner.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.Centroid">
+            <summary>
+            The center of our cell.
+            Specifically, the geometric center aka center of mass, i.e. the arithmetic mean position of all the edge end points.
+            This is assuming a non-self-intersecting closed polygon of our cell.
+            If we don't have a closed cell (i.e. unclosed "polygon"), then this will produce approximate results that aren't mathematically sound, but work for most purposes. 
+            </summary>
+        </member>
+        <member name="T:SharpVoronoiLib.VoronoiPlane">
+            <summary>
+            An Euclidean plane where a Voronoi diagram can be constructed from <see cref="T:SharpVoronoiLib.VoronoiSite"/>s
+            producing a tesselation of cells with <see cref="T:SharpVoronoiLib.VoronoiEdge"/> line segments and <see cref="T:SharpVoronoiLib.VoronoiPoint"/> vertices.
+            </summary>
+        </member>
+        <member name="M:SharpVoronoiLib.VoronoiPlane.GenerateRandomSites(System.Int32,SharpVoronoiLib.PointGenerationMethod)">
+             <summary>
+            
+             The generated sites are guaranteed not to lie on the border of the plane (although they may be very close).
+             </summary>
         </member>
         <member name="T:IReactToShelterEvents">
             <summary>

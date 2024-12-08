@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -64,8 +65,8 @@ public static class _Module
 	{
 		var result = orig(self, testRoom, worldPos);
 
-			var presenceOverride = PresenceOverride(self, testRoom);
-			if (presenceOverride != -1f) return presenceOverride;
+		var presenceOverride = PresenceOverride(self, testRoom);
+		if (presenceOverride != -1f) return presenceOverride;
 
 		if (!EchoParser.__echoSettings.TryGetValue(self.ghostID, out var settings)) return result;
 		if (testRoom.index == self.ghostRoom.index) return 1f;
@@ -91,7 +92,7 @@ public static class _Module
 			{ self.RoomOverrides()[testRoom.name] = -1f; }
 		}
 
-		return self.RoomOverrides()[testRoom.name]; 
+		return self.RoomOverrides()[testRoom.name];
 	}
 
 	//caching room values because loading a room is very expensive
@@ -144,11 +145,47 @@ public static class _Module
 	private static void GhostConversationOnAddEvents(On.GhostConversation.orig_AddEvents orig, GhostConversation self)
 	{
 		orig(self);
-		if (!EchoParser.__echoConversations.ContainsKey(self.id))
+		if (!EchoParser.__echoConversations.TryGetValue(self.id, out string? region))
 		{
 			return;
 		}
-		foreach (string line in ProcessSlugcatConditions(Regex.Split(EchoParser.__echoConversations[self.id], "(\r|\n)+"), self.ghost.room.game.StoryCharacter))
+
+		string? ResolveEchoConversation(InGameTranslator.LanguageID lang, string region)
+		{
+			string langShort = LocalizationTranslator.LangShort(lang);
+			string convPath = AssetManager.ResolveFilePath($"text/text_{langShort}/echoConv_{region}.txt");
+			bool english = lang == InGameTranslator.LanguageID.English;
+			if (!File.Exists(convPath))
+			{
+				if (!english)
+				{
+					return null;
+				}
+				convPath = AssetManager.ResolveFilePath($"world/{region}/echoConv.txt");
+				if (!File.Exists(convPath))
+				{
+					return null;
+				}
+			}
+
+			if (english) {
+				return EchoParser.ManageXOREncryption(convPath);
+			}
+			else {
+				return File.ReadAllText(convPath);
+			}
+		}
+
+		InGameTranslator.LanguageID lang = self.ghost.rainWorld.inGameTranslator.currentLanguage;
+		string? text = ResolveEchoConversation(lang, region);
+		if (text is null && lang != InGameTranslator.LanguageID.English) {
+			text = ResolveEchoConversation(InGameTranslator.LanguageID.English, region);
+		}
+		if (text is null) {
+			return;
+		}
+
+		foreach (string line in ProcessSlugcatConditions(Regex.Split(text, "(\r|\n)+"), self.ghost.room.game.StoryCharacter))
 		{
 			LogDebug($"[Echo Extender] Processing line {line}");
 			if (line.All(c => char.IsSeparator(c) || c == '\n' || c == '\r')) continue;

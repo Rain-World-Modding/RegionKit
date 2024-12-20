@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using RWCustom;
-using UnityEngine;
-
+﻿using System.IO;
 
 namespace RegionKit.Modules.EchoExtender;
 
 internal static class EchoParser
 {
+	// ConversationID to region acronym
 	internal static readonly Dictionary<Conversation.ID, string> __echoConversations = new Dictionary<Conversation.ID, string>();
 	internal static readonly HashSet<GhostWorldPresence.GhostID> __extendedEchoIDs = new HashSet<GhostWorldPresence.GhostID>();
 	internal static readonly Dictionary<string, string> __echoLocations = new Dictionary<string, string>();
 	internal static readonly Dictionary<GhostWorldPresence.GhostID, EchoSettings> __echoSettings = new Dictionary<GhostWorldPresence.GhostID, EchoSettings>();
 
-	internal static readonly Dictionary<string, string> __echoSongs = new Dictionary<string, string> {
+	internal static readonly Dictionary<string, string> __echoSongs = new()
+	{
 		{ "CC", "NA_32 - Else1" },
 		{ "SI", "NA_38 - Else7" },
 		{ "LF", "NA_36 - Else5" },
@@ -43,19 +40,16 @@ internal static class EchoParser
 	{
 		foreach (var regionInitials in Region.GetFullRegionOrder())
 		{
-			string convPath = AssetManager.ResolveFilePath($"world/{regionInitials}/echoConv.txt");
-			LogInfo($"[Echo Extender] Checking region {regionInitials} for Echo.");
-			if (File.Exists(convPath))
+			string settingsPath = AssetManager.ResolveFilePath($"world/{regionInitials}/echoSettings.txt");
+			if (File.Exists(settingsPath))
 			{
-				string convText = File.ReadAllText(convPath);
-				convText = ManageXOREncryption(convText, convPath);
-				string settingsPath = AssetManager.ResolveFilePath($"world/{regionInitials}/echoSettings.txt");
+				LogInfo($"[Echo Extender] Initializing echo in {regionInitials}.");
 				EchoSettings settings = EchoSettings.FromFile(settingsPath, character);
+
 				if (!EchoIDExists(regionInitials))
 				{
-					LogDebug($"[Echo Extender] Registering new echo in {regionInitials}");
 					__extendedEchoIDs.Add(new GhostWorldPresence.GhostID(regionInitials, true));
-					__echoConversations.Add(new Conversation.ID($"Ghost_{regionInitials}", true), convText);
+					__echoConversations.Add(new Conversation.ID($"Ghost_{regionInitials}", true), regionInitials);
 					LogInfo("[Echo Extender] Added conversation for echo in region " + regionInitials);
 				}
 				else
@@ -64,20 +58,27 @@ internal static class EchoParser
 				}
 				__echoSettings.SetKey(GetEchoID(regionInitials), settings);
 			}
-			else
-			{
-				LogInfo("[Echo Extender] No conversation file found!");
-			}
 		}
 	}
 
-
-	public static string ManageXOREncryption(string text, string path)
+	static readonly string encryptedText = "###ENCRYPTED";
+	static readonly string encryptedHeader = Custom.xorEncrypt(encryptedText, 54 + 1 + (int)InGameTranslator.LanguageID.English * 7);
+	public static string? ManageXOREncryption(string path)
 	{
-		LogInfo("[Echo Extender] Managing XOR Encryption, only supports English so far");
-		string xor = Custom.xorEncrypt(text, 54 + 1 + (int)InGameTranslator.LanguageID.English * 7);
-		if (xor.StartsWith("###ENCRYPTED")) return xor.Substring("###ENCRYPTED".Length);
-		File.WriteAllText(path, Custom.xorEncrypt("###ENCRYPTED" + text, 54 + 1 + (int)InGameTranslator.LanguageID.English * 7));
+		if (!File.Exists(path))
+			return null;
+
+		string text = File.ReadAllText(path);
+		if (text.StartsWith(encryptedHeader))
+		{
+			string xor = Custom.xorEncrypt(text, 54 + 1 + (int)InGameTranslator.LanguageID.English * 7);
+			if (xor.StartsWith(encryptedText))
+			{
+				xor = xor.Substring(encryptedText.Length);
+			}
+			File.WriteAllText(path, xor);
+			return xor;
+		}
 		return text;
 	}
 }

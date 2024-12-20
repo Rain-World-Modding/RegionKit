@@ -19,7 +19,7 @@ public static class _Enums
 	public static Req NineKarma = new("9", true);
 	public static Req TenKarma = new("10", true);
 	public static Req[] alt = new Req[17];
-	public static Req[] txt = new Req[5];
+	public static Req[] txt = new Req[10];
 	public static void Register()
 	{
 		const int numericals = 10;
@@ -27,7 +27,7 @@ public static class _Enums
 
 		alt = new Req[numericals + specials.Length];
 
-		foreach (int i in Range(5))
+		foreach (int i in Range(10))
 		{
 			txt[i] = new((i + 1) + ExtendedGates.TXT_POSTFIX, true);
 		}
@@ -40,7 +40,6 @@ public static class _Enums
 
 		for (int i = 0; i < specials.Length; i++)
 		{
-			LogInfo("ExtendedGates registering special " + specials[i].value + ExtendedGates.ALT_POSTFIX);
 			alt[i + numericals] = new(specials[i].value + ExtendedGates.ALT_POSTFIX, true);
 		}
 	}

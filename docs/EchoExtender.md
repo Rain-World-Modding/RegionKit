@@ -5,6 +5,9 @@ To place the echo, enter the game with your mod enabled, and navigate to the roo
 ### Step 2 - Writing Dialogue (Required)
 In order to give the echo dialogue, navigate to the region folder where you want the echo to spawn and place an `echoConv.txt` file right next to your `world_XX.txt` file. Be sure to store backups of your echo dialogue as this file will get encrypted, much like data pearls.
 
+Translation files can be placed in text/text_\<lang>/echoConv_XX.txt, with \<lang> representing the language acronym (eg, text_chi, text_rus) and XX representing the region's acronym.
+
+
 Writing echo dialogue is essentially the same as writing writing lore pearl text. Dialogue is split into dialogue boxes - which are seperated by an empty line in the dialogue file - and these boxes can be split into two lines - which can be seperated using the `<LINE>` directive in the dialogue file.
 
 Dialogue boxes can be made conditional (making it only appear for a certain difficulty) by adding brackets in front of the dialogue line and adding the required difficulty for those dialogue to appear (ex.: `(Yellow)Hello World` will only appear for monk). For further details see [the example dialogue file.](echoConv.txt)

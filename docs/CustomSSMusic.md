@@ -8,7 +8,7 @@ XX : SomeSongName
 
 IR : RW_86 - The Cycle
 
-- **NOTES:**
+**NOTES:**
 - **Do not** include anything other than what is shown in the example above.
 - Custom songs should be placed in: `YourModFolder > Music > Songs`.
 - **Only write the song name** in the format—**do not** include the file extension (.ogg, .wav, etc.).

@@ -11,4 +11,4 @@ IR : RW_86 - The Cycle
 - **Only write the song name** in the format—**do not** include the file extension (.ogg, .wav, etc.).
 
 3: Use the SSMusic room effect in your region
-**PS: SSMusic only works if you have zero gravity**
+- **PS: SSMusic only works if you have zero gravity**

@@ -3,6 +3,7 @@
 1: Make a text file in your region mod called "customssmusic" (not case sensitive)
 
 2: The format is as follows:
+
 <LINE>XX : SomeSongName
 <LINE>IR : RW_86 - The Cycle
 

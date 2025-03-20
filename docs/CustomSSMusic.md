@@ -4,9 +4,9 @@
 
 2: The format is as follows:
 
-<LINE>XX : SomeSongName
+XX : SomeSongName
 
-<LINE>IR : RW_86 - The Cycle
+IR : RW_86 - The Cycle
 
 - **Do not** include anything other than what is shown in the example above.
 - Custom songs should be placed in: YourModFolder > Music > Songs.

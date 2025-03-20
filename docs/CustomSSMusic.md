@@ -4,7 +4,7 @@
 
 2: The format is as follows:
 
-XX : SomeSongName
+XX : SomeSongName<LINE>
 IR : RW_86 - The Cycle
 
 - **Do not** include anything other than what is shown in the example above.

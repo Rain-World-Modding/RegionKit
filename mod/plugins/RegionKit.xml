@@ -935,11 +935,6 @@
             Effect category
             </summary>
         </member>
-        <member name="F:RegionKit.Modules.Effects._Enums.MoonSiren">
-            <summary>
-            Effect category
-            </summary>
-        </member>
         <member name="F:RegionKit.Modules.Effects._Enums.HSLDisplaySnow">
             <summary>
             Effect category

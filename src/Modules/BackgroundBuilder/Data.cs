@@ -128,14 +128,14 @@ internal static class Data
 	#region hooks
 	public static void Apply()
 	{
-		On.RoomSettings.Load_Timeline += RoomSettings_Load;
+		On.RoomSettings.Load += RoomSettings_Load;
 		_CommonHooks.RoomSettingsSave += RoomSettings_Save_string_bool;
 		On.RoomSettings.InheritEffects += RoomSettings_InheritEffects;
 	}
 
 	public static void Undo()
 	{
-		On.RoomSettings.Load_Timeline -= RoomSettings_Load;
+		On.RoomSettings.Load -= RoomSettings_Load;
 		_CommonHooks.RoomSettingsSave -= RoomSettings_Save_string_bool;
 		On.RoomSettings.InheritEffects -= RoomSettings_InheritEffects;
 	}
@@ -155,9 +155,9 @@ internal static class Data
 		return self.BackgroundData().SaveLines().ToList();
 	}
 
-	private static bool RoomSettings_Load(On.RoomSettings.orig_Load_Timeline orig, RoomSettings self, SlugcatStats.Timeline timeline)
+	private static bool RoomSettings_Load(On.RoomSettings.orig_Load orig, RoomSettings self, SlugcatStats.Name playerChar)
 	{
-		if (!orig(self, timeline))
+		if (!orig(self, playerChar))
 		{ return false; }
 
 		foreach (string line in File.ReadAllLines(self.filePath))
@@ -172,7 +172,7 @@ internal static class Data
 			}
 
 			if (array2.Length == 2 && array2[0] == "BackgroundType")
-			{ self.BackgroundData().FromTimeline(array2[1], timeline); }
+			{ self.BackgroundData().FromName(array2[1], playerChar); }
 		}
 		return true;
 	}
@@ -207,7 +207,7 @@ internal static class Data
 
 		public BGSceneData sceneData = new();
 
-		public SlugcatStats.Timeline timeline = null!;
+		public SlugcatStats.Name slug = null!;
 
 		/// <summary>
 		/// Checks if data was loaded from txt or serialized from background
@@ -224,29 +224,23 @@ internal static class Data
 			sceneData = new();
 		}
 
-		[Obsolete("Deprecated. Use FromTimeline instead")]
 		public void FromName(string name, SlugcatStats.Name slug)
-		{
-			FromTimeline(name, SlugcatStats.SlugcatToTimeline(slug));
-		}
-
-		public void FromTimeline(string name, SlugcatStats.Timeline timeline)
 		{
 			Reset();
 			backgroundName = name;
-			if (TryGetPathFromName(name, out string path)) TryGetFromPath(path, timeline);
+			if (TryGetPathFromName(name, out string path)) TryGetFromPath(path, slug);
 			else { backgroundName = ""; }
 		}
 
 		/// <summary>
 		/// loads macro data from file
 		/// </summary>
-		public bool TryGetFromPath(string path, SlugcatStats.Timeline timeline)
+		public bool TryGetFromPath(string path, SlugcatStats.Name slug)
 		{
-			this.timeline = timeline;
+			this.slug = slug;
 			if (!File.Exists(path)) return false;
 
-			string[] lines = ProcessTimelineConditions(File.ReadAllLines(path), timeline);
+			string[] lines = ProcessSlugcatConditions(File.ReadAllLines(path), slug);
 
 			foreach (string line in lines)
 			{
@@ -275,7 +269,7 @@ internal static class Data
 						if (TryGetPathFromName(array[1], out string parentPath) && array[1].ToLower() != backgroundName.ToLower())
 						{
 							parent = new RoomBGData(roomSettings);
-							parent.FromTimeline(array[1], timeline);
+							parent.FromName(array[1], slug);
 							InheritFromParent();
 						}
 						break;
@@ -295,7 +289,7 @@ internal static class Data
 			}
 			if (!TryGetPathFromName(backgroundName, out string path) || !File.Exists(path)) return;
 
-			string[] lines = ProcessTimelineConditions(File.ReadAllLines(path), timeline);
+			string[] lines = ProcessSlugcatConditions(File.ReadAllLines(path), slug);
 			if (sceneData is AboveCloudsView_SceneData acvd && scene is AboveCloudsView acv) { acvd.Scene = acv; }
 			if (sceneData is RoofTopView_SceneData rtvd && scene is RoofTopView rtv) { rtvd.Scene = rtv; }
 			sceneData.LoadData(lines);

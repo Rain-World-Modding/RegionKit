@@ -113,7 +113,7 @@ internal static class MoreFadePalettes
 		catch (Exception e) { LogError($"[MoreFadePalettes] ApplyFade IL Failed!\n{e}"); }
 		//On.HUD.RoomTransition.PlayerEnterShortcut += nah not important enough for the hassle
 
-		On.RoomSettings.Load_Timeline += RoomSettings_Load;
+		On.RoomSettings.Load += RoomSettings_Load;
 		_CommonHooks.RoomSettingsSave += _CommonHooks_RoomSettingsSave;
 		On.DevInterface.RoomSettingsPage.ctor += RoomSettingsPage_ctor;
 	}
@@ -125,7 +125,7 @@ internal static class MoreFadePalettes
 		IL.RoomCamera.ApplyFade -= RoomCamera_ApplyFade;
 		//On.HUD.RoomTransition.PlayerEnterShortcut -=
 
-		On.RoomSettings.Load_Timeline -= RoomSettings_Load;
+		On.RoomSettings.Load -= RoomSettings_Load;
 		_CommonHooks.RoomSettingsSave -= _CommonHooks_RoomSettingsSave;
 		On.DevInterface.RoomSettingsPage.ctor -= RoomSettingsPage_ctor;
 	}
@@ -199,7 +199,7 @@ internal static class MoreFadePalettes
 		orig(self, newRoom, cameraPosition);
 	}
 
-	private static bool RoomSettings_Load(On.RoomSettings.orig_Load_Timeline orig, RoomSettings self, SlugcatStats.Timeline playerChar)
+	private static bool RoomSettings_Load(On.RoomSettings.orig_Load orig, RoomSettings self, SlugcatStats.Name playerChar)
 	{
 		if (!orig(self, playerChar)) return false;
 

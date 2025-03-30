@@ -17,7 +17,7 @@ public static class _Module
 	{
 
 		// Tests for spawn
-		On.GhostWorldPresence.ctor += GhostWorldPresenceOnCtor;
+		On.GhostWorldPresence.ctor_World_GhostID_int += GhostWorldPresenceOnCtor;
 		On.GhostWorldPresence.GetGhostID += GhostWorldPresenceOnGetGhostID;
 
 		// Spawn and customization
@@ -37,7 +37,7 @@ public static class _Module
 	/// </summary>
 	public static void Disable()
 	{
-		On.GhostWorldPresence.ctor -= GhostWorldPresenceOnCtor;
+		On.GhostWorldPresence.ctor_World_GhostID_int -= GhostWorldPresenceOnCtor;
 		On.GhostWorldPresence.GetGhostID -= GhostWorldPresenceOnGetGhostID;
 
 		// Spawn and customization
@@ -148,7 +148,7 @@ public static class _Module
 		{
 			return;
 		}
-		foreach (string line in ProcessSlugcatConditions(Regex.Split(EchoParser.__echoConversations[self.id], "(\r|\n)+"), self.ghost.room.game.StoryCharacter))
+		foreach (string line in ProcessTimelineConditions(Regex.Split(EchoParser.__echoConversations[self.id], "(\r|\n)+"), self.ghost.room.game.TimelinePoint))
 		{
 			LogDebug($"[Echo Extender] Processing line {line}");
 			if (line.All(c => char.IsSeparator(c) || c == '\n' || c == '\r')) continue;
@@ -170,9 +170,9 @@ public static class _Module
 		return EchoParser.EchoIDExists(regionname) ? EchoParser.GetEchoID(regionname) : origResult;
 	}
 
-	private static void GhostWorldPresenceOnCtor(On.GhostWorldPresence.orig_ctor orig, GhostWorldPresence self, World world, GhostWorldPresence.GhostID ghostid)
+	private static void GhostWorldPresenceOnCtor(On.GhostWorldPresence.orig_ctor_World_GhostID_int orig, GhostWorldPresence self, World world, GhostWorldPresence.GhostID ghostid, int spinningTopSpawnId)
 	{
-		orig(self, world, ghostid);
+		orig(self, world, ghostid, spinningTopSpawnId);
 		if (self.ghostRoom is null && EchoParser.__extendedEchoIDs.Contains(self.ghostID))
 		{
 			self.ghostRoom = world.GetAbstractRoom(EchoParser.__echoSettings[ghostid].EchoRoom);

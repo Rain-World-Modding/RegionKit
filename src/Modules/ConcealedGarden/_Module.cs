@@ -5,7 +5,7 @@ using static RegionKit.Modules.ConcealedGarden.CGSlipperySlope;
 
 namespace RegionKit.Modules.ConcealedGarden;
 
-[RegionKitModule(nameof(Enable), nameof(Disable), setupMethod: nameof(Setup), moduleName: "The Mast")]
+[RegionKitModule(nameof(Enable), nameof(Disable), setupMethod: nameof(Setup), moduleName: "Concealed Garden")]
 internal static class _Module
 {
 	const string CG_POM_CATEGORY = RK_POM_CATEGORY + "-CG";
@@ -60,7 +60,7 @@ internal static class _Module
 				new Vector2Field("size", new UnityEngine.Vector2(40,40), Vector2Field.VectorReprType.circle),
 				new Vector2Field("dest", new UnityEngine.Vector2(0,50), Vector2Field.VectorReprType.line),
 				new FloatField("stiff", 0, 1, 0.5f, 0.01f),
-		}, null, "CGOrganicLockPart", CG_POM_CATEGORY);
+		}, null!, "CGOrganicLockPart", CG_POM_CATEGORY);
 
 		RegisterFullyManagedObjectType(new ManagedField[]
 		{
@@ -72,7 +72,7 @@ internal static class _Module
 				new FloatField("stiff", 0, 1, 0.5f, 0.01f),
 				new FloatField("spread", 0, 20f, 2f, 0.1f),
 				new IntegerField("seed", 0, 9999, 0),
-		}, null, "CGOrganicLining", CG_POM_CATEGORY);
+		}, null!, "CGOrganicLining", CG_POM_CATEGORY);
 
 
 		RegisterManagedObject(new ManagedObjectType("CGSlipperySlope", CG_POM_CATEGORY,

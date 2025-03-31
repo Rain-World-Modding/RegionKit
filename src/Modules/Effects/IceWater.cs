@@ -13,7 +13,7 @@ namespace RegionKit.Modules.Effects
 {
 	// By ASlightlyOvergrownCactus
 
-	internal static class IceWaterBuilder
+	/*internal static class IceWaterBuilder
 	{ 
 		internal static void __RegisterBuilder()
 		{
@@ -154,36 +154,7 @@ namespace RegionKit.Modules.Effects
 						sLeaser.sprites[i] = new TriangleMesh("Futile_White", tris, true);
 					}
 				}
-
-				/*
-				for (int i = 0; i < poisPoints.Count; i++)
-				{
-					sLeaser.sprites[i] = new FSprite("pixel")
-					{
-						anchorX = 0.5f,
-						anchorY = 0.5f,
-						scale = 4f
-					};
-				}
-
-				for (int i = poisPoints.Count; i < sLeaser.sprites.Length; i++)
-				{
-					int j = i - poisPoints.Count;
-					float rotation = VecToDeg(DirVec(VoronoiPointToVector(voronoiEdges[j].Start), VoronoiPointToVector(voronoiEdges[j].End))) + 90f;
-
-					sLeaser.sprites[i] = new FSprite("pixel")
-					{
-						anchorX = 0.5f,
-						anchorY = 0.5f,
-						scaleY = 2f,
-						scaleX = (float)voronoiEdges[i - poisPoints.Count].Length,
-						rotation = rotation
-					};
-				}
-				*/
-
-
-				AddToContainer(sLeaser, rCam, null);
+				AddToContainer(sLeaser, rCam, null!);
 			}
 		}
 
@@ -221,21 +192,6 @@ namespace RegionKit.Modules.Effects
 		{
 			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null)
 			{
-
-				/*
-				for (int i = 0; i < poisPoints.Count; i++)
-				{
-					//Vector2 origWaterPos = rCam.ApplyDepth(new Vector2(poisPoints[i - 1].x - 320f, room.FloatWaterLevel(poisPoints[i - 1].x)), Mathf.Lerp(-10f, 30f, poisPoints[i - 1].y / rCam.sSize.y));
-					//sLeaser.sprites[i].SetPosition(detailedWaterLevelPoint(origWaterPos, rCam.sSize.y, rCam.room.waterObject, i) - camPos);
-					sLeaser.sprites[i].SetPosition(new Vector2((float)poisPoints[i].X, (float)poisPoints[i].Y - 100f));
-				}
-				for (int i = poisPoints.Count; i < sLeaser.sprites.Length; i++)
-				{
-					int j = i - poisPoints.Count;
-					Vector2 temp = VoronoiPointToVector(voronoiEdges[j].Mid);
-					sLeaser.sprites[i].SetPosition(new Vector2(temp.x, temp.y - 100f));
-				}
-				*/
 				if (plane.Sites != null)
 				{
 					for (int i = 0; i < sLeaser.sprites.Length; i++)
@@ -298,21 +254,9 @@ namespace RegionKit.Modules.Effects
 		{
 			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null)
 			{
-				/*
-				for (int i = 0; i < poisPoints.Count; i++)
-				{
-					// Yellow is Random Vertices
-					sLeaser.sprites[i].color = UnityEngine.Color.yellow;
-				}
-				for (int i = poisPoints.Count; i < sLeaser.sprites.Length; i++)
-				{
-					// Magenta is voronoi vertices
-					sLeaser.sprites[i].color = UnityEngine.Color.magenta;
-				}
-				*/
 				for (int i = 0; i < sLeaser.sprites.Length; i++)
 				{
-					for (int j = 0; j < (sLeaser.sprites[i] as TriangleMesh).vertices.Length; j++)
+					for (int j = 0; j < (sLeaser.sprites[i] as TriangleMesh)!.vertices.Length; j++)
 					{
 						sLeaser.sprites[j].color = color;
 					}
@@ -331,5 +275,5 @@ namespace RegionKit.Modules.Effects
 		{
 			return new Vector2((float)point.X, (float)point.Y);
 		}
-	}
+	}*/
 }

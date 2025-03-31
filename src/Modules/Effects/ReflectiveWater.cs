@@ -117,7 +117,7 @@ namespace RegionKit.Modules.Effects
 		private static void Water_InitiateSprites(On.Water.orig_InitiateSprites orig, Water self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 		{
 			orig(self, sLeaser, rCam);
-			int index = 0;
+			int index;
 			if (self.room.roomSettings.GetEffect(_Enums.ReflectiveWater) != null)
 			{
 				index = sLeaser.sprites.Length;
@@ -153,27 +153,30 @@ namespace RegionKit.Modules.Effects
 			{
 				if (sLeaser.sprites.FirstOrDefault(x => x.data == reflectiveSprite) is TriangleMesh reflectiveMesh)
 				{
-					WaterTriangleMesh waterMesh = (WaterTriangleMesh)sLeaser.sprites[0];
-					int offset = self.PreviousSurfacePoint(camPos.x - 30f);
-
-					// Calculate vertex positions and UVs
-					for (int column = 0; column <= self.pointsToRender; column++)
+					for (int i = 0; i < self.surfaces.Length; i++)
 					{
-						Vector2 waterFront = waterMesh.vertices[column * 2 + 0];
-						Vector2 waterBack = waterMesh.vertices[column * 2 + 1];
+						WaterTriangleMesh waterMesh = (WaterTriangleMesh)sLeaser.sprites[i * 2];
+						int offset = self.surfaces[i].PreviousPoint(camPos.x - 30f);
 
-						Vector3 crossWater = CrossWater(waterFront, waterBack, column, self.pointsToRender, waterMesh);
-						crossWater = crossWater.normalized;
-
-						for (int row = 0; row < vertsPerColumn; row++)
+						// Calculate vertex positions and UVs
+						for (int column = 0; column <= self.pointsToRender; column++)
 						{
-							float u = column + offset;
-							float v = row / (vertsPerColumn - 1f);
-							reflectiveMesh.UVvertices[column * vertsPerColumn + row] = new Vector2(u, v);
-							// Check vector to be slerped; Make sure the angle works with max water amplitude
-							Vector3 surfaceNormal = Vector3.Slerp(crossWater.normalized, new Vector3(0.0f, 0.5f, -0.4f), angleLerp);
-							reflectiveMesh.verticeColors[column * vertsPerColumn + row] = new Color(surfaceNormal.x, surfaceNormal.y, surfaceNormal.z, 1);
-							reflectiveMesh.MoveVertice(column * vertsPerColumn + row, Vector2.Lerp(waterFront, waterBack, v));
+							Vector2 waterFront = waterMesh.vertices[column * 2 + 0];
+							Vector2 waterBack = waterMesh.vertices[column * 2 + 1];
+
+							Vector3 crossWater = CrossWater(waterFront, waterBack, column, self.pointsToRender, waterMesh);
+							crossWater = crossWater.normalized;
+
+							for (int row = 0; row < vertsPerColumn; row++)
+							{
+								float u = column + offset;
+								float v = row / (vertsPerColumn - 1f);
+								reflectiveMesh.UVvertices[column * vertsPerColumn + row] = new Vector2(u, v);
+								// Check vector to be slerped; Make sure the angle works with max water amplitude
+								Vector3 surfaceNormal = Vector3.Slerp(crossWater.normalized, new Vector3(0.0f, 0.5f, -0.4f), angleLerp);
+								reflectiveMesh.verticeColors[column * vertsPerColumn + row] = new Color(surfaceNormal.x, surfaceNormal.y, surfaceNormal.z, 1);
+								reflectiveMesh.MoveVertice(column * vertsPerColumn + row, Vector2.Lerp(waterFront, waterBack, v));
+							}
 						}
 					}
 				}

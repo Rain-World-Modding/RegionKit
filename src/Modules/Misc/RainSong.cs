@@ -1,4 +1,4 @@
-//RainSong by HelloThere
+﻿//RainSong by HelloThere
 
 using System.IO;
 using Music;

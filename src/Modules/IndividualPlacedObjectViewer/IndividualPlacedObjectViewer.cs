@@ -275,8 +275,8 @@ internal static partial class IndividualPlacedObjectViewer
 		orig(self);
 
 		if (!int.TryParse(self.fLabels[0].text.Split(' ')[0], out _) 
-			&& (self.Page is ObjectsPage)
-			&& (self.Page as ObjectsPage).GetData().isInIndividualMode) 
+			&& self.Page is ObjectsPage objectsPage
+			&& objectsPage.GetData().isInIndividualMode) 
 		{ 
 			self.fLabels[0].text = self.RoomSettings.placedObjects.IndexOf(self.pObj) + " " + self.fLabels[0].text; 
 		}

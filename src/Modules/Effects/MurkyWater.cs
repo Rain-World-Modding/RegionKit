@@ -20,6 +20,15 @@ namespace RegionKit.Modules.Effects
 			On.Water.DrawSprites += Water_DrawSprites;
 		}
 
+		internal static void Undo()
+		{
+			On.Lantern.InitiateSprites -= Lantern_InitiateSprites;
+			On.LightSource.AddToContainer -= LightSource_AddToContainer;
+			On.Water.InitiateSprites -= Water_InitiateSprites;
+			On.Water.DrawSprites -= Water_DrawSprites;
+			On.LightSource.InitiateSprites -= LightSource_InitiateSprites;
+		}
+
 		private static void LightSource_AddToContainer(On.LightSource.orig_AddToContainer orig, LightSource self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
 		{
 			orig(self, sLeaser, rCam, newContatiner);
@@ -44,20 +53,12 @@ namespace RegionKit.Modules.Effects
 			}
 		}
 
-		internal static void Undo()
-		{
-			On.Lantern.InitiateSprites -= Lantern_InitiateSprites;
-			On.LightSource.AddToContainer -= LightSource_AddToContainer;
-			On.Water.InitiateSprites -= Water_InitiateSprites;
-			On.Water.DrawSprites -= Water_DrawSprites;
-			On.LightSource.InitiateSprites -= LightSource_InitiateSprites;
-		}
-
 		private static void Water_InitiateSprites(On.Water.orig_InitiateSprites orig, Water self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 		{
 			orig(self, sLeaser, rCam);
 			if (rCam.room.roomSettings.GetEffect(_Enums.MurkyWater) != null)
-				sLeaser.sprites[1].shader = self.room.game.rainWorld.Shaders["DarkWater"];
+				for (int i = 0; i < self.surfaces.Length; i++)
+					sLeaser.sprites[i * 2 + 1].shader = self.room.game.rainWorld.Shaders["DarkWater"];
 		}
 
 		private static void Lantern_InitiateSprites(On.Lantern.orig_InitiateSprites orig, Lantern self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)

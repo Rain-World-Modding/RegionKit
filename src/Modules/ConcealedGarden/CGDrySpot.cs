@@ -10,6 +10,7 @@ using UnityEngine;
 
 namespace RegionKit.Modules.ConcealedGarden;
 
+[Obsolete("DrySpot is in-game now.")]
 internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 {
 	internal static class Hooks

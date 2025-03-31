@@ -153,7 +153,7 @@ namespace RegionKit.Modules.Effects
 		{
 			orig(self, sleaser, rcam, timestacker, campos);
 			
-				if (self.room != null && self.room.roomSettings.GetEffect(_Enums.HSLDisplaySnow) != null && (self.room.roomSettings.DangerType == MoreSlugcats.MoreSlugcatsEnums.RoomRainDangerType.Blizzard || self.room.roomSettings.DangerType == RoomRain.DangerType.AerieBlizzard))
+				if (self.room != null && self.room.roomSettings.GetEffect(_Enums.HSLDisplaySnow) != null && (self.room.roomSettings.DangerType == DLCSharedEnums.RoomRainDangerType.Blizzard || self.room.roomSettings.DangerType == RoomRain.DangerType.AerieBlizzard))
 				{
 					if (self.room.updateList.OfType<HSLDisplaySnowUAD>().FirstOrDefault()?.affectSnowfall == true)
 					{

@@ -4,6 +4,7 @@ Sprites for karma 6~10 gates by LB Gamer & Nautillo
 Sprites for special requirements gates and missing minimap sprites by LB Gamer  
 Sprites for Alternate Art spriteset, post-downpour porting by Thalber  
 X Karma gate sprite by Mehri'Kairothep  
+Sprites for Alternative Art special requirements gates and txt Art gates by Tat011  
 
 ExtendedGates adds new gate possibilities to the game for use in custom regions! It lets you use karma levels above 5 for gate requiments, as well as 6 other special requirements, and an alternate art option. It also lets you use gates within a region to control progression and lets you specify that gates can be used more than once on the same cycle.
 
@@ -31,6 +32,8 @@ The "multi" tag (case-sensitive) is used to specify a gate as reusable. This giv
 The "OELock" tag (case-sensitive) is used to make a gate Forbidden unless the requirements for unlocking OE is fulfilled. This will not do anything without More Slugcats Expansion enabled.
 
 To use the alternate art for karma gates sprites, type number + "alt" (case-sensitive) with no space between instead of just the karma number. Special requirement gates do not have alternate art.
+
+There is also "txt" (case-sensitive) art for any numerical karma lock, used in the same way as alt art.
 
 Example of locks.txt contents<!-- (you cannot currently use comments and empty lines in the locks file)-->:  
 <!--// A gate within a region that can be crossed with enough karma in one direction, and is freely crossed in the other in the same cycle.  

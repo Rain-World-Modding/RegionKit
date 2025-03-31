@@ -379,9 +379,9 @@ internal static class Data
 	public partial class BGSceneData
 	{
 		[BackgroundData(backingFieldName = nameof(_defaultContainer), name = "DefaultContainer")]
-		public ContainerCodes defaultContainer
+		public ContainerCodes? defaultContainer
 		{
-			get => _defaultContainer ?? ContainerCodes.Water;
+			get => _defaultContainer;
 			set
 			{
 				_defaultContainer = value;

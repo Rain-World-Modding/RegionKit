@@ -80,6 +80,13 @@ internal static class MoreFadePalettes
 
 	public static Dictionary<FadePalette, Texture2D> MoreFadeTextures(this RoomCamera rc) => _MoreFadeTextures.GetValue(rc, _ => new());
 
+	public static void ClearMoreFadeTextures(this RoomCamera rc)
+	{
+		foreach (Texture2D tex in MoreFadeTextures(rc).Values)
+		{ UnityEngine.Object.Destroy(tex); }
+		MoreFadeTextures(rc).Clear();
+	}
+
 	public static Texture2D GetMoreFadeTexture(this RoomCamera rc, FadePalette palette)
 	{
 		if (rc.MoreFadeTextures().ContainsKey(palette))
@@ -89,7 +96,7 @@ internal static class MoreFadePalettes
 
 	public static void ChangeMoreFade(this RoomCamera self, FadePalette[] newFades)
 	{
-		self.MoreFadeTextures().Clear();
+		self.ClearMoreFadeTextures();
 		foreach (FadePalette fade in newFades)
 		{
 			Texture2D moreTex = null!;
@@ -116,6 +123,7 @@ internal static class MoreFadePalettes
 		On.RoomSettings.Load_Timeline += RoomSettings_Load;
 		_CommonHooks.RoomSettingsSave += _CommonHooks_RoomSettingsSave;
 		On.DevInterface.RoomSettingsPage.ctor += RoomSettingsPage_ctor;
+		On.RainWorldGame.ShutDownProcess += RainWorldGame_ShutDownProcess;
 	}
 
 	public static void Undo()
@@ -128,6 +136,16 @@ internal static class MoreFadePalettes
 		On.RoomSettings.Load_Timeline -= RoomSettings_Load;
 		_CommonHooks.RoomSettingsSave -= _CommonHooks_RoomSettingsSave;
 		On.DevInterface.RoomSettingsPage.ctor -= RoomSettingsPage_ctor;
+		On.RainWorldGame.ShutDownProcess -= RainWorldGame_ShutDownProcess;
+	}
+
+	private static void RainWorldGame_ShutDownProcess(On.RainWorldGame.orig_ShutDownProcess orig, RainWorldGame self)
+	{
+		orig(self);
+		foreach (RoomCamera i in self.cameras)
+		{
+			i.ClearMoreFadeTextures();
+		}
 	}
 
 	#region importantHooks
@@ -188,7 +206,7 @@ internal static class MoreFadePalettes
 	{
 		self.currentCameraPosition = cameraPosition; //THIS IS REALLY IMPORTANT idk why the base game doesn't do this, shouldn't break anything
 
-		self.MoreFadeTextures().Clear();
+		self.ClearMoreFadeTextures();
 		if (newRoom == null) { orig(self, newRoom, cameraPosition); return; }
 		foreach (FadePalette fade in newRoom.roomSettings.GetAllFades())
 		{

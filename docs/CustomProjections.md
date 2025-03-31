@@ -71,6 +71,7 @@ Many new properties can be defined in World\XX\Properties.txt to customize overs
 | `guideProgressionWeight` | decimal | 1 | Multiplies the guide's desire to show progression if below 100, if above 100 it will override with the value - 100 |
 | `guideDestinationRoom` | room name | none | The room the player guide should point to when showing progression |
 | `guideProgressionSymbol` | atlas name | `GuidanceSlugcat` | The symbol to use for showing progression |
+| `inspectorColor` | color or number | `1, 0.8, 0.3` or `1` | The color of the inspectors in the region |
 | `guideColor` | color or number | `1, 0.8, 0.3` or `1` | The color of the player guide |
 | `overseersColorOverride(<color>)` | decimal | 1 | The chance of the non-guide overseers changing to the defined color |
 

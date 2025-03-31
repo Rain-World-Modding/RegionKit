@@ -138,7 +138,7 @@ public abstract class PBehaviourModule
 		///<inheritdoc/>
 		internal void actionCycle()
 		{
-			var y = owner.room.FloatWaterLevel(owner.pos.x);
+			var y = owner.room.FloatWaterLevel(owner.pos);
 			if (owner.pos.y < y) owner.pos.y = y;
 		}
 	}

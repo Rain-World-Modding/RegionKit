@@ -176,7 +176,7 @@ public static class _Module
 			}
 		}
 
-		InGameTranslator.LanguageID lang = self.ghost.rainWorld.inGameTranslator.currentLanguage;
+		InGameTranslator.LanguageID lang = Custom.rainWorld.inGameTranslator.currentLanguage;
 		string? text = ResolveEchoConversation(lang, region);
 		if (text is null && lang != InGameTranslator.LanguageID.English) {
 			text = ResolveEchoConversation(InGameTranslator.LanguageID.English, region);

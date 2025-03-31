@@ -8,8 +8,46 @@ namespace RegionKit.Modules.ConcealedGarden;
 
 class CGCosmeticWater : UpdatableAndDeletable, IDrawable
 {
-	private PlacedObject pObj;
-	private Water water;
+	private class CGCosmeticWaterSurface : Water.DefaultSurface
+	{
+		private float top;
+
+		public CGCosmeticWaterSurface(Water water, Rect bounds) : base(water)
+		{
+			// Damn you Water.MainSurface...
+			totalPoints = (int)(bounds.width / water.triangleWidth) + 1;
+			points = new Water.SurfacePoint[totalPoints, 2];
+			for (int i = 0; i < totalPoints; i++)
+			{
+				for (int j = 0; j < 2; j++)
+				{
+					points[i, j] = new Water.SurfacePoint(new Vector2(bounds.xMin + ((float)i + ((j == 0) ? 0f : 0.5f)) * water.triangleWidth, water.originalWaterLevel));
+				}
+			}
+
+			top = bounds.yMax;
+			bounds = new Rect(bounds.xMin, -100, bounds.width, bounds.yMin + 100);
+			waterCutoffs.Clear();
+		}
+
+		public override void Update()
+		{
+			base.Update();
+			waveAmplitude = water.waveAmplitude;
+			waveSpeed = water.waveSpeed;
+			waveLength = water.waveLength;
+			rollBackLength = water.rollBackLength;
+			rollBackAmp = water.rollBackAmp;
+		}
+
+		public override float TargetWaterLevel(float horizontalPosition)
+		{
+			return top;
+		}
+	}
+
+	private readonly PlacedObject pObj;
+	private readonly Water water;
 
 	CGCosmeticWaterData data => (CGCosmeticWaterData)pObj.data;
 
@@ -20,42 +58,35 @@ class CGCosmeticWater : UpdatableAndDeletable, IDrawable
 
 		FloatRect rect = data.rect;
 
-		this.water = new Water(room, Mathf.FloorToInt(rect.top / 20f));
+		water = new Water(room, Mathf.FloorToInt(rect.top / 20f));
 		// room.drawableObjects.Add(this.water);
-		this.water.cosmeticLowerBorder = Mathf.FloorToInt(rect.bottom);
+		water.cosmeticLowerBorder = Mathf.FloorToInt(rect.bottom);
 
 		// Water ctor stuff to be adjusted
-		this.water.surface = new Water.SurfacePoint[(int)((rect.right - rect.left) / this.water.triangleWidth) + 1, 2];
-		for (int i = 0; i < this.water.surface.GetLength(0); i++)
-		{
-			for (int j = 0; j < 2; j++)
-			{
-				this.water.surface[i, j] = new Water.SurfacePoint(new Vector2(rect.left + ((float)i + ((j != 0) ? 0.5f : 0f)) * this.water.triangleWidth, this.water.originalWaterLevel));
-			}
-		}
-		this.water.pointsToRender = RWCustom.Custom.IntClamp((int)((room.game.rainWorld.options.ScreenSize.x + 60f) / this.water.triangleWidth) + 2, 0, this.water.surface.GetLength(0));
-		this.water.waterSounds.rect = rect;
-		this.water.waterSounds.Volume = Mathf.Pow(Mathf.Clamp01((rect.right - rect.left) / room.game.rainWorld.options.ScreenSize.x), 0.7f) * (room.water ? 0.5f : 1f);
+		water.surfaces = [new CGCosmeticWaterSurface(water, Rect.MinMaxRect(rect.left, rect.bottom, rect.right, rect.top))];
+		water.pointsToRender = IntClamp((int)((room.game.rainWorld.options.ScreenSize.x + 60f) / water.triangleWidth) + 2, 0, water.surfaces[0].totalPoints);
+		water.waterSounds.rect = rect;
+		water.waterSounds.Volume = Mathf.Pow(Mathf.Clamp01((rect.right - rect.left) / room.game.rainWorld.options.ScreenSize.x), 0.7f) * (room.water ? 0.5f : 1f);
 	}
 
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		this.water.Update();
+		water.Update();
 	}
 
 	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
-		this.water.InitiateSprites(sLeaser, rCam);
+		water.InitiateSprites(sLeaser, rCam);
 	}
 
 	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
-		this.water.DrawSprites(sLeaser, rCam, timeStacker, camPos);
+		water.DrawSprites(sLeaser, rCam, timeStacker, camPos);
 
-		FloatRect rect = data.rect;
-		int num = RWCustom.Custom.IntClamp(this.water.PreviousSurfacePoint(camPos.x - 30f), 0, this.water.surface.GetLength(0) - 1);
-		int num2 = RWCustom.Custom.IntClamp(num + this.water.pointsToRender, 0, this.water.surface.GetLength(0) - 1);
+		/*FloatRect rect = data.rect;
+		int num = RWCustom.Custom.IntClamp(water.PreviousSurfacePoint(camPos.x - 30f), 0, water.surface.GetLength(0) - 1);
+		int num2 = RWCustom.Custom.IntClamp(num + water.pointsToRender, 0, water.surface.GetLength(0) - 1);
 		WaterTriangleMesh mesh0 = ((WaterTriangleMesh)sLeaser.sprites[0]);
 		WaterTriangleMesh mesh1 = ((WaterTriangleMesh)sLeaser.sprites[1]);
 		for (int i = num; i < num2; i++)
@@ -88,17 +119,17 @@ class CGCosmeticWater : UpdatableAndDeletable, IDrawable
 		mesh1.MoveVertice(0, rect.GetCorner(FloatRect.CornerLabel.D) - camPos);
 		mesh1.MoveVertice(1, rect.GetCorner(FloatRect.CornerLabel.A) - camPos);
 		mesh1.MoveVertice(((WaterTriangleMesh)sLeaser.sprites[1]).vertices.Length - 2, rect.GetCorner(FloatRect.CornerLabel.B) - camPos);
-		mesh1.MoveVertice(((WaterTriangleMesh)sLeaser.sprites[1]).vertices.Length - 1, rect.GetCorner(FloatRect.CornerLabel.C) - camPos);
+		mesh1.MoveVertice(((WaterTriangleMesh)sLeaser.sprites[1]).vertices.Length - 1, rect.GetCorner(FloatRect.CornerLabel.C) - camPos);*/
 	}
 
 	public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 	{
-		this.water.ApplyPalette(sLeaser, rCam, palette);
+		water.ApplyPalette(sLeaser, rCam, palette);
 	}
 
 	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
 	{
-		this.water.AddToContainer(sLeaser, rCam, newContatiner);
+		water.AddToContainer(sLeaser, rCam, newContatiner);
 	}
 
 	public class CGCosmeticWaterData : ManagedData
@@ -108,10 +139,10 @@ class CGCosmeticWater : UpdatableAndDeletable, IDrawable
 			get
 			{
 				return new FloatRect(
-					Mathf.Min(this.owner.pos.x, this.owner.pos.x + this.handlePos.x),
-					Mathf.Min(this.owner.pos.y, this.owner.pos.y + this.handlePos.y),
-					Mathf.Max(this.owner.pos.x, this.owner.pos.x + this.handlePos.x),
-					Mathf.Max(this.owner.pos.y, this.owner.pos.y + this.handlePos.y));
+					Mathf.Min(owner.pos.x, owner.pos.x + handlePos.x),
+					Mathf.Min(owner.pos.y, owner.pos.y + handlePos.y),
+					Mathf.Max(owner.pos.x, owner.pos.x + handlePos.x),
+					Mathf.Max(owner.pos.y, owner.pos.y + handlePos.y));
 			}
 		}
 #pragma warning disable 0649

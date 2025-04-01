@@ -110,6 +110,7 @@ internal static class _Module
 		CGCameraEffects.Apply();
 		CGNoLurkArea.Apply();
 		CGShelterRain.Apply();
+		CGCosmeticWater.Hooks.Apply();
 	}
 	public static void Disable()
 	{
@@ -117,5 +118,6 @@ internal static class _Module
 		CGCameraEffects.Undo();
 		CGNoLurkArea.Undo();
 		CGShelterRain.Undo();
+		CGCosmeticWater.Hooks.Undo();
 	}
 }

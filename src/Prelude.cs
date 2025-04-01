@@ -17,3 +17,7 @@ global using static RegionKit.Extras.PrimitivesTools;
 global using static RegionKit.Extras.RainWorldTools;
 global using static RegionKit.Extras.LanguageHacks;
 global using static RWCustom.Custom;
+
+using System.Diagnostics.CodeAnalysis;
+
+[assembly: SuppressMessage("Style", "IDE0290:Use primary constructor", Justification = "nobody cares lmao")]

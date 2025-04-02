@@ -1,4 +1,7 @@
 ﻿using System.Drawing.Text;
+using DevInterface;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using static RegionKit.Modules.ConcealedGarden.CGCosmeticLeaves;
 using static RegionKit.Modules.ConcealedGarden.CGElectricArcs;
 using static RegionKit.Modules.ConcealedGarden.CGSlipperySlope;
@@ -30,7 +33,8 @@ internal static class _Module
 			typeof(CGCosmeticLeaves), typeof(CosmeticLeavesObjectData), typeof(ManagedRepresentation)));
 
 		//needs graphics fix
-		RegisterManagedObject(new ManagedObjectType("CGCosmeticWater", CG_POM_CATEGORY, typeof(CGCosmeticWater), typeof(CGCosmeticWater.CGCosmeticWaterData), typeof(ManagedRepresentation)));
+		// note: the above note is from 1.9, this is now 1.10 (watcher) and it straight up does not work so I'm removing it for now
+		// RegisterManagedObject(new ManagedObjectType("CGCosmeticWater", CG_POM_CATEGORY, typeof(CGCosmeticWater), typeof(CGCosmeticWater.CGCosmeticWaterData), typeof(ManagedRepresentation)));
 
 
 		RegisterManagedObject(new ManagedObjectType("CGElectricArc", CG_POM_CATEGORY, typeof(CGElectricArc), typeof(CGElectricArcData), typeof(ManagedRepresentation)));
@@ -105,13 +109,15 @@ internal static class _Module
 
 	public static void Enable()
 	{
-
 		CGDrySpot.Hooks.Apply();
 		CGCameraEffects.Apply();
 		CGNoLurkArea.Apply();
 		CGShelterRain.Apply();
 		CGCosmeticWater.Hooks.Apply();
+
+		IL.DevInterface.ObjectsPage.AssembleObjectPages += RemoveDeprecatedObjects;
 	}
+
 	public static void Disable()
 	{
 		CGDrySpot.Hooks.Undo();
@@ -119,5 +125,32 @@ internal static class _Module
 		CGNoLurkArea.Undo();
 		CGShelterRain.Undo();
 		CGCosmeticWater.Hooks.Undo();
+
+		IL.DevInterface.ObjectsPage.AssembleObjectPages -= RemoveDeprecatedObjects;
+	}
+
+	private static readonly HashSet<string> DeprecatedObjects = ["CGCosmeticWater"];
+	private static void RemoveDeprecatedObjects(ILContext il)
+	{
+		// Prevents objects from being added to the pane without removing them from being registered to begin with because this is an easy solution I think
+		var c = new ILCursor(il);
+
+		try
+		{
+			ILLabel brTo;
+			int loc = 5;
+			c.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt(typeof(List<PlacedObject.Type>).GetMethod(nameof(List<PlacedObject.Type>.Add))));
+			brTo = c.MarkLabel();
+			c.GotoPrev(x => x.MatchNewobj<PlacedObject.Type>());
+			c.GotoNext(MoveType.After, x => x.MatchStloc(out loc));
+			c.Emit(OpCodes.Ldloc, loc);
+			c.EmitDelegate((PlacedObject.Type tp) => DeprecatedObjects.Contains(tp.value));
+			c.Emit(OpCodes.Brtrue, brTo);
+		}
+		catch (Exception ex)
+		{
+			LogError("ConcealedGarden RemoveDeprecatedObjects IL hook failed!");
+			LogError(ex);
+		}
 	}
 }

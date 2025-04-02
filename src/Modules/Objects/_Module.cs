@@ -1,5 +1,7 @@
 ﻿using MonoMod.RuntimeDetour;
 using DevInterface;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 
 namespace RegionKit.Modules.Objects;
 ///<inheritdoc/>
@@ -119,6 +121,8 @@ public static class _Module
 		NoBatflyLurkZoneHooks.Apply();
 
 		LoadShaders();
+
+		IL.DevInterface.ObjectsPage.AssembleObjectPages += RemoveDeprecatedObjects;
 	}
 
 	internal static void Disable()
@@ -144,6 +148,8 @@ public static class _Module
 		WaterSpout.Undo();
 		FanLightHooks.Undo();
 		NoBatflyLurkZoneHooks.Undo();
+
+		IL.DevInterface.ObjectsPage.AssembleObjectPages -= RemoveDeprecatedObjects;
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)
@@ -155,7 +161,6 @@ public static class _Module
 			type == _Enums.PWLightrod ||
 			type == _Enums.UpsideDownWaterFall ||
 			type == _Enums.LittlePlanet ||
-			type == _Enums.RainbowNoFade ||
 			type == _Enums.FanLight)
 			res = new ObjectsPage.DevObjectCategories(DECORATIONS_POM_CATEGORY);
 		else if (
@@ -186,9 +191,6 @@ public static class _Module
 			PlacedObject pObj = self.roomSettings.placedObjects[m];
 			switch (pObj.type.value)
 			{
-			case nameof(_Enums.RainbowNoFade):
-				self.AddObject(new RainbowNoFade(self, pObj));
-				break;
 			case nameof(_Enums.LittlePlanet):
 				self.AddObject(new LittlePlanet(self, pObj));
 				break;
@@ -241,24 +243,7 @@ public static class _Module
 
 	private static void CreateObjectReps(On.DevInterface.ObjectsPage.orig_CreateObjRep orig, DevInterface.ObjectsPage self, PlacedObject.Type tp, PlacedObject pObj)
 	{
-		if (tp == _Enums.RainbowNoFade)
-		{
-			if (pObj == null)
-			{
-				pObj = new PlacedObject(tp, null);
-				pObj.pos = self.owner.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + DegToVec(UnityEngine.Random.value * 360f) * 0.2f;
-				self.RoomSettings.placedObjects.Add(pObj);
-			}
-			DevInterface.PlacedObjectRepresentation placedObjectRepresentation;
-			placedObjectRepresentation = new RainbowNoFadeRepresentation(self.owner, "RainbowNoFade" + "_Rep", self, pObj);
-			if (placedObjectRepresentation != null)
-			{
-				self.tempNodes.Add(placedObjectRepresentation);
-				self.subNodes.Add(placedObjectRepresentation);
-			}
-			return;
-		}
-		else if (tp == _Enums.LittlePlanet)
+		if (tp == _Enums.LittlePlanet)
 		{
 			if (pObj is null)
 			{
@@ -369,11 +354,7 @@ public static class _Module
 
 	private static void MakeEmptyData(On.PlacedObject.orig_GenerateEmptyData orig, PlacedObject self)
 	{
-		if (self.type == _Enums.RainbowNoFade)
-		{
-			self.data = new RainbowNoFade.RainbowNoFadeData(self);
-		}
-		else if (self.type == _Enums.LittlePlanet)
+		if (self.type == _Enums.LittlePlanet)
 		{
 			self.data = new LittlePlanet.LittlePlanetData(self);
 		}
@@ -431,5 +412,29 @@ public static class _Module
 	public static void LoadShaders()
 	{
 		Custom.rainWorld.Shaders["ColorEffects"] = FShader.CreateShader("ColorEffects", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/coloreffects")).LoadAsset<Shader>("Assets/ColorEffects.shader"));
+	}
+
+	private static readonly HashSet<string> DeprecatedObjects = ["SpinningFan"];
+	private static void RemoveDeprecatedObjects(ILContext il)
+	{
+		var c = new ILCursor(il);
+
+		try
+		{
+			ILLabel brTo;
+			int loc = 5;
+			c.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt(typeof(List<PlacedObject.Type>).GetMethod(nameof(List<PlacedObject.Type>.Add))));
+			brTo = c.MarkLabel();
+			c.GotoPrev(x => x.MatchNewobj<PlacedObject.Type>());
+			c.GotoNext(MoveType.After, x => x.MatchStloc(out loc));
+			c.Emit(OpCodes.Ldloc, loc);
+			c.EmitDelegate((PlacedObject.Type tp) => DeprecatedObjects.Contains(tp.value));
+			c.Emit(OpCodes.Brtrue, brTo);
+		}
+		catch (Exception ex)
+		{
+			LogError("ConcealedGarden RemoveDeprecatedObjects IL hook failed!");
+			LogError(ex);
+		}
 	}
 }

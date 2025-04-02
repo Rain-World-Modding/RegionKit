@@ -32,10 +32,6 @@ public class _Enums
 	/// </summary>
 	public static PlacedObject.Type LittlePlanet = new(nameof(LittlePlanet), true);
 	/// <summary>
-	/// Persistent rainbow
-	/// </summary>
-	public static PlacedObject.Type RainbowNoFade = new(nameof(RainbowNoFade), true);
-	/// <summary>
 	/// Hologram circle
 	/// </summary>
 	/// <returns></returns>

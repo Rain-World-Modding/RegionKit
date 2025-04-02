@@ -4,6 +4,7 @@ using MonoMod.Cil;
 
 namespace RegionKit.Modules.ConcealedGarden;
 
+#warning this does not work
 class CGCosmeticWater : UpdatableAndDeletable, IDrawable
 {
 	private class CGCosmeticWaterSurface : Water.DefaultSurface
@@ -135,14 +136,14 @@ class CGCosmeticWater : UpdatableAndDeletable, IDrawable
 				for (int i = 0; i < 2; i++)
 					c.GotoNext(x => x.MatchLdcR4(1400f));
 				c.GotoNext(MoveType.After, x => x.MatchCallvirt<WaterTriangleMesh>(nameof(WaterTriangleMesh.MoveVertice)));
-				LogDebug(c);
+				// LogDebug(c);
 				ILLabel brTo = c.MarkLabel();
 
 				// Break around it if it's our thing
 				for (int i = 0; i < 6; i++)
 					c.GotoPrev(x => x.MatchIsinst<WaterTriangleMesh>());
 				c.GotoPrev(MoveType.AfterLabel, x => x.MatchLdarg(1), x => x.MatchLdfld<RoomCamera.SpriteLeaser>(nameof(RoomCamera.SpriteLeaser.sprites)));
-				LogDebug(c);
+				// LogDebug(c);
 				c.Emit(OpCodes.Ldarg_0);
 				c.EmitDelegate((Water self) => self.MainSurface is CGCosmeticWaterSurface);
 				c.Emit(OpCodes.Brtrue, brTo);

@@ -13,7 +13,7 @@ namespace RegionKit.Modules.Effects
 {
 	// By ASlightlyOvergrownCactus
 
-	/*internal static class IceWaterBuilder
+	internal static class IceWaterBuilder
 	{ 
 		internal static void __RegisterBuilder()
 		{
@@ -219,7 +219,7 @@ namespace RegionKit.Modules.Effects
 		}
 
 		// Unused for now
-		private Vector2 detailedWaterLevelPoint(Vector2 point, float height, Water water, int a)
+		private Vector2 detailedWaterLevelPoint(Vector2 point, float height, Water water, int a, int surface)
 		{
 			float horizontalPosition = point.x;
 			Vector2 waterFront = new Vector2(horizontalPosition, 0f);
@@ -227,22 +227,22 @@ namespace RegionKit.Modules.Effects
 
 			for (int i = 0; i < 2; i++)
 			{
-				int num = PreviousSurfacePointFB(horizontalPosition, water, i);
-				int num2 = Custom.IntClamp(num + 1, 0, water.surface.GetLength(0) - 1);
-				float t = Mathf.InverseLerp(water.surface[num, i].defaultPos.x + water.surface[num, i].pos.x, water.surface[num2, i].defaultPos.x + water.surface[num2, i].pos.x, horizontalPosition);
+				int num = PreviousSurfacePointFB(horizontalPosition, water, i, surface);
+				int num2 = Custom.IntClamp(num + 1, 0, water.surfaces[surface].points.GetLength(0) - 1);
+				float t = Mathf.InverseLerp(water.surfaces[surface].points[num, i].defaultPos.x + water.surfaces[surface].points[num, i].pos.x, water.surfaces[surface].points[num2, i].defaultPos.x + water.surfaces[surface].points[num2, i].pos.x, horizontalPosition);
 				if (i == 0)
-					waterFront.y = Mathf.Lerp(water.surface[num, 0].defaultPos.y + water.surface[num, 0].pos.y, water.surface[num2, 0].defaultPos.y + water.surface[num2, 0].pos.y, t);
+					waterFront.y = Mathf.Lerp(water.surfaces[surface].points[num, 0].defaultPos.y + water.surfaces[surface].points[num, 0].pos.y, water.surfaces[surface].points[num2, 0].defaultPos.y + water.surfaces[surface].points[num2, 0].pos.y, t);
 				else
-					waterBack.y = Mathf.Lerp(water.surface[num, 1].defaultPos.y + water.surface[num, 1].pos.y, water.surface[num2, 1].defaultPos.y + water.surface[num2, 1].pos.y, t);
+					waterBack.y = Mathf.Lerp(water.surfaces[surface].points[num, 1].defaultPos.y + water.surfaces[surface].points[num, 1].pos.y, water.surfaces[surface].points[num2, 1].defaultPos.y + water.surfaces[surface].points[num2, 1].pos.y, t);
 			}
 
 			return Vector2.Lerp(waterFront, waterBack, (float)poisPoints[a - 1].Y / height);
 		}
 
-		private int PreviousSurfacePointFB(float horizontalPosition, Water water, int i)
+		private int PreviousSurfacePointFB(float horizontalPosition, Water water, int i, int surface)
 		{
-			int num = Mathf.Clamp(Mathf.FloorToInt((horizontalPosition + 250f) / water.triangleWidth) + 2, 0, water.surface.GetLength(0) - 1);
-			while (num > 0 && horizontalPosition < water.surface[num, i].defaultPos.x + water.surface[num, i].pos.x)
+			int num = Mathf.Clamp(Mathf.FloorToInt((horizontalPosition + 250f) / water.triangleWidth) + 2, 0, water.surfaces[surface].points.GetLength(0) - 1);
+			while (num > 0 && horizontalPosition < water.surfaces[surface].points[num, i].defaultPos.x + water.surfaces[surface].points[num, i].pos.x)
 			{
 				num--;
 			}
@@ -275,5 +275,5 @@ namespace RegionKit.Modules.Effects
 		{
 			return new Vector2((float)point.X, (float)point.Y);
 		}
-	}*/
+	}
 }

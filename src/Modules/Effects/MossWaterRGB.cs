@@ -133,32 +133,35 @@ namespace RegionKit.Modules.Effects
 
 		private static void Water_InitiateSprites(On.Water.orig_InitiateSprites orig, Water self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 		{
-
 			orig(self, sLeaser, rCam);
 			int index;
 			if (self.room.roomSettings.GetEffect(_Enums.MossWaterRGB) != null)
 			{
 				index = sLeaser.sprites.Length;
-				Array.Resize(ref sLeaser.sprites, sLeaser.sprites.Length + 1);
+				Array.Resize(ref sLeaser.sprites, sLeaser.sprites.Length + self.surfaces.Length);
 
-				TriangleMesh.Triangle[] tris = new TriangleMesh.Triangle[self.pointsToRender * 2 * (vertsPerColumn - 1)];
-				int triIndex = 0;
-				for (int column = 0; column < self.pointsToRender; column++)
+				for (int i = 0; i < self.surfaces.Length; i++)
 				{
-					int firstVertex = column * vertsPerColumn;
-
-					for (int row = 0; row < vertsPerColumn - 1; row++)
+					int pointsToRender = i == 0 ? self.pointsToRender : (Mathf.Min(self.surfaces[i].points.Length, self.pointsToRender) - 1);
+					TriangleMesh.Triangle[] tris = new TriangleMesh.Triangle[pointsToRender * 2 * (vertsPerColumn - 1)];
+					int triIndex = 0;
+					for (int column = 0; column < pointsToRender; column++)
 					{
-						int i = firstVertex + row;
-						tris[triIndex++] = new TriangleMesh.Triangle(i, i + 1, i + 1 + vertsPerColumn);
-						tris[triIndex++] = new TriangleMesh.Triangle(i, i + 1 + vertsPerColumn, i + vertsPerColumn);
+						int firstVertex = column * vertsPerColumn;
+
+						for (int row = 0; row < vertsPerColumn - 1; row++)
+						{
+							int j = firstVertex + row;
+							tris[triIndex++] = new TriangleMesh.Triangle(j, j + 1, j + 1 + vertsPerColumn);
+							tris[triIndex++] = new TriangleMesh.Triangle(j, j + 1 + vertsPerColumn, j + vertsPerColumn);
+						}
 					}
+					sLeaser.sprites[index + i] = new TriangleMesh("Futile_White", tris, true)
+					{
+						data = mossRGBSprite,
+						shader = self.room.game.rainWorld.Shaders["MossWaterRGB"]
+					};
 				}
-				sLeaser.sprites[index] = new TriangleMesh("Futile_White", tris, true)
-				{
-					data = mossRGBSprite,
-					shader = self.room.game.rainWorld.Shaders["MossWaterRGB"]
-				};
 
 				self.AddToContainer(sLeaser, rCam, null);
 			}
@@ -170,24 +173,59 @@ namespace RegionKit.Modules.Effects
 
 			if (self.room.roomSettings.GetEffect(_Enums.MossWaterRGB) != null)
 			{
-				if (sLeaser.sprites.FirstOrDefault(x => x.data == mossRGBSprite) is TriangleMesh mossMesh)
+				int startIndex = -1;
+				for (int i = 0; i < sLeaser.sprites.Length; i++)
+				{
+					if (sLeaser.sprites[i].data == mossRGBSprite)
+					{
+						startIndex = i; break;
+					}
+				}
+
+				if (startIndex > -1)
 				{
 					for (int i = 0; i < self.surfaces.Length; i++)
 					{
-						WaterTriangleMesh waterMesh = (WaterTriangleMesh)sLeaser.sprites[i * 2];
-						int offset = self.surfaces[i].PreviousPoint(camPos.x - 30f);
-						// Calculate vertex positions and UVs
-						for (int column = 0; column <= self.pointsToRender; column++)
+						if (sLeaser.sprites[startIndex + i] is TriangleMesh mossMesh)
 						{
-							Vector2 waterFront = waterMesh.vertices[column * 2 + 0];
-							Vector2 waterBack = waterMesh.vertices[column * 2 + 1];
-
-							for (int row = 0; row < vertsPerColumn; row++)
+							if (i == 0)
 							{
-								float u = column + offset;
-								float v = row / (vertsPerColumn - 1f);
-								mossMesh.UVvertices[column * vertsPerColumn + row] = new Vector2(u, v);
-								mossMesh.MoveVertice(column * vertsPerColumn + row, Vector2.Lerp(waterFront, waterBack, v));
+								WaterTriangleMesh waterMesh = (WaterTriangleMesh)sLeaser.sprites[0];
+								int offset = self.surfaces[0].PreviousPoint(camPos.x - 30f);
+								// Calculate vertex positions and UVs
+								for (int column = 0; column <= self.pointsToRender; column++)
+								{
+									Vector2 waterFront = waterMesh.vertices[column * 2 + 0];
+									Vector2 waterBack = waterMesh.vertices[column * 2 + 1];
+
+									for (int row = 0; row < vertsPerColumn; row++)
+									{
+										float u = column + offset;
+										float v = row / (vertsPerColumn - 1f);
+										mossMesh.UVvertices[column * vertsPerColumn + row] = new Vector2(u, v);
+										mossMesh.MoveVertice(column * vertsPerColumn + row, Vector2.Lerp(waterFront, waterBack, v));
+									}
+								}
+							}
+							else
+							{
+								TriangleMesh waterMesh = (TriangleMesh)sLeaser.sprites[i * 2];
+								int offset = self.surfaces[i].PreviousPoint(camPos.x - 30f);
+								int pointsToRender = Mathf.Min(self.surfaces[i].points.Length, self.pointsToRender) - 1;
+								// Calculate vertex positions and UVs
+								for (int column = 0; column <= pointsToRender; column++)
+								{
+									Vector2 waterFront = waterMesh.vertices[column * 2 + 0];
+									Vector2 waterBack = waterMesh.vertices[column * 2 + 1];
+
+									for (int row = 0; row < vertsPerColumn; row++)
+									{
+										float u = column + offset;
+										float v = row / (vertsPerColumn - 1f);
+										mossMesh.UVvertices[column * vertsPerColumn + row] = new Vector2(u, v);
+										mossMesh.MoveVertice(column * vertsPerColumn + row, Vector2.Lerp(waterFront, waterBack, v));
+									}
+								}
 							}
 						}
 					}

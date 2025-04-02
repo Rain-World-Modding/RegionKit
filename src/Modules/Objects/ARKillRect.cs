@@ -10,6 +10,7 @@ namespace RegionKit.Modules.Objects
 	/// <summary>
 	/// Kills everything inside designated zone
 	/// </summary>
+	[Obsolete("ARKillRect is included in the game as of 1.10")]
 	public class ARKillRect : UpdatableAndDeletable
 	{
 		private PlacedObject _PO;

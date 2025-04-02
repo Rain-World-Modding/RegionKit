@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 //Made by Slime_Cubed and Doggo
 namespace RegionKit.Modules.TheMast
 {
-
+	[Obsolete("Wind is in-game now.")]
 	internal static class WindSystem
 	{
 		public static void Apply()
@@ -358,15 +358,27 @@ namespace RegionKit.Modules.TheMast
 
 		public class WindControlPanel : Panel, IDevUISignals
 		{
+			private FSprite lineSprite;
 			public WindControlPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new Vector2(250f, 50f), "Wind Area")
 			{
 				subNodes.Add(new WindStrengthSlider(owner, "Wind_Strength", this, new Vector2(5f, 5f), "Velocity"));
 				subNodes.Add(new WindAffectGroupCycler(owner, "Wind_Affect_Group", this, new Vector2(55f, 25f), 60f));
 				subNodes.Add(new WindVertGroupCycler(owner, "Wind_Vert_Group", this, new Vector2(175f, 25f), 70f));
+				fSprites.Add(lineSprite = new FSprite("pixel", true) { anchorY = 0f });
+				owner.placedObjectsContainer.AddChild(lineSprite);
 			}
 
 			public void Signal(DevUISignalType type, DevUINode sender, string message)
 			{
+			}
+
+			public override void Refresh()
+			{
+				base.Refresh();
+				Vector2 parentPos = (parentNode as QuadObjectRepresentation)!.absPos;
+				lineSprite.SetPosition(parentPos + Vector2.one * 0.01f);
+				lineSprite.scaleY = pos.magnitude;
+				lineSprite.rotation = Custom.AimFromOneVectorToAnother(parentPos, absPos);
 			}
 
 			private class WindAffectGroupCycler : Button

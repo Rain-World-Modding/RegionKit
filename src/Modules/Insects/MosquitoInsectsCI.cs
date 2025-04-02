@@ -126,30 +126,26 @@ public class MosquitoInsect : RedSwarmer
         }
         if (_wantToSuckCounter > 0)
         {
-			List<PhysicalObject>[] objLists = rm.physicalObjects;
-			for (var i = 0; i < objLists.Length; i++)
-            {
-				List<PhysicalObject> list = objLists[i];
-                for (var j = 0; j < list.Count; j++)
-                {
-                    if (list[j] is Creature c && !c.dead && c.Template.type != __mosTp && c.Submersion < 1f)
-                    {
-						BodyChunk[] chs = c.bodyChunks;
-						for (var k = 0; k < chs.Length; k++)
-                        {
-							BodyChunk ch = chs[k];
-                            if (DistLess(ch.pos, pos, 100f) && !DistLess(ch.pos, pos, ch.rad + 10f))
-                            {
-                                dir = DirVec(pos, ch.pos);
-                                vel += dir;
-                                _wantToSuckCounter--;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+			List<AbstractCreature> crits = rm.abstractRoom.creatures;
+			for (var i = 0; i < crits.Count; i++)
+			{
+				if (crits[i].realizedCreature is Creature c && !c.dead && c.Template.type != __mosTp && c.Submersion < 1f)
+				{
+					BodyChunk[] chs = c.bodyChunks;
+					for (var k = 0; k < chs.Length; k++)
+					{
+						BodyChunk ch = chs[k];
+						if (DistLess(ch.pos, pos, 100f) && !DistLess(ch.pos, pos, ch.rad + 10f))
+						{
+							dir = DirVec(pos, ch.pos);
+							vel += dir;
+							--_wantToSuckCounter;
+							break;
+						}
+					}
+				}
+			}
+		}
         vel += RNV() * 2f;
         if (rm.PointSubmerged(pos))
             vel.y += !rm.waterInverted ? 1f : -1f;

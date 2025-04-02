@@ -16,7 +16,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 	internal const string RK_POM_CATEGORY = "RegionKit";
 	internal static Mod? __inst;
 	//private readonly List<ActionWithData> _enableDels = new();
-	internal readonly List<ModuleInfo> _modules = new();
+	internal readonly List<ModuleInfo> _modules = [];
 	private bool _modulesSetUp = false;
 	private RainWorld? _rw;
 	// internal static BepInEx.Logging.ManualLogSource __logger => __inst.Logger;

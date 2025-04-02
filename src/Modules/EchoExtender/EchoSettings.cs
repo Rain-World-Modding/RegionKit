@@ -84,7 +84,7 @@ public struct EchoSettings
 
 		settings.SpawnOnDifficulty = !rows.Any(x => x.ToLower().Contains("spawnondifficulty")); //kinda hacky, but necessary
 
-		foreach (string row in ProcessSlugcatConditions(rows, name))
+		foreach (string row in ProcessTimelineConditions(rows, SlugcatStats.SlugcatToTimeline(name)))
 		{
 
 			if (row.StartsWith("#") || row.StartsWith("//")) continue;
@@ -128,7 +128,7 @@ public struct EchoSettings
 					break;
 				case "difficulties":
 					LogWarning($"[Echo Extender] 'difficulties' is obsolete! New format is [({trimmed})SpawnOnDifficulty]");
-					if(RainWorldTools.StringMatchesSlugcat(trimmed,name)) settings.SpawnOnDifficulty = true;
+					if(RainWorldTools.StringMatchesTimeline(trimmed,SlugcatStats.SlugcatToTimeline(name))) settings.SpawnOnDifficulty = true;
 					//settings.SpawnOnDifficulty = split[1].Split(',').Select(s => new SlugcatStats.Name(s.Trim(), false)).ToArray();
 					break;
 				case "spawnondifficulty":

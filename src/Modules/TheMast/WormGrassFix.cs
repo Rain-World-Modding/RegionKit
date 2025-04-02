@@ -36,7 +36,7 @@ internal static class WormGrassFix
 		orig(self, eu);
 		if (__clipScavBody)
 		{
-			BodyChunk mbc = (self as Creature).mainBodyChunk;
+			BodyChunk mbc = self.mainBodyChunk;
 			mbc.lastLastPos = __lastLastClipPos;
 			mbc.lastPos = __lastClipPos;
 			mbc.pos = __clipPos;

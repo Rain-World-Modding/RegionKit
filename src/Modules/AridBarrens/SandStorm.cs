@@ -206,7 +206,7 @@ public class SandStorm : BackgroundScene, INotifyWhenRoomIsReady
 					}
 					if (this.room.water)
 					{
-						num *= Mathf.InverseLerp(this.room.FloatWaterLevel(bodyChunk.pos.x) - 100f, this.room.FloatWaterLevel(bodyChunk.pos.x), bodyChunk.pos.y);
+						num *= Mathf.InverseLerp(this.room.FloatWaterLevel(bodyChunk.pos) - 100f, this.room.FloatWaterLevel(bodyChunk.pos), bodyChunk.pos.y);
 					}
 					if (num > 0f)
 					{

@@ -33,7 +33,7 @@ namespace RegionKit.Modules.Effects
 		private static void VirtualMicrophone_Update(On.VirtualMicrophone.orig_Update orig, VirtualMicrophone self)
 		{
 			orig(self);
-			if (float.IsInfinity(self.room.FloatWaterLevel(self.listenerPoint.x)))
+			if (float.IsInfinity(self.room.FloatWaterLevel(self.listenerPoint)))
 			{
 				self.underWater = 1f;
 			}
@@ -79,9 +79,9 @@ namespace RegionKit.Modules.Effects
 			else { LogError("Failed to ilhook RoomCamera.DrawUpdate pt 2"); }
 		}
 
-		private static float Water_DetailedWaterLevel(On.Water.orig_DetailedWaterLevel orig, Water self, float horizontalPosition)
+		private static float Water_DetailedWaterLevel(On.Water.orig_DetailedWaterLevel orig, Water self, Vector2 position)
 		{
-			float o = orig(self, horizontalPosition);
+			float o = orig(self, position);
 			if (self.room != null && self.room.PixelHeight + 500f < o - 20f)
 			{ return float.PositiveInfinity; }
 

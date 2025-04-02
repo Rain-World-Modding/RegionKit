@@ -154,36 +154,7 @@ namespace RegionKit.Modules.Effects
 						sLeaser.sprites[i] = new TriangleMesh("Futile_White", tris, true);
 					}
 				}
-
-				/*
-				for (int i = 0; i < poisPoints.Count; i++)
-				{
-					sLeaser.sprites[i] = new FSprite("pixel")
-					{
-						anchorX = 0.5f,
-						anchorY = 0.5f,
-						scale = 4f
-					};
-				}
-
-				for (int i = poisPoints.Count; i < sLeaser.sprites.Length; i++)
-				{
-					int j = i - poisPoints.Count;
-					float rotation = VecToDeg(DirVec(VoronoiPointToVector(voronoiEdges[j].Start), VoronoiPointToVector(voronoiEdges[j].End))) + 90f;
-
-					sLeaser.sprites[i] = new FSprite("pixel")
-					{
-						anchorX = 0.5f,
-						anchorY = 0.5f,
-						scaleY = 2f,
-						scaleX = (float)voronoiEdges[i - poisPoints.Count].Length,
-						rotation = rotation
-					};
-				}
-				*/
-
-
-				AddToContainer(sLeaser, rCam, null);
+				AddToContainer(sLeaser, rCam, null!);
 			}
 		}
 
@@ -221,21 +192,6 @@ namespace RegionKit.Modules.Effects
 		{
 			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null)
 			{
-
-				/*
-				for (int i = 0; i < poisPoints.Count; i++)
-				{
-					//Vector2 origWaterPos = rCam.ApplyDepth(new Vector2(poisPoints[i - 1].x - 320f, room.FloatWaterLevel(poisPoints[i - 1].x)), Mathf.Lerp(-10f, 30f, poisPoints[i - 1].y / rCam.sSize.y));
-					//sLeaser.sprites[i].SetPosition(detailedWaterLevelPoint(origWaterPos, rCam.sSize.y, rCam.room.waterObject, i) - camPos);
-					sLeaser.sprites[i].SetPosition(new Vector2((float)poisPoints[i].X, (float)poisPoints[i].Y - 100f));
-				}
-				for (int i = poisPoints.Count; i < sLeaser.sprites.Length; i++)
-				{
-					int j = i - poisPoints.Count;
-					Vector2 temp = VoronoiPointToVector(voronoiEdges[j].Mid);
-					sLeaser.sprites[i].SetPosition(new Vector2(temp.x, temp.y - 100f));
-				}
-				*/
 				if (plane.Sites != null)
 				{
 					for (int i = 0; i < sLeaser.sprites.Length; i++)
@@ -263,7 +219,7 @@ namespace RegionKit.Modules.Effects
 		}
 
 		// Unused for now
-		private Vector2 detailedWaterLevelPoint(Vector2 point, float height, Water water, int a)
+		private Vector2 detailedWaterLevelPoint(Vector2 point, float height, Water water, int a, int surface)
 		{
 			float horizontalPosition = point.x;
 			Vector2 waterFront = new Vector2(horizontalPosition, 0f);
@@ -271,22 +227,22 @@ namespace RegionKit.Modules.Effects
 
 			for (int i = 0; i < 2; i++)
 			{
-				int num = PreviousSurfacePointFB(horizontalPosition, water, i);
-				int num2 = Custom.IntClamp(num + 1, 0, water.surface.GetLength(0) - 1);
-				float t = Mathf.InverseLerp(water.surface[num, i].defaultPos.x + water.surface[num, i].pos.x, water.surface[num2, i].defaultPos.x + water.surface[num2, i].pos.x, horizontalPosition);
+				int num = PreviousSurfacePointFB(horizontalPosition, water, i, surface);
+				int num2 = Custom.IntClamp(num + 1, 0, water.surfaces[surface].points.GetLength(0) - 1);
+				float t = Mathf.InverseLerp(water.surfaces[surface].points[num, i].defaultPos.x + water.surfaces[surface].points[num, i].pos.x, water.surfaces[surface].points[num2, i].defaultPos.x + water.surfaces[surface].points[num2, i].pos.x, horizontalPosition);
 				if (i == 0)
-					waterFront.y = Mathf.Lerp(water.surface[num, 0].defaultPos.y + water.surface[num, 0].pos.y, water.surface[num2, 0].defaultPos.y + water.surface[num2, 0].pos.y, t);
+					waterFront.y = Mathf.Lerp(water.surfaces[surface].points[num, 0].defaultPos.y + water.surfaces[surface].points[num, 0].pos.y, water.surfaces[surface].points[num2, 0].defaultPos.y + water.surfaces[surface].points[num2, 0].pos.y, t);
 				else
-					waterBack.y = Mathf.Lerp(water.surface[num, 1].defaultPos.y + water.surface[num, 1].pos.y, water.surface[num2, 1].defaultPos.y + water.surface[num2, 1].pos.y, t);
+					waterBack.y = Mathf.Lerp(water.surfaces[surface].points[num, 1].defaultPos.y + water.surfaces[surface].points[num, 1].pos.y, water.surfaces[surface].points[num2, 1].defaultPos.y + water.surfaces[surface].points[num2, 1].pos.y, t);
 			}
 
 			return Vector2.Lerp(waterFront, waterBack, (float)poisPoints[a - 1].Y / height);
 		}
 
-		private int PreviousSurfacePointFB(float horizontalPosition, Water water, int i)
+		private int PreviousSurfacePointFB(float horizontalPosition, Water water, int i, int surface)
 		{
-			int num = Mathf.Clamp(Mathf.FloorToInt((horizontalPosition + 250f) / water.triangleWidth) + 2, 0, water.surface.GetLength(0) - 1);
-			while (num > 0 && horizontalPosition < water.surface[num, i].defaultPos.x + water.surface[num, i].pos.x)
+			int num = Mathf.Clamp(Mathf.FloorToInt((horizontalPosition + 250f) / water.triangleWidth) + 2, 0, water.surfaces[surface].points.GetLength(0) - 1);
+			while (num > 0 && horizontalPosition < water.surfaces[surface].points[num, i].defaultPos.x + water.surfaces[surface].points[num, i].pos.x)
 			{
 				num--;
 			}
@@ -298,21 +254,9 @@ namespace RegionKit.Modules.Effects
 		{
 			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null)
 			{
-				/*
-				for (int i = 0; i < poisPoints.Count; i++)
-				{
-					// Yellow is Random Vertices
-					sLeaser.sprites[i].color = UnityEngine.Color.yellow;
-				}
-				for (int i = poisPoints.Count; i < sLeaser.sprites.Length; i++)
-				{
-					// Magenta is voronoi vertices
-					sLeaser.sprites[i].color = UnityEngine.Color.magenta;
-				}
-				*/
 				for (int i = 0; i < sLeaser.sprites.Length; i++)
 				{
-					for (int j = 0; j < (sLeaser.sprites[i] as TriangleMesh).vertices.Length; j++)
+					for (int j = 0; j < (sLeaser.sprites[i] as TriangleMesh)!.vertices.Length; j++)
 					{
 						sLeaser.sprites[j].color = color;
 					}

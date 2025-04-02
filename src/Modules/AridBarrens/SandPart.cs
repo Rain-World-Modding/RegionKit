@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.AridBarrens;
+﻿namespace RegionKit.Modules.AridBarrens;
 
 /// <summary>
 /// A particle of sand
@@ -81,7 +81,7 @@ public class SandPart : CosmeticSprite
 			}
 			if (this.room.PointSubmerged(this.pos))
 			{
-				this.pos.y = this.room.FloatWaterLevel(this.pos.x);
+				this.pos.y = this.room.FloatWaterLevel(this.pos);
 				this._life -= 0.025f;
 			}
 		}

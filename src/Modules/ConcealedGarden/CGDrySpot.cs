@@ -10,6 +10,7 @@ using UnityEngine;
 
 namespace RegionKit.Modules.ConcealedGarden;
 
+[Obsolete("DrySpot is in-game now.")]
 internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 {
 	internal static class Hooks
@@ -37,7 +38,7 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 		{
 			//detailed level apparently is only an MMF thing, otherwise it falls till the bottom of the level
 			if (self.room.waterObject != null && ModManager.MMF && !(ModManager.MSC && self.room.waterInverted))
-			{ return self.room.waterObject.DetailedWaterLevel(self.pos.x); }
+			{ return self.room.waterObject.DetailedWaterLevel(self.pos); }
 
 			return orig(self);
 		}
@@ -116,45 +117,51 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 			}
 
 			bool inside = false;
-			for (int i = 0; i < room.waterObject.surface.GetLength(0); i++)
+			foreach (var surface in room.waterObject.surfaces)
 			{
-				Water.SurfacePoint pt = room.waterObject.surface[i, 0];
-				if (pt.defaultPos.x > ownrect.left && pt.defaultPos.x < ownrect.right)
+				for (int i = 0; i < surface.points.GetLength(0); i++)
 				{
-					if (!inside && i > 0)
+					Water.SurfacePoint pt = surface.points[i, 0];
+					if (pt.defaultPos.x > ownrect.left && pt.defaultPos.x < ownrect.right)
 					{
-						// first in
-						room.waterObject.surface[i - 1, 0].defaultPos.x = ownrect.left - 1f;
-						room.waterObject.surface[i - 1, 1].defaultPos.x = ownrect.left - 1f;
-						pt.defaultPos.x = ownrect.left + 1f;
-						room.waterObject.surface[i, 1].defaultPos.x = ownrect.left + 1f;
+						if (!inside && i > 0)
+						{
+							// first in
+							surface.points[i - 1, 0].defaultPos.x = ownrect.left - 1f;
+							surface.points[i - 1, 1].defaultPos.x = ownrect.left - 1f;
+							pt.defaultPos.x = ownrect.left + 1f;
+							surface.points[i, 1].defaultPos.x = ownrect.left + 1f;
 
-						room.waterObject.surface[i - 1, 0].pos *= 0.1f;
-						room.waterObject.surface[i - 1, 1].pos *= 0.1f;
+							surface.points[i - 1, 0].pos *= 0.1f;
+							surface.points[i - 1, 1].pos *= 0.1f;
+							pt.pos *= 0.1f;
+							surface.points[i, 1].pos *= 0.1f;
+						}
+						inside = true;
+						if (pt.defaultPos.y > dryHeight)
+						{
+							pt.defaultPos.y = dryHeight;
+							surface.points[i, 1].defaultPos.y = dryHeight;
+						}
+					}
+					else if (inside) // was inside already
+					{
+						// first out
+						pt.defaultPos.x = ownrect.right + 1f;
+						surface.points[i, 1].defaultPos.x = ownrect.right + 1f;
+						surface.points[i - 1, 0].defaultPos.x = ownrect.right - 1f;
+						surface.points[i - 1, 1].defaultPos.x = ownrect.right - 1f;
+
 						pt.pos *= 0.1f;
-						room.waterObject.surface[i, 1].pos *= 0.1f;
-					}
-					inside = true;
-					if (pt.defaultPos.y > dryHeight)
-					{
-						pt.defaultPos.y = dryHeight;
-						room.waterObject.surface[i, 1].defaultPos.y = dryHeight;
+						surface.points[i, 1].pos *= 0.1f;
+						surface.points[i - 1, 0].pos *= 0.1f;
+						surface.points[i - 1, 1].pos *= 0.1f;
+						break;
 					}
 				}
-				else if (inside) // was inside already
-				{
-					// first out
-					pt.defaultPos.x = ownrect.right + 1f;
-					room.waterObject.surface[i, 1].defaultPos.x = ownrect.right + 1f;
-					room.waterObject.surface[i - 1, 0].defaultPos.x = ownrect.right - 1f;
-					room.waterObject.surface[i - 1, 1].defaultPos.x = ownrect.right - 1f;
-
-					pt.pos *= 0.1f;
-					room.waterObject.surface[i, 1].pos *= 0.1f;
-					room.waterObject.surface[i - 1, 0].pos *= 0.1f;
-					room.waterObject.surface[i - 1, 1].pos *= 0.1f;
-					break;
-				}
+			}
+			for (int i = 0; i < room.waterObject.surfaces.GetLength(0); i++)
+			{
 			}
 		}
 		for (int i = room.updateList.Count - 1; i >= 0; i--)
@@ -193,43 +200,46 @@ internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 
 			if (this._waterLeaser != null) // redraw water but good
 			{
-				float y = -10f;
-				if (room.waterObject.cosmeticLowerBorder > -1f)
+				foreach (var surface in room.waterObject.surfaces)
 				{
-					y = room.waterObject.cosmeticLowerBorder - camPos.y;
-				}
-				int num = Custom.IntClamp(room.waterObject.PreviousSurfacePoint(camPos.x - 30f), 0, room.waterObject.surface.GetLength(0) - 1);
-				int num2 = Custom.IntClamp(num + room.waterObject.pointsToRender, 0, room.waterObject.surface.GetLength(0) - 1);
-				var waterTriangleMesh = (_waterLeaser.sprites[1] as WaterTriangleMesh)!;
-				for (int i = num; i < num2; i++)
-				{
-					int num3 = (i - num) * 2;
-					Vector2 vector = room.waterObject.surface[i, 0].defaultPos + Vector2.Lerp(room.waterObject.surface[i, 0].lastPos, room.waterObject.surface[i, 0].pos, timeStacker) - camPos + new Vector2(0f, room.waterObject.cosmeticSurfaceDisplace);
-					Vector2 vector2 = room.waterObject.surface[i, 1].defaultPos + Vector2.Lerp(room.waterObject.surface[i, 1].lastPos, room.waterObject.surface[i, 1].pos, timeStacker) - camPos + new Vector2(0f, room.waterObject.cosmeticSurfaceDisplace);
-					Vector2 vector3 = room.waterObject.surface[i + 1, 0].defaultPos + Vector2.Lerp(room.waterObject.surface[i + 1, 0].lastPos, room.waterObject.surface[i + 1, 0].pos, timeStacker) - camPos + new Vector2(0f, room.waterObject.cosmeticSurfaceDisplace);
-					Vector2 v = room.waterObject.surface[i + 1, 1].defaultPos + Vector2.Lerp(room.waterObject.surface[i + 1, 1].lastPos, room.waterObject.surface[i + 1, 1].pos, timeStacker) - camPos + new Vector2(0f, room.waterObject.cosmeticSurfaceDisplace);
-					vector = Custom.ApplyDepthOnVector(vector, new Vector2(rCam.sSize.x / 2f, rCam.sSize.y * 0.6666667f), -10f);
-					vector2 = Custom.ApplyDepthOnVector(vector2, new Vector2(rCam.sSize.x / 2f, rCam.sSize.y * 0.6666667f), 30f);
-					vector3 = Custom.ApplyDepthOnVector(vector3, new Vector2(rCam.sSize.x / 2f, rCam.sSize.y * 0.6666667f), -10f);
-					v = Custom.ApplyDepthOnVector(v, new Vector2(rCam.sSize.x / 2f, rCam.sSize.y * 0.6666667f), 30f);
-					if (i == num)
+					float y = -10f;
+					if (room.waterObject.cosmeticLowerBorder > -1f)
 					{
-						vector2.x -= 100f;
+						y = room.waterObject.cosmeticLowerBorder - camPos.y;
 					}
-					else if (i == num2 - 1)
+					int num = Custom.IntClamp(surface.PreviousPoint(camPos.x - 30f), 0, surface.points.GetLength(0) - 1);
+					int num2 = Custom.IntClamp(num + room.waterObject.pointsToRender, 0, surface.points.GetLength(0) - 1);
+					var waterTriangleMesh = (_waterLeaser.sprites[1] as WaterTriangleMesh)!;
+					for (int i = num; i < num2; i++)
 					{
-						vector2.x += 100f;
+						int num3 = (i - num) * 2;
+						Vector2 vector = surface.points[i, 0].defaultPos + Vector2.Lerp(surface.points[i, 0].lastPos, surface.points[i, 0].pos, timeStacker) - camPos + new Vector2(0f, room.waterObject.cosmeticSurfaceDisplace);
+						Vector2 vector2 = surface.points[i, 1].defaultPos + Vector2.Lerp(surface.points[i, 1].lastPos, surface.points[i, 1].pos, timeStacker) - camPos + new Vector2(0f, room.waterObject.cosmeticSurfaceDisplace);
+						Vector2 vector3 = surface.points[i + 1, 0].defaultPos + Vector2.Lerp(surface.points[i + 1, 0].lastPos, surface.points[i + 1, 0].pos, timeStacker) - camPos + new Vector2(0f, room.waterObject.cosmeticSurfaceDisplace);
+						Vector2 v = surface.points[i + 1, 1].defaultPos + Vector2.Lerp(surface.points[i + 1, 1].lastPos, surface.points[i + 1, 1].pos, timeStacker) - camPos + new Vector2(0f, room.waterObject.cosmeticSurfaceDisplace);
+						vector = Custom.ApplyDepthOnVector(vector, new Vector2(rCam.sSize.x / 2f, rCam.sSize.y * 0.6666667f), -10f);
+						vector2 = Custom.ApplyDepthOnVector(vector2, new Vector2(rCam.sSize.x / 2f, rCam.sSize.y * 0.6666667f), 30f);
+						vector3 = Custom.ApplyDepthOnVector(vector3, new Vector2(rCam.sSize.x / 2f, rCam.sSize.y * 0.6666667f), -10f);
+						v = Custom.ApplyDepthOnVector(v, new Vector2(rCam.sSize.x / 2f, rCam.sSize.y * 0.6666667f), 30f);
+						if (i == num)
+						{
+							vector2.x -= 100f;
+						}
+						else if (i == num2 - 1)
+						{
+							vector2.x += 100f;
+						}
+
+						// goes straight down rather than at an angle
+
+						waterTriangleMesh.MoveVertice(num3, new Vector2(vector.x, y));
+						waterTriangleMesh.MoveVertice(num3 + 1, vector);
+						waterTriangleMesh.MoveVertice(num3 + 2, new Vector2(vector3.x, y));
+						waterTriangleMesh.MoveVertice(num3 + 3, vector3);
 					}
 
-					// goes straight down rather than at an angle
-
-					waterTriangleMesh.MoveVertice(num3, new Vector2(vector.x, y));
-					waterTriangleMesh.MoveVertice(num3 + 1, vector);
-					waterTriangleMesh.MoveVertice(num3 + 2, new Vector2(vector3.x, y));
-					waterTriangleMesh.MoveVertice(num3 + 3, vector3);
+					waterTriangleMesh.color = new Color(0f, 0f, 0f);
 				}
-
-				waterTriangleMesh.color = new Color(0f, 0f, 0f);
 			}
 		}
 	}

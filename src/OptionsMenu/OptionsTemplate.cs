@@ -23,31 +23,31 @@ public abstract class OptionsTemplate : OptionInterface
     private Vector2 Pos;
 
 
-    private readonly List<float> BoxEndPositions = new();
+    private readonly List<float> BoxEndPositions = [];
 
-    private readonly List<OpLabel> TextLabels = new();
+    private readonly List<OpLabel> TextLabels = [];
 
-    private readonly List<Configurable<bool>> CheckBoxConfigurables = new();
-    private readonly List<OpLabel> CheckBoxesTextLabels = new();
+    private readonly List<Configurable<bool>> CheckBoxConfigurables = [];
+    private readonly List<OpLabel> CheckBoxesTextLabels = [];
 
-    private readonly List<Configurable<string>> ComboBoxConfigurables = new();
-    private readonly List<List<ListItem>> ComboBoxLists = new();
-    private readonly List<bool> ComboBoxAllowEmpty = new();
-    private readonly List<OpLabel> ComboBoxesTextLabels = new();
+    private readonly List<Configurable<string>> ComboBoxConfigurables = [];
+    private readonly List<List<ListItem>> ComboBoxLists = [];
+    private readonly List<bool> ComboBoxAllowEmpty = [];
+    private readonly List<OpLabel> ComboBoxesTextLabels = [];
 
-    private readonly List<Configurable<int>> IntSliderConfigurables = new();
-    private readonly List<string> IntSliderMainTextLabels = new();
-    private readonly List<OpLabel> IntSliderTextLabelsLeft = new();
-    private readonly List<OpLabel> IntSliderTextLabelsRight = new();
+    private readonly List<Configurable<int>> IntSliderConfigurables = [];
+    private readonly List<string> IntSliderMainTextLabels = [];
+    private readonly List<OpLabel> IntSliderTextLabelsLeft = [];
+    private readonly List<OpLabel> IntSliderTextLabelsRight = [];
 
 
-    private readonly List<Configurable<int>> DraggerConfigurables = new();
-    private readonly List<OpLabel> DraggerTextLabels = new();
+    private readonly List<Configurable<int>> DraggerConfigurables = [];
+    private readonly List<OpLabel> DraggerTextLabels = [];
 
-    private readonly List<Configurable<float>> FloatSliderConfigurables = new();
-    private readonly List<string> FloatSliderMainTextLabels = new();
-    private readonly List<OpLabel> FloatSliderTextLabelsLeft = new();
-    private readonly List<OpLabel> FloatSliderTextLabelsRight = new();
+    private readonly List<Configurable<float>> FloatSliderConfigurables = [];
+    private readonly List<string> FloatSliderMainTextLabels = [];
+    private readonly List<OpLabel> FloatSliderTextLabelsLeft = [];
+    private readonly List<OpLabel> FloatSliderTextLabelsRight = [];
 
 
 

@@ -224,7 +224,7 @@ public class GlowingSwimmer : CosmeticInsect
 				_swimDir -= DirVec(pos, c.DangerPos) * fleeSpeed;
 			if (rm.water)
 			{
-				float waterLvl = rm.FloatWaterLevel(pos.x);
+				float waterLvl = rm.FloatWaterLevel(pos);
 				_swimDir = Vector3.Slerp(_swimDir, __swimBaseVec, Mathf.InverseLerp(waterLvl - 100f, waterLvl, pos.y) * .5f);
 			}
 			_swimDir.Normalize();

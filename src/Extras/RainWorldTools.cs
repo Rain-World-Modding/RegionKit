@@ -91,7 +91,7 @@ public static class RainWorldTools
 	/// <summary>
 	/// removes any lines that do not fulfill the specified slugcat conditions
 	/// </summary>
-	public static string[] ProcessSlugcatConditions(string[] lines, SlugcatStats.Name slug)
+	public static string[] ProcessTimelineConditions(string[] lines, SlugcatStats.Timeline slug)
 	{
 		string remove = "___";
 
@@ -101,14 +101,14 @@ public static class RainWorldTools
 			if (lines[i][0] == '(' && lines[i].Contains(')'))
 			{
 				string text = lines[i].Substring(1, lines[i].IndexOf(")") - 1);
-				lines[i] = !StringMatchesSlugcat(text, slug) ? remove : lines[i].Substring(lines[i].IndexOf(")") + 1);
+				lines[i] = !StringMatchesTimeline(text, slug) ? remove : lines[i].Substring(lines[i].IndexOf(")") + 1);
 			}
 		}
 
 		return lines.Where(x => x != remove).ToArray();
 	}
 
-	public static bool StringMatchesSlugcat(string text, SlugcatStats.Name slug)
+	public static bool StringMatchesTimeline(string text, SlugcatStats.Timeline slug)
 	{
 		bool include = false;
 		bool inverted = false;

@@ -20,7 +20,7 @@ namespace RegionKit.Modules.Machinery;
 public static class _Module
 {
 	private const string MACHINERY_POM_CATEGORY = RK_POM_CATEGORY + "-Machinery";
-	private static List<Hook> __machineryHooks = new();
+	private static List<IDetour> __machineryHooks = [];
 	internal static readonly Dictionary<int, V1.RoomPowerManager> __managersByRoomHash = new Dictionary<int, V1.RoomPowerManager>();
 	internal static readonly Dictionary<OscillationMode, Func<float, float>> __defaultOscillators = new() {
 		{ OscillationMode.None, (x) => 0f },
@@ -77,7 +77,7 @@ public static class _Module
 	}
 	private static void GenerateHooks()
 	{
-		__machineryHooks = new List<Hook>
+		__machineryHooks = new List<IDetour>
 			{
 				new Hook(
 					typeof(RainWorld).GetMethodAllContexts(nameof(RainWorld.Start)),

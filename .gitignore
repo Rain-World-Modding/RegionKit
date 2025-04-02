@@ -356,5 +356,5 @@ src/lib/**
 src/RegionKit.sln
 
 # plugins copied into mod folder
-mod/plugins/**
 mod/newest/plugins/**
+!mod/newest/plugins/Newtonsoft.Json.dll

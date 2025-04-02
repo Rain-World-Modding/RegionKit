@@ -111,7 +111,7 @@ namespace RegionKit.Modules.TheMast
 			orig(self);
 			if (self.id == Conversation.ID.Moon_Misc_Item)
 			{
-				InGameTranslator.LanguageID lang = self.interfaceOwner.rainWorld.inGameTranslator.currentLanguage;
+				InGameTranslator.LanguageID lang = Custom.rainWorld.inGameTranslator.currentLanguage;
 				if (self.describeItem == _Enums.MiscItemPearlChain)
 				{
 					self.events.Add(new Conversation.TextEvent(self, 10, Translator.GetString("PearlChain-1", lang), 0));

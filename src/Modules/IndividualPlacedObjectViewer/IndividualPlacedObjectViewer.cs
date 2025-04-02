@@ -78,7 +78,7 @@ internal static partial class IndividualPlacedObjectViewer
 			{
 				PlacedObject placedObject = new PlacedObject(PlacedObject.Type.None, null);
 
-				placedObject.FromString(new string[] { self.RoomSettings.placedObjects[placedObjectIndex].type.ToString(), "0", "0", self.RoomSettings.placedObjects[placedObjectIndex].data.ToString().Trim() });
+				placedObject.FromString([self.RoomSettings.placedObjects[placedObjectIndex].type.ToString(), "0", "0", self.RoomSettings.placedObjects[placedObjectIndex].data.ToString().Trim()]);
 				
 				placedObject.pos = self.owner.game.cameras[0].pos + new Vector2(200f, 200f);
 				self.RoomSettings.placedObjects.Add(placedObject);
@@ -129,7 +129,7 @@ internal static partial class IndividualPlacedObjectViewer
 		}
 		else if (sender.IDstring == "Sort_Objects_Button")
 		{
-			List<PlacedObject> visibleObjects = new List<PlacedObject>();
+			List<PlacedObject> visibleObjects = [];
 
 			for (int i = 0; i < objectsPageData.visiblePlacedObjectsIndexes.Count; i++)
 			{
@@ -228,7 +228,7 @@ internal static partial class IndividualPlacedObjectViewer
 			objectsPageData.placedObjectsPanel?.RefreshButtons();
 			self.Refresh();
 		}
-		else if (sender.IDstring[0..10] == "View_Type_")
+		else if (sender.IDstring.StartsWith("View_Type_"))
 		{
 			if (sender.IDstring == "View_Type_All")
 			{
@@ -275,8 +275,8 @@ internal static partial class IndividualPlacedObjectViewer
 		orig(self);
 
 		if (!int.TryParse(self.fLabels[0].text.Split(' ')[0], out _) 
-			&& (self.Page is ObjectsPage)
-			&& (self.Page as ObjectsPage).GetData().isInIndividualMode) 
+			&& self.Page is ObjectsPage objectsPage
+			&& objectsPage.GetData().isInIndividualMode) 
 		{ 
 			self.fLabels[0].text = self.RoomSettings.placedObjects.IndexOf(self.pObj) + " " + self.fLabels[0].text; 
 		}

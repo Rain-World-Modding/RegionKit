@@ -91,7 +91,7 @@ internal sealed class UpsideDownWaterFallObject : UpdatableAndDeletable, IDrawab
 			if (UnityEngine.Random.value < flow)
 			{
 				Vector2 ps = rm.MiddleOfTile(new IntVector2(j, 0)) + new Vector2(UnityEngine.Random.Range(-10f, 10f), rect.top);
-				float fLevel = rm.FloatWaterLevel(ps.x);
+				float fLevel = rm.FloatWaterLevel(ps);
 				if (UnityEngine.Random.value <= bubbleAmount / 5f)
                 {
 					for (var ick = 0; ick < 4; ick++)
@@ -145,7 +145,7 @@ internal sealed class UpsideDownWaterFallObject : UpdatableAndDeletable, IDrawab
 		spr0.scaleX = rect.Width() / 16f * InvertX;
 		if (room is Room rm)
 		{
-			var fLevel = rm.FloatWaterLevel(pos.x);
+			var fLevel = rm.FloatWaterLevel(pos);
 			if (rm.water && cutAtWaterLevel && rect.bottom - 10f < fLevel)
 			{
 				spr0.y = Math.Min(pos.y, pos.y + Data?.handlePos.y ?? 0) + (fLevel - rect.bottom - 10f) - camPos.y;

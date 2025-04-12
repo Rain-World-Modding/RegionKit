@@ -13,6 +13,10 @@ public static class _Enums
 	public static RoomSettings.RoomEffect.Type FogOfWarDarkened = new(nameof(FogOfWarDarkened), false); //disabled
 
 	/// <summary>
+	/// ReplaceCorruptionColor
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type ReplaceCorruptionColor = new(nameof(ReplaceCorruptionColor), true);
+	/// <summary>
 	/// ReplaceEffectColorA
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type ReplaceEffectColorA = new(nameof(ReplaceEffectColorA), true);

@@ -72,7 +72,7 @@ internal static class Data
 					if (value != null || nullable)
 						attributes[array[0]].Item1.SetValue(data, value);
 				}
-				catch (Exception e) { }
+				catch { }
 			}
 			else
 			{
@@ -109,7 +109,7 @@ internal static class Data
 
 	public static object StringToObject(string str, Type type)
 	{
-		if (str == "Null") return null;
+		if (str == "Null") return null!;
 
 		if (type == typeof(string)) return str;
 		else if (type == typeof(bool)) return str == "True";
@@ -122,7 +122,7 @@ internal static class Data
 			string[] array2 = Regex.Split(str, ",").Select(p => p.Trim()).ToArray();
 			return new Vector2(float.Parse(array2[0]), float.Parse(array2[1]));
 		}
-		return null;
+		return null!;
 	}
 	#endregion
 	#region hooks

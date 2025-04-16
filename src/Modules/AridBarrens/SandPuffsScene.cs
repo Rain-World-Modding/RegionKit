@@ -65,15 +65,5 @@ public partial class SandPuffsScene : BackgroundScene, INotifyWhenRoomIsReady
 	private RoomSettings.RoomEffect _effect;
 
 	private List<IntVector2>? _closeToWallTiles;
-
-	private bool _killedCreatures = true;
-
-	private float _sin;
-
-	private float _lastSin;
-
-	private DisembodiedDynamicSoundLoop? _soundLoop;
-
-	private DisembodiedDynamicSoundLoop? _soundLoop2;
 	
 }

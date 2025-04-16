@@ -161,7 +161,8 @@ public static class _Module
 			type == _Enums.PWLightrod ||
 			type == _Enums.UpsideDownWaterFall ||
 			type == _Enums.LittlePlanet ||
-			type == _Enums.FanLight)
+			type == _Enums.FanLight ||
+			type == _Enums.PCPlayerSensitiveLightSource)
 			res = new ObjectsPage.DevObjectCategories(DECORATIONS_POM_CATEGORY);
 		else if (
 			type == _Enums.NoWallSlideZone ||
@@ -191,47 +192,51 @@ public static class _Module
 			PlacedObject pObj = self.roomSettings.placedObjects[m];
 			switch (pObj.type.value)
 			{
-			case nameof(_Enums.LittlePlanet):
-				self.AddObject(new LittlePlanet(self, pObj));
-				break;
-			case nameof(_Enums.NoWallSlideZone):
-				self.AddObject(new NoWallSlideZone(self, pObj));
-				break;
-			case nameof(_Enums.ProjectedCircle):
-				self.AddObject(new ProjectedCircleObject(self, pObj));
-				break;
-			case nameof(_Enums.UpsideDownWaterFall):
-				self.AddObject(new UpsideDownWaterFallObject(self, pObj, 1f, 5f, 1f, 5f, 1f, "Water", true));
-				break;
-			case nameof(_Enums.ColoredLightBeam):
-				var coloredLightBeam = new ColoredLightBeam(pObj);
-				self.AddObject(coloredLightBeam);
-				self.SetLightBeamBlink(coloredLightBeam, m);
-				coloredLightBeam._baseColorMode = (pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType is ColoredLightBeam.ColoredLightBeamData.ColorType.Environment;
-				coloredLightBeam._effectColor = (int)(pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType - 1;
-				break;
-			case nameof(_Enums.FanLight):
-				self.AddObject(new FanLightObject(self, pObj, (pObj.data as FanLightData)!));
-				break;
-			case nameof(_Enums.ClimbablePole):
-				self.AddObject(new ClimbablePole(self, (ClimbJumpVineData)pObj.data));
-				break;
-			case nameof(_Enums.ClimbableWire):
-				MoreSlugcats.ClimbableVineRenderer? climbableVineRenderer = null;
-				var num13 = self.updateList.Count - 1;
-				while (num13 >= 0 && climbableVineRenderer == null)
-				{
-					if (self.updateList[num13] is MoreSlugcats.ClimbableVineRenderer r)
-						climbableVineRenderer = r;
-					num13--;
-				}
-				if (climbableVineRenderer == null)
-				{
-					climbableVineRenderer = new(self);
-					self.AddObject(climbableVineRenderer);
-				}
-				self.waitToEnterAfterFullyLoaded = Math.Max(self.waitToEnterAfterFullyLoaded, 80);
-				break;
+				case nameof(_Enums.LittlePlanet):
+					self.AddObject(new LittlePlanet(self, pObj));
+					break;
+				case nameof(_Enums.NoWallSlideZone):
+					self.AddObject(new NoWallSlideZone(self, pObj));
+					break;
+				case nameof(_Enums.ProjectedCircle):
+					self.AddObject(new ProjectedCircleObject(self, pObj));
+					break;
+				case nameof(_Enums.UpsideDownWaterFall):
+					self.AddObject(new UpsideDownWaterFallObject(self, pObj, 1f, 5f, 1f, 5f, 1f, "Water", true));
+					break;
+				case nameof(_Enums.ColoredLightBeam):
+					var coloredLightBeam = new ColoredLightBeam(pObj);
+					self.AddObject(coloredLightBeam);
+					self.SetLightBeamBlink(coloredLightBeam, m);
+					coloredLightBeam._baseColorMode = (pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType is ColoredLightBeam.ColoredLightBeamData.ColorType.Environment;
+					coloredLightBeam._effectColor = (int)(pObj.data as ColoredLightBeam.ColoredLightBeamData)!.colorType - 1;
+					break;
+				case nameof(_Enums.FanLight):
+					self.AddObject(new FanLightObject(self, pObj, (pObj.data as FanLightData)!));
+					break;
+				case nameof(_Enums.ClimbablePole):
+					self.AddObject(new ClimbablePole(self, (ClimbJumpVineData)pObj.data));
+					break;
+				case nameof(_Enums.ClimbableWire):
+					MoreSlugcats.ClimbableVineRenderer? climbableVineRenderer = null;
+					var num13 = self.updateList.Count - 1;
+					while (num13 >= 0 && climbableVineRenderer == null)
+					{
+						if (self.updateList[num13] is MoreSlugcats.ClimbableVineRenderer r)
+							climbableVineRenderer = r;
+						num13--;
+					}
+					if (climbableVineRenderer == null)
+					{
+						climbableVineRenderer = new(self);
+						self.AddObject(climbableVineRenderer);
+					}
+					self.waitToEnterAfterFullyLoaded = Math.Max(self.waitToEnterAfterFullyLoaded, 80);
+					break;
+				case nameof(_Enums.PCPlayerSensitiveLightSource):
+					PlayerSensitiveLightSourceData data = (pObj.data as PlayerSensitiveLightSourceData)!;
+					self.AddObject(new PlayerSensitiveLightSource(pObj, pObj.pos, data.Rad, data.DetectRad, data.minStrength, data.maxStrength, data.fadeSpeed, data.colorType.index - 2));
+					break;
 			}
 			if (pObj.data is WormgrassRectData && !wormgrassDataFound)
 			{
@@ -347,6 +352,19 @@ public static class _Module
 			self.tempNodes.Add(pObjRep);
 			self.subNodes.Add(pObjRep);
 		}
+		else if (tp == _Enums.PCPlayerSensitiveLightSource)
+		{
+			if (pObj is null)
+			{
+				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
+				{
+					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(UnityEngine.Random.value * 360f) * 0.2f
+				});
+			}
+			var rep = new PlayerSensitiveLightSourceRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
+			self.tempNodes.Add(rep);
+			self.subNodes.Add(rep);
+		}
 		else
 			orig(self, tp, pObj);
 		//orig.Invoke(self, tp, pObj); -> this will add a duplicate PlacedObjectRepresentation
@@ -389,6 +407,10 @@ public static class _Module
 		else if (self.type == _Enums.NoBatflyLurkZone)
 		{
 			self.data = new PlacedObject.ResizableObjectData(self);
+		}
+		else if (self.type == _Enums.PCPlayerSensitiveLightSource)
+		{
+			self.data = new PlayerSensitiveLightSourceData(self);
 		}
 		orig(self);
 	}

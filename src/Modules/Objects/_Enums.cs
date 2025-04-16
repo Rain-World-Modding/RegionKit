@@ -52,4 +52,8 @@ public class _Enums
 	/// Prevents batflies from lurking in an area (by pushing them away and somewhat telling them not to pathfind over there)
 	/// </summary>
 	public static PlacedObject.Type NoBatflyLurkZone = new(nameof(NoBatflyLurkZone), true);
+	/// <summary>
+	/// Light source that changes strength depending on distance from player
+	/// </summary>
+	public static PlacedObject.Type PCPlayerSensitiveLightSource = new(nameof(PCPlayerSensitiveLightSource), true);
 }

@@ -71,7 +71,7 @@ internal static class BackgroundElementData
 
 		public ContainerCodes? container = null;
 
-		public BackgroundScene.BackgroundSceneElement? element;
+		public BackgroundScene.BackgroundSceneElement? element = null;
 
 		public List<string> unrecognizedTags;
 

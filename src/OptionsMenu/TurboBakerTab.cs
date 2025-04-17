@@ -34,9 +34,9 @@ namespace RegionKit.OptionsMenu
 
 		public TurboBakerTab(OptionInterface owner) : base(owner, "Bakery")
 		{
-			Threads = owner.config.Bind(nameof(Threads), Mathf.CeilToInt(Environment.ProcessorCount * 0.5f), new ConfigAcceptableRange<int>(1, Environment.ProcessorCount));
-			ForceBake = owner.config.Bind(nameof(ForceBake), false);
-			HiddenSlugcats = owner.config.Bind(nameof(HiddenSlugcats), false);
+			Threads ??= owner.config.Bind(nameof(Threads), Mathf.CeilToInt(Environment.ProcessorCount * 0.5f), new ConfigAcceptableRange<int>(1, Environment.ProcessorCount));
+			ForceBake ??= owner.config.Bind(nameof(ForceBake), false);
+			HiddenSlugcats ??= owner.config.Bind(nameof(HiddenSlugcats), false);
 
 			var regions = Region.GetFullRegionOrder();
 

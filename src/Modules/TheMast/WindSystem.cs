@@ -9,7 +9,6 @@ using Random = UnityEngine.Random;
 //Made by Slime_Cubed and Doggo
 namespace RegionKit.Modules.TheMast
 {
-	[Obsolete("Wind is in-game now.")]
 	internal static class WindSystem
 	{
 		public static void Apply()

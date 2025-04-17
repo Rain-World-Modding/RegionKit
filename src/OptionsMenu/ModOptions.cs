@@ -88,16 +88,19 @@ public sealed class ModOptions : OptionsTemplate
 		("Thrithralas", hexToColor("f1c40f")),
 		("Slime_Cubed", hexToColor("25c059")),
 		("LeeMoriya", hexToColor("ffc900")),
-		("Bebe", hexToColor("84c86b")),
-		("Doggo", hexToColor("c73633")),
+		("NV", hexToColor("84c86b")), // also bebe; Inevitabilis on GitHub
+		("Doggo", hexToColor("c73633")), // snoodle
 		("Kaeporo", hexToColor("8de7f3")),
 		("Dracentis", hexToColor("ad1457")),
 		("Isbjorn52", hexToColor("d97d3d")),
-		("Xan", hexToColor("b3443b")),
+		("Xan", hexToColor("b3443b")), // EtiTheSpirit on GitHub
+		("HelloThere", hexToColor("ffffff")), // SortaUnknown on GitHub
 		("ASlightlyOvergrownCactus", hexToColor("339124")),
 		("Vigaro", hexToColor("eaba2a")),
 		("forthfora", hexToColor("8b41ff")),
-		("Alduris", hexToColor("fc770a")),
+		("Alduris", hexToColor("f21035")),
+		("LudoCrypt", hexToColor("c6a3be")),
+		("Ved_S", hexToColor("ee6225")),
 		("MagicaJaphet", hexToColor("c00a20")),
 	];
 
@@ -106,7 +109,7 @@ public sealed class ModOptions : OptionsTemplate
 		AddTab(ref tabIndex, "Credits");
 
 
-		AddTextLabel("REGIONKIT TEAM", bigText: true);
+		AddTextLabel("REGIONKIT TEAM", bigText: true, shiny: true);
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddAndDrawLargeDivider(ref Tabs[tabIndex]);

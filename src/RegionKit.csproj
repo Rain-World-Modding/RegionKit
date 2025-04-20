@@ -61,98 +61,120 @@
 	<!-- Lib includes. -->
 	<ItemGroup>
 		<Reference Include="0Harmony">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\0Harmony.dll</HintPath>
+			<HintPath>lib/0Harmony.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
-		<Reference Include="0Harmony20">
-		  <HintPath>F:\SteamLibrary\steamapps\common\Rain World\BepInEx\core\0Harmony20.dll</HintPath>
+		<Reference Include="Assembly-CSharp">
+			<HintPath>lib/PUBLIC-Assembly-CSharp.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="Assembly-CSharp-firstpass">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\Assembly-CSharp-firstpass.dll</HintPath>
-		</Reference>
-		<Reference Include="BepInEx">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\BepInEx.dll</HintPath>
+			<HintPath>lib/Assembly-CSharp-firstpass.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="BepInEx.Harmony">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\BepInEx.Harmony.dll</HintPath>
+			<HintPath>lib/BepInEx.Harmony.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="BepInEx.Preloader">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\BepInEx.Preloader.dll</HintPath>
+			<HintPath>lib/BepInEx.Preloader.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
-		<Reference Include="com.rlabrecque.steamworks.net">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\com.rlabrecque.steamworks.net.dll</HintPath>
+		<Reference Include="BepInEx">
+			<HintPath>lib/BepInEx.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Pom">
+			<HintPath>lib/Pom.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="CustomRegionsSupport">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\2941565790\newest\plugins\CustomRegionsSupport.dll</HintPath>
-		</Reference>
-		<Reference Include="HarmonyXInterop">
-		  <HintPath>F:\SteamLibrary\steamapps\common\Rain World\BepInEx\core\HarmonyXInterop.dll</HintPath>
+			<HintPath>lib/CustomRegionsSupport.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="HOOKS-Assembly-CSharp">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\HOOKS-Assembly-CSharp.dll</HintPath>
-		</Reference>
-		<Reference Include="Mono.Cecil">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\Mono.Cecil.dll</HintPath>
+			<HintPath>lib/HOOKS-Assembly-CSharp.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="Mono.Cecil.Mdb">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\Mono.Cecil.Mdb.dll</HintPath>
+			<HintPath>lib/Mono.Cecil.Mdb.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="Mono.Cecil.Pdb">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\Mono.Cecil.Pdb.dll</HintPath>
+			<HintPath>lib/Mono.Cecil.Pdb.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Mono.Cecil">
+			<HintPath>lib/Mono.Cecil.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="Mono.Cecil.Rocks">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\Mono.Cecil.Rocks.dll</HintPath>
+			<HintPath>lib/Mono.Cecil.Rocks.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="MonoMod">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\MonoMod.dll</HintPath>
+			<HintPath>lib/MonoMod.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="MonoMod.RuntimeDetour">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\MonoMod.RuntimeDetour.dll</HintPath>
+			<HintPath>lib/MonoMod.RuntimeDetour.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="MonoMod.Utils">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\MonoMod.Utils.dll</HintPath>
+			<HintPath>lib/MonoMod.Utils.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine">
+			<HintPath>lib/UnityEngine.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.AssetBundleModule">
+		  <HintPath>lib/UnityEngine.AssetBundleModule.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.ImageConversionModule">
+			<HintPath>lib/UnityEngine.ImageConversionModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.InputLegacyModule">
+			<HintPath>lib/UnityEngine.InputLegacyModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.VideoModule">
+			<HintPath>lib/UnityEngine.VideoModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.UnityWebRequestWWWModule">
+			<HintPath>lib/UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.Physics2DModule">
+			<HintPath>lib/UnityEngine.Physics2DModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.UnityWebRequestModule">
+			<HintPath>lib/UnityEngine.UnityWebRequestModule.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="Newtonsoft.Json">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\Newtonsoft.Json.dll</HintPath>
+			<HintPath>lib/Newtonsoft.Json.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="netstandard">
 			<HintPath>lib/netstandard.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="Pom">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\2920439169\plugins\Pom.dll</HintPath>
+		<Reference Include="com.rlabrecque.steamworks.net">
+			<HintPath>lib/com.rlabrecque.steamworks.net.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
-		<Reference Include="Assembly-CSharp">
-		  <HintPath>..\..\..\PUBLIC-Assembly-CSharp.dll</HintPath>
-		</Reference>
-		<Reference Include="Unity.Mathematics">
-		  <HintPath>F:\SteamLibrary\steamapps\common\Rain World\RainWorld_Data\Managed\Unity.Mathematics.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\UnityEngine.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.AssetBundleModule">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\UnityEngine.AssetBundleModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.CoreModule">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\UnityEngine.CoreModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.ImageConversionModule">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\UnityEngine.ImageConversionModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.InputLegacyModule">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\UnityEngine.InputLegacyModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.Physics2DModule">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\UnityEngine.Physics2DModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.UnityWebRequestModule">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\UnityEngine.UnityWebRequestModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.UnityWebRequestWWWModule">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.VideoModule">
-		  <HintPath>F:\SteamLibrary\steamapps\workshop\content\312520\3333707258\lib\UnityEngine.VideoModule.dll</HintPath>
+		<Reference Include="UnityEngine.Mathematics">
+			<HintPath>lib/Unity.Mathematics.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
 	<ItemGroup>

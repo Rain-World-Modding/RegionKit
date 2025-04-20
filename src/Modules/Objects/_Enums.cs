@@ -56,4 +56,8 @@ public class _Enums
 	/// Light source that changes strength depending on distance from player
 	/// </summary>
 	public static PlacedObject.Type PCPlayerSensitiveLightSource = new(nameof(PCPlayerSensitiveLightSource), true);
+	/// <summary>
+	/// Throwable spike tip object created by breaking a spike
+	/// </summary>
+	public static AbstractPhysicalObject.AbstractObjectType SpikeTip = new(nameof(SpikeTip), true);
 }

@@ -16,6 +16,7 @@ public static class _Module
 	{
 		//NewEffects/
 		//NewObjects.Hook();
+		SpikeSetup.Apply();
 		RegisterFullyManagedObjectType(ColouredLightSource.__fields, typeof(ColouredLightSource), null, DECORATIONS_POM_CATEGORY);
 		RegisterFullyManagedObjectType(Drawable.__fields, typeof(Drawable), "FreeformDecalOrSprite", DECORATIONS_POM_CATEGORY);
 		List<ManagedField> shroudFields =
@@ -41,6 +42,7 @@ public static class _Module
 		];
 		RegisterFullyManagedObjectType([.. steamFields], typeof(SteamHazard), nameof(SteamHazard), GAMEPLAY_POM_CATEGORY);
 
+		RegisterManagedObject(new SpikeObj());
 
 		RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>("RoomBorderTP", GAMEPLAY_POM_CATEGORY);
 		RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect", GAMEPLAY_POM_CATEGORY);

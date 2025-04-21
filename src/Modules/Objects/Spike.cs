@@ -1,5 +1,4 @@
 ﻿using RegionKit.Modules.TheMast;
-using static RegionKit.Modules.TheMast.PearlChains;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
@@ -29,7 +28,7 @@ public class SpikeObj : ManagedObjectType
 	}
 }
 
-internal class Spike : UpdatableAndDeletable, IDrawable
+internal class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosions
 {
 	private readonly PlacedObject po;
 	private WorldCoordinate wc;
@@ -220,7 +219,7 @@ internal class Spike : UpdatableAndDeletable, IDrawable
 			//Forcibly break the spike if the impaled creature is being pulled off of it by some force
 			if (slide > 0.15f && Vector2.Distance(impaledChunk.pos, impaledChunk.lastPos) > 2f)
 			{
-				Break(); //Test to see 
+				Break();
 			}
 		}
 	}
@@ -287,7 +286,7 @@ internal class Spike : UpdatableAndDeletable, IDrawable
 		Vector2 vector2 = a + Custom.DirVec(vector, po.pos) * breakSize;
 		Vector2 a2 = vector + Custom.DirVec(vector2, vector) * 5f;
 		float num = 1f;
-		float baseWidth = 2.7f;
+		float baseWidth = Mathf.Lerp(2.7f, 3.9f, Mathf.InverseLerp(30f, 250f, Vector2.Distance(a, vector)));
 		for (int j = 0; j < stickPositions.Length; j++)
 		{
 			float t = j / (float)(stickPositions.Length - 1);
@@ -344,6 +343,16 @@ internal class Spike : UpdatableAndDeletable, IDrawable
 		}
 		sLeaser.sprites[1].color = new Color(1f, 1f, 1f);
 	}
+
+    public void Explosion(Explosion explosion)
+    {
+		Vector2 tip = po.pos;
+		Vector2 bottom = po.pos + (po.data as PlacedObject.ResizableObjectData).handlePos;
+		if (explosion != null && Custom.DistLess((tip + bottom) / 2, explosion.pos, explosion.rad * 2f))
+		{
+			Break();
+		}
+    }
 }
 
 public class SpikeAbstractTip : AbstractSpear

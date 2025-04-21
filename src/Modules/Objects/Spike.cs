@@ -28,14 +28,14 @@ public class SpikeObj : ManagedObjectType
 	}
 }
 
-internal class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosions
+public class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosions
 {
 	private readonly PlacedObject po;
 	private WorldCoordinate wc;
 	private readonly Vector2[] stickPositions;
 	private FloatRect impalePoint;
-	private Creature? impaledCreature;
-	private BodyChunk? impaledChunk;
+	public Creature? impaledCreature;
+	public BodyChunk? impaledChunk;
 	private float damageOverTime = 0.75f;
 	private float slide = 0f;
 	private float breakSize = 5f;
@@ -43,9 +43,11 @@ internal class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplo
 	private readonly float varB;
 	private float tipWidth = 0.5f;
 	private Color color = new(1f, 1f, 1f);
+	public Color tipColor = new(1f, 1f, 1f);
 	private bool broken = false;
 	private bool snap = false;
 	private bool updateFade = false;
+	public bool updateTipColor = false;
 	private readonly int index;
 	private readonly float impaleChance = UnityEngine.Random.value;
 	private readonly float startAngle;
@@ -123,28 +125,7 @@ internal class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplo
 								//CREATURE IMPALED
 								else if (impaledChunk == null)
 								{
-									damageOverTime = Mathf.Lerp(0.65f, 2f,
-										Mathf.InverseLerp(10f, 100f, Vector2.Distance(chunk.pos, chunk.lastLastPos)));
-									impaledCreature = creature;
-									impaledChunk = chunk;
-
-									if (impaledCreature.stun == 0)
-									{
-										room.PlaySound(SoundID.Spear_Stick_In_Creature, impaledChunk);
-									}
-
-									for (int s = 0; s < 6; s++)
-									{
-										Spark spark = new(chunk.pos, chunk.vel, new Color(0.7f, 0.7f, 0.7f), null, 10, 50);
-										room.AddObject(spark);
-									}
-
-									if (startAngle is <= 0f and > (-60f) or >= 0f and < 60f)
-									{
-										slide = 0.07f;
-									}
-
-									chunk.vel = new Vector2();
+									Impaled(creature, chunk);
 									return;
 								}
 							}
@@ -224,6 +205,32 @@ internal class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplo
 		}
 	}
 
+	public void Impaled(Creature creature, BodyChunk chunk)
+	{
+		damageOverTime = Mathf.Lerp(0.65f, 2f,
+										Mathf.InverseLerp(10f, 100f, Vector2.Distance(chunk.pos, chunk.lastLastPos)));
+		impaledCreature = creature;
+		impaledChunk = chunk;
+
+		if (impaledCreature.stun == 0)
+		{
+			room.PlaySound(SoundID.Spear_Stick_In_Creature, impaledChunk);
+		}
+
+		for (int s = 0; s < 6; s++)
+		{
+			Spark spark = new(chunk.pos, chunk.vel, new Color(0.7f, 0.7f, 0.7f), null, 10, 50);
+			room.AddObject(spark);
+		}
+
+		if (startAngle is <= 0f and > (-60f) or >= 0f and < 60f)
+		{
+			slide = 0.07f;
+		}
+
+		chunk.vel = new Vector2();
+	}
+
 	public void Break()
 	{
 		var data = po.data as PlacedObject.ResizableObjectData;
@@ -270,6 +277,8 @@ internal class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplo
 	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 		color = rCam.currentPalette.blackColor;
+		tipColor = rCam.currentPalette.fogColor;
+
 		sLeaser.sprites = new FSprite[2];
 		sLeaser.sprites[0] = TriangleMesh.MakeLongMesh(stickPositions.Length, false, true);
 		sLeaser.sprites[1] = new FSprite("Futile_White", true)
@@ -309,6 +318,11 @@ internal class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplo
 			ApplyPalette(sLeaser, rCam, rCam.currentPalette);
 			updateFade = true;
 		}
+		if (updateTipColor)
+		{
+			ApplyPalette(sLeaser, rCam, rCam.currentPalette);
+			updateTipColor = false;
+		}
 		if (slatedForDeletetion || room != rCam.room)
 		{
 			sLeaser.CleanSpritesAndRemove();
@@ -326,6 +340,7 @@ internal class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplo
 	}
 	public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 	{
+		color = palette.blackColor;
 		sLeaser.sprites[0].color = palette.blackColor;
 		for (int i = 0; i < (sLeaser.sprites[0] as TriangleMesh).verticeColors.Length; i++)
 		{
@@ -333,12 +348,12 @@ internal class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplo
 			if (broken)
 			{
 				fade = Mathf.InverseLerp((sLeaser.sprites[0] as TriangleMesh).verticeColors.Length / 2, (sLeaser.sprites[0] as TriangleMesh).verticeColors.Length * 2, i);
-				(sLeaser.sprites[0] as TriangleMesh).verticeColors[i] = Color.Lerp(palette.blackColor, Color.Lerp(palette.blackColor, palette.fogColor, 0.5f), fade);
+				(sLeaser.sprites[0] as TriangleMesh).verticeColors[i] = Color.Lerp(color, Color.Lerp(color, tipColor, 0.5f), fade);
 			}
 			else
 			{
 				fade = Mathf.InverseLerp((sLeaser.sprites[0] as TriangleMesh).verticeColors.Length / 2, (sLeaser.sprites[0] as TriangleMesh).verticeColors.Length, i);
-				(sLeaser.sprites[0] as TriangleMesh).verticeColors[i] = Color.Lerp(palette.blackColor, Color.Lerp(palette.blackColor, palette.fogColor, 0.6f), fade);
+				(sLeaser.sprites[0] as TriangleMesh).verticeColors[i] = Color.Lerp(color, Color.Lerp(color, tipColor, 0.6f), fade);
 			}
 		}
 		sLeaser.sprites[1].color = new Color(1f, 1f, 1f);

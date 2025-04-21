@@ -115,7 +115,7 @@ internal class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplo
 								float mass = chunk.mass;
 
 								//SPIKE BREAKS
-								if ((mass > 0.75f) || (mass <= 0.75f && mass > 0.5f && impaleChance > 0.7f))
+								if ((mass > 0.75f && impaleChance > 0.9f) || (mass <= 0.75f && mass > 0.5f && impaleChance > 0.7f))
 								{
 									Break();
 									return;
@@ -179,7 +179,7 @@ internal class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplo
 			if (!impaledCreature.dead)
 			{
 				impaledCreature.stun = 10;
-				damageOverTime += (0.25f + impaledCreature.Template.baseDamageResistance * 0.1f) * 0.025f;
+				damageOverTime += (0.025f + impaledCreature.Template.baseDamageResistance * 0.1f) * 0.025f;
 
 				if (damageOverTime > impaledCreature.Template.baseDamageResistance)
 				{

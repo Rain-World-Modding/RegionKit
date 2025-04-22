@@ -24,6 +24,9 @@ public static class _Module
 		ReflectiveWaterBuilder.__RegisterBuilder();
 		//IceWaterBuilder.__RegisterBuilder();
 		RGBElectricDeathBuilder.__RegisterBuilder();
+		RainSirenBuilder.__RegisterBuilder();
+		//MoonSirenBuilder.__RegisterBuilder(); 
+		SuffocationBuilder.__RegisterBuilder();
 		HSLDisplaySnowBuilder.__RegisterBuilder();
 		MossWaterUnlit.MossLoadResources(rainworld);
 		MossWaterRGB.MossLoadResources(rainworld);

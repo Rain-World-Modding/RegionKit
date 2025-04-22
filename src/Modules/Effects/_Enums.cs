@@ -55,6 +55,18 @@ public static class _Enums
 	/// <summary>
 	/// Effect category
 	/// </summary>
+	public static RoomSettings.RoomEffect.Type Suffocation = new(nameof(Suffocation), true);
+	/// <summary>
+	/// Effect category
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type RainSiren = new(nameof(RainSiren), true);
+	/// <summary>
+	/// Effect category
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type MoonSiren = new(nameof(MoonSiren), true);
+	/// <summary>
+	/// Effect category
+	/// </summary>
 	public static RoomSettings.RoomEffect.Type HSLDisplaySnow = new(nameof(HSLDisplaySnow), true);
 	/// <summary>
 	/// FT dense fog

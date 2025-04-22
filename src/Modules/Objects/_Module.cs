@@ -439,13 +439,15 @@ public static class _Module
 	private static readonly HashSet<string> DeprecatedObjects = ["SpinningFan"];
 	private static void RemoveDeprecatedObjects(ILContext il)
 	{
+		// Prevents objects from being added to the pane without removing them from being registered to begin with because this is an easy solution I think
 		var c = new ILCursor(il);
 
 		try
 		{
 			ILLabel brTo;
 			int loc = 5;
-			c.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt(typeof(List<PlacedObject.Type>).GetMethod(nameof(List<PlacedObject.Type>.Add))));
+			c.GotoNext(x => x.MatchCall<ObjectsPage>(nameof(ObjectsPage.DevObjectGetCategoryFromPlacedType)));
+			c.GotoNext(MoveType.AfterLabel, x => x.MatchLdloca(out _));
 			brTo = c.MarkLabel();
 			c.GotoPrev(x => x.MatchNewobj<PlacedObject.Type>());
 			c.GotoNext(MoveType.After, x => x.MatchStloc(out loc));

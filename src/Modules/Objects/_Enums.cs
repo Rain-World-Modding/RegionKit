@@ -18,7 +18,7 @@ public class _Enums
 	/// <summary>
 	/// Kills creatures that enter the rect
 	/// </summary>
-	public static PlacedObject.Type ARKillRect = new(nameof(ARKillRect), true);
+	// public static PlacedObject.Type ARKillRect = new(nameof(ARKillRect), true);
 	/// <summary>
 	/// Replaces pipe symbols
 	/// </summary>
@@ -31,10 +31,6 @@ public class _Enums
 	/// Planet hologram
 	/// </summary>
 	public static PlacedObject.Type LittlePlanet = new(nameof(LittlePlanet), true);
-	/// <summary>
-	/// Persistent rainbow
-	/// </summary>
-	public static PlacedObject.Type RainbowNoFade = new(nameof(RainbowNoFade), true);
 	/// <summary>
 	/// Hologram circle
 	/// </summary>
@@ -56,4 +52,8 @@ public class _Enums
 	/// Prevents batflies from lurking in an area (by pushing them away and somewhat telling them not to pathfind over there)
 	/// </summary>
 	public static PlacedObject.Type NoBatflyLurkZone = new(nameof(NoBatflyLurkZone), true);
+	/// <summary>
+	/// Light source that changes strength depending on distance from player
+	/// </summary>
+	public static PlacedObject.Type PCPlayerSensitiveLightSource = new(nameof(PCPlayerSensitiveLightSource), true);
 }

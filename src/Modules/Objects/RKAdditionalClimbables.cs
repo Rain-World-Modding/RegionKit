@@ -17,27 +17,7 @@ internal static class RKAdditionalClimbables
 		IL.Player.MovementUpdate += PlayerMovementUpdate;
 		IL.MoreSlugcats.Yeek.Update += Yeek_Update;
 		On.Player.MovementUpdate += Player_MovementUpdate;
-		IL.ClimbableVinesSystem.OverlappingSegment += ClimbableVinesSystem_OverlappingSegment;
     }
-
-	private static void ClimbableVinesSystem_OverlappingSegment(ILContext il)
-	{
-		//fix failed grab bug
-		var c = new ILCursor(il);
-		if (c.TryGotoNext(MoveType.After,
-			x => x.MatchLdarg(1),
-			x => x.MatchLdarg(3),
-			x => x.MatchCall<Vector2>("Distance"),
-			x => x.MatchLdarg(2),
-			x => x.MatchLdarg(4),
-			x => x.MatchCall(typeof(Custom), "LerpMap")))
-		{
-			c.Emit(OpCodes.Ldarg, 6);
-			c.Emit(OpCodes.Add);
-		}
-		else
-			LogError("Couldn't ILHook ClimbableVinesSystem.OverlappingSegment!");
-	}
 
 	private static void Player_MovementUpdate(On.Player.orig_MovementUpdate orig, Player self, bool eu)
 	{
@@ -80,7 +60,6 @@ internal static class RKAdditionalClimbables
 		IL.Player.MovementUpdate -= PlayerMovementUpdate;
 		IL.MoreSlugcats.Yeek.Update -= Yeek_Update;
 		On.Player.MovementUpdate -= Player_MovementUpdate;
-		IL.ClimbableVinesSystem.OverlappingSegment -= ClimbableVinesSystem_OverlappingSegment;
 	}
 
 	private static void PlayerMovementUpdate(ILContext il)

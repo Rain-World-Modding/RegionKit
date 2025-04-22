@@ -10,13 +10,13 @@ namespace RegionKit;
 [BepInEx.BepInPlugin(MOD_GUID, MOD_FRIENDLYNAME, MOD_VERSION)]
 public class Mod : BepInEx.BaseUnityPlugin
 {
-	internal const string MOD_VERSION = "3.16.1";
+	internal const string MOD_VERSION = "3.16.2";
 	internal const string MOD_FRIENDLYNAME = "RegionKit";
 	internal const string MOD_GUID = "rwmodding.coreorg.rk";
 	internal const string RK_POM_CATEGORY = "RegionKit";
 	internal static Mod? __inst;
 	//private readonly List<ActionWithData> _enableDels = new();
-	internal readonly List<ModuleInfo> _modules = new();
+	internal readonly List<ModuleInfo> _modules = [];
 	private bool _modulesSetUp = false;
 	private RainWorld? _rw;
 	// internal static BepInEx.Logging.ManualLogSource __logger => __inst.Logger;

@@ -10,18 +10,18 @@ public class _Module
 {
 	static bool loaded = false;
 
-	public static AssetBundle ColoredSnowShadersBundle;
+	public static AssetBundle ColoredSnowShadersBundle = null!;
 
-	public static Shader RKLevelSnowShader;
-	public static Shader RKDisplaySnowShader;
+	public static Shader RKLevelSnowShader = null!;
+	public static Shader RKDisplaySnowShader = null!;
 
-	public static Material RKLevelSnowMaterial;
+	public static Material RKLevelSnowMaterial = null!;
 
 	public static bool sbCameraScroll = false;
 
-	public static FieldInfo _AbstractRoomMod_texture_offset;
-	public static MethodInfo _AbstractRoomMod_Get_Attached_Fields;
-	public static MethodInfo _RoomCameraMod_Is_Type_Camera_Not_Used;
+	public static FieldInfo _AbstractRoomMod_texture_offset = null!;
+	public static MethodInfo _AbstractRoomMod_Get_Attached_Fields = null!;
+	public static MethodInfo _RoomCameraMod_Is_Type_Camera_Not_Used = null!;
 
 	public static readonly int ColoredSnowTex = Shader.PropertyToID("_RKColoredSnowTex");
 	public static readonly int ColoredSnowSources = Shader.PropertyToID("_RKColoredSnowSources");
@@ -59,20 +59,20 @@ public class _Module
 			loaded = true;
 			loadShaders();
 
-			List<ManagedField> snowSourceFields = new List<ManagedField>
-			{
+			List<ManagedField> snowSourceFields =
+			[
 				new IntegerField("palette", 0, 255, 0, ManagedFieldWithPanel.ControlType.arrows, "Group"),
 				new IntegerField("intensity", 0, 100, 100, ManagedFieldWithPanel.ControlType.slider, "Intensity"),
 				new IntegerField("irregularity", 0, 100, 0, ManagedFieldWithPanel.ControlType.slider, "Irregularity"),
 				new ExtEnumField<ColoredSnowShape>("shape", ColoredSnowShape.Radial, null, ManagedFieldWithPanel.ControlType.button, "Shape"),
 				new BooleanField("unsnow", false, ManagedFieldWithPanel.ControlType.button, "Unsnow"),
 				new Vector2Field("range", new Vector2(100, 0), Vector2Field.VectorReprType.circle)
-			};
+			];
 
-			RegisterFullyManagedObjectType(snowSourceFields.ToArray(), typeof(ColoredSnowSourceUAD), "ColoredSnowSource", DECORATIONS_POM_CATEGORY);
+			RegisterFullyManagedObjectType([.. snowSourceFields], typeof(ColoredSnowSourceUAD), "ColoredSnowSource", DECORATIONS_POM_CATEGORY);
 
-			List<ManagedField> snowSourceSettingsFields = new List<ManagedField>
-			{
+			List<ManagedField> snowSourceSettingsFields =
+			[
 				new IntegerField("palette", 0, 255, 0, ManagedFieldWithPanel.ControlType.arrows, "Group"),
 				new IntegerField("front", 0, 30, 0, ManagedFieldWithPanel.ControlType.slider, "From Depth"),
 				new IntegerField("back", 0, 30, 30, ManagedFieldWithPanel.ControlType.slider, "To Depth"),
@@ -80,9 +80,9 @@ public class _Module
 				new IntegerField("s", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Blend"),
 				new ColorField("rainColor", new(1f, 1f, 1f), ManagedFieldWithPanel.ControlType.button, "Rain Color"),
 				new IntegerField("es", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Rain Blend")
-			};
+			];
 
-			RegisterFullyManagedObjectType(snowSourceSettingsFields.ToArray(), typeof(ColoredSnowGroupUAD), "ColoredSnowGroup", DECORATIONS_POM_CATEGORY);
+			RegisterFullyManagedObjectType([.. snowSourceSettingsFields], typeof(ColoredSnowGroupUAD), "ColoredSnowGroup", DECORATIONS_POM_CATEGORY);
 
 			foreach (ModManager.Mod mod in ModManager.ActiveMods)
 			{
@@ -136,7 +136,7 @@ public class _Module
 		}
 
 		cursor.Emit(OpCodes.Ldarg_0);
-		cursor.Emit(OpCodes.Call, typeof(_Module).GetMethod("UpdateRoomCamera", new[] { typeof(RoomCamera) }));
+		cursor.Emit(OpCodes.Call, typeof(_Module).GetMethod("UpdateRoomCamera", [typeof(RoomCamera)]));
 	}
 
 	public static void UpdateRoomCamera(RoomCamera self)
@@ -176,26 +176,34 @@ public class _Module
 
 		ColoredSnowRoomCamera data = ColoredSnowRoomCamera.GetData(self);
 
-		data.coloredSnowTexture = new RenderTexture(1400, 800, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-		data.coloredSnowTexture.filterMode = FilterMode.Point;
+		data.coloredSnowTexture = new RenderTexture(1400, 800, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear)
+		{
+			filterMode = FilterMode.Point
+		};
 		Shader.SetGlobalTexture(ColoredSnowTex, data.coloredSnowTexture);
 
 		Shader.DisableKeyword("SNOW_ON");
 
-		data.coloredSnowSources = new Texture2D(7, 7, TextureFormat.RGBA32, false);
-		data.coloredSnowSources.filterMode = FilterMode.Point;
+		data.coloredSnowSources = new Texture2D(7, 7, TextureFormat.RGBA32, false)
+		{
+			filterMode = FilterMode.Point
+		};
 		Shader.SetGlobalTexture(ColoredSnowSources, data.coloredSnowSources);
 
-		data.coloredSnowSources2 = new Texture2D(4, 4, TextureFormat.RGBA32, false);
-		data.coloredSnowSources2.filterMode = FilterMode.Point;
+		data.coloredSnowSources2 = new Texture2D(4, 4, TextureFormat.RGBA32, false)
+		{
+			filterMode = FilterMode.Point
+		};
 		Shader.SetGlobalTexture(ColoredSnowSources2, data.coloredSnowSources2);
 
-		data.coloredSnowPalette = new Texture2D(16, 16, TextureFormat.RGBA32, false);
-		data.coloredSnowPalette.filterMode = FilterMode.Point;
+		data.coloredSnowPalette = new Texture2D(16, 16, TextureFormat.RGBA32, false)
+		{
+			filterMode = FilterMode.Point
+		};
 		Shader.SetGlobalTexture(ColoredSnowPalette, data.coloredSnowPalette);
 	}
 
-	private static PropertyInfo _RoomCamera_fadeCoord = typeof(RoomCamera).GetProperty("fadeCoord", BindingFlags.NonPublic | BindingFlags.Instance);
+	private static readonly PropertyInfo _RoomCamera_fadeCoord = typeof(RoomCamera).GetProperty("fadeCoord", BindingFlags.NonPublic | BindingFlags.Instance);
 
 	private static void RoomCamera_ApplyFade(On.RoomCamera.orig_ApplyFade orig, RoomCamera self)
 	{
@@ -214,10 +222,7 @@ public class _Module
 		ColoredSnowRoomCamera cameraData = ColoredSnowRoomCamera.GetData(self);
 		ColoredSnowWeakRoomData roomData = ColoredSnowWeakRoomData.GetData(self.room);
 
-		if (cameraData.palette == null)
-		{
-			cameraData.palette = (Color[])ColoredSnowRoomCamera.empty3.Clone();
-		}
+		cameraData.palette ??= (Color[])ColoredSnowRoomCamera.empty3.Clone();
 
 		int source = 0;
 

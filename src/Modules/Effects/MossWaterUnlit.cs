@@ -100,21 +100,24 @@ namespace RegionKit.Modules.Effects
 			{
 				if (sLeaser.sprites.FirstOrDefault(x => x.data == mossSprite) is TriangleMesh mossMesh)
 				{
-					WaterTriangleMesh waterMesh = (WaterTriangleMesh)sLeaser.sprites[0];
-					int offset = self.PreviousSurfacePoint(camPos.x - 30f);
-
-					// Calculate vertex positions and UVs
-					for (int column = 0; column <= self.pointsToRender; column++)
+					for (int i = 0; i < self.surfaces.Length; i++)
 					{
-						Vector2 waterFront = waterMesh.vertices[column * 2 + 0];
-						Vector2 waterBack = waterMesh.vertices[column * 2 + 1];
+						WaterTriangleMesh waterMesh = (WaterTriangleMesh)sLeaser.sprites[i * 2];
+						int offset = self.surfaces[i].PreviousPoint(camPos.x - 30f);
 
-						for (int row = 0; row < vertsPerColumn; row++)
+						// Calculate vertex positions and UVs
+						for (int column = 0; column <= self.pointsToRender; column++)
 						{
-							float u = column + offset;
-							float v = row / (vertsPerColumn - 1f);
-							mossMesh.UVvertices[column * vertsPerColumn + row] = new Vector2(u, v);
-							mossMesh.MoveVertice(column * vertsPerColumn + row, Vector2.Lerp(waterFront, waterBack, v));
+							Vector2 waterFront = waterMesh.vertices[column * 2 + 0];
+							Vector2 waterBack = waterMesh.vertices[column * 2 + 1];
+
+							for (int row = 0; row < vertsPerColumn; row++)
+							{
+								float u = column + offset;
+								float v = row / (vertsPerColumn - 1f);
+								mossMesh.UVvertices[column * vertsPerColumn + row] = new Vector2(u, v);
+								mossMesh.MoveVertice(column * vertsPerColumn + row, Vector2.Lerp(waterFront, waterBack, v));
+							}
 						}
 					}
 				}

@@ -23,31 +23,31 @@ public abstract class OptionsTemplate : OptionInterface
     private Vector2 Pos;
 
 
-    private readonly List<float> BoxEndPositions = new();
+    private readonly List<float> BoxEndPositions = [];
 
-    private readonly List<OpLabel> TextLabels = new();
+    private readonly List<OpLabel> TextLabels = [];
 
-    private readonly List<Configurable<bool>> CheckBoxConfigurables = new();
-    private readonly List<OpLabel> CheckBoxesTextLabels = new();
+    private readonly List<Configurable<bool>> CheckBoxConfigurables = [];
+    private readonly List<OpLabel> CheckBoxesTextLabels = [];
 
-    private readonly List<Configurable<string>> ComboBoxConfigurables = new();
-    private readonly List<List<ListItem>> ComboBoxLists = new();
-    private readonly List<bool> ComboBoxAllowEmpty = new();
-    private readonly List<OpLabel> ComboBoxesTextLabels = new();
+    private readonly List<Configurable<string>> ComboBoxConfigurables = [];
+    private readonly List<List<ListItem>> ComboBoxLists = [];
+    private readonly List<bool> ComboBoxAllowEmpty = [];
+    private readonly List<OpLabel> ComboBoxesTextLabels = [];
 
-    private readonly List<Configurable<int>> IntSliderConfigurables = new();
-    private readonly List<string> IntSliderMainTextLabels = new();
-    private readonly List<OpLabel> IntSliderTextLabelsLeft = new();
-    private readonly List<OpLabel> IntSliderTextLabelsRight = new();
+    private readonly List<Configurable<int>> IntSliderConfigurables = [];
+    private readonly List<string> IntSliderMainTextLabels = [];
+    private readonly List<OpLabel> IntSliderTextLabelsLeft = [];
+    private readonly List<OpLabel> IntSliderTextLabelsRight = [];
 
 
-    private readonly List<Configurable<int>> DraggerConfigurables = new();
-    private readonly List<OpLabel> DraggerTextLabels = new();
+    private readonly List<Configurable<int>> DraggerConfigurables = [];
+    private readonly List<OpLabel> DraggerTextLabels = [];
 
-    private readonly List<Configurable<float>> FloatSliderConfigurables = new();
-    private readonly List<string> FloatSliderMainTextLabels = new();
-    private readonly List<OpLabel> FloatSliderTextLabelsLeft = new();
-    private readonly List<OpLabel> FloatSliderTextLabelsRight = new();
+    private readonly List<Configurable<float>> FloatSliderConfigurables = [];
+    private readonly List<string> FloatSliderMainTextLabels = [];
+    private readonly List<OpLabel> FloatSliderTextLabelsLeft = [];
+    private readonly List<OpLabel> FloatSliderTextLabelsRight = [];
 
 
 
@@ -107,8 +107,10 @@ public abstract class OptionsTemplate : OptionInterface
         float boxWidth = MarginX.y - MarginX.x;
         int lastIndex = BoxEndPositions.Count - 1;
 
-        tab.AddItems(new OpRect(Pos, new(boxWidth, BoxEndPositions[lastIndex] - Pos.y)));
+		OpRect rect;
+        tab.AddItems(rect = new OpRect(Pos, new(boxWidth, BoxEndPositions[lastIndex] - Pos.y)));
         BoxEndPositions.RemoveAt(lastIndex);
+		rect.MoveToBack();
     }
 
 
@@ -289,7 +291,7 @@ public abstract class OptionsTemplate : OptionInterface
 
 
 	// TEXT LABEL
-    protected void AddTextLabel(string text, FLabelAlignment alignment = FLabelAlignment.Center, bool bigText = false, bool translate = true, Color? color = null)
+    protected void AddTextLabel(string text, FLabelAlignment alignment = FLabelAlignment.Center, bool bigText = false, bool shiny = false, bool translate = true, Color? color = null)
     {
         float textHeight = (bigText ? 2f : 1f) * FONT_HEIGHT;
 
@@ -300,6 +302,11 @@ public abstract class OptionsTemplate : OptionInterface
         {
             autoWrap = true
         };
+
+		if (shiny)
+		{
+			textLabel.label.shader = Custom.rainWorld.Shaders["MenuText"];
+		}
 
 		if (color != null)
 		{

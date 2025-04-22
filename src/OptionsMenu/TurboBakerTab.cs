@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Menu.Remix.MixedUI;
 using Menu.Remix.MixedUI.ValueTypes;
 
+#pragma warning disable CS0162 // Unreachable code detected
 namespace RegionKit.OptionsMenu
 {
 	/// <summary>
@@ -33,9 +34,9 @@ namespace RegionKit.OptionsMenu
 
 		public TurboBakerTab(OptionInterface owner) : base(owner, "Bakery")
 		{
-			Threads = owner.config.Bind(nameof(Threads), Mathf.CeilToInt(Environment.ProcessorCount * 0.5f), new ConfigAcceptableRange<int>(1, Environment.ProcessorCount));
-			ForceBake = owner.config.Bind(nameof(ForceBake), false);
-			HiddenSlugcats = owner.config.Bind(nameof(HiddenSlugcats), false);
+			Threads ??= owner.config.Bind(nameof(Threads), Mathf.CeilToInt(Environment.ProcessorCount * 0.5f), new ConfigAcceptableRange<int>(1, Environment.ProcessorCount));
+			ForceBake ??= owner.config.Bind(nameof(ForceBake), false);
+			HiddenSlugcats ??= owner.config.Bind(nameof(HiddenSlugcats), false);
 
 			var regions = Region.GetFullRegionOrder();
 
@@ -163,11 +164,11 @@ namespace RegionKit.OptionsMenu
 
 					if (!includeHiddenSlugcats && SlugcatStats.HiddenOrUnplayableSlugcat(slugcat)) continue;
 
-					IEnumerable<Region> regions = Region.LoadAllRegions(slugcat).Where(x => regionsToBake.Contains(x.name));
+					IEnumerable<Region> regions = Region.LoadAllRegions(SlugcatStats.SlugcatToTimeline(slugcat)).Where(x => regionsToBake.Contains(x.name));
 
 					foreach (Region region in regions)
 					{
-						var worldLoader = new WorldLoader(null, slugcat, false, region.name, region, RainWorld.LoadSetupValues(true));
+						var worldLoader = new WorldLoader(null, slugcat, SlugcatStats.SlugcatToTimeline(slugcat), false, region.name, region, RainWorld.LoadSetupValues(true), WorldLoader.LoadingContext.MAPMERGE);
 						worldLoader.NextActivity();
 						while (!worldLoader.Finished)
 						{
@@ -328,3 +329,4 @@ namespace RegionKit.OptionsMenu
 		}
 	}
 }
+#pragma warning restore CS0162 // Unreachable code detected

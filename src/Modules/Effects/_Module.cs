@@ -42,15 +42,13 @@ public static class _Module
 	{
 		ColorRoomEffect.Apply();
 		ReplaceEffectColor.Apply();
+		ReplaceCorruptionColors.Apply();
 		HiveColorAlpha.Apply();
 		RoomRainWithoutDeathRain.Apply();
 		MossWaterUnlit.Apply();
 		MossWaterRGB.Apply();
-
-
-
 		ReflectiveWater.Apply();
-		IceWater.Apply();
+		//IceWater.Apply();
 		RGBElectricDeath.Apply();
 		HSLDisplaySnow.Apply();
 		MurkyWater.Apply();
@@ -67,7 +65,7 @@ public static class _Module
 		MossWaterUnlit.Undo();
 		MossWaterRGB.Undo();
 		ReflectiveWater.Undo();
-		IceWater.Undo();
+		//IceWater.Undo();
 		RGBElectricDeath.Undo();
 		HSLDisplaySnow.Undo();
 		MurkyWater.Undo();
@@ -78,7 +76,8 @@ public static class _Module
 	private static RoomSettingsPage.DevEffectsCategories RoomSettingsPageDevEffectGetCategoryFromEffectType(On.DevInterface.RoomSettingsPage.orig_DevEffectGetCategoryFromEffectType orig, RoomSettingsPage self, RoomSettings.RoomEffect.Type type)
 	{
 		RoomSettingsPage.DevEffectsCategories res = orig(self, type);
-		if (type == _Enums.ReplaceEffectColorA ||
+		if (type == _Enums.ReplaceCorruptionColor ||
+			type == _Enums.ReplaceEffectColorA ||
 			type == _Enums.ReplaceEffectColorB ||
 			type == _Enums.FogOfWarSolid ||
 			type == _Enums.FogOfWarDarkened ||

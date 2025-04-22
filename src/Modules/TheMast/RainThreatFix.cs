@@ -16,7 +16,7 @@ internal static class RainThreatFix
 		On.RainTracker.Utility += RainTracker_Utility;
 		On.WorldLoader.LoadAbstractRoom += WorldLoader_LoadAbstractRoom;
 		On.OverWorld.LoadFirstWorld += OverWorld_LoadFirstWorld;
-		On.AbstractRoom.AttractionForCreature += AbstractRoom_AttractionForCreature;
+		On.AbstractRoom.AttractionForCreature_Type += AbstractRoom_AttractionForCreature;
 		On.PathFinder.CheckConnectionCost += PathFinder_CheckConnectionCost;
 	}
 
@@ -25,13 +25,14 @@ internal static class RainThreatFix
 		On.RainTracker.Utility -= RainTracker_Utility;
 		On.WorldLoader.LoadAbstractRoom -= WorldLoader_LoadAbstractRoom;
 		On.OverWorld.LoadFirstWorld -= OverWorld_LoadFirstWorld;
-		On.AbstractRoom.AttractionForCreature -= AbstractRoom_AttractionForCreature;
+		On.AbstractRoom.AttractionForCreature_Type -= AbstractRoom_AttractionForCreature;
 		On.PathFinder.CheckConnectionCost -= PathFinder_CheckConnectionCost;
 	}
 
 	private static PathCost PathFinder_CheckConnectionCost(On.PathFinder.orig_CheckConnectionCost orig, PathFinder self, PathFinder.PathingCell start, PathFinder.PathingCell goal, MovementConnection connection, bool followingPath)
 	{
 		PathCost cost = orig(self, start, goal, connection, followingPath);
+		if (self.world?.region?.name != "TM") return cost;
 		float goalThreat = GetRainThreat(goal.worldCoordinate.room, out bool hasThreat);
 		if (hasThreat && (goalThreat > 0.3f))
 		{
@@ -41,10 +42,10 @@ internal static class RainThreatFix
 		return cost;
 	}
 
-	private static AbstractRoom.CreatureRoomAttraction AbstractRoom_AttractionForCreature(On.AbstractRoom.orig_AttractionForCreature orig, AbstractRoom self, CreatureTemplate.Type tp)
+	private static AbstractRoom.CreatureRoomAttraction AbstractRoom_AttractionForCreature(On.AbstractRoom.orig_AttractionForCreature_Type orig, AbstractRoom self, CreatureTemplate.Type tp)
 	{
 		AbstractRoom.CreatureRoomAttraction attract = orig(self, tp);
-		if (attract == AbstractRoom.CreatureRoomAttraction.Forbidden) return attract;
+		if (attract == AbstractRoom.CreatureRoomAttraction.Forbidden || self.world?.region?.name != "TM") return attract;
 
 		float threat = GetRainThreat(self, out bool hasThreat);
 		if (hasThreat && (threat > 0.1f) && self.world.rainCycle.TimeUntilRain < 1500f)
@@ -71,7 +72,7 @@ internal static class RainThreatFix
 		int roomInd = room.index;
 		if (roomInd >= 0 && roomInd < __rainThreats.Length && (world.name == "TM") && __rainThreats[roomInd] == -1f)
 		{
-			RoomSettings settings = new RoomSettings(roomName, world.region, false, false, world.game.StoryCharacter);
+			RoomSettings settings = new RoomSettings(roomName, world.region, false, false, world.game.TimelinePoint, world.game);
 			if (settings.DangerType == RoomRain.DangerType.None)
 				__rainThreats[roomInd] = 0f;
 			else

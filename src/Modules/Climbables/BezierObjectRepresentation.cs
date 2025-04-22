@@ -56,7 +56,8 @@ internal class BezierObjectRepresentation : ManagedRepresentation
 		lineNode = new FGameObjectNode(lineObject, false, false, false);
 		owner.placedObjectsContainer.AddChild(lineNode);
 
-		lineRenderer.SetColors(Color.white, Color.white);
+		lineRenderer.startColor = Color.white;
+		lineRenderer.endColor = Color.white;
 	}
 
 	protected override void MakeControls()
@@ -80,7 +81,7 @@ internal class BezierObjectRepresentation : ManagedRepresentation
 		if (lineRenderer is null) {
 			return;
 		};
-		lineRenderer.SetVertexCount(nsegments);
+		lineRenderer.positionCount = nsegments;
 		float step = 1f / nsegments;
 		for (int i = 0; i < nsegments; i++)
 		{
@@ -104,7 +105,11 @@ internal class BezierObjectRepresentation : ManagedRepresentation
 	public override void SetColor(Color col)
 	{
 		base.SetColor(col);
-		lineRenderer?.SetColors(col, col);
+		if (lineRenderer != null)
+		{
+			lineRenderer.startColor = col;
+			lineRenderer.endColor = col;
+		}
 	}
 
 	public override void Refresh()

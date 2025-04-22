@@ -1,0 +1,3680 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RegionKit</name>
+    </assembly>
+    <members>
+        <member name="T:RegionKit.API.Core">
+            <summary>
+            Some of the mod's base functionality.
+            </summary>
+        </member>
+        <member name="M:RegionKit.API.Core.TryGetLoadedModules">
+            <summary>
+            Returns information about all loaded RegionKit modules.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:RegionKit.API.ExtendedGates">
+            <summary>
+            Functionality for adding custom gate activation conditions.
+            </summary>
+        </member>
+        <member name="M:RegionKit.API.ExtendedGates.RegisterLock(RegionGate.GateRequirement,RegionKit.Modules.Misc.ExtendedGates.ExtendedLocks.LockData)">
+            <summary>
+            Attempts registering a new lock condition.
+            </summary>
+            <param name="req">GateRequirement extended value your lock should be associated with.</param>
+            <param name="lock">Your lock object.</param>
+        </member>
+        <member name="M:RegionKit.API.ExtendedGates.RegisterLockCallback(RegionGate.GateRequirement,System.String,System.String,System.Func{RegionGate,System.Boolean})">
+            <summary>
+            Attempts registering a new lock condition, using raw data rather than a class implementing LockData.
+            </summary>
+            <param name="req">GateRequirement extended value your lock should be associated with.</param>
+            <param name="gateElementName">Name of the gate hologram sprite element.</param>
+            <param name="mapElementName">Name of the map icon sprite element.</param>
+            <param name="openCondition">A callback that will be used each time a gate needs to check whether it should open.</param>
+        </member>
+        <member name="M:RegionKit.API.ExtendedGates.UnregisterLock(RegionGate.GateRequirement)">
+            <summary>
+            Attempts removing a registered lock associated with a given GateRequirement.
+            </summary>
+            <param name="req">GateRequirement value you want to disassociate from a LockData.</param>
+            <returns>true if lock could be unregistered; false if there was no registered lock for this GateRequirement.</returns>
+        </member>
+        <member name="T:RegionKit.API.Iggy">
+            <summary>
+            Functions related to dev-iggy (devtools clippy in a hardhat)
+            </summary>
+        </member>
+        <member name="M:RegionKit.API.Iggy.AddTooltip(DevInterface.DevUINode,System.Func{RegionKit.Modules.Iggy.ToolTip})">
+            <summary>
+            Gives a DevUINode a tooltip. Uses a callback to allow different text based on element state.
+            <para/>
+            If you are making a new UI node class, you should implement <see cref="T:RegionKit.Modules.Iggy.IGiveAToolTip"/> instead.
+            </summary>
+        </member>
+        <member name="T:RegionKit.API.MoreFadePalettes">
+            <summary>
+            Functionality for adding more than 1 fade palette to rooms.
+            </summary>
+        </member>
+        <member name="M:RegionKit.API.MoreFadePalettes.GetAllFadePalettes(RoomSettings)">
+            <summary>
+            Returns all fade palettes registered for a room.
+            </summary>
+        </member>
+        <member name="M:RegionKit.API.MoreFadePalettes.GetExtraFadePalette(RoomSettings,System.Int32)">
+            <summary>
+            Gets an additional fade palette at a specified index.
+            </summary>
+            <returns>Selected FadePalette; null if index out of range.</returns>
+        </member>
+        <member name="M:RegionKit.API.MoreFadePalettes.SetExtraFadePalette(RoomSettings,System.Int32,RoomSettings.FadePalette)">
+            <summary>
+            Adds a given additional palette to a specified index for a specified room.
+            </summary>
+            <param name="roomSettings"></param>
+            <param name="index">Index to insert palette at. If this is past the extra palette list length, palette will be added at the end.</param>
+            <param name="palette">New palette to be added.</param>
+        </member>
+        <member name="M:RegionKit.API.MoreFadePalettes.DeleteExtraFadePalette(RoomSettings,System.Int32)">
+            <summary>
+            Removes an extra palette at a given index.
+            </summary>
+        </member>
+        <member name="T:RegionKit.API.ShelterBehaviors">
+            <summary>
+            Functionality for changing shelter activation conditions and more.
+            </summary>
+        </member>
+        <member name="P:RegionKit.API.ShelterBehaviors.GlobalOverrideHoldToTrigger">
+            <summary>
+            Whether all shelters should wait for player to hold down in order to start closing.
+            </summary>
+        </member>
+        <member name="T:RegionKit.ContainerCodes">
+            <summary>
+            Lists container codes for RoomCamera
+            </summary>
+        </member>
+        <member name="M:RegionKit.Extras.CollectionTools.AtOr``1(System.Collections.Generic.IList{``0},System.Int32,``0)">
+            <summary>
+            Attempts getting an item at specified index; if none found, uses default value.
+            </summary>
+            <typeparam name="T">List item type</typeparam>
+            <param name="arr">List in question</param>
+            <param name="index">Target index</param>
+            <param name="def">Default value</param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.CollectionTools.Get(System.String,System.Int32)">
+            <summary>
+            Attempts to get a char at a specified position.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Extras.CollectionTools.Get(System.Text.StringBuilder,System.Int32)">
+            <summary>
+            Attempts to get a char at a specified position.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Extras.CollectionTools.EnsureAndGet``2(System.Collections.Generic.IDictionary{``0,``1},``0,System.Func{``1})">
+            <summary>
+            Tries getting a dictionary item by specified key; if none found, adds one using specified callback and returns the new item.
+            </summary>
+            <typeparam name="Tkey">Dictionary keys</typeparam>
+            <typeparam name="Tval">Dictionary values</typeparam>
+            <param name="dict">Dictionary to get items from</param>
+            <param name="key">Key to look up</param>
+            <param name="defval">Default value callback. Executed if item is not found; its return is added to the dictionary, then returned from the extension method.</param>
+            <returns>Resulting item.</returns>
+        </member>
+        <member name="M:RegionKit.Extras.CollectionTools.RightShift(System.Collections.BitArray)">
+            <summary>
+            Shifts contents of a BitArray one position to the right.
+            </summary>
+            <param name="arr">Array in question</param>
+        </member>
+        <member name="M:RegionKit.Extras.CollectionTools.Set``2(System.Collections.Generic.Dictionary{``0,``1},``0,``1)">
+            <summary>
+            For a specified key, checks if a value is present. If yes, updates the value, otherwise adds the value.
+            </summary>
+            <typeparam name="Tk">Keys type</typeparam>
+            <typeparam name="Tv">Values type</typeparam>
+            <param name="dict">Dictionary in question</param>
+            <param name="key">Key to look up</param>
+            <param name="val">Value to set</param>
+        </member>
+        <member name="M:RegionKit.Extras.CollectionTools.Loop``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Creates a looped version of a selected enumerator.
+            </summary>
+            <param name="collection">Subject enumerator</param>
+            <typeparam name="T">Type of item</typeparam>
+            <returns>A yielder that wraps a collection and returns all its elements, repeating endlessly</returns>
+        </member>
+        <member name="M:RegionKit.Extras.CollectionTools.JoinWithComma(System.String,System.String)">
+            <summary>
+            Joins two strings with a comma and a space.
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.CollectionTools.Stitch(System.Collections.Generic.IEnumerable{System.String},System.Func{System.String,System.String,System.String})">
+            <summary>
+            Stitches a given collection with, returns an empty string if empty.
+            </summary>
+            <param name="coll"></param>
+            <param name="aggregator">Aggregator function. <see cref="M:RegionKit.Extras.CollectionTools.JoinWithComma(System.String,System.String)"/> by default.</param>
+            <returns>Resulting string.</returns>
+        </member>
+        <member name="M:RegionKit.Extras.LanguageHacks.Deconstruct``2(System.Collections.Generic.KeyValuePair{``0,``1},``0@,``1@)">
+            <summary>
+            Deconstructs a KeyValuePair.
+            </summary>
+            <typeparam name="TKey"></typeparam>
+            <typeparam name="TVal"></typeparam>
+            <param name="kvp"></param>
+            <param name="k"></param>
+            <param name="v"></param>
+        </member>
+        <member name="M:RegionKit.Extras.LanguageHacks.BangBang(System.Object,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentNullException"/> if item is null.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Extras.LanguageHacks.AntiBang(System.Object,System.String)">
+            <summary>
+            Throws <see cref="T:System.InvalidOperationException"/> if item is not null.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Extras.ParseTools.TryParseEnum``1(System.String,``0@)">
+            <summary>
+            Attempts to parse enum value from a string, in a non-throwing fashion.
+            </summary>
+            <typeparam name="T">Enum type</typeparam>
+            <param name="str">Source string</param>
+            <param name="result">out-result.</param>
+            <returns>Whether parsing was successful.</returns>
+        </member>
+        <member name="M:RegionKit.Extras.ParseTools.TryParseVec4(System.String,UnityEngine.Vector4@)">
+            <summary>
+            Attempts to parse a vector4 from string; expected format is "x;y;z;w", z or w may be absent.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Extras.PrimitivesTools.ConstructIR(RWCustom.IntVector2,RWCustom.IntVector2)">
+            <summary>
+            Creates an <see cref="T:RWCustom.IntRect"/> from two corner points.
+            </summary>
+            <param name="p1"></param>
+            <param name="p2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.PrimitivesTools.ToOpaqueCol(UnityEngine.Vector4@)">
+            <summary>
+            Creates a Color from a vector and makes sure its alpha is not zero.
+            </summary>
+        </member>
+        <member name="P:RegionKit.Extras.RainWorldTools.CRW">
+            <summary>
+            Current RainWorld instance. Uses Unity lookup, may be slow.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Extras.RainWorldTools.GetCreatureTemplate(CreatureTemplate.Type)">
+            <summary>
+            Gets a <see cref="T:StaticWorld"/> template object by type.
+            </summary>
+            <param name="t"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.RainWorldTools.FindSubProcess``1(ProcessManager)">
+            <summary>
+            Finds specified subprocess in ProcessManager (looks at both mainloop and side processes).
+            </summary>
+            <typeparam name="T">Type of subprocess.</typeparam>
+            <param name="manager">must not be null.</param>
+            <returns>Found subprocess; null if none.</returns>
+        </member>
+        <member name="M:RegionKit.Extras.RainWorldTools.FindUpdatableAndDeletable``1(Room)">
+            <summary>
+            Attempts to find an <see cref="T:UpdatableAndDeletable"/> of specified type
+            </summary>
+        </member>
+        <member name="M:RegionKit.Extras.RainWorldTools.FindAllUpdatableAndDeletable``1(Room)">
+            <summary>
+            Yields all <see cref="T:UpdatableAndDeletable"/>s of specified type.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Extras.RainWorldTools.ProcessSlugcatConditions(System.String[],SlugcatStats.Name)">
+            <summary>
+            removes any lines that do not fulfill the specified slugcat conditions
+            </summary>
+        </member>
+        <member name="M:RegionKit.Extras.RainWorldTools.GetArea(TriangleMesh)">
+            <summary>
+            Calculates area of a mesh. Assumes the mesh is not self-intersecting!
+            </summary>
+        </member>
+        <member name="F:RegionKit.Extras.ReflectionTools.BF_ALL_CONTEXTS">
+            <summary>
+            Binding flags for all normal contexts.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Extras.ReflectionTools.BF_ALL_CONTEXTS_INSTANCE">
+            <summary>
+            Binding flags for all instance members regardless of visibility.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Extras.ReflectionTools.BF_ALL_CONTEXTS_STATIC">
+            <summary>
+            Binding flags for all static members regardless of visibility.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Extras.ReflectionTools.BF_ALL_CONTEXTS_CTOR">
+            <summary>
+            Binding flags for all constructors.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.GetMethodAllContexts(System.Type,System.String)">
+            <summary>
+            Gets a method regardless of visibility.
+            </summary>
+            <param name="self">Type to get methods from</param>
+            <param name="name">Name of the method</param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.GetPropertyAllContexts(System.Type,System.String)">
+            <summary>
+            Gets
+            </summary>
+            <param name="self"></param>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.BackingFieldName(System.String)">
+            <summary>
+            Returns autoimplemented property backing field name
+            </summary>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.methodof``1(System.String,System.Reflection.BindingFlags)">
+            <summary>
+            Looks up methodinfo from T, defaults to <see cref="F:RegionKit.Extras.ReflectionTools.BF_ALL_CONTEXTS_INSTANCE"/>
+            </summary>
+            <typeparam name="T">Target type</typeparam>
+            <param name="mname">Method name</param>
+            <param name="context">Binding flags, default private+public+instance</param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.methodof(System.Type,System.String,System.Reflection.BindingFlags)">
+            <summary>
+            Looks up methodinfo from t, defaults to <see cref="F:RegionKit.Extras.ReflectionTools.BF_ALL_CONTEXTS_STATIC"/>
+            </summary>
+            <param name="t">Target type</param>
+            <param name="mname">Method name</param>
+            <param name="context">Binding flags, default private+public+static</param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.ctorof``1(System.Reflection.BindingFlags,System.Type[])">
+            <summary>
+            Gets constructorinfo from T. no cctors by default.
+            </summary>
+            <typeparam name="T">Type to look at</typeparam>
+            <param name="context">Binding flags. Does not include static constructors by default.</param>
+            <param name="pms">Constructor parameter types.</param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.ctorof``1(System.Type[])">
+            <summary>
+            Gets constructorinfo from T.
+            </summary>
+            <typeparam name="T">Type to look at.</typeparam>
+            <param name="pms">Constructor parameter types.</param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.fieldof``1(System.String,System.Reflection.BindingFlags)">
+            <summary>
+            Takes fieldinfo from T, defaults to <see cref="F:RegionKit.Extras.ReflectionTools.BF_ALL_CONTEXTS_INSTANCE"/>
+            </summary>
+            <typeparam name="T">Target type</typeparam>
+            <param name="name">Field name</param>
+            <param name="context">Context, default private+public+instance</param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.FindAssemblies(System.String)">
+            <summary>
+            Yields all loaded assemblies with names matching a given regex.
+            </summary>
+            <param name="pattern">Regular expression to filter assemblies</param>
+            <returns>A yield ienumerable with results</returns>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.CloneInstance``1(``0,``0,System.Reflection.BindingFlags)">
+            <summary>
+            Force clones an object instance through reflection
+            </summary>
+            <typeparam name="T">Object type</typeparam>
+            <param name="from">Source object</param>
+            <param name="to">Destination object</param>
+            <param name="context">Specifies context of fields to be cloned</param>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.CleanupStatic(System.Type)">
+            <summary>
+            Cleans up static reference members in a type.
+            </summary>
+            <param name="t">Target type</param>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.GetFn``1(System.Object,System.Reflection.MethodInfo)">
+            <summary>
+            Generic wrapper for <see cref="M:System.Delegate.CreateDelegate(System.Type,System.Object,System.Reflection.MethodInfo)"/>.
+            </summary>
+            <typeparam name="T">Delegate type</typeparam>
+            <param name="inst">Instance. Set to null to treat method as static.</param>
+            <param name="method">Target method.</param>
+            <returns>Resulting delegate; null if failure.</returns>
+        </member>
+        <member name="M:RegionKit.Extras.ReflectionTools.Fn_SetChar(System.String)">
+            <summary>
+            Gets an internal char setter for given string.
+            </summary>
+            <param name="s"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.RngTools.ClampedIntDeviation(System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Returns a random deviation from start position, up to mDev in both directions. Clamps to given bounds if provided.
+            </summary>
+            <param name="start">Center of the spread.</param>
+            <param name="mDev">Maximum deviation.</param>
+            <param name="minRes">Result lower bound.</param>
+            <param name="maxRes">Result upper bound.</param>
+            <returns>The resulting value.</returns>
+        </member>
+        <member name="M:RegionKit.Extras.RngTools.ClampedFloatDeviation(System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Returns a random deviation from start position, up to mDev in both directions. Clamps to given bounds if provided.
+            </summary>
+            <param name="start">Center of the spread.</param>
+            <param name="mDev">Maximum deviation.</param>
+            <param name="minRes">Result lower bound.</param>
+            <param name="maxRes">Result upper bound.</param>
+            <returns>The resulting value.</returns>
+        </member>
+        <member name="M:RegionKit.Extras.RngTools.RandSign">
+            <summary>
+            Gives you a random sign.
+            </summary>
+            <returns>1f or -1f on a coinflip.</returns>
+        </member>
+        <member name="M:RegionKit.Extras.RngTools.V2RandLerp(UnityEngine.Vector2,UnityEngine.Vector2)">
+            <summary>
+            Performs a random lerp between two 2d points.
+            </summary>
+            <param name="a">First vector.</param>
+            <param name="b">Second vector.</param>
+            <returns>Resulting vector.</returns>
+        </member>
+        <member name="M:RegionKit.Extras.RngTools.Clamped(UnityEngine.Color@)">
+            <summary>
+            Clamps a color to acceptable values.
+            </summary>
+            <param name="bcol"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Extras.RngTools.RandDev(UnityEngine.Color,UnityEngine.Color,System.Boolean)">
+            <summary>
+            Performs a channelwise random deviation on a color.
+            </summary>
+            <param name="bcol">base</param>
+            <param name="dbound">deviations</param>
+            <param name="clamped">whether to clamp the result to reasonable values</param>
+            <returns>resulting colour</returns>
+        </member>
+        <member name="T:RegionKit.Mod">
+            <summary>
+            Main plugin class
+            </summary>
+        </member>
+        <member name="F:RegionKit.Mod._writeTraceConfig">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Mod.OnEnable">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Mod.OnDisable">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Mod.FixedUpdate">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Mod.ScanAssemblyForModules(System.Reflection.Assembly)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Mod.TryRegisterModule(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.AnimatedDecals.Decals">
+            <summary>
+            Allow animated textures as decals.
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.AnimatedDecals.VideoManager">
+            <summary>
+            Provides helpers to manipulate video files.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.AnimatedDecals.VideoManager.IsVideoFile(System.String)">
+            <summary>
+            Check if the given file path refers to a video.
+            </summary>
+            <param name="fileName">The file path to check.</param>
+            <returns><c>true</c> if the file is a video, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:RegionKit.Modules.AnimatedDecals.VideoManager.LoadAndCacheVideo(System.String,System.String)">
+            <summary>
+            Load a video from disk as an <see cref="T:FAtlas"/>.
+            </summary>
+            <param name="fileName">The name of the atlas.</param>
+            <param name="path">The absolute path of the video.</param>
+            <returns>An <see cref="T:FAtlas"/> that continuously plays the video.</returns>
+        </member>
+        <member name="T:RegionKit.Modules.AnimatedDecals._Module">
+            <summary>
+            Allows animated textures to be used instead of static images for decals.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.AnimatedDecals._Module.Enable">
+            <summary>
+            Applies hooks.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.AnimatedDecals._Module.Disable">
+            <summary>
+            Undoes hooks.
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.AridBarrens.SandPart">
+            <summary>
+            A particle of sand
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPart.#ctor(UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPart.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPart.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPart.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPart.ApplyPalette(RoomCamera.SpriteLeaser,RoomCamera,RoomPalette)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPart.AddToContainer(RoomCamera.SpriteLeaser,RoomCamera,FContainer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.AridBarrens.SandPuff">
+            <summary>
+             A puff of sand
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPuff.#ctor(UnityEngine.Vector2,System.Single)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPuff.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPuff.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPuff.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPuff.ApplyPalette(RoomCamera.SpriteLeaser,RoomCamera,RoomPalette)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.AridBarrens.SandPuffsScene">
+            <summary>
+            Passively spawns sand puffs in room at all times
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPuffsScene.#ctor(RoomSettings.RoomEffect,Room)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPuffsScene.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPuffsScene.ShortcutsReady">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandPuffsScene.AIMapReady">
+            <summary>
+            Populates <see cref="F:RegionKit.Modules.AridBarrens.SandPuffsScene._closeToWallTiles"/>
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.AridBarrens.SandStorm">
+            <summary>
+            SandStorm scene. Add for sandstorm GO
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandStorm.#ctor(RoomSettings.RoomEffect,Room)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandStorm.AddElement(BackgroundScene.BackgroundSceneElement)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandStorm.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandStorm.ShortcutsReady">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandStorm.AIMapReady">
+            <summary>
+            Populates _closeToWallTiles
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandStorm.Fog.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandStorm.Fog.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens.SandStorm.Fog.ApplyPalette(RoomCamera.SpriteLeaser,RoomCamera,RoomPalette)">
+            <inheritdoc/>
+        </member>
+        <member name="F:RegionKit.Modules.AridBarrens._Enums.SandStorm">
+            <summary>
+            SandStorm effect from Arid Barrens.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:RegionKit.Modules.AridBarrens._Enums.SandPuffs">
+            <summary>
+            SandPuffs effect from AridBarrens
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:RegionKit.Modules.AridBarrens._Module">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens._Module.Register">
+            <summary>
+            Applies hooks.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.AridBarrens._Module.Disable">
+            <summary>
+            Undoes hooks.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.BackgroundBuilder.BackgroundElementData.DefaultNeutralPos(UnityEngine.Vector2,System.Single)">
+            <summary>
+            A simplification of BackgroundBuilder.PosFromDrawPosAtNeutralCam
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.BackgroundBuilder.Data.BackgroundDataAttribute.backingFieldName">
+            <summary>
+            if backingFieldName isn't null, the serializer will only write if the backing field is assigned
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.BackgroundBuilder.Data.RoomBGData.HasData">
+            <summary>
+            Checks if data was loaded from txt or serialized from background
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.BackgroundBuilder.Data.RoomBGData.TryGetFromPath(System.String,SlugcatStats.Name)">
+            <summary>
+            loads macro data from file
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.BackgroundBuilder.Data.RoomBGData.InheritFromTemplate(RegionKit.Modules.BackgroundBuilder.Data.RoomBGData)">
+            <summary>
+            For inheriting from RoomSettings template
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.BackgroundBuilder.Data.RoomBGData.InheritFromParent">
+            <summary>
+            For inheriting from parent background after parent is already assigned
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.BackgroundBuilder.Data.RoomBGData.Serialize">
+            <summary>
+            returns the string that goes in background files
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.BackgroundBuilder.Data.RoomBGData.SaveLines">
+            <summary>
+            returns the string lines that goes in room settings.txt files
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.BackgroundBuilder.Data.DayNightSceneData.ColorUpdate">
+            <summary>
+            this method is mostly copied from AboveCloudsView.Update \ RoofTopView.Update
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ConcealedGarden.CGDrySpot.WaterFluxOffset">
+            <summary>
+            Get the WaterFluxOffset if settings say to
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ConcealedGarden.CGDrySpot.NonMSCPreFloodBoost(System.Single,System.Single,System.Single)">
+            <summary>
+            <para>MSC syncs flood levels across the region. But vanilla flood level is just default water level + timeAfterRain</para>
+            <para>this method brings up the water level of the DrySpot to meet the regular water level right as the rain hits</para>
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ConcealedGarden.CGDrySpot.OriginalFlood(RoomRain)">
+            <summary>
+            the original roomRain.FloodLevel rewritten to be readable - kept around for reference
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.DevUIMisc.FadePaletteTemplate.IsFadeTemplate(RoomSettings,System.Int32)">
+            <summary>
+            use -1 for the fade palette, 0+ for fade screen
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.DevUIMisc.FadePaletteTemplate.SetFadeTemplate(RoomSettings,System.Int32,System.Boolean)">
+            <summary>
+            use -1 for the fade palette, 0+ for fade screen
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.EchoExtender.EchoSettings">
+            <summary>
+            Settings for a registered echo. All settings are keyed by difficulty.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender.EchoSettings.EchoRoom">
+            <summary>
+            Which room should the echo appear in
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender.EchoSettings.EchoSizeMultiplier">
+            <summary>
+            Echo size multiplier 
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender.EchoSettings.EffectRadius">
+            <summary>
+            Map radius of echo presence
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender.EchoSettings.RequirePriming">
+            <summary>
+            Whether to require priming
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender.EchoSettings.MinimumKarma">
+            <summary>
+            Minimum karma required to see
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender.EchoSettings.MinimumKarmaCap">
+            <summary>
+            Minimum karma cap required to see
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender.EchoSettings.DefaultFlip">
+            <summary>
+            Default rotation
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender.EchoSettings.SpawnOnDifficulty">
+            <summary>
+            Which characters have the echo
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender.EchoSettings.EchoSong">
+            <summary>
+            Song name
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.EchoExtender.EchoSettings.FromFile(System.String,SlugcatStats.Name)">
+            <summary>
+            Tries to parse echo settings from a file
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.EchoExtender.EchoSettings.KarmaCondition(System.Int32,System.Int32)">
+            <summary>
+            Whether selected karma and karma cap fulfill the echo's conditions
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.EchoExtender.EchoSettings.PrimingKind">
+            <summary>
+            Types of echo priming
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender.EchoSettings.PrimingKind.Yes">
+            <summary>
+            Priming required
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender.EchoSettings.PrimingKind.No">
+            <summary>
+            No priming required
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender.EchoSettings.PrimingKind.Saint">
+            <summary>
+            No priming, causes saint's hunch
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.EchoExtender._Enums">
+            <inheritdoc/>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender._Enums.EEGhostSpot">
+            <summary>
+            EchoExtender's variant of GhostSpot
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:RegionKit.Modules.EchoExtender._Enums.EchoPresenceOverride">
+            <summary>
+            manually overrides the EchoPresence for a room
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.EchoExtender._Module">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.EchoExtender._Module.Enable">
+            <summary>
+            Applies hooks
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.EchoExtender._Module.Disable">
+            <summary>
+            Undoes hooks
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Effects.ColorRoomEffect">
+            <summary>
+            Adds three sliders to room effects whose values range from 0 to 255.
+            By LB/M4rbleL1ne
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects.ColorRoomEffect.colorEffectTypes">
+            <summary>
+            The list of effects that should have the three additional sliders.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Effects.ColorRoomEffect.GetRedAmount(RoomSettings,RoomSettings.RoomEffect.Type)">
+            <summary>
+            Gets the amount of red of the specified effect.
+            </summary>
+            <returns>The amount of red of the specified effect.</returns>
+        </member>
+        <member name="M:RegionKit.Modules.Effects.ColorRoomEffect.GetGreenAmount(RoomSettings,RoomSettings.RoomEffect.Type)">
+            <summary>
+            Gets the amount of green of the specified effect.
+            </summary>
+            <returns>The amount of green of the specified effect.</returns>
+        </member>
+        <member name="M:RegionKit.Modules.Effects.ColorRoomEffect.GetBlueAmount(RoomSettings,RoomSettings.RoomEffect.Type)">
+            <summary>
+            Gets the amount of blue of the specified effect.
+            </summary>
+            <returns>The amount of blue of the specified effect.</returns>
+        </member>
+        <member name="M:RegionKit.Modules.Effects.ColorRoomEffect.GetColor(RoomSettings,RoomSettings.RoomEffect.Type)">
+            <summary>
+            Gets the color made by the three color sliders of the specified effect.
+            </summary>
+            <returns>The color made by the three color sliders of the specified effect.</returns>
+        </member>
+        <member name="M:RegionKit.Modules.Effects.ColorRoomEffect.IsEffectInRoom(RoomSettings,RoomSettings.RoomEffect.Type)">
+            <summary>
+            Checks if the specified effect is in the room.
+            </summary>
+            <returns>True if the specified effect is in the room, false otherwise.</returns>
+        </member>
+        <member name="T:RegionKit.Modules.Effects.FogOfWar">
+            <summary>
+            Limits vision to everything in line-of-sight.
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Effects.FogOfWarController">
+            <summary>
+            Controls sprites and logic for line-of-sight limiting fog. Copies behavior from the Line of Sight mod.
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Effects.HiveColorAlpha">
+            <summary>
+            Sets the alpha of the bat hive color in the room
+            By LB/M4rbleL1ne
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Effects.HiveColorAlpha.#ctor(Room)">
+            <inheritdoc cref="T:RegionKit.Modules.Effects.HiveColorAlpha"/>
+        </member>
+        <member name="M:RegionKit.Modules.Effects.HiveColorAlpha.Update(System.Boolean)">
+            <summary>
+            HiveColorAlpha Update method.
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Effects.ReplaceEffectColor">
+            <summary>
+            Replaces the effect colors of the current room with custom colors.
+            By LB/M4rbleL1ne
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Effects.ReplaceEffectColor.#ctor(Room)">
+            <inheritdoc cref="T:RegionKit.Modules.Effects.ReplaceEffectColor"/>
+        </member>
+        <member name="M:RegionKit.Modules.Effects.ReplaceEffectColor.#ctor(Room,System.Boolean)">
+            <inheritdoc cref="T:RegionKit.Modules.Effects.ReplaceEffectColor"/>
+        </member>
+        <member name="M:RegionKit.Modules.Effects.ReplaceEffectColor.Update(System.Boolean)">
+            <summary>
+            ReplaceEffectColor Update method.
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Effects._Enums">
+            <inheritdoc/>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.PWMalfunction">
+            <summary>
+            Special kind of BrokenZeroG from Substratum
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.ReplaceEffectColorA">
+            <summary>
+            ReplaceEffectColorA
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.ReplaceEffectColorB">
+            <summary>
+            ReplaceEffectColorB
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.HiveColorAlpha">
+            <summary>
+            HiveColorAlpha
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.MossWater">
+            <summary>
+            MossWater
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.MossWaterRGB">
+            <summary>
+            Effect category
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.IceWater">
+            <summary>
+            Effect category
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.MurkyWater">
+            <summary>
+            Effect category
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.ReflectiveWater">
+            <summary>
+            Effect category
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.RGBElectricDeath">
+            <summary>
+            Effect category
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.HSLDisplaySnow">
+            <summary>
+            Effect category
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Effects._Enums.RegionKit">
+            <summary>
+            Effect category
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Effects._Module">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.GateCustomization.GateCustomization.GetPlacedObjectData(Room,System.String)">
+            <summary>
+            Returns the <see cref = "T:Pom.Pom.ManagedData"/> of the first found <see cref="T:PlacedObject"/> with the name of <paramref name="placedObjectName"/> in the specified <see cref="T:Room"/>. If no <see cref="T:PlacedObject"/> is found it returns <see langword="null"/>.
+            </summary>
+            <param name="room"></param>
+            <param name="placedObjectName">The name of the <see cref="T:PlacedObject"/></param>
+        </member>
+        <member name="T:RegionKit.Modules.Iggy.IGiveAToolTip">
+            <summary>
+            Interface for DevUINodes that have tooltips.
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Iggy.IGiveAToolTip.ToolTip">
+            <summary>
+            Read when Iggy requests an element description. May return null if no custom tooltip should appear at the moment.
+            </summary>
+            <value></value>
+        </member>
+        <member name="T:RegionKit.Modules.Iggy.ToolTip">
+            <summary>
+            Represents an iggy tooltip that appears on right clicking a devtools UI element.
+            </summary>
+            <param name="text">What Iggy should say.</param>
+            <param name="priority">Value that determines how important tooltip from a particular element is. Highest value element is chosen. Big container-like elements such as Panels have 5, buttons have 10, Iggy itself has 1.</param>
+            <param name="source">Node that gave the tooltip. Used to prevent duplicates when requesting a tooltip.</param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.Iggy.ToolTip.#ctor(System.String,System.Int32,DevInterface.DevUINode)">
+            <summary>
+            Represents an iggy tooltip that appears on right clicking a devtools UI element.
+            </summary>
+            <param name="text">What Iggy should say.</param>
+            <param name="priority">Value that determines how important tooltip from a particular element is. Highest value element is chosen. Big container-like elements such as Panels have 5, buttons have 10, Iggy itself has 1.</param>
+            <param name="source">Node that gave the tooltip. Used to prevent duplicates when requesting a tooltip.</param>
+            <returns></returns>
+        </member>
+        <member name="P:RegionKit.Modules.Iggy.ToolTip.text">
+            <summary>What Iggy should say.</summary>
+        </member>
+        <member name="P:RegionKit.Modules.Iggy.ToolTip.priority">
+            <summary>Value that determines how important tooltip from a particular element is. Highest value element is chosen. Big container-like elements such as Panels have 5, buttons have 10, Iggy itself has 1.</summary>
+        </member>
+        <member name="P:RegionKit.Modules.Iggy.ToolTip.source">
+            <summary>Node that gave the tooltip. Used to prevent duplicates when requesting a tooltip.</summary>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.Butterfly">
+            <summary>
+            By Alduris
+            Moth-like creature.
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.ColoredCamoBeetlesCI">
+            <summary>
+            By LB/M4rbleL1ne
+            Colored camo beetle insect
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.ColoredCamoBeetleInsect">
+            <summary>
+            New insect that can camo and uses one of the effect colors when stressed
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.ColoredCamoBeetleInsect.#ctor(Room,UnityEngine.Vector2)">
+            <summary>
+            Insect ctor
+            </summary>
+            <param name="room"></param>
+            <param name="pos"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.ColoredCamoBeetleInsect.Update(System.Boolean)">
+            <summary>
+            Update
+            </summary>
+            <param name="eu"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.ColoredCamoBeetleInsect.Act">
+            <summary>
+            Act
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.ColoredCamoBeetleInsect.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
+            <summary>
+            Initiate sprites
+            </summary>
+            <param name="sLeaser"></param>
+            <param name="rCam"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.ColoredCamoBeetleInsect.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <summary>
+            Draw sprites
+            </summary>
+            <param name="sLeaser"></param>
+            <param name="rCam"></param>
+            <param name="timeStacker"></param>
+            <param name="camPos"></param>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.GlowingSwimmersCI">
+            <summary>
+            By LB/M4rbleL1ne
+            Glowing swimmer insect
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.GlowingSwimmer">
+            <summary>
+            By LB/M4rbleL1ne
+            Glowing swimmer
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.#ctor(Room,UnityEngine.Vector2)">
+            <summary>
+            Glowing Swimmer
+            </summary>
+            <param name="room"></param>
+            <param name="pos"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.Update(System.Boolean)">
+            <summary>
+            Update
+            </summary>
+            <param name="eu"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.Reset(UnityEngine.Vector2)">
+            <summary>
+            Reset
+            </summary>
+            <param name="resetPos"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.Act">
+            <summary>
+            Act
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.WallCollision(RWCustom.IntVector2,System.Boolean)">
+            <summary>
+            Wall collision
+            </summary>
+            <param name="dir"></param>
+            <param name="first"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.EmergeFromGround(UnityEngine.Vector2)">
+            <summary>
+            Emerge from ground
+            </summary>
+            <param name="emergePos"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
+            <summary>
+            Initiate sprites
+            </summary>
+            <param name="sLeaser"></param>
+            <param name="rCam"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <summary>
+            Draw sprites
+            </summary>
+            <param name="sLeaser"></param>
+            <param name="rCam"></param>
+            <param name="timeStacker"></param>
+            <param name="camPos"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.GlowingSwimmer.ApplyPalette(RoomCamera.SpriteLeaser,RoomCamera,RoomPalette)">
+            <summary>
+            Apply palette
+            </summary>
+            <param name="sLeaser"></param>
+            <param name="rCam"></param>
+            <param name="palette"></param>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.MosquitoInsectsCI">
+            <summary>
+            By LB/M4rbleL1ne
+            Mosquito-like cosmetic insect
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.MosquitoInsect">
+            <summary>
+            By LB/M4rbleL1ne
+            Mosquito-like cosmetic insect
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.MosquitoInsect.#ctor(Room,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.MosquitoInsect.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.MosquitoInsect.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.MosquitoInsect.ApplyPalette(RoomCamera.SpriteLeaser,RoomCamera,RoomPalette)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Insects.MosquitoInsect.AddToContainer(RoomCamera.SpriteLeaser,RoomCamera,FContainer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Insects.Zipper">
+            <summary>
+            By Alduris
+            Fly-like that zips around brightly sometimes
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.GlowingSwimmers">
+            <summary>
+            Glowing Swimmer effect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.ColoredCamoBeetles">
+            <summary>
+            Colored Camo Beetle effect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.MosquitoInsects">
+            <summary>
+            Mosquito Insect effect enum
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "F:RegionKit.Modules.Insects._Enums.ButterfliesA" -->
+        <member name="F:RegionKit.Modules.Insects._Enums.ButterfliesB">
+            <summary>
+            Butterfly B effect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.Zippers">
+            <summary>
+            Zipper effect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.GlowingSwimmerInsect">
+            <summary>
+            Glowing Swimmer insect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.ColoredCamoBeetle">
+            <summary>
+            Colored Camo Beetle insect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.MosquitoInsect">
+            <summary>
+            Mosquito Insect enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.ButterflyA">
+            <summary>
+            Butterfly A enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.ButterflyB">
+            <summary>
+            Butterfly B enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.Zipper">
+            <summary>
+            Zipper enum
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Insects._Enums.RegionKit">
+            <summary>
+            Insect category
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.MachineryID">
+            <summary>
+            Used as filter for <see cref="T:RegionKit.Modules.Machinery.V1.MachineryCustomizer"/>
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Machinery.MachineryID.Piston">
+            <inheritdoc/>
+        </member>
+        <member name="F:RegionKit.Modules.Machinery.MachineryID.Cog">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.OscillationMode">
+            <summary>
+            Machinery operation modes.
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.OscillationParams">
+            <summary>
+            Movement parameters for oscillating machinery
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Machinery.OscillationParams.amplitude">
+            <inheritdoc/>
+        </member>
+        <member name="F:RegionKit.Modules.Machinery.OscillationParams.frequency">
+            <inheritdoc/>
+        </member>
+        <member name="F:RegionKit.Modules.Machinery.OscillationParams.phase">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Machinery.OscillationParams.Oscillator">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.OscillationParams.#ctor(System.Single,System.Single,System.Single,System.Single,System.Func{System.Single,System.Single})">
+            <summary>
+            Primary constructor
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.OscillationParams.Deviate(RegionKit.Modules.Machinery.OscillationParams@)">
+            <summary>
+            Returns a new instance that deviates each field from current  one's by random amounts
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.V1.BaseMachineryData">
+            <summary>
+            base data type for machinery objects
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.BaseMachineryData.#ctor(PlacedObject,Pom.Pom.ManagedField[])">
+            <summary>
+            Interlay ctor
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.V1.MachineryCustomizer">
+            <summary>
+            Provides visual settings to machinery objects
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.MachineryCustomizer.AffectsInPoint(UnityEngine.Vector2)">
+            <summary>
+            Whether a given point belongs to this customizer
+            </summary>
+            <param name="p"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.MachineryCustomizer.#ctor(PlacedObject)">
+            <summary>
+            Creates a blank instance
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.V1.PistonArray">
+            <summary>
+            A linear set of pistons
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.PistonArray.#ctor(Room,PlacedObject)">
+            <summary>
+            Constructor for POM
+            </summary>
+            <param name="rm"></param>
+            <param name="obj"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.PistonArray.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.PistonArray.Destroy">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.V1.PistonArrayData">
+            <summary>
+            POM data for a linear array of pistons
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.PistonArrayData.#ctor(PlacedObject)">
+            <summary>
+            pom constructor
+            </summary>
+            <param name="owner"></param>
+            <returns></returns>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.V1.PistonData">
+            <summary>
+            POM data for a single piston
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.V1.PowerManagerData">
+            <summary>
+            Data for a room power modifier engine 
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.V1.PowerManagerData.PowerMode">
+            <summary>
+            How PowerManager interacts with base power level
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Machinery.V1.PowerManagerData.PowerMode.Add">
+            
+        </member>
+        <member name="F:RegionKit.Modules.Machinery.V1.PowerManagerData.PowerMode.Multiply">
+            
+        </member>
+        <member name="F:RegionKit.Modules.Machinery.V1.PowerManagerData.PowerMode.Overwrite">
+            
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.V1.RoomPowerManager">
+            <summary>
+            Replaces <see cref="P:Room.ElectricPower"/> behavior when present with custom modifiers. See: <see cref="T:RegionKit.Modules.Machinery.V1.RoomPowerManager.IRoomPowerModifier"/>.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.RoomPowerManager.#ctor(Room,PlacedObject)">
+            <summary>
+            POM ctor
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.RoomPowerManager.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.RoomPowerManager.GetPowerForPoint(UnityEngine.Vector2)">
+            <summary>
+            Local resulting power. Applied on top of <see cref="M:RegionKit.Modules.Machinery.V1.RoomPowerManager.GetGlobalPower"/>.
+            </summary>
+            <param name="point"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.RoomPowerManager.GetGlobalPower">
+            <summary>
+            Sum of global power bonuses from all subscribers.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.RoomPowerManager.RegisterPowerDevice(RegionKit.Modules.Machinery.V1.RoomPowerManager.IRoomPowerModifier)">
+            <summary>
+            Adds a powerModifier to current instance's sources
+            </summary>
+            <param name="obj"></param>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.V1.RoomPowerManager.IRoomPowerModifier">
+            <summary>
+            Use this interface to modify room power levels. Has to be impl by an <see cref="T:UpdatableAndDeletable"/>.
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Machinery.V1.RoomPowerManager.IRoomPowerModifier.RemoveOnValidation">
+            <summary>
+            Whether <see cref="T:RegionKit.Modules.Machinery.V1.RoomPowerManager"/> should remove the instance soon. Warning: several frames may pass between this being set to true and manager actually getting rid of the subscriber list! Make sure to handle your <see cref="P:RegionKit.Modules.Machinery.V1.RoomPowerManager.IRoomPowerModifier.Enabled"/> properly if this matters.
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Machinery.V1.RoomPowerManager.IRoomPowerModifier.Enabled">
+            <summary>
+            Whether power bonus for object should be applied.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.RoomPowerManager.IRoomPowerModifier.BonusForPoint(UnityEngine.Vector2)">
+            <summary>
+            Power bonus for a specified position in the room. <see cref="M:RegionKit.Modules.Machinery.V1.RoomPowerManager.GetPowerForPoint(UnityEngine.Vector2)"/> applies those ON TOP of <see cref="M:RegionKit.Modules.Machinery.V1.RoomPowerManager.IRoomPowerModifier.GlobalBonus"/>.
+            </summary>
+            <param name="point"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.RoomPowerManager.IRoomPowerModifier.GlobalBonus">
+            <summary>
+            General power bonus for room.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.V1.SimpleCog">
+            <summary>
+            Spinning thing
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimpleCog.#ctor(Room,PlacedObject)">
+            <summary>
+            POM ctor
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimpleCog.#ctor(Room,PlacedObject,RegionKit.Modules.Machinery.V1.SimpleCogData)">
+            <summary>
+            Primary ctor
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimpleCog.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimpleCog.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimpleCog.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimpleCog.ApplyPalette(RoomCamera.SpriteLeaser,RoomCamera,RoomPalette)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimpleCog.AddToContainer(RoomCamera.SpriteLeaser,RoomCamera,FContainer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.V1.SimpleCogData">
+            <summary>
+            POM data for spinny thing
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery.V1.SimplePiston">
+            <summary>
+            A sprite moving in waves
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimplePiston.#ctor(Room,PlacedObject)">
+            <summary>
+            POM ctor
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimplePiston.#ctor(Room,PlacedObject,RegionKit.Modules.Machinery.V1.PistonData)">
+            <summary>
+            Primary ctor
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimplePiston.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimplePiston.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimplePiston.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimplePiston.ApplyPalette(RoomCamera.SpriteLeaser,RoomCamera,RoomPalette)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery.V1.SimplePiston.AddToContainer(RoomCamera.SpriteLeaser,RoomCamera,FContainer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Machinery._Module">
+            <summary>
+            Handles registration of machinery objects.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery._Module.Enable">
+            <summary>
+            Applies hooks and registers MPO.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Machinery._Module.Disable">
+            <summary>
+            Undoes hooks.
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Misc.CustomArenaDivisions">
+            <summary>
+            Author: Deltatime <para/>
+            Allows for the creation of configurable arena dividers through text files. <para/>
+            To add an arenapack, add a text file with the names of the arenas on every line in Levels/Packs <para/>
+            Format for the custom packs files: <para/>
+            Every arena name in a pack must be divided by a newline
+            To add a custom name for an arena, divide the file name and the custom name with a ':' character (no spaces in before/after the ':' character unless it's needed in the filename!) 
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Misc.ExtendedGates">
+            <summary>
+            Adds more options for gate requirements
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Misc.ExtendedGates.GetKarmaLevel(RegionGate.GateRequirement)">
+            <summary>
+            Returns a karma requirement for given gate, -1 by 
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Misc.ExtendedGates.VirtualMicrophone_NewRoom(On.VirtualMicrophone.orig_NewRoom,VirtualMicrophone,Room)">
+            <summary>
+            Fix gate noises following the player through rooms
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Misc.ExtendedGates.RegionGate_ctorIL(MonoMod.Cil.ILContext)">
+            <summary>
+            Loads karmaGate requirements
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Misc.ExtendedGates.RegionGate_Update(On.RegionGate.orig_Update,RegionGate,System.Boolean)">
+            <summary>
+            Adds support for special gate types UwU
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Misc.ExtendedGates.GateKarmaGlyph_DrawSprites(On.GateKarmaGlyph.orig_DrawSprites,GateKarmaGlyph,RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <summary>
+            Image used in the gate room
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Misc.SunBlockerFix">
+            <summary>
+            By LB/M4rbleL1ne.
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Misc.SuperstructureFusesHook">
+            <summary>
+            By Woodensponge and Slime_Cubed<br/>
+            Updated by Xan to append a render patch, solving the following issues:<br/>
+            <list type="bullet">
+            <item>SuperStructureFuses could not render on Tile Layer 1 (depth was too low, so the tiles drew over it and hid it)</item>
+            <item>SuperStructureFuses had the incorrect offset on Tile Layer 3 (depth was too high, and overshot the correct location)</item>
+            </list>
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.ARKillRect">
+            <summary>
+            Kills everything inside designated zone
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ARKillRect.#ctor(Room,PlacedObject)">
+            <summary>
+            POM ctor
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ARKillRect.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.EnableConditions">
+            <summary>
+            A light source that can be assigned any rgb value
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ColouredLightSource.#ctor(PlacedObject,Room)">
+            <summary>
+            POM ctor
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ColouredLightSource.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.CustomEntranceSymbols">
+            <summary>
+            From LB/M4rbleL1ne
+            Allows selecting arbitrary sprites for pipe symbols
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.CESData">
+            <summary>
+            Data for custom entrance symbol
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.CESData.#ctor(PlacedObject)">
+            <summary>
+            Data ctor
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.CESData.FromString(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.CESData.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.CESRepresentation">
+            <summary>
+            DevUI representation
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.CESRepresentation.#ctor(DevInterface.DevUI,System.String,DevInterface.DevUINode,PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.CESRepresentation.Refresh">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.Drawable">
+            <summary>
+            A customizeable freeform sprite
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.Drawable.#ctor(PlacedObject,Room)">
+            <summary>
+            POM ctor
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.Drawable.FContainer">
+            <summary>
+            Enum for container codes
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.Drawable.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.Drawable.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.INotifyWhenRoomIsViewed">
+            <summary>
+            NOTE: notify methods registered in <see cref="T:RegionKit.Modules.Objects._Module"/>
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.INotifyWhenRoomIsViewed.RoomViewed">
+            <summary>
+            Called when the room is viewed
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.INotifyWhenRoomIsViewed.RoomNoLongerViewed">
+            <summary>
+            Called when the room is no longer viewed
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.LittlePlanet">
+            <summary>
+            By LB/M4rbleL1ne
+            A small cosmetic hologram
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.LittlePlanet.#ctor(Room,PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.LittlePlanet.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.LittlePlanet.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.LittlePlanet.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.LittlePlanet.AddToContainer(RoomCamera.SpriteLeaser,RoomCamera,FContainer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.LittlePlanet.LittlePlanetData">
+            <summary>
+            DevUI data
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects.LittlePlanet.LittlePlanetData.alpha">
+            <summary>
+            Sprite alpha
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects.LittlePlanet.LittlePlanetData.speed">
+            <summary>
+            Ring rotation speed
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Objects.LittlePlanet.LittlePlanetData.Color">
+            <summary>
+            Sprite color
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.LittlePlanet.LittlePlanetData.#ctor(PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.LittlePlanet.LittlePlanetData.FromString(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.LittlePlanet.LittlePlanetData.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.LittlePlanetRepresentation">
+            <summary>
+            DevUI representation
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.LittlePlanetRepresentation.#ctor(DevInterface.DevUI,System.String,DevInterface.DevUINode,PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.LittlePlanetRepresentation.Refresh">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.PlacedWaterfallData">
+            <summary>
+            POM data for a customizeable waterfall
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.WormgrassRectData">
+            <summary>
+            POM data for a placed wormgrass rectangle
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.NoWallSlideZones">
+            <summary>
+            By LB/M4rbleL1ne.
+            Prevents the player from sliding on walls
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.NoWallSlideZone">
+            <summary>
+            By LB/M4rbleL1ne.
+            Prevents the player from sticking to walls in a selected area.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.NoWallSlideZone.#ctor(Room,PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.NoWallSlideZone.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.PlacedWaterFall">
+            <summary>
+            a slightly better waterfall
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.PlacedWaterFall.#ctor(PlacedObject,Room)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.PlacedWaterFall.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.PWLightRod">
+            <summary>
+            A recolorable light rod
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.PWLightRod.#ctor(PlacedObject,Room)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.PWLightRod.Update(System.Boolean)">
+            Changes the light color if the color of the rod changes
+        </member>
+        <member name="T:RegionKit.Modules.Objects.RainbowNoFade">
+            <summary>
+            A rainbow that always spawns and persists throughout the cycle
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.IClimbJumpVine">
+            <summary>
+            Implement this to be able to jump off your custom vine
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.IClimbJumpVine.GrabSound">
+            <summary>
+            Sound played when the player grabs your vine
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.IClimbJumpVine.ClimbSound">
+            <summary>
+            Sound played when the player is climbing your vine
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.IClimbJumpVine.JumpAllowed">
+            <summary>
+            If the player can jump off your vine
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.ClimbableWire">
+            <summary>
+            By LB/M4rbleL1ne
+            A climbable wire (effect color and length options)
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbableWire.#ctor(Room,System.Int32,PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.ClimbablePole">
+            <summary>
+            By LB/M4rbleL1ne
+            A climbable pole (effect color option)
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbablePole.#ctor(Room,RegionKit.Modules.Objects.ClimbJumpVineData)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbablePole.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbablePole.IDrawable#DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbablePole.AddToContainer(RoomCamera.SpriteLeaser,RoomCamera,FContainer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.ClimbJumpVineData">
+            <summary>
+            Climbable vine common data
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbJumpVineData.#ctor(PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbJumpVineData.FromString(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbJumpVineData.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.ClimbWireData">
+            <summary>
+            Climbable wire data
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbWireData.#ctor(PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbWireData.FromString(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbWireData.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.ClimbJumpVineRepresentation">
+            <summary>
+            Climbable vine Dev UI representation
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbJumpVineRepresentation.#ctor(DevInterface.DevUI,System.String,DevInterface.DevUINode,PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ClimbJumpVineRepresentation.Refresh">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.ColoredLightBeam">
+            <summary>
+            By Dracentis, ported by M4rbleL1ne
+            Light beams that can use effect colors
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ColoredLightBeam.#ctor(PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.ProjectedCircleObject">
+            <summary>
+            By LB/M4rbleL1ne
+            Adds a projected circle, requires sunblock
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ProjectedCircleObject.#ctor(Room,PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.UpsideDownWaterFallObject">
+            <summary>
+            By LB/M4rbleL1ne
+            Upside down waterfall
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.UpsideDownWaterFallObject.Update(System.Boolean)">
+            <summary>
+            Warning: will be destroyed if water is inverted in the room
+            </summary>
+            <param name="eu"></param>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.ShortcutColorifierData">
+            <summary>
+            Contains all the backend data for ColorifierUAD object to work with
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.ShortcutColorifierData.#ctor(PlacedObject)">
+            <summary>
+            Default constructor, does nothing but base call
+            </summary>
+            <param name="po"></param>
+        </member>
+        <member name="F:RegionKit.Modules.Objects.ShortcutColorifierData.red">
+            <summary>
+            Red component of RGB
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects.ShortcutColorifierData.green">
+            <summary>
+            Green component of RGB
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects.ShortcutColorifierData.blue">
+            <summary>
+            Blue component of RGB
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects.ShortcutColorifierData.radius">
+            <summary>
+            The radius of ColorifierUAD object within which it applies RGB overwrite
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.SlipperyZone.BodyChunk_checkAgainstSlopesVertically(MonoMod.Cil.ILContext)">
+            <summary>
+            makes slopes slippy
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.SpinningFan">
+            <summary>
+            A fan that turns on and off depending on room power level
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.SteamHazard">
+            <summary>
+            Damaging steam
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.SteamHazard.#ctor(PlacedObject,Room)">
+            <summary>
+            POM ctor
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.SteamHazard.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects.WormgrassManager">
+            <summary>
+            Spawns wormgrass from WormgrassRectData
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Objects.WormgrassManager.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Objects._Enums">
+            <inheritdoc/>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.ClimbableWire">
+            <summary>
+            LB Climbable wire
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.ClimbablePole">
+            <summary>
+            LB Climbable pole
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.PWLightrod">
+            <summary>
+            Colorable light rod
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.ARKillRect">
+            <summary>
+            Kills creatures that enter the rect
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.CustomEntranceSymbol">
+            <summary>
+            Replaces pipe symbols
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.NoWallSlideZone">
+            <summary>
+            Makes wall slippery
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.LittlePlanet">
+            <summary>
+            Planet hologram
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.RainbowNoFade">
+            <summary>
+            Persistent rainbow
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.ProjectedCircle">
+            <summary>
+            Hologram circle
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.UpsideDownWaterFall">
+            <summary>
+            Upside down waterfall
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Objects._Enums.ColoredLightBeam">
+            <summary>
+            Colored light beam
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Objects._Module">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.ParticleVisualState">
+            <summary>
+            carries sprite settings
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.ParticleVisualState.#ctor(System.String,System.String,RegionKit.ContainerCodes,UnityEngine.Color,UnityEngine.Color,System.Single,System.Single,System.Single,System.Single,System.Boolean,System.Single)">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.ParticleVisualState.Blank">
+            <summary>
+            Returns blank settings
+            </summary>
+            <value></value>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.GenericParticle">
+            <summary>
+            Working unit for <see cref="T:RegionKit.Modules.Particles.V1.RoomParticleSystem"/>.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.GenericParticle.#ctor(RegionKit.Modules.Particles.V1.PMoveState,RegionKit.Modules.Particles.ParticleVisualState)">
+            <summary>
+            
+            </summary>
+            <param name="bSt">instantiation movement and fade in/out data</param>
+            <param name="vSt">visuals package</param>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.GenericParticle.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.GenericParticle.Destroy">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.GenericParticle.AddModule(RegionKit.Modules.Particles.V1.PBehaviourModule)">
+            <summary>
+            Adds a new behaviour module to the particle
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.GenericParticle.Modules">
+            <summary>
+            Behaviour modules of this instance
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="E:RegionKit.Modules.Particles.V1.GenericParticle.OnUpdatePreMove">
+            <summary>
+            invoked near the end of every frame
+            </summary>
+        </member>
+        <member name="E:RegionKit.Modules.Particles.V1.GenericParticle.OnUpdatePostMove">
+            <summary>
+            Invoked after base update call. Can be used to undo position changes.
+            </summary>
+        </member>
+        <member name="E:RegionKit.Modules.Particles.V1.GenericParticle.OnCreate">
+            <summary>
+            invoked on first frame
+            </summary>
+        </member>
+        <member name="E:RegionKit.Modules.Particles.V1.GenericParticle.OnDestroy">
+            <summary>
+            invoked when particle is about to be destroyed
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.GenericParticle.currentRadius(System.Single)">
+            <summary>
+            Radius depending on current power
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.GenericParticle.CurrentPower">
+            <summary>
+            0 to 1; represents how thick/transparent a particle is at the moment
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.GenericParticle.ProgressLifecycle">
+            <summary>
+            every frame, ticks down the clock of a particle's birth, thrive and inevitable demise
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.GenericParticle.Progress">
+            <summary>
+            The number of frames passed since beginning of current phase
+            </summary>
+            <value></value>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.GenericParticle.GetPhaseLimit(System.Byte)">
+            <summary>
+            returns length of current life phase
+            </summary>
+            <param name="phase"></param>
+            <returns></returns>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.GenericParticle.phase">
+            <summary>
+            What part of lifecycle particle is currently at. 0 - fadein, 1 - main lifetime, 2 - fadeout
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.GenericParticle.start">
+            <summary>
+            starting movement parameters and fade in/out settings
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.GenericParticle.visuals">
+            <summary>
+            visual package - atlas element, container, etc
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.GenericParticle.myLight">
+            <summary>
+            attached light source
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.GenericParticle.SetUpRan">
+            <summary>
+            Whether the first update has been executed
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.GenericParticle.lifetime">
+            <summary>
+            How much time the particle has left
+            </summary>
+            <value></value>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.GenericParticle.rot">
+            <summary>
+            to make your sprite go speen
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.GenericParticle.InitiateSprites(RoomCamera.SpriteLeaser,RoomCamera)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.GenericParticle.AddToContainer(RoomCamera.SpriteLeaser,RoomCamera,FContainer)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.GenericParticle.ApplyPalette(RoomCamera.SpriteLeaser,RoomCamera,RoomPalette)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.GenericParticle.DrawSprites(RoomCamera.SpriteLeaser,RoomCamera,System.Single,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.GenericParticle.ComputationalCost">
+            <summary>
+            Use this to indicate how computationally heavy is your <see cref="T:RegionKit.Modules.Particles.V1.GenericParticle"/> derivative. Used to smoothen loading process.
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.GenericParticle.LifecycleFunction">
+            <summary>
+            Delegate for lifecycle update for behaviour modules
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.OffscreenSpawnerData">
+            <summary>
+            Spawns particles outside screen borders
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.OffscreenSpawnerData.#ctor(PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.OffscreenSpawnerData.UpdateTilesetCacheValidity">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.OffscreenSpawnerData.AreaNeedsRefresh">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.OffscreenSpawnerData.GetSuitableTiles(Room)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider">
+            <summary>
+            "Empty" data class for attaching <see cref="T:RegionKit.Modules.Particles.V1.PBehaviourModule"/> descendants to newly created particles.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.GetNewForParticle(RegionKit.Modules.Particles.V1.GenericParticle)">
+            <summary>
+            Create new module for given new particle
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.applyOrder">
+            <summary>
+            Affects sorting of providers in <see cref="F:RegionKit.Modules.Particles.V1.RoomParticleSystem._modifiers"/>. Higher value -> applied later.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.p2">
+            <summary>
+            circle for checking whether a provider affects a given particle system
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.#ctor(PlacedObject,System.Collections.Generic.List{Pom.Pom.ManagedField})">
+            <summary>
+            
+            </summary>
+            <param name="owner"></param>
+            <param name="addFields">List of additional <see cref="T:Pom.Pom.ManagedField"/>. Can be null.</param>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.PlainModuleRegister">
+            <summary>
+            Meant to handle modifiers that don't require additional init data and thus can live without custom manageddata descendants
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.PlainModuleRegister.#ctor(PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.PlainModuleRegister.RegisterPModType``1(System.String)">
+            <summary>
+            registers a new behaviormodule type with a specified key.
+            </summary>
+            <typeparam name="T">MUST have a constructor that takes argument set of (<see cref="T:RegionKit.Modules.Particles.V1.GenericParticle"/>)! </typeparam>
+            <param name="key">use it to spawn later</param>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.PlainModuleRegister.RegisterSpawnMethod(System.String,System.Func{RegionKit.Modules.Particles.V1.GenericParticle,RegionKit.Modules.Particles.V1.PBehaviourModule})">
+            <summary>
+            directly registers a spawn method via delegate. Still does a simple check to see if it throws.
+            </summary>
+            <param name="key"></param>
+            <param name="del"></param>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.PlainModuleRegister.SelectedKey">
+            <summary>
+            key to get new instances of <see cref="T:RegionKit.Modules.Particles.V1.PBehaviourModule"/> descendants by
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.PlainModuleRegister.#ctor(PlacedObject,System.Collections.Generic.List{Pom.Pom.ManagedField})">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.PlainModuleRegister.GetNewForParticle(RegionKit.Modules.Particles.V1.GenericParticle)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.WavinessProvider">
+            <summary>
+            applies a <see cref="T:RegionKit.Modules.Particles.V1.PBehaviourModule.Wavy"/>
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.WavinessProvider._osParamsDefault">
+            <summary>
+            Default oscillation params
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.WavinessProvider._osParamsDeviate">
+            <summary>
+            Max deviation from default
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.WavinessProvider.GetOscParams">
+            <summary>
+            Returns waviness params for new module
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.WavinessProvider.#ctor(PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.WavinessProvider.GetNewForParticle(RegionKit.Modules.Particles.V1.GenericParticle)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.SpinProvider">
+            <summary>
+            Makes particles spin
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.SpinProvider.angVel">
+            <summary>
+            Angular velocity of spinning
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.SpinProvider.#ctor(PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider.SpinProvider.GetNewForParticle(RegionKit.Modules.Particles.V1.GenericParticle)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.ParticleSystemData">
+            <summary>
+            base POM data for particle systems
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleSystemData.ReturnSuitableTiles(Room)">
+            <summary>
+            Recaches tile set if needed and returns it
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleSystemData.GetSuitableTiles(Room)">
+            <summary>
+            Gets a list of tiles particles should be able to spawn on.
+            </summary>
+            <param name="rm"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleSystemData.UpdateTilesetCacheValidity">
+            <summary>
+            Override and use to add your checks for <see cref="P:RegionKit.Modules.Particles.V1.ParticleSystemData.AreaNeedsRefresh"/>.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.ParticleSystemData._c_suitableTiles">
+            <summary>
+            Cached suitable tiles
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.ParticleSystemData.AreaNeedsRefresh">
+            <summary>
+            Returns true when settings have been changed and tile set needs re-generating again. See code: <see cref="M:RegionKit.Modules.Particles.V1.ParticleSystemData.ReturnSuitableTiles(Room)"/>
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.ParticleSystemData._c_ownerpos">
+            <summary>
+            cached position of placedobject
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleSystemData.#ctor(PlacedObject,System.Collections.Generic.List{Pom.Pom.ManagedField})">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleSystemData.DataForNew">
+            <summary>
+            Returns fluke'd move params
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.ParticleVisualCustomizer">
+            <summary>
+            POM data for particle visuals
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleVisualCustomizer.#ctor(PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.ParticleVisualCustomizer.P2">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.ParticleVisualCustomizer.Owner">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.ParticleVisualCustomizer.DataForNew">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.PBehaviourModule">
+            <summary>
+            behaviour modules that can be slapped onto particles. Instantiated by <see cref="T:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider"/>s, passed by <see cref="T:RegionKit.Modules.Particles.V1.RoomParticleSystem"/>s and used by <see cref="T:RegionKit.Modules.Particles.V1.GenericParticle"/>s.
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.PBehaviourModule.ComputationalCost">
+            <summary>
+            Use this to indicate how computationally heavy is your <see cref="T:RegionKit.Modules.Particles.V1.PBehaviourModule"/> derivative. Used to smoothen loading process.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.#ctor(RegionKit.Modules.Particles.V1.GenericParticle)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.Enable">
+            <summary>
+            Ran when module is added to a particle
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.Disable">
+            <summary>
+            Ran when owner is about to be destroyed
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.PBehaviourModule.Wavy">
+            <summary>
+            Applies wavy path effect to a particle
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.Wavy.#ctor(RegionKit.Modules.Particles.V1.GenericParticle,RegionKit.Modules.Machinery.OscillationParams)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.Wavy.Disable">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.Wavy.Enable">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.PBehaviourModule.Wavy.ComputationalCost">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.PBehaviourModule.AFFLICTION">
+            <summary>
+            Example module: does nothing outside of triggering <see cref="T:RegionKit.Modules.Particles.V1.PBehaviourModule.ANTIBODY"/> instances
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.AFFLICTION.#ctor(RegionKit.Modules.Particles.V1.GenericParticle)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.AFFLICTION.Disable">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.AFFLICTION.Enable">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.PBehaviourModule.ANTIBODY">
+            <summary>
+            Makes the particle destroy any nearby particles with <see cref="T:RegionKit.Modules.Particles.V1.PBehaviourModule.AFFLICTION"/> when found
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.ANTIBODY.#ctor(RegionKit.Modules.Particles.V1.GenericParticle)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.ANTIBODY.Disable">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.ANTIBODY.Enable">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.PBehaviourModule.ANTIBODY.ComputationalCost">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.PBehaviourModule.AvoidWater">
+            <summary>
+            Makes the particle stay on surface
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.AvoidWater.#ctor(RegionKit.Modules.Particles.V1.GenericParticle)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.AvoidWater.Disable">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.AvoidWater.Enable">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.AvoidWater.actionCycle">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.PBehaviourModule.WallCollision">
+            <summary>
+            Makes the particles avoid going through walls
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.WallCollision.#ctor(RegionKit.Modules.Particles.V1.GenericParticle)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.WallCollision.Disable">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.WallCollision.Enable">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.WallCollision.PostMoveAct">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.PBehaviourModule.WallCollision.ComputationalCost">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.PBehaviourModule.StickToSurface">
+            <summary>
+            Makes particles stick to surfaces
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.StickToSurface.#ctor(RegionKit.Modules.Particles.V1.GenericParticle)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.StickToSurface.Disable">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.StickToSurface.Enable">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.StickToSurface.PostMoveAct">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.PBehaviourModule.StickToSurface.ComputationalCost">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.PBehaviourModule.Spin">
+            <summary>
+            Makes particles spin.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.Spin.#ctor(RegionKit.Modules.Particles.V1.GenericParticle,System.Single,RegionKit.Modules.Machinery.OscillationParams)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.Spin.Disable">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PBehaviourModule.Spin.Enable">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.PBehaviourModule.Spin.ComputationalCost">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.PMoveState">
+            <summary>
+            carries a couple movement parameters for a particle
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.PMoveState.dir">
+            <summary>
+            Direction in degrees
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.PMoveState.speed">
+            <summary>
+            Speed in pixels/frame
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.PMoveState.fadeIn">
+            <summary>
+            Fade in in frames
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.PMoveState.lifetime">
+            <summary>
+            Lifetime in frames
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.PMoveState.fadeOut">
+            <summary>
+            Fade out in frames
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.PMoveState.pos">
+            <summary>
+            Current position
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PMoveState.#ctor(System.Single,System.Single,System.Int32,System.Int32,System.Int32,UnityEngine.Vector2)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.PresetParticleVisualCustomizer">
+            <summary>
+            Dispenses particle visuals from file presets
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.PresetParticleVisualCustomizer.presetTags">
+            <summary>
+            List of tags, separated by commas
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.PresetParticleVisualCustomizer.p2">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PresetParticleVisualCustomizer.#ctor(PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.PresetParticleVisualCustomizer.P2">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.PresetParticleVisualCustomizer.Owner">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.PresetParticleVisualCustomizer.DataForNew">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.RectParticleSpawnerData">
+            <summary>
+            SpawnerData for tossing in particles in a rectangular area
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.RectParticleSpawnerData.#ctor(PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.RectParticleSpawnerData.AreaNeedsRefresh">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.RectParticleSpawnerData.UpdateTilesetCacheValidity">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.RectParticleSpawnerData.GetSuitableTiles(Room)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.RoomParticleSystem">
+            <summary>
+            particle spawner.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.RoomParticleSystem.#ctor(PlacedObject,Room)">
+            <summary>
+            Constructor used by MPO.
+            </summary>
+            <param name="owner"></param>
+            <param name="room"></param>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.RoomParticleSystem.#ctor(PlacedObject,Room,UnityEngine.Vector2,RegionKit.Modules.Particles.V1.ParticleSystemData,RegionKit.Modules.Particles.V1.RoomParticleSystem.ParticleCreate[])">
+            <summary>
+            Constructor that can be used for manual instantiation with a custom set of birth delegates
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.RoomParticleSystem.ComfortableParticleDensity">
+            <summary>
+            max particle density before force rate starts decreasing
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.RoomParticleSystem.BaseComfortableFpF">
+            <summary>
+            comfortable rate "force frames per frame" for self and particles created on warmup
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.RoomParticleSystem.TotalForceFrameLimit">
+            <summary>
+            add load frames upper border
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.RoomParticleSystem.AverageDensity">
+            <summary>
+            Average particle density
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.RoomParticleSystem.AverageLifetime">
+            <summary>
+            Average particle lifetime
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.RoomParticleSystem.AverageComputeCost">
+            <summary>
+            Average compute cost value per particle
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.RoomParticleSystem.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.RoomParticleSystem.ProgressCreationCycle">
+            <summary>
+            progresses cooldown and spawns things when necessary
+            </summary>
+            <returns>newly created <see cref="T:RegionKit.Modules.Particles.V1.GenericParticle"/>, null if none was made</returns>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.RoomParticleSystem._ParticleSystemData">
+            <summary>
+            Returns ParticleSystemData
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.RoomParticleSystem.backupParticleSystemData">
+            <summary>
+            use this if you want to have PSD without having an owner
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.RoomParticleSystem._Owner">
+            <summary>
+            PlacedObject this particle system is created from
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.RoomParticleSystem.overridePos">
+            <summary>
+            Used if _Owner is missing
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V1.RoomParticleSystem._MyPos">
+            <summary>
+            Returns this particle system's base position
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.RoomParticleSystem._counter">
+            <summary>
+            Cooldown counter
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.RoomParticleSystem.FetchVisualsAndBM(Room)">
+            <summary>
+            Acquires references to all relevant <see cref="T:RegionKit.Modules.Particles.V1.ParticleVisualCustomizer"/>s and <see cref="T:RegionKit.Modules.Particles.V1.ParticleBehaviourProvider"/>s
+            </summary>
+            <param name="room"></param>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.RoomParticleSystem.ParticleCreate">
+            <summary>
+            
+            </summary>
+            <param name="suggestedStart">suggested starting move params</param>
+            <param name="suggestedVis">suggested visuals </param>
+            <returns></returns>
+        </member>
+        <member name="E:RegionKit.Modules.Particles.V1.RoomParticleSystem.BirthEvent">
+            <summary>
+            A random subscriber is invoked whenever a particle needs to be created
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.RoomParticleSystem.PickSpawnPos">
+            <summary>
+            pulls a random tile and returns a random position within it
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V1.WholeScreenSpawnerData">
+            <summary>
+            Spawns particles everywhere on the screen
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.WholeScreenSpawnerData.margin">
+            <summary>
+            Number of additional tiles on all sides (in case room geometry is smaller than visual size)
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.Particles.V1.WholeScreenSpawnerData.airOnly">
+            <summary>
+            Do not spawn in solid tiles
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.WholeScreenSpawnerData.#ctor(PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.Particles.V1.WholeScreenSpawnerData.GetSuitableTiles(Room)">
+            <inheritdoc/>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V2.IParticleZone">
+            <summary>
+            Acts as a spawn zone for V2 particle systems. Implementors should be PlacedObjectData
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V2.IParticleZone.SelectedTiles">
+            <summary>
+            Tiles selected by the instance
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V2.IParticleZone.Group">
+            <summary>
+            Group that tags the instance
+            </summary>
+            <value></value>
+        </member>
+        <member name="P:RegionKit.Modules.Particles.V2.IParticleZone.Owner">
+            <summary>
+            PlacedObject this instance belongs to
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.Particles.V2.ParticleState">
+            <summary>
+            carries a couple movement parameters for a particle
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.RoomSlideShow.Channel">
+            <summary>
+            Describes different available keyframe channels
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.RoomSlideShow.Channel.R">
+            <summary>
+            Color, Red
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.RoomSlideShow.Channel.G">
+            <summary>
+            Color, Green
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.RoomSlideShow.Channel.B">
+            <summary>
+            Color, Blue
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.RoomSlideShow.Channel.A">
+            <summary>
+            Color, Alpha
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.RoomSlideShow.Channel.X">
+            <summary>
+            Horizontal shift, pixels
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.RoomSlideShow.Channel.Y">
+            <summary>
+            Vertical shift, pixels
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.RoomSlideShow.Channel.T">
+            <summary>
+            Rotation, degrees
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.RoomSlideShow.Channel.W">
+            <summary>
+            Width, multiplier
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.RoomSlideShow.Channel.H">
+            <summary>
+            Height, multiplier
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShaderTools.ShaderBuffers.DEPTH_AND_STENCIL_BUFFER_BITS">
+            <summary>
+            The amount of bits needed to activate the stencil buffer.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShaderTools._Module.Enable">
+            <summary>
+            Applies hooks.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShaderTools._Module.Disable">
+            <summary>
+            Undoes hooks.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.HoldToTriggerTutorialObject.#ctor(Room,PlacedObject)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.HoldToTriggerTutorialObject.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.HoldToTriggerTutorialObject.Consume">
+            <summary>
+            Consumes the shelter, making it broken for the next few cycles
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager">
+            <summary>
+            Main object used to change how shelters behave; required for all other placedObjects to function.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._vanillaSpawnPosition">
+            <summary>
+            Default spawn pos for the room.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._spawnPositions">
+            <summary>
+            List of tiles to <see cref="M:AbstractCreature.RealizeInRoom"/> on; is linearly cycled through each time a new creature wants to realize.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._customDoors">
+            <summary>
+            Additional doors managed by the object.
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.holdToTrigger">
+            <summary>
+            Whether the shelter requires player to hold Down control to sleep.
+            </summary>
+        </member>
+        <member name="P:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.Override_HTT">
+            <summary>
+            Global HTT override.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._broken">
+            <summary>
+            Whether shelter is treated as broken.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._noMovingCounter">
+            <summary>
+            Alternative to <see cref="F:Player.touchedNoInputCounter"/>.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._closing">
+            <summary>
+            Whether the shelter is currently closing.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._tempSpawnPosHackDoor">
+            <summary>
+            Short living door used to <see cref="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.CycleSpawnPosition"/>.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._deleteHackDoorNextFrame">
+            <summary>
+            Whether <see cref="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._tempSpawnPosHackDoor"/> should be deleted next frame.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._isConsumed">
+            <summary>
+            Whether shelter marked as consumable is currently depleted.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._subscribers">
+            <summary>
+            List of <see cref="T:IReactToShelterEvents"/> to notify when opening/closing.
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._incrementalsalt">
+            <summary>
+            Unused thing for RNG salting in <see cref="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.GetSpawnPosition(System.Int32)"/>.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.#ctor(Room,PlacedObject)">
+            <summary>
+            POM ctor
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.Consume">
+            <summary>
+            Depletes the shelter.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.ShortcutsReady">
+            <summary>
+            Implemented from <see cref="T:INotifyWhenRoomIsReady"/>. 
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.AIMapReady">
+            <summary>
+            Implemented from <see cref="T:INotifyWhenRoomIsReady"/>
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.Update(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.Close">
+            <summary>
+            Sends a close notification to all doors if neccessary.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.ApplySpawnHack(RWCustom.IntVector2)">
+            <summary>
+            Makes the next creature to be realized spawn in a given position.
+            </summary>
+            <param name="coords">Tile to be treated as spawn point.</param>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.UndoSpawnHack">
+            <summary>
+            Undoes the hack, restoring spawn point to normal
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.CycleSpawnPosition">
+            <summary>
+            Applies the next queued spawn position from <see cref="F:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager._spawnPositions"/>, applies vanilla one if there is none.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.HideVanillaDoors">
+            <summary>
+            Deletes vanilla door.
+            </summary>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.GetSpawnPosition(System.Int32)">
+            <summary>
+            Chooses a random spawn pos from the list.
+            </summary>
+            <param name="salt"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.AddPlacedDoor(PlacedObject)">
+            <summary>
+            Creates a door from a PlacedObject.
+            </summary>
+            <param name="placedObject">pObj to use; its <see cref="F:PlacedObject.data"/> must be an appropriate instance of <see cref="T:Pom.Pom.ManagedData"/>.</param> 
+        </member>
+        <member name="T:RegionKit.Modules.ShelterBehaviors._Enums">
+            <inheritdoc/>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors._Enums.ShelterBhvrManager">
+            <summary>
+            Signleton POM object for customizing shelter behaviors. required in a room for others to work
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors._Enums.ShelterBhvrPlacedDoor">
+            <summary>
+            An additional door
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors._Enums.ShelterBhvrTriggerZone">
+            <summary>
+            A zone where player can sleep
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors._Enums.ShelterBhvrNoTriggerZone">
+            <summary>
+            A zone where player can't sleep
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors._Enums.ShelterBhvrHTTTutorial">
+            <summary>
+            Shows HoldToTrigger tutorial
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:RegionKit.Modules.ShelterBehaviors._Enums.ShelterBhvrSpawnPosition">
+            <summary>
+            An additional spawn position for the shelter
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:RegionKit.Modules.ShelterBehaviors._Module">
+            <inheritdoc/>
+        </member>
+        <member name="M:RegionKit.Modules.ShelterBehaviors._Module.CreatureShuffleHook(On.AbstractCreature.orig_RealizeInRoom,AbstractCreature)">
+            <summary>
+            Makes creatures <see cref="M:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager.CycleSpawnPosition"/> on <see cref="M:AbstractCreature.RealizeInRoom"/>
+            </summary>
+            <param name="orig"></param>
+            <param name="instance"></param>
+        </member>
+        <member name="T:RegionKit.Modules.TheMast.ArenaBackgrounds">
+            <summary>
+            Allow arenas to use custom background effects
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.TheMast.DeerFix">
+            <summary>
+            Allow deer to enter specified modded rooms
+            </summary>
+        </member>
+        <member name="T:RegionKit.Modules.TheMast._Enums">
+            <inheritdoc/>
+        </member>
+        <member name="F:RegionKit.Modules.TheMast._Enums.PearlChain">
+            <summary>
+            Shiny
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.TheMast._Enums.PlacedPearlChain">
+            <summary>
+            Placed object for pearl chains
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.TheMast._Enums.MiscItemPearlChain">
+            <summary>
+            Dialogue for pearl chains
+            </summary>
+        </member>
+        <member name="F:RegionKit.Modules.TheMast._Enums.MiscItemSinglePearlChain">
+            <summary>
+            Dialogue for torn pearl chain
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:RegionKit.Modules.TheMast._Enums.PlacedWind">
+            <summary>
+            Wind system
+            </summary>
+        </member>
+        <member name="T:RegionKit.OptionsMenu.TurboBakerTab">
+            <summary>
+            Vigaro's Turbo Baker ported to RegionKit by Alduris
+            </summary>
+        </member>
+        <member name="M:RegionKit._Assets.GetStream(System.String[])">
+            <summary>
+            Returns an asset stream, taking from merged assets or ER. Dispose of it properly!
+            </summary>
+        </member>
+        <member name="T:RainSong">
+            <summary>
+            Allows specifying a song file per region that will play when rain is coming
+            </summary>
+        </member>
+        <member name="M:SharpVoronoiLib.GenericClipping.ClipEdge(SharpVoronoiLib.VoronoiEdge,System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Combination of personal ray clipping alg and cohen sutherland
+            </summary>
+        </member>
+        <member name="T:SharpVoronoiLib.VoronoiSiteMergeQuery">
+            <summary>
+            Defines the signature for <see cref="T:SharpVoronoiLib.ISiteMergingAlgorithm"/> query callback to user code.
+            This basically asks the question - should these two sites be merged into one (and which one)?
+            </summary>
+        </member>
+        <member name="T:SharpVoronoiLib.VoronoiPlane">
+            <summary>
+            An Euclidean plane where a Voronoi diagram can be constructed from <see cref="T:SharpVoronoiLib.VoronoiSite"/>s
+            producing a tesselation of cells with <see cref="T:SharpVoronoiLib.VoronoiEdge"/> line segments and <see cref="T:SharpVoronoiLib.VoronoiPoint"/> vertices.
+            </summary>
+        </member>
+        <member name="M:SharpVoronoiLib.VoronoiPlane.GenerateRandomSites(System.Int32,SharpVoronoiLib.PointGenerationMethod)">
+             <summary>
+            
+             The generated sites are guaranteed not to lie on the border of the plane (although they may be very close).
+             </summary>
+        </member>
+        <member name="T:SharpVoronoiLib.VoronoiEdge">
+            <summary>
+            The line segment making the Voronoi cells, i.e. the points equidistant to the two nearest Voronoi sites.
+            These are the lines in the <see cref="P:SharpVoronoiLib.VoronoiSite.Cell"/>.
+            This has <see cref="T:SharpVoronoiLib.VoronoiPoint"/> end points, i.e. <see cref="P:SharpVoronoiLib.VoronoiEdge.Start"/> and <see cref="P:SharpVoronoiLib.VoronoiEdge.End"/>.
+            This has the two <see cref="T:SharpVoronoiLib.VoronoiSite"/>s they separate, i.e. <see cref="P:SharpVoronoiLib.VoronoiEdge.Right"/> and <see cref="P:SharpVoronoiLib.VoronoiEdge.Left"/>.
+            This connects in a <see cref="P:SharpVoronoiLib.VoronoiEdge.Neighbours"/> node graph to other <see cref="T:SharpVoronoiLib.VoronoiEdge"/>s, i.e. shares end points with them.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiEdge.Start">
+            <summary>
+            One of the two points making up this line segment, the other being <see cref="P:SharpVoronoiLib.VoronoiEdge.End"/>.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiEdge.End">
+            <summary>
+            One of the two points making up this line segment, the other being <see cref="P:SharpVoronoiLib.VoronoiEdge.Start"/>.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiEdge.Right">
+            <summary>
+            One of the two sites that this edge separates, the other being <see cref="P:SharpVoronoiLib.VoronoiEdge.Left"/>.
+            Can be null if this is a border edge and there are no sites within the bounds.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiEdge.Left">
+            <summary>
+            One of the two sites that this edge separates, the other being <see cref="P:SharpVoronoiLib.VoronoiEdge.Right"/>.
+            Can be null if this is a border edge.
+             </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiEdge.Mid">
+            <summary>
+            The mid-point between <see cref="P:SharpVoronoiLib.VoronoiEdge.Start"/> and <see cref="P:SharpVoronoiLib.VoronoiEdge.End"/> points.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiEdge.Length">
+            <summary>
+            The length of this line segment, i.e. the distance between <see cref="P:SharpVoronoiLib.VoronoiEdge.Start"/> and <see cref="P:SharpVoronoiLib.VoronoiEdge.End"/> points.
+            </summary>
+        </member>
+        <member name="T:SharpVoronoiLib.VoronoiPoint">
+            <summary>
+            The vertices/nodes of the Voronoi cells, i.e. the points equidistant to three or more Voronoi sites.
+            These are the end points of a <see cref="T:SharpVoronoiLib.VoronoiEdge"/>.
+            These are the <see cref="P:SharpVoronoiLib.VoronoiSite.Points"/>.
+            Also used for some other derived locations.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiPoint.BorderLocation">
+            <summary>
+            Specifies if this point is on the border of the bounds and where.
+            </summary>
+            <remarks>
+            Using this would be preferrable to comparing against the X/Y values due to possible precision issues.
+            </remarks>
+        </member>
+        <member name="T:SharpVoronoiLib.PointBorderLocation">
+            <remarks>
+            Note that these are ordered clock-wise starting at bottom-left
+            </remarks>
+        </member>
+        <member name="T:SharpVoronoiLib.VoronoiSite">
+            <summary>
+            The point/site/seed on the Voronoi plane.
+            This has a <see cref="P:SharpVoronoiLib.VoronoiSite.Cell"/> of <see cref="T:SharpVoronoiLib.VoronoiEdge"/>s.
+            This has <see cref="P:SharpVoronoiLib.VoronoiSite.Points"/> of <see cref="T:SharpVoronoiLib.VoronoiPoint"/>s that are the edge end points, i.e. the cell's vertices.
+            This also has <see cref="P:SharpVoronoiLib.VoronoiSite.Neighbours"/>, i.e. <see cref="T:SharpVoronoiLib.VoronoiSite"/>s across the <see cref="T:SharpVoronoiLib.VoronoiEdge"/>s.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.Cell">
+            <summary>
+            The edges that make up this cell.
+            The vertices of these edges are the <see cref="P:SharpVoronoiLib.VoronoiSite.Points"/>.
+            These are also known as Thiessen polygons.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.ClockwiseCell">
+             <summary>
+            
+             If the site lies on any of the edges (or corners), then the starting order is not defined.
+             </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.Neighbours">
+            <summary>
+            The sites across the edges.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.Points">
+            <summary>
+            The vertices of the <see cref="P:SharpVoronoiLib.VoronoiSite.Cell"/>.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.ClockwisePoints">
+            <summary>
+            
+            If the site lies on any of the edges (or corners), then the starting order is not defined.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.LiesOnEdge">
+            <summary>
+            Whether this site lies directly on exactly one of its <see cref="P:SharpVoronoiLib.VoronoiSite.Cell"/>'s edges.
+            This happens when sites overlap or are on the border.
+            This won't be set if instead <see cref="P:SharpVoronoiLib.VoronoiSite.LiesOnCorner"/> is set, i.e. the site lies on the intersection of 2 of its edges.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.LiesOnCorner">
+            <summary>
+            Whether this site lies directly on the intersection point of two of its <see cref="P:SharpVoronoiLib.VoronoiSite.Cell"/>'s edges.
+            This happens when sites overlap or are on the border's corner.
+            </summary>
+        </member>
+        <member name="P:SharpVoronoiLib.VoronoiSite.Centroid">
+            <summary>
+            The center of our cell.
+            Specifically, the geometric center aka center of mass, i.e. the arithmetic mean position of all the edge end points.
+            This is assuming a non-self-intersecting closed polygon of our cell.
+            If we don't have a closed cell (i.e. unclosed "polygon"), then this will produce approximate results that aren't mathematically sound, but work for most purposes. 
+            </summary>
+        </member>
+        <member name="T:IReactToShelterEvents">
+            <summary>
+            Interface used to notify <see cref="T:UpdatableAndDeletable"/>s about shelter door related events. Notifications are issued by an instance of <see cref="T:RegionKit.Modules.ShelterBehaviors.ShelterBehaviorManager"/> in the room.
+            </summary>
+        </member>
+        <member name="M:IReactToShelterEvents.ShelterEvent(System.Single,System.Single)">
+            <summary>
+            Notification about shelter closing/opening state.
+            </summary>
+            <param name="newFactor">New value of close/open factor; similar to <see cref="F:ShelterDoor.closedFac"/>.</param>
+            <param name="closeSpeed">Current speed of doors closing.</param>
+        </member>
+        <member name="T:RegionKitModuleAttribute">
+            <summary>
+            Denote your type with this to register it as a RegionKit module. Use <see cref="M:RegionKit.Mod.ScanAssemblyForModules(System.Reflection.Assembly)"/> on containing assembly to find and register the type.
+            </summary>
+        </member>
+        <member name="M:RegionKitModuleAttribute.#ctor(System.String,System.String,System.String,System.String,System.Int32,System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="enableMethod">Name of a static method that will be called to enable your module. Obligatory.</param>
+            <param name="disableMethod">Name of a static method that will be called to disable your module. Obligatory.</param>
+            <param name="setupMethod">Name of a static method that will be called to perform one-time setup. Optional.</param>
+            <param name="tickMethod">Name of a static method that will be called every few fixedUpdates. Optional.</param>
+            <param name="tickPeriod">If tickMethod is set, how often (in frames) will tick be called.</param>
+            <param name="loggerField">Name of a static field that will be populated with a ManualLogSource created for your module. Optional</param>
+            <param name="moduleName">Name of your module. Defaults to type name.</param>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.AllowNullAttribute">
+            <summary>
+            Specifies that null is allowed as an input even if the corresponding type disallows it.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DisallowNullAttribute">
+            <summary>
+            Specifies that null is disallowed as an input even if the corresponding type allows it.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute">
+            <summary>
+            Applied to a method that will never return under any circumstance.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute">
+            <summary>
+            Specifies that the method will not return if the associated Boolean parameter is passed the specified value.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.#ctor(System.Boolean)">
+            <summary>
+            Initializes the attribute with the specified parameter value.
+            </summary>
+            <param name="parameterValue">
+            The condition parameter value. Code after the method will be considered unreachable
+            by diagnostics if the argument to the associated parameter matches this value.
+            </param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.ParameterValue">
+            <summary>
+            Gets the condition parameter value.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullAttribute">
+            <summary>
+            Specifies that an output may be null even if the corresponding type disallows it.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute">
+            <summary>
+            Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue"/>, the parameter may be null even if the corresponding type disallows it.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.#ctor(System.Boolean)">
+            <summary>
+            Initializes the attribute with the specified return value condition.
+            </summary>
+            <param name="returnValue">The return value condition. If the method returns this value, the associated parameter may be null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue">
+            <summary>
+            Gets the return value condition.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute">
+            <summary>
+            Specifies that the method or property will ensure that the listed field and property members have not-null values.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.#ctor(System.String)">
+            <summary>
+            Initializes the attribute with a field or property member.
+            </summary>
+            <param name="member">The field or property member that is promised to be not-null.</param>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.#ctor(System.String[])">
+            <summary>
+            Initializes the attribute with the list of field and property members.
+            </summary>
+            <param name="members">The list of field and property members that are promised to be not-null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.Members">
+            <summary>
+            Gets field or property member names.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute">
+            <summary>
+            Specifies that the method or property will ensure that the listed field and property
+            members have not-null values when returning with the specified return value condition.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.#ctor(System.Boolean,System.String)">
+            <summary>
+            Initializes the attribute with the specified return value condition and a field or property member.
+            </summary>
+            <param name="returnValue">The return value condition. If the method returns this value, the associated parameter will not be null.</param>
+            <param name="member">The field or property member that is promised to be not-null.</param>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.#ctor(System.Boolean,System.String[])">
+            <summary>
+            Initializes the attribute with the specified return value condition and list of field and property members.
+            </summary>
+            <param name="returnValue">The return value condition. If the method returns this value, the associated parameter will not be null.</param>
+            <param name="members">The list of field and property members that are promised to be not-null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.ReturnValue">
+            <summary>
+            Gets the return value condition.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.Members">
+            <summary>
+            Gets field or property member names.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullAttribute">
+            <summary>
+            Specifies that an output will not be null even if the corresponding type allows it.
+            Specifies that an input argument was not null when the call returns.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute">
+            <summary>
+            Specifies that the output will be non-null if the named parameter is non-null.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.#ctor(System.String)">
+            <summary>
+            Initializes the attribute with the associated parameter name.
+            </summary>
+            <param name="parameterName">The associated parameter name. The output will be non-null if the argument to the parameter specified is non-null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.ParameterName">
+            <summary>
+            Gets the associated parameter name.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute">
+            <summary>
+            Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue"/>, the parameter will not be null even if the corresponding type allows it.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.#ctor(System.Boolean)">
+            <summary>
+            Initializes the attribute with the specified return value condition.
+            </summary>
+            <param name="returnValue">The return value condition. If the method returns this value, the associated parameter will not be null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue">
+            <summary>Gets the return value condition.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute">
+            <summary>
+            Specifies that this constructor sets all required members for the current type,
+            and callers do not need to set any required members themselves.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute">
+            <summary>
+            Specifies the syntax used in a string.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.#ctor(System.String)">
+            <summary>
+            Initializes the <see cref="T:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute"/> with the identifier of the syntax used.
+            </summary>
+            <param name="syntax">The syntax identifier.</param>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.#ctor(System.String,System.Object[])">
+            <summary>Initializes the <see cref="T:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute"/> with the identifier of the syntax used.</summary>
+            <param name="syntax">The syntax identifier.</param>
+            <param name="arguments">Optional arguments associated with the specific syntax employed.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Syntax">
+            <summary>Gets the identifier of the syntax used.</summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Arguments">
+            <summary>Optional arguments associated with the specific syntax employed.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.CompositeFormat">
+            <summary>The syntax identifier for strings containing composite formats for string formatting.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.DateOnlyFormat">
+            <summary>The syntax identifier for strings containing date format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.DateTimeFormat">
+            <summary>The syntax identifier for strings containing date and time format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.EnumFormat">
+            <summary>The syntax identifier for strings containing <see cref="T:System.Enum"/> format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.GuidFormat">
+            <summary>The syntax identifier for strings containing <see cref="T:System.Guid"/> format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Json">
+            <summary>The syntax identifier for strings containing JavaScript Object Notation (JSON).</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.NumericFormat">
+            <summary>The syntax identifier for strings containing numeric format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Regex">
+            <summary>The syntax identifier for strings containing regular expressions.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.TimeOnlyFormat">
+            <summary>The syntax identifier for strings containing time format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.TimeSpanFormat">
+            <summary>The syntax identifier for strings containing <see cref="T:System.TimeSpan"/> format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Uri">
+            <summary>The syntax identifier for strings containing URIs.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Xml">
+            <summary>The syntax identifier for strings containing XML.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.UnscopedRefAttribute">
+            <summary>
+            Used to indicate a byref escapes and is not scoped.
+            </summary>
+            <remarks>
+            <para>
+            There are several cases where the C# compiler treats a <see langword="ref"/> as implicitly
+            <see langword="scoped"/> - where the compiler does not allow the <see langword="ref"/> to escape the method.
+            </para>
+            <para>
+            For example:
+            <list type="number">
+                <item><see langword="this"/> for <see langword="struct"/> instance methods.</item>
+                <item><see langword="ref"/> parameters that refer to <see langword="ref"/> <see langword="struct"/> types.</item>
+                <item><see langword="out"/> parameters.</item>
+            </list>
+            </para>
+            <para>
+            This attribute is used in those instances where the <see langword="ref"/> should be allowed to escape.
+            </para>
+            <para>
+            Applying this attribute, in any form, has impact on consumers of the applicable API. It is necessary for
+            API authors to understand the lifetime implications of applying this attribute and how it may impact their users.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:System.Index">
+            <summary>Represent a type can be used to index a collection either from the start or the end.</summary>
+            <remarks>
+            Index is used by the C# compiler to support the new index syntax
+            <code>
+            int[] someArray = new int[5] { 1, 2, 3, 4, 5 } ;
+            int lastElement = someArray[^1]; // lastElement = 5
+            </code>
+            </remarks>
+        </member>
+        <member name="M:System.Index.#ctor(System.Int32,System.Boolean)">
+            <summary>Construct an Index using a value and indicating if the index is from the start or from the end.</summary>
+            <param name="value">The index value. it has to be zero or positive number.</param>
+            <param name="fromEnd">Indicating if the index is from the start or from the end.</param>
+            <remarks>
+            If the Index constructed from the end, index value 1 means pointing at the last element and index value 0 means pointing at beyond last element.
+            </remarks>
+        </member>
+        <member name="P:System.Index.Start">
+            <summary>Create an Index pointing at first element.</summary>
+        </member>
+        <member name="P:System.Index.End">
+            <summary>Create an Index pointing at beyond last element.</summary>
+        </member>
+        <member name="M:System.Index.FromStart(System.Int32)">
+            <summary>Create an Index from the start at the position indicated by the value.</summary>
+            <param name="value">The index value from the start.</param>
+        </member>
+        <member name="M:System.Index.FromEnd(System.Int32)">
+            <summary>Create an Index from the end at the position indicated by the value.</summary>
+            <param name="value">The index value from the end.</param>
+        </member>
+        <member name="P:System.Index.Value">
+            <summary>Returns the index value.</summary>
+        </member>
+        <member name="P:System.Index.IsFromEnd">
+            <summary>Indicates whether the index is from the start or the end.</summary>
+        </member>
+        <member name="M:System.Index.GetOffset(System.Int32)">
+            <summary>Calculate the offset from the start using the giving collection length.</summary>
+            <param name="length">The length of the collection that the Index will be used with. length has to be a positive value</param>
+            <remarks>
+            For performance reason, we don't validate the input length parameter and the returned offset value against negative values.
+            we don't validate either the returned offset is greater than the input length.
+            It is expected Index will be used with collections which always have non negative length/count. If the returned offset is negative and
+            then used to index a collection will get out of range exception which will be same affect as the validation.
+            </remarks>
+        </member>
+        <member name="M:System.Index.Equals(System.Object)">
+            <summary>Indicates whether the current Index object is equal to another object of the same type.</summary>
+            <param name="value">An object to compare with this object</param>
+        </member>
+        <member name="M:System.Index.Equals(System.Index)">
+            <summary>Indicates whether the current Index object is equal to another Index object.</summary>
+            <param name="other">An object to compare with this object</param>
+        </member>
+        <member name="M:System.Index.GetHashCode">
+            <summary>Returns the hash code for this instance.</summary>
+        </member>
+        <member name="M:System.Index.op_Implicit(System.Int32)~System.Index">
+            <summary>Converts integer number to an Index.</summary>
+        </member>
+        <member name="M:System.Index.ToString">
+            <summary>Converts the value of the current Index object to its equivalent string representation.</summary>
+        </member>
+        <member name="T:System.Range">
+            <summary>Represent a range has start and end indexes.</summary>
+            <remarks>
+            Range is used by the C# compiler to support the range syntax.
+            <code>
+            int[] someArray = new int[5] { 1, 2, 3, 4, 5 };
+            int[] subArray1 = someArray[0..2]; // { 1, 2 }
+            int[] subArray2 = someArray[1..^0]; // { 2, 3, 4, 5 }
+            </code>
+            </remarks>
+        </member>
+        <member name="P:System.Range.Start">
+            <summary>Represent the inclusive start index of the Range.</summary>
+        </member>
+        <member name="P:System.Range.End">
+            <summary>Represent the exclusive end index of the Range.</summary>
+        </member>
+        <member name="M:System.Range.#ctor(System.Index,System.Index)">
+            <summary>Construct a Range object using the start and end indexes.</summary>
+            <param name="start">Represent the inclusive start index of the range.</param>
+            <param name="end">Represent the exclusive end index of the range.</param>
+        </member>
+        <member name="M:System.Range.Equals(System.Object)">
+            <summary>Indicates whether the current Range object is equal to another object of the same type.</summary>
+            <param name="value">An object to compare with this object</param>
+        </member>
+        <member name="M:System.Range.Equals(System.Range)">
+            <summary>Indicates whether the current Range object is equal to another Range object.</summary>
+            <param name="other">An object to compare with this object</param>
+        </member>
+        <member name="M:System.Range.GetHashCode">
+            <summary>Returns the hash code for this instance.</summary>
+        </member>
+        <member name="M:System.Range.ToString">
+            <summary>Converts the value of the current Range object to its equivalent string representation.</summary>
+        </member>
+        <member name="M:System.Range.StartAt(System.Index)">
+            <summary>Create a Range object starting from start index to the end of the collection.</summary>
+        </member>
+        <member name="M:System.Range.EndAt(System.Index)">
+            <summary>Create a Range object starting from first element in the collection to the end Index.</summary>
+        </member>
+        <member name="P:System.Range.All">
+            <summary>Create a Range object starting from first element to the end.</summary>
+        </member>
+        <member name="M:System.Range.GetOffsetAndLength(System.Int32)">
+            <summary>Calculate the start offset and length of range object using a collection length.</summary>
+            <param name="length">The length of the collection that the range will be used with. length has to be a positive value.</param>
+            <remarks>
+            For performance reason, we don't validate the input length parameter against negative values.
+            It is expected Range will be used with collections which always have non negative length/count.
+            We validate the range is inside the length scope though.
+            </remarks>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.AsyncMethodBuilderAttribute">
+            <summary>
+            Indicates the type of the async method builder that should be used by a language compiler to
+            build the attributed async method or to build the attributed type when used as the return type
+            of an async method.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.AsyncMethodBuilderAttribute.#ctor(System.Type)">
+            <summary>Initializes the <see cref="T:System.Runtime.CompilerServices.AsyncMethodBuilderAttribute"/>.</summary>
+            <param name="builderType">The <see cref="T:System.Type"/> of the associated builder.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.AsyncMethodBuilderAttribute.BuilderType">
+            <summary>Gets the <see cref="T:System.Type"/> of the associated builder.</summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute">
+            <summary>
+            An attribute that allows parameters to receive the expression of other parameters.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute"/> class.
+            </summary>
+            <param name="parameterName">The condition parameter value.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute.ParameterName">
+            <summary>
+            Gets the parameter name the expression is retrieved from.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute">
+            <summary>
+            Indicates that compiler support for a particular feature is required for the location where this attribute is applied.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.#ctor(System.String)">
+            <summary>
+            Creates a new instance of the <see cref="T:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute"/> type.
+            </summary>
+            <param name="featureName">The name of the feature to indicate.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.FeatureName">
+            <summary>
+            The name of the compiler feature.
+            </summary>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.IsOptional">
+            <summary>
+            If true, the compiler can choose to allow access to the location where this attribute is applied if it does not understand <see cref="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.FeatureName"/>.
+            </summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.RefStructs">
+            <summary>
+            The <see cref="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.FeatureName"/> used for the ref structs C# feature.
+            </summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.RequiredMembers">
+            <summary>
+            The <see cref="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.FeatureName"/> used for the required members C# feature.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute">
+            <summary>
+            Indicates which arguments to a method involving an interpolated string handler should be passed to that handler.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute"/> class.
+            </summary>
+            <param name="argument">The name of the argument that should be passed to the handler.</param>
+            <remarks><see langword="null"/> may be used as the name of the receiver in an instance method.</remarks>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute.#ctor(System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute"/> class.
+            </summary>
+            <param name="arguments">The names of the arguments that should be passed to the handler.</param>
+            <remarks><see langword="null"/> may be used as the name of the receiver in an instance method.</remarks>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute.Arguments">
+            <summary>
+            Gets the names of the arguments that should be passed to the handler.
+            </summary>
+            <remarks><see langword="null"/> may be used as the name of the receiver in an instance method.</remarks>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.InterpolatedStringHandlerAttribute">
+            <summary>
+            Indicates the attributed type is to be used as an interpolated string handler.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.IsExternalInit">
+            <summary>
+            Reserved to be used by the compiler for tracking metadata.
+            This class should not be used by developers in source code.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ModuleInitializerAttribute">
+             <summary>
+             Used to indicate to the compiler that a method should be called
+             in its containing module's initializer.
+             </summary>
+             <remarks>
+             When one or more valid methods
+             with this attribute are found in a compilation, the compiler will
+             emit a module initializer which calls each of the attributed methods.
+            
+             Certain requirements are imposed on any method targeted with this attribute:
+             - The method must be `static`.
+             - The method must be an ordinary member method, as opposed to a property accessor, constructor, local function, etc.
+             - The method must be parameterless.
+             - The method must return `void`.
+             - The method must not be generic or be contained in a generic type.
+             - The method's effective accessibility must be `internal` or `public`.
+            
+             The specification for module initializers in the .NET runtime can be found here:
+             https://github.com/dotnet/runtime/blob/main/docs/design/specs/Ecma-335-Augments.md#module-initializer
+             </remarks>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.RequiredMemberAttribute">
+            <summary>
+            Specifies that a type has required members or that a member is required.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.SkipLocalsInitAttribute">
+            <summary>
+            Used to indicate to the compiler that the <c>.locals init</c> flag should not be set in method headers.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute"/> class.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute"/> class with the specified message.
+            </summary>
+            <param name="message">An optional message associated with this attribute instance.</param>
+        </member>
+        <member name="P:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute.Message">
+            <summary>
+            Returns the optional message associated with this attribute instance.
+            </summary>
+        </member>
+        <member name="P:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute.Url">
+            <summary>
+            Returns the optional URL associated with this attribute instance.
+            </summary>
+        </member>
+    </members>
+</doc>

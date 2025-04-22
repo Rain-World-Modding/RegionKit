@@ -5,19 +5,19 @@
 /// </summary>
 public enum ContainerCodes
 {
-#pragma warning disable 1591
-	Foreground = 0,
-	Background = 1,
-	Shadows = 2,
-	BackgroundShortcuts = 3,
-	Shortcuts = 4,
-	Midground = 5,
-	ForegroundLights = 6,
-	Water = 7,
-	GrabShaders = 8,
-	Bloom = 9,
-	HUD = 10,
-	HUD2 = 11,
-	Items = 12
-#pragma warning restore 1591
+	Shadows = 0,
+	BackgroundShortcuts = 1,
+	Background = 2,
+	Midground = 3,
+	Items = 4,
+	Foreground = 5,
+	Sand = 6,
+	ForegroundLights = 7,
+	Shortcuts = 8,
+	Water = 9,
+	GrabShaders = 10,
+	Bloom = 11,
+	WarpPoint = 12,
+	HUD = 13,
+	HUD2 = 14,
 }

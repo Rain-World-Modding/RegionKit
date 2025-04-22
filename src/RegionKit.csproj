@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<!-- Project info -->
 	<PropertyGroup>
-		<LangVersion>11</LangVersion>
+		<LangVersion>13</LangVersion>
 		<TargetFramework>net48</TargetFramework>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
@@ -18,6 +18,8 @@
 		<DebugType>Portable</DebugType>
 		<AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
     	<PathMap>$(AppOutputBase)=RegionKit\</PathMap>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<OutputPath>../mod/newest/plugins</OutputPath>
 	</PropertyGroup>
 	<!-- Debug configuration. Build for release. -->
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -86,10 +88,6 @@
 		</Reference>
 		<Reference Include="Pom">
 			<HintPath>lib/Pom.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="CustomRegionsSupport">
-			<HintPath>lib/CustomRegionsSupport.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="HOOKS-Assembly-CSharp">
@@ -183,25 +181,4 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>
-	<!-- Build event -->
-	<Target Name="BuildResultToModFolder" AfterTargets="Build">
-		<Message Text="RK: Copying build result to mod folder" Importance="high" />
-		<Copy SourceFiles="$(OutDir)$(ProjectName).dll" DestinationFolder="../mod/newest/plugins" Retries="3" RetryDelayMilliseconds="300" />
-		<Copy SourceFiles="$(OutDir)$(ProjectName).pdb" DestinationFolder="../mod/newest/plugins" Retries="3" RetryDelayMilliseconds="300" />
-		<Copy SourceFiles="$(OutDir)$(ProjectName).xml" DestinationFolder="../mod/newest/plugins" Retries="3" RetryDelayMilliseconds="300" />
-		<!-- <Copy
-			SourceFiles="$(TargetPath)"
-			DestinationFolder="../mod/plugins"
-			Retries="3"
-			RetryDelayMilliseconds="300" /> -->
-		<ItemGroup>
-			<_CopyItems Include="../mod/**" />
-		</ItemGroup>
-		
-	</Target>
-	<Target Name="CopyTo" AfterTargets="BuildResultToModFolder" Condition="'$(RWMods_RK)'!=''"> 
-		<Message Text="RK: Buildcopy from [ $(TargetPath) ] to [ $(RWMods_RK) ] - @(_CopyItems)" Importance="high" />
-		<Delete Files="$(RWMods_RK)/**" />
-		<Copy SourceFiles="@(_CopyItems)" DestinationFolder="$(RWMods_RK)/%(RecursiveDir)" Retries="3" RetryDelayMilliseconds="300" />
-	</Target>
 </Project>

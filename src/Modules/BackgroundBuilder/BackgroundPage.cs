@@ -149,7 +149,7 @@ public class BackgroundPage : Page
 
 			else if (sender.IDstring == "Load")
 			{
-				RoomSettings.BackgroundData().FromName(saveName.actualValue, owner.game.GetStorySession?.saveStateNumber ?? SlugcatStats.Name.White);
+				RoomSettings.BackgroundData().FromTimeline(saveName.actualValue, owner.game.TimelinePoint);
 				SwitchRoomBackground(owner.room, RoomSettings.BackgroundData().type, true);
 			}
 

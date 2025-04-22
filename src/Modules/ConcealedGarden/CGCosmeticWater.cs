@@ -1,15 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using System.Reflection;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 
 namespace RegionKit.Modules.ConcealedGarden;
 
+#warning this does not work
 class CGCosmeticWater : UpdatableAndDeletable, IDrawable
 {
-	private PlacedObject pObj;
-	private Water water;
+	private class CGCosmeticWaterSurface : Water.DefaultSurface
+	{
+		private readonly float top;
+		private readonly (float min, float max) range;
+
+		public CGCosmeticWaterSurface(Water water, Rect bounds) : base(water)
+		{
+			// Damn you Water.MainSurface...
+			totalPoints = (int)(bounds.width / water.triangleWidth) + 1;
+			points = new Water.SurfacePoint[totalPoints, 2];
+			for (int i = 0; i < totalPoints; i++)
+			{
+				for (int j = 0; j < 2; j++)
+				{
+					points[i, j] = new Water.SurfacePoint(new Vector2(bounds.xMin + ((float)i + ((j == 0) ? 0f : 0.5f)) * water.triangleWidth, water.originalWaterLevel));
+				}
+			}
+
+			top = bounds.yMax;
+			range = (bounds.xMin, bounds.xMax);
+			this.bounds = bounds;
+			waterCutoffs.Clear();
+		}
+
+		public override float TargetWaterLevel(float horizontalPosition)
+		{
+			return horizontalPosition >= range.min && horizontalPosition <= range.max ? top : -10f;
+		}
+	}
+
+	private readonly PlacedObject pObj;
+	private readonly Water water;
 
 	CGCosmeticWaterData data => (CGCosmeticWaterData)pObj.data;
 
@@ -20,85 +49,42 @@ class CGCosmeticWater : UpdatableAndDeletable, IDrawable
 
 		FloatRect rect = data.rect;
 
-		this.water = new Water(room, Mathf.FloorToInt(rect.top / 20f));
+		water = new Water(room, Mathf.FloorToInt(rect.top / 20f));
 		// room.drawableObjects.Add(this.water);
-		this.water.cosmeticLowerBorder = Mathf.FloorToInt(rect.bottom);
+		water.cosmeticLowerBorder = Mathf.FloorToInt(rect.bottom);
 
 		// Water ctor stuff to be adjusted
-		this.water.surface = new Water.SurfacePoint[(int)((rect.right - rect.left) / this.water.triangleWidth) + 1, 2];
-		for (int i = 0; i < this.water.surface.GetLength(0); i++)
-		{
-			for (int j = 0; j < 2; j++)
-			{
-				this.water.surface[i, j] = new Water.SurfacePoint(new Vector2(rect.left + ((float)i + ((j != 0) ? 0.5f : 0f)) * this.water.triangleWidth, this.water.originalWaterLevel));
-			}
-		}
-		this.water.pointsToRender = RWCustom.Custom.IntClamp((int)((room.game.rainWorld.options.ScreenSize.x + 60f) / this.water.triangleWidth) + 2, 0, this.water.surface.GetLength(0));
-		this.water.waterSounds.rect = rect;
-		this.water.waterSounds.Volume = Mathf.Pow(Mathf.Clamp01((rect.right - rect.left) / room.game.rainWorld.options.ScreenSize.x), 0.7f) * (room.water ? 0.5f : 1f);
+		water.surfaces = [new CGCosmeticWaterSurface(water, Rect.MinMaxRect(rect.left, rect.bottom, rect.right, rect.top))];
+		water.pointsToRender = IntClamp((int)((room.game.rainWorld.options.ScreenSize.x + 60f) / water.triangleWidth) + 2, 0, water.surfaces[0].totalPoints);
+		water.waterSounds.rect = rect;
+		water.waterSounds.Volume = Mathf.Pow(Mathf.Clamp01((rect.right - rect.left) / room.game.rainWorld.options.ScreenSize.x), 0.7f) * (room.water ? 0.5f : 1f);
+		if (room.waterObject != null) water.airPockets = room.waterObject.airPockets; // share a reference
 	}
 
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		this.water.Update();
+		water.Update();
 	}
 
 	public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
-		this.water.InitiateSprites(sLeaser, rCam);
+		water.InitiateSprites(sLeaser, rCam);
 	}
 
 	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
-		this.water.DrawSprites(sLeaser, rCam, timeStacker, camPos);
-
-		FloatRect rect = data.rect;
-		int num = RWCustom.Custom.IntClamp(this.water.PreviousSurfacePoint(camPos.x - 30f), 0, this.water.surface.GetLength(0) - 1);
-		int num2 = RWCustom.Custom.IntClamp(num + this.water.pointsToRender, 0, this.water.surface.GetLength(0) - 1);
-		WaterTriangleMesh mesh0 = ((WaterTriangleMesh)sLeaser.sprites[0]);
-		WaterTriangleMesh mesh1 = ((WaterTriangleMesh)sLeaser.sprites[1]);
-		for (int i = num; i < num2; i++)
-		{
-			int num3 = (i - num) * 2;
-			// get the values that ended up being used
-			Vector2 vector = mesh0.vertices[num3];
-			Vector2 vector2 = mesh0.vertices[num3 + 1];
-			Vector2 vector3 = mesh0.vertices[num3 + 2];
-			// undo the damage
-			if (i == num)
-			{
-				vector2.x += 100f;
-			}
-			else if (i == num2 - 1)
-			{
-				vector2.x -= 100f;
-			}
-			//reapply
-			mesh0.MoveVertice(num3, vector);
-			mesh0.MoveVertice(num3 + 1, vector2);
-			mesh0.MoveVertice(num3 + 2, vector3);
-			mesh0.MoveVertice(num3 + 3, vector3);
-			float y = rect.bottom - camPos.y;
-			mesh1.MoveVertice(num3, new Vector2(vector.x, y));
-			mesh1.MoveVertice(num3 + 1, vector);
-			mesh1.MoveVertice(num3 + 2, new Vector2(vector3.x, y));
-			mesh1.MoveVertice(num3 + 3, vector3);
-		}
-		mesh1.MoveVertice(0, rect.GetCorner(FloatRect.CornerLabel.D) - camPos);
-		mesh1.MoveVertice(1, rect.GetCorner(FloatRect.CornerLabel.A) - camPos);
-		mesh1.MoveVertice(((WaterTriangleMesh)sLeaser.sprites[1]).vertices.Length - 2, rect.GetCorner(FloatRect.CornerLabel.B) - camPos);
-		mesh1.MoveVertice(((WaterTriangleMesh)sLeaser.sprites[1]).vertices.Length - 1, rect.GetCorner(FloatRect.CornerLabel.C) - camPos);
+		water.DrawSprites(sLeaser, rCam, timeStacker, camPos);
 	}
 
 	public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 	{
-		this.water.ApplyPalette(sLeaser, rCam, palette);
+		water.ApplyPalette(sLeaser, rCam, palette);
 	}
 
 	public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
 	{
-		this.water.AddToContainer(sLeaser, rCam, newContatiner);
+		water.AddToContainer(sLeaser, rCam, newContatiner);
 	}
 
 	public class CGCosmeticWaterData : ManagedData
@@ -108,19 +94,71 @@ class CGCosmeticWater : UpdatableAndDeletable, IDrawable
 			get
 			{
 				return new FloatRect(
-					Mathf.Min(this.owner.pos.x, this.owner.pos.x + this.handlePos.x),
-					Mathf.Min(this.owner.pos.y, this.owner.pos.y + this.handlePos.y),
-					Mathf.Max(this.owner.pos.x, this.owner.pos.x + this.handlePos.x),
-					Mathf.Max(this.owner.pos.y, this.owner.pos.y + this.handlePos.y));
+					Mathf.Min(owner.pos.x, owner.pos.x + handlePos.x),
+					Mathf.Min(owner.pos.y, owner.pos.y + handlePos.y),
+					Mathf.Max(owner.pos.x, owner.pos.x + handlePos.x),
+					Mathf.Max(owner.pos.y, owner.pos.y + handlePos.y));
 			}
 		}
-#pragma warning disable 0649
 		[BackedByField("handle")]
 		public Vector2 handlePos;
-#pragma warning restore 0649
-		public CGCosmeticWaterData(PlacedObject owner) : base(owner, new ManagedField[] {
-					new Vector2Field("handle", new Vector2(100,100), Vector2Field.VectorReprType.rect)})
+		public CGCosmeticWaterData(PlacedObject owner) : base(owner, [new Vector2Field("handle", new Vector2(100,100), Vector2Field.VectorReprType.rect)])
 		{
+		}
+	}
+
+	public static class Hooks
+	{
+		public static void Apply()
+		{
+			IL.Water.DrawSprites += Water_DrawSprites;
+		}
+
+		public static void Undo()
+		{
+			IL.Water.DrawSprites -= Water_DrawSprites;
+		}
+
+		private static void Water_DrawSprites(ILContext il)
+		{
+			try
+			{
+				// remove 100px buffer
+				var c = new ILCursor(il);
+				for (int i = 0; i < 2; i++)
+				{
+					c.GotoNext(MoveType.After, x => x.MatchLdcR4(100f));
+					c.Emit(OpCodes.Ldarg_0);
+					c.EmitDelegate((float orig, Water self) => self.MainSurface is CGCosmeticWaterSurface ? 0f : orig);
+				}
+
+				// Find break point after edge filling
+				for (int i = 0; i < 2; i++)
+					c.GotoNext(x => x.MatchLdcR4(1400f));
+				c.GotoNext(MoveType.After, x => x.MatchCallvirt<WaterTriangleMesh>(nameof(WaterTriangleMesh.MoveVertice)));
+				// LogDebug(c);
+				ILLabel brTo = c.MarkLabel();
+
+				// Break around it if it's our thing
+				for (int i = 0; i < 6; i++)
+					c.GotoPrev(x => x.MatchIsinst<WaterTriangleMesh>());
+				c.GotoPrev(MoveType.AfterLabel, x => x.MatchLdarg(1), x => x.MatchLdfld<RoomCamera.SpriteLeaser>(nameof(RoomCamera.SpriteLeaser.sprites)));
+				// LogDebug(c);
+				c.Emit(OpCodes.Ldarg_0);
+				c.EmitDelegate((Water self) => self.MainSurface is CGCosmeticWaterSurface);
+				c.Emit(OpCodes.Brtrue, brTo);
+
+				// One more condition for the road
+				c.GotoPrev(MoveType.After, x => x.MatchCallOrCallvirt(typeof(ModManager).GetProperty(nameof(ModManager.DLCShared), BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).GetGetMethod()));
+				c.Emit(OpCodes.Ldarg_0);
+				c.EmitDelegate((Water self) => self.MainSurface is not CGCosmeticWaterSurface);
+				c.Emit(OpCodes.And);
+			}
+			catch (Exception e)
+			{
+				LogError("CGCosmeticWater Water.DrawSprites IL hook failed!");
+				LogError(e);
+			}
 		}
 	}
 }

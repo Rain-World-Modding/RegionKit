@@ -121,6 +121,7 @@ public static class _Module
 		WaterSpout.Apply();
 		FanLightHooks.Apply();
 		NoBatflyLurkZoneHooks.Apply();
+		NoDropwigPerchZoneHooks.Apply();
 		WaterFallDepthHooks.Apply();
 
 		LoadShaders();
@@ -151,6 +152,8 @@ public static class _Module
 		WaterSpout.Undo();
 		FanLightHooks.Undo();
 		NoBatflyLurkZoneHooks.Undo();
+		NoDropwigPerchZoneHooks.Undo();
+		WaterFallDepthHooks.Undo();
 
 		IL.DevInterface.ObjectsPage.AssembleObjectPages -= RemoveDeprecatedObjects;
 	}
@@ -174,7 +177,8 @@ public static class _Module
 			|| type == EchoExtender._Enums.EEGhostSpot
 			|| type == TheMast._Enums.PlacedWind
 			|| type == TheMast._Enums.PlacedPearlChain
-			|| type == _Enums.NoBatflyLurkZone)
+			|| type == _Enums.NoBatflyLurkZone
+			|| type == _Enums.NoDropwigPerchZone)
 			res = new ObjectsPage.DevObjectCategories(GAMEPLAY_POM_CATEGORY);
 		return res;
 	}
@@ -290,7 +294,7 @@ public static class _Module
 			CreateObjectIfNeeded();
 			rep = new FanLightRepresentation(self.owner, $"{tp}_Rep", self, pObj);
 		}
-		else if (tp == _Enums.NoBatflyLurkZone)
+		else if (tp == _Enums.NoBatflyLurkZone || tp == _Enums.NoDropwigPerchZone)
 		{
 			CreateObjectIfNeeded();
 			rep = new ResizeableObjectRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString(), true);
@@ -371,7 +375,7 @@ public static class _Module
 		{
 			self.data = new FanLightData(self);
 		}
-		else if (self.type == _Enums.NoBatflyLurkZone)
+		else if (self.type == _Enums.NoBatflyLurkZone || self.type == _Enums.NoDropwigPerchZone)
 		{
 			self.data = new PlacedObject.ResizableObjectData(self);
 		}

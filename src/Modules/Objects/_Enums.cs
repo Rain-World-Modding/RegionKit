@@ -60,4 +60,8 @@ public class _Enums
 	/// WaterFall with custom depth
 	/// </summary>
 	public static PlacedObject.Type WaterFallDepth = new(nameof(WaterFallDepth), true);
+	/// <summary>
+	/// Prevents dropwigs from perching in a location
+	/// </summary>
+	public static PlacedObject.Type NoDropwigPerchZone = new(nameof(NoDropwigPerchZone), true);
 }

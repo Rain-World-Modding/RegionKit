@@ -121,6 +121,7 @@ public static class _Module
 		WaterSpout.Apply();
 		FanLightHooks.Apply();
 		NoBatflyLurkZoneHooks.Apply();
+		WaterFallDepthHooks.Apply();
 
 		LoadShaders();
 
@@ -157,23 +158,23 @@ public static class _Module
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)
 	{
 		ObjectsPage.DevObjectCategories res = orig(self, type);
-		if (type == _Enums.ProjectedCircle ||
-			type == _Enums.ColoredLightBeam ||
-			type == _Enums.CustomEntranceSymbol ||
-			type == _Enums.PWLightrod ||
-			type == _Enums.UpsideDownWaterFall ||
-			type == _Enums.LittlePlanet ||
-			type == _Enums.FanLight ||
-			type == _Enums.PCPlayerSensitiveLightSource)
+		if (type == _Enums.ProjectedCircle
+			|| type == _Enums.ColoredLightBeam
+			|| type == _Enums.CustomEntranceSymbol
+			|| type == _Enums.PWLightrod
+			|| type == _Enums.UpsideDownWaterFall
+			|| type == _Enums.LittlePlanet
+			|| type == _Enums.FanLight
+			|| type == _Enums.PCPlayerSensitiveLightSource
+			|| type == _Enums.WaterFallDepth)
 			res = new ObjectsPage.DevObjectCategories(DECORATIONS_POM_CATEGORY);
-		else if (
-			type == _Enums.NoWallSlideZone ||
-			type == _Enums.ClimbablePole ||
-			type == _Enums.ClimbableWire ||
-			type == EchoExtender._Enums.EEGhostSpot ||
-			type == TheMast._Enums.PlacedWind ||
-			type == TheMast._Enums.PlacedPearlChain ||
-			type == _Enums.NoBatflyLurkZone)
+		else if (type == _Enums.NoWallSlideZone
+			|| type == _Enums.ClimbablePole
+			|| type == _Enums.ClimbableWire
+			|| type == EchoExtender._Enums.EEGhostSpot
+			|| type == TheMast._Enums.PlacedWind
+			|| type == TheMast._Enums.PlacedPearlChain
+			|| type == _Enums.NoBatflyLurkZone)
 			res = new ObjectsPage.DevObjectCategories(GAMEPLAY_POM_CATEGORY);
 		return res;
 	}
@@ -239,6 +240,9 @@ public static class _Module
 					PlayerSensitiveLightSourceData data = (pObj.data as PlayerSensitiveLightSourceData)!;
 					self.AddObject(new PlayerSensitiveLightSource(pObj, pObj.pos, data.Rad, data.DetectRad, data.minStrength, data.maxStrength, data.fadeSpeed, data.colorType.index - 2));
 					break;
+				case nameof(_Enums.WaterFallDepth):
+					self.AddObject(new WaterFallDepth(self, pObj));
+					break;
 			}
 			if (pObj.data is WormgrassRectData && !wormgrassDataFound)
 			{
@@ -250,126 +254,87 @@ public static class _Module
 
 	private static void CreateObjectReps(On.DevInterface.ObjectsPage.orig_CreateObjRep orig, DevInterface.ObjectsPage self, PlacedObject.Type tp, PlacedObject pObj)
 	{
+		PlacedObjectRepresentation rep = null!;
 		if (tp == _Enums.LittlePlanet)
 		{
-			if (pObj is null)
-			{
-				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
-				{
-					pos = self.owner.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
-				});
-			}
-			var pObjRep = new LittlePlanetRepresentation(self.owner, "LittlePlanet_Rep", self, pObj);
-			self.tempNodes.Add(pObjRep);
-			self.subNodes.Add(pObjRep);
+			CreateObjectIfNeeded();
+			rep = new LittlePlanetRepresentation(self.owner, "LittlePlanet_Rep", self, pObj);
 		}
 		else if (tp == _Enums.NoWallSlideZone)
 		{
-			if (pObj is null)
-			{
-				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
-				{
-					pos = self.owner.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
-				});
-			}
-			var pObjRep = new FloatRectRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString());
-			self.tempNodes.Add(pObjRep);
-			self.subNodes.Add(pObjRep);
+			CreateObjectIfNeeded();
+			rep = new FloatRectRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString());
 		}
 		else if (tp == _Enums.CustomEntranceSymbol)
 		{
-			if (pObj is null)
-			{
-				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
-				{
-					pos = self.owner.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
-				});
-			}
-			var pObjRep = new CESRepresentation(self.owner, $"{tp}_Rep", self, pObj);
-			self.tempNodes.Add(pObjRep);
-			self.subNodes.Add(pObjRep);
+			CreateObjectIfNeeded();
+			rep = new CESRepresentation(self.owner, $"{tp}_Rep", self, pObj);
 		}
 		else if (tp == _Enums.UpsideDownWaterFall)
 		{
-			if (pObj is null)
-			{
-				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
-				{
-					pos = self.owner.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
-				});
-			}
-			var pObjRep = new UpDownWFRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString());
-			self.tempNodes.Add(pObjRep);
-			self.subNodes.Add(pObjRep);
+			CreateObjectIfNeeded();
+			rep = new UpDownWFRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString());
 		}
 		else if (tp == _Enums.ColoredLightBeam)
 		{
-			if (pObj is null)
-			{
-				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
-				{
-					pos = self.owner.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
-				});
-			}
-			var pObjRep = new ColoredLightBeamRepresentation(self.owner, $"{tp}_Rep", self, pObj);
-			self.tempNodes.Add(pObjRep);
-			self.subNodes.Add(pObjRep);
+			CreateObjectIfNeeded();
+			rep = new ColoredLightBeamRepresentation(self.owner, $"{tp}_Rep", self, pObj);
 		}
 		else if (tp == _Enums.ClimbablePole || tp == _Enums.ClimbableWire)
 		{
-			if (pObj is null)
-			{
-				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
-				{
-					pos = self.owner.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
-				});
-			}
-			var pObjRep = new ClimbJumpVineRepresentation(self.owner, $"{tp}_Rep", self, pObj);
-			self.tempNodes.Add(pObjRep);
-			self.subNodes.Add(pObjRep);
+			CreateObjectIfNeeded();
+			rep = new ClimbJumpVineRepresentation(self.owner, $"{tp}_Rep", self, pObj);
 		}
 		else if (tp == _Enums.FanLight)
 		{
-			if (pObj is null)
-			{
-				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
-				{
-					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
-				});
-			}
-			var pObjRep = new FanLightRepresentation(self.owner, $"{tp}_Rep", self, pObj);
-			self.tempNodes.Add(pObjRep);
-			self.subNodes.Add(pObjRep);
+			CreateObjectIfNeeded();
+			rep = new FanLightRepresentation(self.owner, $"{tp}_Rep", self, pObj);
 		}
 		else if (tp == _Enums.NoBatflyLurkZone)
 		{
-			if (pObj is null)
-			{
-				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
-				{
-					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new(-683f, 384f), .25f) + DegToVec(UnityEngine.Random.value * 360f) * .2f
-				});
-			}
-			var pObjRep = new ResizeableObjectRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString(), true);
-			self.tempNodes.Add(pObjRep);
-			self.subNodes.Add(pObjRep);
+			CreateObjectIfNeeded();
+			rep = new ResizeableObjectRepresentation(self.owner, $"{tp}_Rep", self, pObj, tp.ToString(), true);
 		}
 		else if (tp == _Enums.PCPlayerSensitiveLightSource)
 		{
-			if (pObj is null)
-			{
-				self.RoomSettings.placedObjects.Add(pObj = new(tp, null)
-				{
-					pos = self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(UnityEngine.Random.value * 360f) * 0.2f
-				});
-			}
-			var rep = new PlayerSensitiveLightSourceRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
+			CreateObjectIfNeeded();
+			rep = new PlayerSensitiveLightSourceRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
+		}
+		else if (tp == _Enums.WaterFallDepth)
+		{
+			CreateObjectIfNeeded();
+			rep = new WaterFallDepthRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj);
+		}
+
+		// Create object or call orig
+		if (rep != null)
+		{
 			self.tempNodes.Add(rep);
 			self.subNodes.Add(rep);
 		}
 		else
+		{
 			orig(self, tp, pObj);
-		//orig.Invoke(self, tp, pObj); -> this will add a duplicate PlacedObjectRepresentation
+		}
+
+		// Returns true if the placed object was created, in case objects need to do something special like some base game cases.
+		// Luckily I don't think any need to so far so it's kinda just useless to do so.
+		bool CreateObjectIfNeeded()
+		{
+			if (pObj == null)
+			{
+				pObj = new PlacedObject(tp, null)
+				{
+					// Prevent objects from accidentally going offscreen when you place them :steamhappy:
+					pos = Custom.RestrictInRect(
+						self.owner.room.game.cameras[0].pos + Vector2.Lerp(self.owner.mousePos, new Vector2(-683f, 384f), 0.25f) + Custom.DegToVec(UnityEngine.Random.value * 360f) * 0.2f,
+						new FloatRect(0f, 0f, 1366f, 768f))
+				};
+				self.RoomSettings.placedObjects.Add(pObj);
+				return true;
+			}
+			return false;
+		}
 	}
 
 	private static void MakeEmptyData(On.PlacedObject.orig_GenerateEmptyData orig, PlacedObject self)
@@ -414,6 +379,10 @@ public static class _Module
 		{
 			self.data = new PlayerSensitiveLightSourceData(self);
 		}
+		else if (self.type == _Enums.WaterFallDepth)
+		{
+			self.data = new WaterFallDepth.WaterFallDepthData(self);
+		}
 		orig(self);
 	}
 
@@ -436,9 +405,10 @@ public static class _Module
 	public static void LoadShaders()
 	{
 		Custom.rainWorld.Shaders["ColorEffects"] = FShader.CreateShader("ColorEffects", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/coloreffects")).LoadAsset<Shader>("Assets/ColorEffects.shader"));
+		Custom.rainWorld.Shaders["WaterFallDepth"] = FShader.CreateShader("WaterFallDepth", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/waterfalldepth")).LoadAsset<Shader>("Assets/Shaders/WaterFallDepth.shader"));
 	}
 
-	private static readonly HashSet<string> DeprecatedObjects = ["SpinningFan"];
+	private static readonly HashSet<string> DeprecatedObjects = ["SpinningFan", "PlacedWaterfall"];
 	private static void RemoveDeprecatedObjects(ILContext il)
 	{
 		// Prevents objects from being added to the pane without removing them from being registered to begin with because this is an easy solution I think

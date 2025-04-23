@@ -16,10 +16,6 @@ public class _Enums
 	/// </summary>
 	public static PlacedObject.Type PWLightrod = new(nameof(PWLightrod), true);
 	/// <summary>
-	/// Kills creatures that enter the rect
-	/// </summary>
-	// public static PlacedObject.Type ARKillRect = new(nameof(ARKillRect), true);
-	/// <summary>
 	/// Replaces pipe symbols
 	/// </summary>
 	public static PlacedObject.Type CustomEntranceSymbol = new(nameof(CustomEntranceSymbol), true);
@@ -60,4 +56,8 @@ public class _Enums
 	/// Throwable spike tip object created by breaking a spike
 	/// </summary>
 	public static AbstractPhysicalObject.AbstractObjectType SpikeTip = new(nameof(SpikeTip), true);
+	/// <summary>
+	/// WaterFall with custom depth
+	/// </summary>
+	public static PlacedObject.Type WaterFallDepth = new(nameof(WaterFallDepth), true);
 }

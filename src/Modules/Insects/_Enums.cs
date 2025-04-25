@@ -55,6 +55,6 @@
 		/// <summary>
 		/// Insect category
 		/// </summary>
-		public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKit = new(nameof(RegionKit), true);
+		public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKitInsects = new(nameof(RegionKitInsects), true);
 	}
 }

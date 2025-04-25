@@ -80,6 +80,9 @@ public static class _Enums
 	/// FT dense fog sound
 	/// </summary>
 	public static SoundID FT_Fog_PreDeath = new(nameof(FT_Fog_PreDeath), true);
+
+
+
 	/// <summary>
 	/// Effect category
 	/// </summary>

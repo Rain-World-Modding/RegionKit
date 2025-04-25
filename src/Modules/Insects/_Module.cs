@@ -40,7 +40,7 @@ namespace RegionKit.Modules.Insects
 				type == _Enums.ButterfliesA ||
 				type == _Enums.ButterfliesB ||
 				type == _Enums.Zippers)
-				res = _Enums.RegionKit;
+				res = _Enums.RegionKitInsects;
 			return res;
 		}
 	}

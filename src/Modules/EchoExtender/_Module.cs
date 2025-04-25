@@ -23,9 +23,6 @@ public static class _Module
 
 		// Spawn and customization
 		On.Room.Loaded += RoomOnLoaded;
-		On.Ghost.ctor += GhostOnCtor;
-		On.Ghost.StartConversation += GhostOnStartConversation;
-		On.GhostConversation.AddEvents += GhostConversationOnAddEvents;
 		On.GhostWorldPresence.SpawnGhost += GhostWorldPresenceOnSpawnGhost;
 		On.GhostWorldPresence.GhostMode_AbstractRoom_Vector2 += GhostWorldPresenceOnGhostMode;
 
@@ -43,9 +40,6 @@ public static class _Module
 
 		// Spawn and customization
 		On.Room.Loaded -= RoomOnLoaded;
-		On.Ghost.ctor -= GhostOnCtor;
-		On.Ghost.StartConversation -= GhostOnStartConversation;
-		On.GhostConversation.AddEvents -= GhostConversationOnAddEvents;
 		On.GhostWorldPresence.SpawnGhost -= GhostWorldPresenceOnSpawnGhost;
 		On.GhostWorldPresence.GhostMode_AbstractRoom_Vector2 -= GhostWorldPresenceOnGhostMode;
 
@@ -86,10 +80,13 @@ public static class _Module
 			Room room = testRoom.realizedRoom ?? new Room(self.world.game, self.world, testRoom); //goofy but safe way to load room settings for abstract room
 
 			if (room.roomSettings.GetEffect(_Enums.EchoPresenceOverride) != null)
-			{ self.RoomOverrides()[testRoom.name] = room.roomSettings.GetEffectAmount(_Enums.EchoPresenceOverride); }
-
+			{
+				self.RoomOverrides()[testRoom.name] = room.roomSettings.GetEffectAmount(_Enums.EchoPresenceOverride);
+			}
 			else
-			{ self.RoomOverrides()[testRoom.name] = -1f; }
+			{
+				self.RoomOverrides()[testRoom.name] = -1f;
+			}
 		}
 
 		return self.RoomOverrides()[testRoom.name];
@@ -101,17 +98,40 @@ public static class _Module
 
 	private static void RoomOnLoaded(On.Room.orig_Loaded orig, Room self)
 	{
-		// ReSharper disable once InconsistentNaming
-		PlacedObject? EEGhostSpot = null;
-		if (self.game != null)
-		{ // Actual ingame loading
-			EEGhostSpot = self.roomSettings.placedObjects.FirstOrDefault((v) => v.type == _Enums.EEGhostSpot && v.active);
-			if (EEGhostSpot != null) EEGhostSpot.type = PlacedObject.Type.GhostSpot; // Temporary switcheroo to trigger vanilla code that handles ghosts
+		bool hasEEGhost = self.world.worldGhost != null && EchoParser.__extendedEchoIDs.Contains(self.world.worldGhost.ghostID);
+		if (hasEEGhost)
+		{
+			// Backwards compatibility
+			foreach (PlacedObject obj in self.roomSettings.placedObjects)
+			{
+				if (obj.type == PlacedObject.Type.GhostSpot)
+				{
+					obj.type = _Enums.EEGhostSpot;
+				}
+			}
 		}
-
 		orig(self);
-		// Unswitcheroo
-		if (self.game != null && EEGhostSpot != null) EEGhostSpot.type = _Enums.EEGhostSpot;
+		if (hasEEGhost)
+		{
+			foreach (PlacedObject obj in self.roomSettings.placedObjects)
+			{
+				if (obj.type == _Enums.EEGhostSpot && obj.active)
+				{
+					if (self.game.world.worldGhost != null && self.game.world.worldGhost.ghostRoom == self.abstractRoom)
+					{
+						self.AddObject(new EEGhost(self, obj, self.game.world.worldGhost));
+					}
+					else if (self.world.region != null)
+					{
+						GhostWorldPresence.GhostID ghostID = GhostWorldPresence.GetGhostID(self.world.region.name);
+						if (self.game.session is StoryGameSession && (!self.game.GetStorySession.saveState.deathPersistentSaveData.ghostsTalkedTo.ContainsKey(ghostID) || self.game.GetStorySession.saveState.deathPersistentSaveData.ghostsTalkedTo[ghostID] == 0))
+						{
+							self.AddObject(new GhostHunch(self, ghostID));
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private static bool GhostWorldPresenceOnSpawnGhost(On.GhostWorldPresence.orig_SpawnGhost orig, GhostWorldPresence.GhostID ghostid, int karma, int karmacap, int ghostpreviouslyencountered, bool playingasred)
@@ -142,65 +162,6 @@ public static class _Module
 			karmaCapCondition;
 	}
 
-	private static void GhostConversationOnAddEvents(On.GhostConversation.orig_AddEvents orig, GhostConversation self)
-	{
-		orig(self);
-		if (!EchoParser.__echoConversations.TryGetValue(self.id, out string? region))
-		{
-			return;
-		}
-
-		string? ResolveEchoConversation(InGameTranslator.LanguageID lang, string region)
-		{
-			string langShort = LocalizationTranslator.LangShort(lang);
-			string convPath = AssetManager.ResolveFilePath($"text/text_{langShort}/echoConv_{region}.txt");
-			bool english = lang == InGameTranslator.LanguageID.English;
-			if (!File.Exists(convPath))
-			{
-				if (!english)
-				{
-					return null;
-				}
-				convPath = AssetManager.ResolveFilePath($"world/{region}/echoConv.txt");
-				if (!File.Exists(convPath))
-				{
-					return null;
-				}
-			}
-
-			if (english) {
-				return EchoParser.ManageXOREncryption(convPath);
-			}
-			else {
-				return File.ReadAllText(convPath);
-			}
-		}
-
-		InGameTranslator.LanguageID lang = Custom.rainWorld.inGameTranslator.currentLanguage;
-		string? text = ResolveEchoConversation(lang, region);
-		if (text is null && lang != InGameTranslator.LanguageID.English) {
-			text = ResolveEchoConversation(InGameTranslator.LanguageID.English, region);
-		}
-		if (text is null) {
-			return;
-		}
-
-		foreach (string line in ProcessTimelineConditions(Regex.Split(EchoParser.__echoConversations[self.id], "(\r|\n)+"), self.ghost.room.game.TimelinePoint))
-		{
-			LogDebug($"[Echo Extender] Processing line {line}");
-			if (line.All(c => char.IsSeparator(c) || c == '\n' || c == '\r')) continue;
-			self.events.Add(new Conversation.TextEvent(self, 0, line, 0));
-		}
-	}
-
-	private static void GhostOnStartConversation(On.Ghost.orig_StartConversation orig, Ghost self)
-	{
-		orig(self);
-		if (!EchoParser.__extendedEchoIDs.Contains(self.worldGhost.ghostID)) return;
-		string echoRegionString = self.worldGhost.ghostID.ToString();
-		self.currentConversation = new GhostConversation(EchoParser.GetConversationID(echoRegionString), self, self.room.game.cameras[0].hud.dialogBox);
-	}
-
 	private static GhostWorldPresence.GhostID GhostWorldPresenceOnGetGhostID(On.GhostWorldPresence.orig_GetGhostID orig, string regionname)
 	{
 		var origResult = orig(regionname);
@@ -217,15 +178,5 @@ public static class _Module
 			LogInfo($"[Echo Extender] Set Song: {self.songName}");
 			LogInfo($"[Echo Extender] Set Room {self.ghostRoom?.name}");
 		}
-	}
-
-	private static void GhostOnCtor(On.Ghost.orig_ctor orig, Ghost self, Room room, PlacedObject placedobject, GhostWorldPresence worldghost)
-	{
-		orig(self, room, placedobject, worldghost);
-		if (!EchoParser.__extendedEchoIDs.Contains(self.worldGhost.ghostID)) return;
-		var settings = EchoParser.__echoSettings[self.worldGhost.ghostID];
-		self.scale = settings.EchoSizeMultiplier * 0.75f;
-		self.rags.conRad = 30f * self.scale;
-		self.defaultFlip = settings.DefaultFlip;
 	}
 }

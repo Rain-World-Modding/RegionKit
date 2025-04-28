@@ -52,6 +52,7 @@ public static class _Module
 		HSLDisplaySnow.Apply();
 		MurkyWater.Apply();
 		DenseFogHooks.Apply();
+		SuffocationHooks.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -69,6 +70,7 @@ public static class _Module
 		HSLDisplaySnow.Undo();
 		MurkyWater.Undo();
 		DenseFogHooks.Undo();
+		SuffocationHooks.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 

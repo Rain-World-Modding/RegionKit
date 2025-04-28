@@ -25,7 +25,6 @@ public static class _Module
 		//IceWaterBuilder.__RegisterBuilder();
 		RGBElectricDeathBuilder.__RegisterBuilder();
 		RainSirenBuilder.__RegisterBuilder();
-		//MoonSirenBuilder.__RegisterBuilder(); 
 		SuffocationBuilder.__RegisterBuilder();
 		HSLDisplaySnowBuilder.__RegisterBuilder();
 		MossWaterUnlit.MossLoadResources(rainworld);
@@ -76,20 +75,22 @@ public static class _Module
 	private static RoomSettingsPage.DevEffectsCategories RoomSettingsPageDevEffectGetCategoryFromEffectType(On.DevInterface.RoomSettingsPage.orig_DevEffectGetCategoryFromEffectType orig, RoomSettingsPage self, RoomSettings.RoomEffect.Type type)
 	{
 		RoomSettingsPage.DevEffectsCategories res = orig(self, type);
-		if (type == _Enums.ReplaceCorruptionColor ||
-			type == _Enums.ReplaceEffectColorA ||
-			type == _Enums.ReplaceEffectColorB ||
-			type == _Enums.FogOfWarSolid ||
-			type == _Enums.FogOfWarDarkened ||
+		if (type == _Enums.ReplaceCorruptionColor
+			|| type == _Enums.ReplaceEffectColorA
+			|| type == _Enums.ReplaceEffectColorB
+			|| type == _Enums.FogOfWarSolid
+			|| type == _Enums.FogOfWarDarkened
 
-			type == _Enums.PWMalfunction ||
-			type == _Enums.HiveColorAlpha ||
-			type == _Enums.MossWater ||
-			type == _Enums.MurkyWater ||
-			type == _Enums.ReflectiveWater ||
-			type == _Enums.DenseFog ||
-			type == _Enums.DenseFogSoundVolume ||
-			type == EchoExtender._Enums.EchoPresenceOverride)
+			|| type == _Enums.PWMalfunction
+			|| type == _Enums.HiveColorAlpha
+			|| type == _Enums.MossWater
+			|| type == _Enums.MurkyWater
+			|| type == _Enums.ReflectiveWater
+			|| type == _Enums.DenseFog
+			|| type == _Enums.DenseFogSoundVolume
+			|| type == _Enums.RainSiren
+			|| type == _Enums.Suffocation
+			|| type == EchoExtender._Enums.EchoPresenceOverride)
 			res = _Enums.RegionKit;
 		return res;
 	}

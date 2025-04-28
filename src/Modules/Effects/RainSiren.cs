@@ -87,11 +87,9 @@ namespace RegionKit.Modules.Effects
 			ProcessManager? manager = self.room.world?.game?.manager;
 			MusicPlayer? musicPlayer = manager?.musicPlayer;
 			if (manager == null || musicPlayer == null) return;
-			if (musicPlayer.song is MSSirenSong || musicPlayer.song is MoonSiren.MoonSirenSong) return;
+			if (musicPlayer.song is MSSirenSong) return;
 			RainSirenUAD? sirenUAD = self.room.updateList.OfType<RainSirenUAD>().FirstOrDefault<RainSirenUAD>();
 			string? songname = sirenUAD?.songname;
-			if (songname == "Moon_Siren") songname = "K0_Moon_Siren";
-			if (songname == "Moon_Siren_MS") songname = "K0_Moon_Siren_MS";
 
 			if (musicPlayer.song is RainSirenSong)
 			{

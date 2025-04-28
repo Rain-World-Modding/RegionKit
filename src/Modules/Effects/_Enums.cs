@@ -39,7 +39,7 @@ public static class _Enums
 	/// <summary>
 	/// Effect category
 	/// </summary>
-	public static RoomSettings.RoomEffect.Type IceWater = new(nameof(IceWater), true);
+	public static RoomSettings.RoomEffect.Type IceWater = new(nameof(IceWater), false); // TODO: set to true when working on again
 	/// <summary>
 	/// Effect category
 	/// </summary>
@@ -60,10 +60,6 @@ public static class _Enums
 	/// Effect category
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type RainSiren = new(nameof(RainSiren), true);
-	/// <summary>
-	/// Effect category
-	/// </summary>
-	public static RoomSettings.RoomEffect.Type MoonSiren = new(nameof(MoonSiren), true);
 	/// <summary>
 	/// Effect category
 	/// </summary>

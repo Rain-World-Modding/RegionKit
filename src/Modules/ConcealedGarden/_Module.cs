@@ -137,11 +137,11 @@ internal static class _Module
 
 		try
 		{
-			ILLabel brTo;
+			Instruction brTo;
 			int loc = 5;
 			c.GotoNext(x => x.MatchCall<ObjectsPage>(nameof(ObjectsPage.DevObjectGetCategoryFromPlacedType)));
 			c.GotoNext(MoveType.AfterLabel, x => x.MatchLdloca(out _));
-			brTo = c.MarkLabel();
+			brTo = c.Next;
 			c.GotoPrev(x => x.MatchNewobj<PlacedObject.Type>());
 			c.GotoNext(MoveType.After, x => x.MatchStloc(out loc));
 			c.Emit(OpCodes.Ldloc, loc);

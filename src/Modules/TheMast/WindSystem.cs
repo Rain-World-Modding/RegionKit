@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using DevInterface;
-using RWCustom;
-using UnityEngine;
+﻿using DevInterface;
 using Random = UnityEngine.Random;
 
 //Made by Slime_Cubed and Doggo
@@ -319,27 +314,35 @@ namespace RegionKit.Modules.TheMast
 
 			public override void FromString(string s)
 			{
-				base.FromString(s);
-				if (unrecognizedAttributes.Length >= 1 && float.TryParse(unrecognizedAttributes[0], out float velocity))
-					this.velocity = velocity;
 				try
 				{
-					if (unrecognizedAttributes.Length >= 2)
+					base.FromString(s);
+					if (unrecognizedAttributes.Length >= 1 && float.TryParse(unrecognizedAttributes[0], out float velocity))
+						this.velocity = velocity;
+					try
 					{
-						AffectGroup ag = (AffectGroup)Enum.Parse(typeof(AffectGroup), unrecognizedAttributes[1]);
-						affectGroup = ag;
+						if (unrecognizedAttributes.Length >= 2)
+						{
+							AffectGroup ag = (AffectGroup)Enum.Parse(typeof(AffectGroup), unrecognizedAttributes[1]);
+							affectGroup = ag;
+						}
 					}
+					catch (Exception) { }
+					try
+					{
+						if (unrecognizedAttributes.Length >= 3)
+						{
+							VertGroup ag = (VertGroup)Enum.Parse(typeof(VertGroup), unrecognizedAttributes[2]);
+							vertGroup = ag;
+						}
+					}
+					catch (Exception) { }
 				}
-				catch (Exception) { }
-				try
+				catch (Exception e)
 				{
-					if (unrecognizedAttributes.Length >= 3)
-					{
-						VertGroup ag = (VertGroup)Enum.Parse(typeof(VertGroup), unrecognizedAttributes[2]);
-						vertGroup = ag;
-					}
+					// Heat ducts causes this
+					LogError(e);
 				}
-				catch (Exception) { }
 			}
 
 			public override string ToString()

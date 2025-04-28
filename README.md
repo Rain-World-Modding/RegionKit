@@ -188,6 +188,9 @@ Automatically loads all atlases from assetpath `assets/regionkit` (recursively)
 - MagicaJaphet
 	- Replace Corruption color effect
 
+- k0rii
+	- RainSiren and Suffocation effects
+
 **Initial ExtendedGates authors**: Henpemaz (code); Mehri'Kairotep, Thalber, LB/M4rbleL1ne and Nautillo (spritework).
 
 ## Download

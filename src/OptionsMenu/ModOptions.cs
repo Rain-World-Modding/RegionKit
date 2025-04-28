@@ -102,6 +102,7 @@ public sealed class ModOptions : OptionsTemplate
 		("LudoCrypt", hexToColor("c6a3be")),
 		("Ved_S", hexToColor("ee6225")),
 		("MagicaJaphet", hexToColor("c00a20")),
+		("k0rii", hexToColor("ea4970")),
 	];
 
 	private void InitCredits(ref int tabIndex)

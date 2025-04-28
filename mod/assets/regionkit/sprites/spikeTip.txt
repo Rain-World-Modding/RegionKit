@@ -1,0 +1,28 @@
+{"frames": {
+
+"spikeTip.png":
+{
+	"frame": {"x":0,"y":0,"w":6,"h":43},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":43},
+	"sourceSize": {"w":6,"h":43}
+},
+"spikeTipCol.png":
+{
+	"frame": {"x":0,"y":43,"w":6,"h":43},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":6,"h":43},
+	"sourceSize": {"w":6,"h":43}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "SpikeTip.png",
+	"format": "RGBA8888",
+	"size": {"w":6,"h":86},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:09bd29d41c4cb33a8977162c62c1fdb0:f04259f3ef3d044269013155714cc8da:632dab7a4396f48a33118f1482bd379b$"
+}
+}

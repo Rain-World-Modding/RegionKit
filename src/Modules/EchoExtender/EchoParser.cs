@@ -5,10 +5,10 @@ namespace RegionKit.Modules.EchoExtender;
 internal static class EchoParser
 {
 	// ConversationID to region acronym
-	internal static readonly Dictionary<Conversation.ID, string> __echoConversations = new Dictionary<Conversation.ID, string>();
-	internal static readonly HashSet<GhostWorldPresence.GhostID> __extendedEchoIDs = new HashSet<GhostWorldPresence.GhostID>();
-	internal static readonly Dictionary<string, string> __echoLocations = new Dictionary<string, string>();
-	internal static readonly Dictionary<GhostWorldPresence.GhostID, EchoSettings> __echoSettings = new Dictionary<GhostWorldPresence.GhostID, EchoSettings>();
+	internal static readonly Dictionary<Conversation.ID, string> __echoConversations = [];
+	internal static readonly HashSet<GhostWorldPresence.GhostID> __extendedEchoIDs = [];
+	internal static readonly Dictionary<string, string> __echoLocations = [];
+	internal static readonly Dictionary<GhostWorldPresence.GhostID, EchoSettings> __echoSettings = [];
 
 	internal static readonly Dictionary<string, string> __echoSongs = new()
 	{
@@ -36,6 +36,7 @@ internal static class EchoParser
 			return false;
 		}
 	}
+
 	public static void LoadAllRegions(SlugcatStats.Name character)
 	{
 		foreach (var regionInitials in Region.GetFullRegionOrder())
@@ -74,7 +75,7 @@ internal static class EchoParser
 			string xor = Custom.xorEncrypt(text, 54 + 1 + (int)InGameTranslator.LanguageID.English * 7);
 			if (xor.StartsWith(encryptedText))
 			{
-				xor = xor.Substring(encryptedText.Length);
+				xor = xor[encryptedText.Length..];
 			}
 			File.WriteAllText(path, xor);
 			return xor;

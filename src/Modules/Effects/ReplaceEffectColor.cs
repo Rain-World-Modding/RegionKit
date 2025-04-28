@@ -75,9 +75,9 @@ public class ReplaceEffectColor : UpdatableAndDeletable
 	/// <summary>
 	/// ReplaceEffectColor Update method.
 	/// </summary>
-	public override void Update(bool eu)
+	public override void PausedUpdate()
 	{
-		base.Update(eu);
+		base.PausedUpdate();
 		if (room?.game is RainWorldGame game)
 		{
 			RoomCamera[] cams = game.cameras;

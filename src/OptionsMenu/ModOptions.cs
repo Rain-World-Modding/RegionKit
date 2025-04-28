@@ -77,76 +77,59 @@ public sealed class ModOptions : OptionsTemplate
 		DrawBox(ref Tabs[tabIndex]);
 	}
 
+	private static readonly List<(string name, Color color)> Credits =
+	[
+		("DryCryCrystal", hexToColor("e07ec8")),
+		("Thalber", hexToColor("ffffff")),
+		("DeltaTime", hexToColor("ad1457")),
+		("M4rbleL1ne", hexToColor("afff00")),
+		("Bro", hexToColor("ad1457")),
+		("Henpemaz", hexToColor("0e7575")),
+		("Thrithralas", hexToColor("f1c40f")),
+		("Slime_Cubed", hexToColor("25c059")),
+		("LeeMoriya", hexToColor("ffc900")),
+		("NV", hexToColor("84c86b")), // also bebe; Inevitabilis on GitHub
+		("Doggo", hexToColor("c73633")), // snoodle
+		("Kaeporo", hexToColor("8de7f3")),
+		("Dracentis", hexToColor("ad1457")),
+		("Isbjorn52", hexToColor("d97d3d")),
+		("Xan", hexToColor("b3443b")), // EtiTheSpirit on GitHub
+		("HelloThere", hexToColor("ffffff")), // SortaUnknown on GitHub
+		("ASlightlyOvergrownCactus", hexToColor("339124")),
+		("Vigaro", hexToColor("eaba2a")),
+		("forthfora", hexToColor("8b41ff")),
+		("Alduris", hexToColor("f21035")),
+		("LudoCrypt", hexToColor("c6a3be")),
+		("Ved_S", hexToColor("ee6225")),
+		("MagicaJaphet", hexToColor("c00a20")),
+		("k0rii", hexToColor("ea4970")),
+	];
 
 	private void InitCredits(ref int tabIndex)
 	{
 		AddTab(ref tabIndex, "Credits");
 
 
-		AddTextLabel("REGIONKIT TEAM", bigText: true);
+		AddTextLabel("REGIONKIT TEAM", bigText: true, shiny: true);
 		DrawTextLabels(ref Tabs[tabIndex]);
 
 		AddAndDrawLargeDivider(ref Tabs[tabIndex]);
 
 		AddNewLine(1);
 
-		AddTextLabel("DryCryCrystal", translate: false, color: hexToColor("e07ec8"));
-		AddTextLabel("Thalber", translate: false, color: hexToColor("ffffff"));
+		const int COLS = 3;
+
+		for (int i = 0; i < Credits.Count; i++)
+		{
+			if (i != 0 && i % COLS == 0)
+			{
+				DrawTextLabels(ref Tabs[tabIndex]);
+				AddNewLine(1);
+			}
+			AddTextLabel(Credits[i].name, translate: false, color: Credits[i].color);
+		}
+
 		DrawTextLabels(ref Tabs[tabIndex]);
-
-		AddNewLine(1);
-
-		AddTextLabel("DeltaTime", translate: false, color: hexToColor("ad1457"));
-		AddTextLabel("M4rbleL1ne", translate: false, color: hexToColor("afff00"));
-		DrawTextLabels(ref Tabs[tabIndex]);
-
-		AddNewLine(1);
-
-		AddTextLabel("Bro", translate: false, color: hexToColor("ad1457"));
-		AddTextLabel("Henpemaz", translate: false, color: hexToColor("0e7575"));
-		DrawTextLabels(ref Tabs[tabIndex]);
-
-		AddNewLine(1);
-
-		AddTextLabel("Thrithralas", translate: false, color: hexToColor("f1c40f"));
-		AddTextLabel("Slime_Cubed", translate: false, color: hexToColor("25c059"));
-		DrawTextLabels(ref Tabs[tabIndex]);
-
-		AddNewLine(1);
-
-		AddTextLabel("LeeMoriya", translate: false, color: hexToColor("ffc900"));
-		AddTextLabel("Bebe", translate: false, color: hexToColor("84c86b"));
-		DrawTextLabels(ref Tabs[tabIndex]);
-
-		AddNewLine(1);
-
-		AddTextLabel("Doggo", translate: false, color: hexToColor("c73633"));
-		AddTextLabel("Kaeporo", translate: false, color: hexToColor("8de7f3"));
-		DrawTextLabels(ref Tabs[tabIndex]);
-
-		AddNewLine(1);
-		
-		AddTextLabel("Dracentis", translate: false, color: hexToColor("ad1457"));
-		AddTextLabel("Isbjorn52", translate: false, color: hexToColor("d97d3d"));
-		DrawTextLabels(ref Tabs[tabIndex]);
-
-		AddNewLine(1);
-
-		AddTextLabel("Xan", translate: false, color: hexToColor("b3443b"));
-		AddTextLabel("ASlightlyOvergrownCactus", translate: false, color: hexToColor("339124"));
-		DrawTextLabels(ref Tabs[tabIndex]);
-
-		AddNewLine(1);
-
-		AddTextLabel("Vigaro", translate: false, color: hexToColor("eaba2a"));
-		AddTextLabel("forthbridge", translate: false, color: hexToColor("8b41ff"));
-		DrawTextLabels(ref Tabs[tabIndex]);
-
-		AddNewLine(1);
-
-		AddTextLabel("Alduris", translate: false, color: hexToColor("fc770a"));
-		DrawTextLabels(ref Tabs[tabIndex]);
-
 		AddNewLine(1);
 
 		DrawBox(ref Tabs[tabIndex]);

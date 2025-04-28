@@ -8,6 +8,7 @@ namespace RegionKit.Modules.Objects;
 /// <summary>
 /// a slightly better waterfall
 /// </summary>
+[Obsolete("Use in-game FluxWaterfall set to static.")]
 public class PlacedWaterFall : WaterFall
 {
 	///<inheritdoc/>
@@ -15,6 +16,12 @@ public class PlacedWaterFall : WaterFall
 	{
 		_po = owner;
 		LogDebug($"({room.abstractRoom.name}): created PlacedWaterfall.");
+		Array.Resize(ref room.waterFalls, room.waterFalls.Length + 1);
+		room.waterFalls[^1] = this;
+		if (room.waterObject != null)
+		{
+			ConnectToWaterObject(room.waterObject);
+		}
 	}
 	private PlacedObject _po;
 	private PlacedWaterfallData _Data => (_po?.data as PlacedWaterfallData)!;

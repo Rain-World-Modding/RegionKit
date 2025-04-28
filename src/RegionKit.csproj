@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<!-- Project info -->
 	<PropertyGroup>
 		<LangVersion>13</LangVersion>
@@ -11,8 +11,8 @@
 		<Authors>RegionKit team</Authors>
 		<Description>All-in-one custom region dependency library.</Description>
 		<Copyright>GPL v3</Copyright>
-		<FileVersion>3.16.1</FileVersion>
-		<AssemblyVersion>3.16.1</AssemblyVersion>
+		<FileVersion>3.17.0</FileVersion>
+		<AssemblyVersion>3.17.0</AssemblyVersion>
 		<PackageReadmeFile>../README.md</PackageReadmeFile>
 		<PackageLicenseFile>../LICENSE</PackageLicenseFile>
 		<DebugType>Portable</DebugType>
@@ -27,6 +27,7 @@
 		<WarningsAsErrors>$(WarningsAsErrors);NU1605;</WarningsAsErrors>
 		<DefineConstants>$(DefineConstants)TRACE;RK;REMIX</DefineConstants>
 		<Nowarn>1591</Nowarn>
+		<DebugSymbols>true</DebugSymbols>
 	</PropertyGroup>
 	<!-- Release configuration. Build for release. -->
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -34,7 +35,7 @@
 		<WarningsAsErrors>$(WarningsAsErrors);NU1605;</WarningsAsErrors>
 		<DefineConstants>$(DefineConstants)TRACE;RK;REMIX</DefineConstants>
 		<Nowarn>1591</Nowarn>
-		<DebugSymbols>true</DebugSymbols>
+		<DebugType>none</DebugType>
 	</PropertyGroup>
 	<!-- Exclude reference folder from project. -->
 	<ItemGroup>
@@ -160,7 +161,7 @@
 		</Reference>
 		<Reference Include="Newtonsoft.Json">
 			<HintPath>lib/Newtonsoft.Json.dll</HintPath>
-			<Private>False</Private>
+			<Private>True</Private>
 		</Reference>
 		<Reference Include="netstandard">
 			<HintPath>lib/netstandard.dll</HintPath>

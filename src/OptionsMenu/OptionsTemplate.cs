@@ -107,8 +107,10 @@ public abstract class OptionsTemplate : OptionInterface
         float boxWidth = MarginX.y - MarginX.x;
         int lastIndex = BoxEndPositions.Count - 1;
 
-        tab.AddItems(new OpRect(Pos, new(boxWidth, BoxEndPositions[lastIndex] - Pos.y)));
+		OpRect rect;
+        tab.AddItems(rect = new OpRect(Pos, new(boxWidth, BoxEndPositions[lastIndex] - Pos.y)));
         BoxEndPositions.RemoveAt(lastIndex);
+		rect.MoveToBack();
     }
 
 
@@ -289,7 +291,7 @@ public abstract class OptionsTemplate : OptionInterface
 
 
 	// TEXT LABEL
-    protected void AddTextLabel(string text, FLabelAlignment alignment = FLabelAlignment.Center, bool bigText = false, bool translate = true, Color? color = null)
+    protected void AddTextLabel(string text, FLabelAlignment alignment = FLabelAlignment.Center, bool bigText = false, bool shiny = false, bool translate = true, Color? color = null)
     {
         float textHeight = (bigText ? 2f : 1f) * FONT_HEIGHT;
 
@@ -300,6 +302,11 @@ public abstract class OptionsTemplate : OptionInterface
         {
             autoWrap = true
         };
+
+		if (shiny)
+		{
+			textLabel.label.shader = Custom.rainWorld.Shaders["MenuText"];
+		}
 
 		if (color != null)
 		{

@@ -108,11 +108,7 @@ public class Drawable : CosmeticSprite
 				sLeaser.sprites[0].SetElementByName(_Data.GetValue<string>("spriteName"));
 				UpdateUV(sLeaser);
 			}
-			catch (Exception e) when (e is FutileException)
-			{
-				//ignored
-			}
-			catch (Exception e) when (e is System.IO.IOException)
+			catch (Exception e) when (e is FutileException or IOException)
 			{
 				//ignored
 			}

@@ -39,7 +39,7 @@ namespace RegionKit.Modules.Objects
         {
             bool wasNull = newContatiner is null;
             orig(self, sLeaser, rCam, newContatiner);
-            if (wasNull)
+            if (wasNull && self is WaterFallDepth)
             {
                 sLeaser.sprites[0].RemoveFromContainer();
                 rCam.ReturnFContainer("GrabShaders").AddChild(sLeaser.sprites[0]);

@@ -91,7 +91,7 @@ namespace RegionKit.Modules.Effects
 				var data = BreathData.GetValue(self, (_) => [self.airInLungs, self.airInLungs]);
 				data[1] = data[0];
 
-				bool holdingBubbleGrass = self.grasps.Any(x => x?.grabbed is BubbleGrass);
+				bool holdingBubbleGrass = self.grasps.Any(x => x?.grabbed is BubbleGrass bg && bg.oxygen > 0f);
 				if (!holdingBubbleGrass)
 				{
 					if (data[0] < self.slugcatStats.drownThreshold)

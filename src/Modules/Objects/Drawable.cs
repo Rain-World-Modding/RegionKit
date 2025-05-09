@@ -153,9 +153,12 @@ public class Drawable : CosmeticSprite
 				return;
 			}
 			string str = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
-			Texture2D texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-			AssetManager.SafeWWWLoadTexture(ref texture, "file:///" + str, true, true);
-			HeavyTexturesCache.LoadAndCacheAtlasFromTexture(fileName, texture, false);
+			if (File.Exists(str))
+			{
+				Texture2D texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+				AssetManager.SafeWWWLoadTexture(ref texture, "file:///" + str, true, true);
+				HeavyTexturesCache.LoadAndCacheAtlasFromTexture(fileName, texture, false);
+			}
 		}
 	}
 }

@@ -342,13 +342,16 @@ public class BackgroundPage : Page
 			foreach (string str in AssetManager.ListDirectory("Illustrations"))
 			{
 				string str2 = Path.GetFileNameWithoutExtension(str);
-				if (str2.ToLower().StartsWith("atc_") || str2.ToLower().StartsWith("rf_"))
+				if (str2.ToLower().StartsWith("atc_")
+					|| str2.ToLower().StartsWith("rf_")
+					|| str2.ToLower().StartsWith("pnk_")
+					|| str2.ToLower().StartsWith("otr_")
+					|| str2.ToLower().StartsWith("au_"))
 					result.Add(str2);
 			}
 
 			return result;
 		}
-
 	}
 	public static string[] backgroundSaves() => AssetManager.ListDirectory(_Module.BGPath).Where(x => File.ReadAllLines(x)[0] != "UNLISTED").Select(i => Path.GetFileNameWithoutExtension(i)).Prepend("<Default>").ToArray();
 }

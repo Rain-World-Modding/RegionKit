@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using RWCustom;
-using UnityEngine;
+﻿using System.Runtime.CompilerServices;
 namespace RegionKit.Modules.EchoExtender;
 ///<inheritdoc/>
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Echo Extender")]
@@ -111,23 +104,20 @@ public static class _Module
 			}
 		}
 		orig(self);
-		if (hasEEGhost)
+		foreach (PlacedObject obj in self.roomSettings.placedObjects)
 		{
-			foreach (PlacedObject obj in self.roomSettings.placedObjects)
+			if (obj.type == _Enums.EEGhostSpot && obj.active)
 			{
-				if (obj.type == _Enums.EEGhostSpot && obj.active)
+				if (self.game.world.worldGhost != null && self.game.world.worldGhost.ghostRoom == self.abstractRoom)
 				{
-					if (self.game.world.worldGhost != null && self.game.world.worldGhost.ghostRoom == self.abstractRoom)
+					self.AddObject(new EEGhost(self, obj, self.game.world.worldGhost));
+				}
+				else if (self.world.region != null)
+				{
+					GhostWorldPresence.GhostID ghostID = GhostWorldPresence.GetGhostID(self.world.region.name);
+					if (self.game.session is StoryGameSession && (!self.game.GetStorySession.saveState.deathPersistentSaveData.ghostsTalkedTo.ContainsKey(ghostID) || self.game.GetStorySession.saveState.deathPersistentSaveData.ghostsTalkedTo[ghostID] == 0))
 					{
-						self.AddObject(new EEGhost(self, obj, self.game.world.worldGhost));
-					}
-					else if (self.world.region != null)
-					{
-						GhostWorldPresence.GhostID ghostID = GhostWorldPresence.GetGhostID(self.world.region.name);
-						if (self.game.session is StoryGameSession && (!self.game.GetStorySession.saveState.deathPersistentSaveData.ghostsTalkedTo.ContainsKey(ghostID) || self.game.GetStorySession.saveState.deathPersistentSaveData.ghostsTalkedTo[ghostID] == 0))
-						{
-							self.AddObject(new GhostHunch(self, ghostID));
-						}
+						self.AddObject(new GhostHunch(self, ghostID));
 					}
 				}
 			}

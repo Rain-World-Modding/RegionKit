@@ -3,6 +3,7 @@ using System.Linq;
 using DevInterface;
 using RegionKit.Modules.DevUIMisc;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
+using Watcher;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
@@ -187,6 +188,7 @@ public class BackgroundPage : Page
 	{
 		AboveCloudsView? aboveCloudsView = null;
 		RoofTopView? roofTopView = null;
+		AncientUrbanView? ancientUrbanView = null;
 		VoidSea.VoidSeaScene? voidSeaView = null;
 		foreach (UpdatableAndDeletable uad in self.updateList)
 		{
@@ -197,6 +199,9 @@ public class BackgroundPage : Page
 
 				else if (uad is RoofTopView rtv)
 				{ roofTopView = rtv; }
+
+				else if (uad is AncientUrbanView auv)
+				{ ancientUrbanView = auv; }
 
 				else if (uad is VoidSea.VoidSeaScene vss)
 				{ voidSeaView = vss; }
@@ -216,6 +221,13 @@ public class BackgroundPage : Page
 			roofTopView = null;
 		}
 
+		if (ancientUrbanView != null && (type != BackgroundTemplateType.AncientUrbanView || refresh))
+		{
+			ancientUrbanView.Destroy();
+			self.RemoveObject(ancientUrbanView);
+			ancientUrbanView = null;
+		}
+
 		if (voidSeaView != null && (type != BackgroundTemplateType.VoidSeaScene || refresh))
 		{
 			voidSeaView.Destroy();
@@ -231,6 +243,11 @@ public class BackgroundPage : Page
 		if (roofTopView == null && type == BackgroundTemplateType.RoofTopView)
 		{
 			self.AddObject(new RoofTopView(self, new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.RoofTopView, 0f, false)));
+		}
+
+		if (ancientUrbanView == null && type == BackgroundTemplateType.AncientUrbanView)
+		{
+			self.AddObject(new AncientUrbanView(self, new RoomSettings.RoomEffect(WatcherEnums.RoomEffectType.AncientUrbanView, 0f, false)));
 		}
 
 		if (voidSeaView == null && type == BackgroundTemplateType.VoidSeaScene)

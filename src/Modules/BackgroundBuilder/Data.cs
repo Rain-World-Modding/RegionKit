@@ -7,6 +7,7 @@ using static RegionKit.Modules.BackgroundBuilder.BackgroundElementData;
 using static RegionKit.Modules.BackgroundBuilder.CustomBackgroundElements;
 using System.Reflection;
 using System;
+using Watcher;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
@@ -20,6 +21,8 @@ public class BackgroundTemplateType : ExtEnum<BackgroundTemplateType>
 	public static readonly BackgroundTemplateType AboveCloudsView = new("AboveCloudsView", true);
 
 	public static readonly BackgroundTemplateType RoofTopView = new("RoofTopView", true);
+
+	public static readonly BackgroundTemplateType AncientUrbanView = new("AncientUrbanView", true);
 
 	public static readonly BackgroundTemplateType VoidSeaScene = new("VoidSeaScene", true);
 }
@@ -576,7 +579,8 @@ internal static class Data
 			{
 				return _daySky ?? 
 					((_Scene is AboveCloudsView acv) ? acv.daySky.illustrationName : 
-					(_Scene is RoofTopView rtv) ? rtv.daySky.illustrationName : "AtC_Sky");
+					(_Scene is RoofTopView rtv) ? rtv.daySky.illustrationName : 
+					(_Scene is AncientUrbanView auv && (auv.elements.First(x => x is AncientUrbanView.Sky) is AncientUrbanView.Sky sky)) ? sky.illustrationName : "AtC_Sky");
 			}
 
 			set
@@ -587,6 +591,7 @@ internal static class Data
 					_Scene.LoadGraphic(value, true, true);
 					if (_Scene is AboveCloudsView acv) acv.daySky.illustrationName = value;
 					if (_Scene is RoofTopView rtv) rtv.daySky.illustrationName = value;
+					if (_Scene is AncientUrbanView auv && (auv.elements.First(x => x is AncientUrbanView.Sky) is AncientUrbanView.Sky sky)) sky.illustrationName = value;
 				}
 			}
 		}
@@ -1185,6 +1190,102 @@ internal static class Data
 		}
 	}
 
+	public class AncientUrbanView_SceneData : DayNightSceneData
+	{
+		[BackgroundData]
+		public float floorLevel
+		{
+			get => _floorLevel ?? Scene?.floorLevel ?? -2000;
+			set
+			{
+				_floorLevel = value;
+				if (Scene != null)
+				{
+					UpdateFloorLevel(floorLevel - Scene.floorLevel);
+					Scene.floorLevel = value;
+				}
+			}
+		}
+
+		[BackgroundData]
+		public Vector2? origin
+		{
+			get => _origin;
+			set
+			{
+				_origin = value;
+				if (Scene is AncientUrbanView auv && value is Vector2 v)
+				{
+					auv.sceneOrigo = v;
+					Shader.SetGlobalVector(RainWorld.ShadPropSceneOrigoPosition, v);
+				}
+			}
+		}
+		#region backingfields
+		private Vector2? _origin;
+		private float? _floorLevel;
+		#endregion
+
+		public bool redoRubble;
+
+		public AncientUrbanView? Scene { get => _Scene is AncientUrbanView acv ? acv : null; set => _Scene = value; }
+
+		public override void MakeScene(BackgroundScene self)
+		{
+			if (self is not AncientUrbanView auv) return;
+
+			Scene = auv;
+
+			base.MakeScene(self);
+
+		}
+
+		public void UpdateFloorLevel(float difference)
+		{
+			if (Scene == null) return;
+			foreach (BackgroundScene.BackgroundSceneElement element in Scene.elements)
+			{
+				if (element is RoofTopView.DistantBuilding or Building or Floor or RoofTopView.Smoke or Rubble)
+				{ element.pos.y += difference; }
+			}
+		}
+
+		public override List<string> Serialize()
+		{
+			List<string> lines = new();
+
+			if (origin is Vector2 v) lines.Add($"origin: {v.x}, {v.y}");
+
+			return lines.Concat(base.Serialize()).ToList();
+		}
+
+		public override void UpdateSceneElement(string message)
+		{
+			if (Scene == null) return;
+		}
+
+		public override void LineToData(string line)
+		{
+			base.LineToData(line);
+
+			string[] array = Regex.Split(line, ": ");
+			if (array.Length < 2) return;
+
+			switch (array[0])
+			{
+			case "Building":
+			case "Smoke":
+				if (TryGetBgElementFromString("AU_" + line, out CustomBgElement element))
+				{ backgroundElements.Add(element); }
+				break;
+			case "SmokeGradient":
+				if (TryGetBgElementFromString(line, out CustomBgElement element2))
+				{ backgroundElements.Add(element2); }
+				break;
+			}
+		}
+	}
+
 	public static bool TryGetPathFromName(string name, out string path)
 	{
 		path = "";
@@ -1218,6 +1319,7 @@ internal static class Data
 
 		return element is SimpleBackgroundElement or BackgroundScene.Simple2DBackgroundIllustration or
 			AboveCloudsView.DistantBuilding or DistantLightning or FlyingCloud or HorizonFog or Floor or
-			RoofTopView.DistantBuilding or Building or DistantGhost or DustWave or RoofTopView.Smoke;
+			RoofTopView.DistantBuilding or Building or DistantGhost or DustWave or RoofTopView.Smoke or
+			AncientUrbanView.Building or AncientUrbanView.Smoke or AncientUrbanView.SmokeGradient;
 	}
 }

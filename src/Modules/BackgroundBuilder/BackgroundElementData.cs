@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using static RegionKit.Modules.BackgroundBuilder.Data;
 using static RegionKit.Modules.BackgroundBuilder.CustomBackgroundElements;
 using System.Globalization;
+using Watcher;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
@@ -36,6 +37,9 @@ internal static class BackgroundElementData
 				"DistantGhost" => new RTV_DistantGhost(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2])),
 				"DustWave" => new RTV_DustWave(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3])),
 				"Smoke" => new RTV_Smoke(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2]), float.Parse(args[3]), float.Parse(args[4]), float.Parse(args[5]), bool.Parse(args[6])),
+				"AU_Smoke" => new RTV_Smoke(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2]), float.Parse(args[3]), float.Parse(args[4]), float.Parse(args[5]), bool.Parse(args[6])),
+				"AU_Building" => new AUV_Building(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4]), float.Parse(args[5]), float.Parse(args[6])),
+				"SmokeGradient" => new AUV_SmokeGradient(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2])),
 				_ => null!
 			};
 		}
@@ -65,6 +69,9 @@ internal static class BackgroundElementData
 			RoofTopView.DistantGhost el => new RTV_DistantGhost(el.ScenePosToNeutral(), el.depth),
 			RoofTopView.DustWave el => new RTV_DustWave(el.assetName, el.ScenePosToNeutral(), el.depth),
 			RoofTopView.Smoke el => new RTV_Smoke(el.pos, el.depth, el.flattened, el.alpha, el.shaderInputColor, el.shaderType),
+			AncientUrbanView.Smoke el => new RTV_Smoke(el.pos, el.depth, el.flattened, el.alpha, el.shaderInputColor, el.shaderType),
+			AncientUrbanView.SmokeGradient el => new AUV_SmokeGradient(el.pos, el.depth),
+			AncientUrbanView.Building el => new AUV_Building(el.assetName, el.pos, el.depth, el.scale, el.rotation, el.thickness),
 			_ => throw new BackgroundBuilderException(BackgroundBuilderError.InvalidVanillaBgElement),//this should never happen
 		};
 	}
@@ -513,9 +520,9 @@ internal static class BackgroundElementData
 
 		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
 		{
-			if (self is not RoofTopView rtv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
-
-			return new RoofTopView.Smoke(rtv, new Vector2(pos.x, rtv.floorLevel + pos.y), depth, 0, flattened, alpha, shaderInputColor, shaderType);
+			if (self is RoofTopView rtv) return new RoofTopView.Smoke(rtv, new Vector2(pos.x, rtv.floorLevel + pos.y), depth, 0, flattened, alpha, shaderInputColor, shaderType);
+			if (self is AncientUrbanView auv) return new AncientUrbanView.Smoke(auv, new Vector2(pos.x, auv.floorLevel + pos.y), depth, 0, flattened, alpha, shaderInputColor, shaderType);
+			throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
 		}
 
 		public override string Serialize() => $"Smoke: {pos.x}, {pos.y}, {depth}, {flattened}, {alpha}, {shaderInputColor}, {shaderType}";
@@ -538,6 +545,57 @@ internal static class BackgroundElementData
 
 	#endregion RoofTopView
 
+	public class AUV_Building : CustomBgElement
+	{
+
+		public string assetName;
+
+		public float scale;
+
+		public float rotation;
+
+		public float thickness;
+
+		public AUV_Building(string assetName, Vector2 pos, float depth, float scale, float rotation, float thickness) : base(pos, depth)
+		{
+			this.assetName = assetName;
+			this.scale = scale;
+			this.rotation = rotation;
+			this.thickness = thickness;
+		}
+
+		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
+		{
+			if (self is not AncientUrbanView auv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
+			return new AncientUrbanView.Building(auv, assetName, new Vector2(DefaultNeutralPos(new Vector2(pos.x, pos.y), depth).x, auv.floorLevel + pos.y), depth, scale, rotation, thickness);
+		}
+
+		public override string Serialize() => $"Building: {assetName}, {pos.x}, {pos.y}, {depth}, {scale}, {rotation}, {thickness}";
+
+		public override void UpdateSceneElement()
+		{
+
+		}
+	}
+	public class AUV_SmokeGradient : CustomBgElement
+	{
+		public AUV_SmokeGradient(Vector2 pos, float depth) : base(pos, depth)
+		{
+		}
+
+		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
+		{
+			if (self is not AncientUrbanView auv) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
+			return new AncientUrbanView.SmokeGradient(auv, new Vector2(DefaultNeutralPos(new Vector2(pos.x, pos.y), depth).x, auv.floorLevel + pos.y), depth);
+		}
+
+		public override string Serialize() => $"SmokeGradient: {pos.x}, {pos.y}, {depth}";
+
+		public override void UpdateSceneElement()
+		{
+
+		}
+	}
 
 	/// <summary>
 	/// A simplification of BackgroundScene.PosFromDrawPosAtNeutralCam

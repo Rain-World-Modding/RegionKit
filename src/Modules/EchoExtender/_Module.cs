@@ -91,6 +91,7 @@ public static class _Module
 
 	private static void RoomOnLoaded(On.Room.orig_Loaded orig, Room self)
 	{
+		if (self.game == null) return;
 		bool hasEEGhost = self.world.worldGhost != null && EchoParser.__extendedEchoIDs.Contains(self.world.worldGhost.ghostID);
 		if (hasEEGhost)
 		{

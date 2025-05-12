@@ -29,6 +29,22 @@ internal static class BackgroundUpdates
 		On.BackgroundScene.LoadGraphic += BackgroundScene_LoadGraphic;
 	}
 
+	public static void Undo()
+	{
+		//On.BackgroundScene.Update += BackgroundScene_Update;
+		On.BackgroundScene.BackgroundSceneElement.DrawSprites -= BackgroundSceneElement_DrawSprites;
+		On.BackgroundScene.BackgroundSceneElement.InitiateSprites -= BackgroundSceneElement_InitiateSprites;
+		On.BackgroundScene.BackgroundSceneElement.AddToContainer -= BackgroundSceneElement_AddToContainer;
+		//On.BackgroundScene.BackgroundSceneElement.DrawPos += BackgroundSceneElement_DrawPos;
+		On.RoofTopView.Building.InitiateSprites -= Building_InitiateSprites;
+		On.RoofTopView.DistantBuilding.InitiateSprites -= Building_InitiateSprites;
+		On.AboveCloudsView.DistantBuilding.InitiateSprites -= Building_InitiateSprites;
+		On.AboveCloudsView.DistantLightning.InitiateSprites -= Building_InitiateSprites;
+		On.RoofTopView.Smoke.InitiateSprites -= Building_InitiateSprites;
+		On.BackgroundScene.FullScreenSingleColor.DrawSprites -= FullScreenSingleColor_DrawSprites;
+		On.BackgroundScene.LoadGraphic -= BackgroundScene_LoadGraphic;
+	}
+
 	private static void BackgroundScene_LoadGraphic(On.BackgroundScene.orig_LoadGraphic orig, BackgroundScene self, string elementName, bool crispPixels, bool clampWrapMode)
 	{
 		if (Futile.atlasManager.DoesContainElementWithName(elementName)) return;

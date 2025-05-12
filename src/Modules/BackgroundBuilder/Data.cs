@@ -1001,7 +1001,7 @@ internal static class Data
 
 		public override void UpdateSceneElement(string message)
 		{
-			if (Scene == null) return;
+			if (Scene == null || Scene.room.game.IsArenaSession) return;
 
 			Scene.startAltitude = startAltitude;
 			Scene.endAltitude = endAltitude;

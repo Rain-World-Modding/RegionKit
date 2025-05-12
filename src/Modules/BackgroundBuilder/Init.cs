@@ -21,15 +21,6 @@ internal static class Init
 		_CommonHooks.PostRoomLoad += PostRoomLoad;
 	}
 
-	private static void PostRoomLoad(Room room)
-	{
-		if (room.game == null) return;
-		Data.RoomBGData data = room.roomSettings.BackgroundData();
-
-		if (!data.sceneData.sceneInitialized && data.type != BackgroundTemplateType.None)
-			BackgroundPage.SwitchRoomBackground(room, data.type);
-	}
-
 	public static void Undo()
 	{
 		On.RoofTopView.ctor -= RoofTopView_ctor;
@@ -42,6 +33,17 @@ internal static class Init
 		On.Watcher.AncientUrbanView.ctor -= AncientUrbanView_ctor;
 		On.Watcher.AncientUrbanView.Update -= AncientUrbanView_Update;
 		On.RotWormScene.ctor -= RotWormScene_ctor;
+		_CommonHooks.PostRoomLoad -= PostRoomLoad;
+	}
+
+
+	private static void PostRoomLoad(Room room)
+	{
+		if (room.game == null) return;
+		Data.RoomBGData data = room.roomSettings.BackgroundData();
+
+		if (!data.sceneData.sceneInitialized && data.type != BackgroundTemplateType.None)
+			BackgroundPage.SwitchRoomBackground(room, data.type);
 	}
 
 	private static void RotWormScene_ctor(On.RotWormScene.orig_ctor orig, RotWormScene self, Room room)

@@ -1,0 +1,22 @@
+PROTECTED
+Parent: AtC_GeneralDefault
+startAltitude: 8500
+endAltitude: 9500
+startFogAltitude: 5700
+endFogAltitude: 9000
+atmosphereColor: AE4987
+daySky: pnk_sky
+duskSky: AtC_DuskSky
+nightSky: AtC_NightSky
+DistantBuilding: pnk_structure2, -674, -50.94238, 196.1146, 0.2 : scale|0.1233124
+DistantBuilding: pnk_structure1, -651, -135.1357, 79.7291, 0.2 : scale|0.8216254
+DistantBuilding: pnk_structure2, -580, -80, 205, 0 : scale|0.4
+DistantBuilding: pnk_structure3, -442, -134.167, 81.66579, 0.2 : scale|0.8100052
+DistantBuilding: pnk_structure1, -308, -124.9814, 130.0379, 0.2 : scale|0.6997727
+DistantBuilding: pnk_structure2, -100, -145.9756, 58.04863, 0.2 : scale|0.9517083
+DistantBuilding: pnk_structure1, -60, -96.9248, 156.1507, 0.2 : scale|0.3630957
+DistantBuilding: pnk_structure1, 513, -124.9385, 100.1239, 0.2 : scale|0.6992567
+DistantBuilding: pnk_structure1, 577, -108.2783, 133.444, 0.2 : scale|0.4993357
+DistantBuilding: pnk_structure3, 700, -250, 70, 0.2 : scale|1
+HorizonFog: pnk_fog, 683, 384, 195
+SimpleIllustration: pnk_sun, 683, 384, 22.5 : shader|BackgroundAdditive

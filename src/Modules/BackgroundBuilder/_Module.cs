@@ -33,6 +33,7 @@ public static class _Module
 		Init.Undo();
 		BuilderPageHooks.Undo();
 		ExceptionFixes.Undo();
+		BackgroundUpdates.Undo();
 	}
 
 }

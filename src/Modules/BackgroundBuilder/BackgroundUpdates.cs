@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using EffExt;
 using RegionKit.Extras;
 using static AboveCloudsView;
 using static RoofTopView;
@@ -24,6 +25,40 @@ internal static class BackgroundUpdates
 		On.AboveCloudsView.DistantBuilding.InitiateSprites += Building_InitiateSprites;
 		On.AboveCloudsView.DistantLightning.InitiateSprites += Building_InitiateSprites;
 		On.RoofTopView.Smoke.InitiateSprites += Building_InitiateSprites;
+		On.BackgroundScene.FullScreenSingleColor.DrawSprites += FullScreenSingleColor_DrawSprites;
+		On.BackgroundScene.LoadGraphic += BackgroundScene_LoadGraphic;
+	}
+
+	public static void Undo()
+	{
+		//On.BackgroundScene.Update += BackgroundScene_Update;
+		On.BackgroundScene.BackgroundSceneElement.DrawSprites -= BackgroundSceneElement_DrawSprites;
+		On.BackgroundScene.BackgroundSceneElement.InitiateSprites -= BackgroundSceneElement_InitiateSprites;
+		On.BackgroundScene.BackgroundSceneElement.AddToContainer -= BackgroundSceneElement_AddToContainer;
+		//On.BackgroundScene.BackgroundSceneElement.DrawPos += BackgroundSceneElement_DrawPos;
+		On.RoofTopView.Building.InitiateSprites -= Building_InitiateSprites;
+		On.RoofTopView.DistantBuilding.InitiateSprites -= Building_InitiateSprites;
+		On.AboveCloudsView.DistantBuilding.InitiateSprites -= Building_InitiateSprites;
+		On.AboveCloudsView.DistantLightning.InitiateSprites -= Building_InitiateSprites;
+		On.RoofTopView.Smoke.InitiateSprites -= Building_InitiateSprites;
+		On.BackgroundScene.FullScreenSingleColor.DrawSprites -= FullScreenSingleColor_DrawSprites;
+		On.BackgroundScene.LoadGraphic -= BackgroundScene_LoadGraphic;
+	}
+
+	private static void BackgroundScene_LoadGraphic(On.BackgroundScene.orig_LoadGraphic orig, BackgroundScene self, string elementName, bool crispPixels, bool clampWrapMode)
+	{
+		if (Futile.atlasManager.DoesContainElementWithName(elementName)) return;
+		orig(self, elementName, crispPixels, clampWrapMode);
+	}
+
+	private static void FullScreenSingleColor_DrawSprites(On.BackgroundScene.FullScreenSingleColor.orig_DrawSprites orig, BackgroundScene.FullScreenSingleColor self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
+	{
+		if (self is Fog && self.room.roomSettings.BackgroundData().sceneData is Data.AboveCloudsView_SceneData data && (data._startFogAltitude != null || data._endFogAltitude != null))
+		{
+			float num = self.scene.RoomToWorldPos(camPos).y + (data.Scene == null ? 0f : data.Scene.yShift);
+			self.alpha = Mathf.InverseLerp(data.endFogAltitude, data.startFogAltitude, num) * 0.6f;
+		}
+		orig(self, sLeaser, rCam, timeStacker, camPos);
 	}
 
 	private static void BackgroundSceneElement_AddToContainer(On.BackgroundScene.BackgroundSceneElement.orig_AddToContainer orig, BackgroundScene.BackgroundSceneElement self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
@@ -64,12 +99,6 @@ internal static class BackgroundUpdates
 	private static void BackgroundSceneElement_InitiateSprites(On.BackgroundScene.BackgroundSceneElement.orig_InitiateSprites orig, BackgroundScene.BackgroundSceneElement self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
 		orig(self, sLeaser, rCam);
-
-		if (self.CData().dataElement?.anchorPos is Vector2 anchor)
-		{
-			foreach (FSprite sprite in sLeaser.sprites)
-			{ sprite.SetAnchor(anchor); }
-		}
 	}
 
 	private static Vector2 BackgroundSceneElement_DrawPos(On.BackgroundScene.BackgroundSceneElement.orig_DrawPos orig, BackgroundScene.BackgroundSceneElement self, Vector2 camPos, float hDisplace)
@@ -118,16 +147,9 @@ internal static class BackgroundUpdates
 
 		orig(self, sLeaser, rCam, timeStacker, camPos);
 
-		if (self.CData().dataElement?.spriteScale is float scale)
+		if (self.CData().dataElement is BackgroundElementData.CustomBgElement element2)
 		{
-			foreach (FSprite sprite in sLeaser.sprites)
-			{ 
-				sprite.scale = scale;
-				if (self is Building building)
-				{
-					sLeaser.sprites[0].color = new Color(building.elementSize.x * building.scale / 4000f, building.elementSize.y * building.scale / 1500f, 1f / (self.depth / 20f));
-				}
-			}
+			element2.UpdateElementSprites(self, sLeaser);
 		}
 	}
 

@@ -4,8 +4,10 @@ using System.Text.RegularExpressions;
 using static RoofTopView;
 using static AboveCloudsView;
 using static RegionKit.Modules.BackgroundBuilder.BackgroundElementData;
+using static RegionKit.Modules.BackgroundBuilder.CustomBackgroundElements;
 using System.Reflection;
 using System;
+using Watcher;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
@@ -19,6 +21,10 @@ public class BackgroundTemplateType : ExtEnum<BackgroundTemplateType>
 	public static readonly BackgroundTemplateType AboveCloudsView = new("AboveCloudsView", true);
 
 	public static readonly BackgroundTemplateType RoofTopView = new("RoofTopView", true);
+
+	public static readonly BackgroundTemplateType AncientUrbanView = new("AncientUrbanView", true);
+
+	public static readonly BackgroundTemplateType RotWormScene = new("RotWormScene", true);
 
 	public static readonly BackgroundTemplateType VoidSeaScene = new("VoidSeaScene", true);
 }
@@ -34,19 +40,21 @@ internal static class Data
 		/// if backingFieldName isn't null, the serializer will only write if the backing field is assigned
 		/// </summary>
 		public string? backingFieldName = null;
+		public string? defaultFieldName = null;
 
-		public bool ShouldWrite<T>(T data)
+		public bool ShouldWrite<T>(T data, object value) where T : BGSceneData
 		{
+			if (defaultFieldName != null) return typeof(T).GetField(defaultFieldName, BF_ALL_CONTEXTS)?.GetValue(data) != value;
 			return backingFieldName == null || typeof(T).GetField(backingFieldName, BF_ALL_CONTEXTS)?.GetValue(data) != null;
 		}
 	}
-	public static List<string> SerializeBackgroundData(BGSceneData data)
+	public static IEnumerable<string> SerializeBackgroundData(BGSceneData data)
 	{
-		return (from pair in GetPropertyAttributes(data)
-				orderby pair.Value.Item2.order
-				//where item.Value.Item2.loadType.HasFlag(BackgroundDataAttribute.LoadType.Write)
-				where pair.Value.Item2.ShouldWrite(data)
-				select pair.Key + ": " + ObjectToString(pair.Value.Item1.GetValue(data))).ToList();
+		foreach ((string name, (PropertyInfo info, BackgroundDataAttribute attribute)) in GetPropertyAttributes(data).OrderBy(x => x.Value.Item2.order))
+		{
+			object value = info.GetValue(data);
+			if (attribute.ShouldWrite(data, value)) yield return name + ": " + ObjectToString(value);
+		}
 	}
 
 	public static void ParseBackgroundData(BGSceneData data, string[] fileText)
@@ -339,6 +347,12 @@ internal static class Data
 			else if (type == BackgroundTemplateType.RoofTopView)
 			{ sceneData = new RoofTopView_SceneData(); }
 
+			else if (type == BackgroundTemplateType.AncientUrbanView)
+			{ sceneData = new AncientUrbanView_SceneData(); }
+
+			else if (type == BackgroundTemplateType.RotWormScene)
+			{ sceneData = new RotWormScene_SceneData(); }
+
 			else { sceneData = new BGSceneData(); }
 
 		}
@@ -394,10 +408,10 @@ internal static class Data
 		public virtual List<string> Serialize()
 		{
 			List<string> list = new();
-			list = SerializeBackgroundData(this);
+			list = SerializeBackgroundData(this).ToList();
 			foreach (CustomBgElement element in backgroundElements)
 			{
-				list.Add(element.Serialize());
+				list.Add(element.Serialize() + element.SerializeTags());
 			}
 			return list;
 		}
@@ -446,18 +460,33 @@ internal static class Data
 		public virtual void LoadData(string[] fileText)
 		{
 			ParseBackgroundData(this, fileText);
-			foreach (string line in fileText)
-			{ LineToData(line); }
+			//foreach (string line in fileText)
+			//{ LineToData(line); }
 		}
 		public virtual void LineToData(string line)
 		{
+
+			string[] array2 = Regex.Split(line, ": ");
+			if (array2.Length >= 2)
+			{
+				switch (array2[0])
+				{
+				case "RotWorm": //these can go in any scene...
+				case "SimpleElement":
+				case "SimpleIllustration":
+					if (TryGetBgElementFromString(line, out CustomBgElement element))
+					{ backgroundElements.Add(element); }
+					break;
+				}
+			}
+
 			if (line.StartsWith("REMOVE_"))
 			{
 				string[] array = Regex.Split(line.Substring(7), ": ");
 				if (array.Length < 2) return;
 
 				string removeElement = $"{array[0]}: {array[1]}";
-				backgroundElements.RemoveAll(x => x.Serialize() == removeElement);
+				backgroundElements.RemoveAll(x => x.Serialize() + x.SerializeTags() == removeElement);
 			}
 		}
 
@@ -471,10 +500,17 @@ internal static class Data
 	public class DayNightSceneData : BGSceneData
 	{
 
-		[BackgroundData(backingFieldName = nameof(_atmosphereColor))]
+		private Color _defaultAtmosphereColor = new Color(0.16078432f, 0.23137255f, 0.31764707f);
+		[BackgroundData(backingFieldName = nameof(_atmosphereColor), defaultFieldName = nameof(_defaultAtmosphereColor))]
 		public Color atmosphereColor
 		{
-			get => _atmosphereColor ?? new Color(0.16078432f, 0.23137255f, 0.31764707f);
+			get
+			{
+				return _atmosphereColor ?? 
+					((_Scene is AboveCloudsView acv) ? acv.atmosphereColor : 
+					(_Scene is RoofTopView rtv) ? rtv.atmosphereColor : _defaultAtmosphereColor);
+			}
+
 			set
 			{
 				_atmosphereColor = value;
@@ -552,7 +588,8 @@ internal static class Data
 			{
 				return _daySky ?? 
 					((_Scene is AboveCloudsView acv) ? acv.daySky.illustrationName : 
-					(_Scene is RoofTopView rtv) ? rtv.daySky.illustrationName : "AtC_Sky");
+					(_Scene is RoofTopView rtv) ? rtv.daySky.illustrationName : 
+					(_Scene is AncientUrbanView auv && (auv.elements.First(x => x is AncientUrbanView.Sky) is AncientUrbanView.Sky sky)) ? sky.illustrationName : "AtC_Sky");
 			}
 
 			set
@@ -563,6 +600,7 @@ internal static class Data
 					_Scene.LoadGraphic(value, true, true);
 					if (_Scene is AboveCloudsView acv) acv.daySky.illustrationName = value;
 					if (_Scene is RoofTopView rtv) rtv.daySky.illustrationName = value;
+					if (_Scene is AncientUrbanView auv && (auv.elements.First(x => x is AncientUrbanView.Sky) is AncientUrbanView.Sky sky)) sky.illustrationName = value;
 				}
 			}
 		}
@@ -838,6 +876,59 @@ internal static class Data
 			}
 		}
 
+		static readonly float _startFogDefault = 18000f;
+		[BackgroundData(backingFieldName = nameof(_startFogAltitude), defaultFieldName = nameof(_startFogDefault))]
+		public float startFogAltitude
+		{
+			get
+			{
+				if (_startFogAltitude != null) return _startFogAltitude.Value;
+				if (Scene != null)
+				{
+					if (Scene.room.game.IsArenaSession)
+					{
+						if (Scene.PinkSky)
+						{ return 5700f; }
+						else return 0f;
+					}
+					if (Scene.PinkSky)
+					{ return 5700f; }
+					else if (Scene.OEClouds)
+					{ return 19887.3f; }
+					else if (Scene.SIClouds)
+					{ return 9000f; }
+				}
+				return _startFogDefault;
+			}
+			set => _startFogAltitude = value;
+		}
+		static readonly float _endFogDefault = 22000f;
+		[BackgroundData(backingFieldName = nameof(_endFogAltitude), defaultFieldName = nameof(_endFogDefault))]
+		public float endFogAltitude
+		{
+			get
+			{
+				if (_endFogAltitude != null) return _endFogAltitude.Value;
+				if (Scene != null)
+				{
+					if (Scene.room.game.IsArenaSession)
+					{
+						if (Scene.PinkSky)
+						{ return 9000f; }
+						else return 0f;
+					}
+					if (Scene.PinkSky)
+					{ return 9000f; }
+					else if (Scene.OEClouds)
+					{ return 21207.4f; }
+					else if (Scene.SIClouds)
+					{ return 16000f; }
+				}
+				return _endFogDefault;
+			}
+			set => _endFogAltitude = value;
+		}
+
 		#region backingfields
 		private float? _startAltitude;
 		private float? _endAltitude;
@@ -850,6 +941,8 @@ internal static class Data
 		private float? _overrideYStart;
 		private float? _overrideYEnd;
 		private float? _windDir;
+		public float? _startFogAltitude;
+		public float? _endFogAltitude;
 		#endregion
 
 		public bool redoClouds;
@@ -908,7 +1001,7 @@ internal static class Data
 
 		public override void UpdateSceneElement(string message)
 		{
-			if (Scene == null) return;
+			if (Scene == null || Scene.room.game.IsArenaSession) return;
 
 			Scene.startAltitude = startAltitude;
 			Scene.endAltitude = endAltitude;
@@ -933,6 +1026,7 @@ internal static class Data
 			case "DistantBuilding":
 			case "DistantLightning":
 			case "FlyingCloud":
+			case "HorizonFog":
 				if (TryGetBgElementFromString(line, out CustomBgElement element))
 				{ backgroundElements.Add(element); }
 				break;
@@ -1105,6 +1199,298 @@ internal static class Data
 		}
 	}
 
+	public class AncientUrbanView_SceneData : DayNightSceneData
+	{
+		[BackgroundData]
+		public float floorLevel
+		{
+			get => _floorLevel ?? Scene?.floorLevel ?? -2000;
+			set
+			{
+				_floorLevel = value;
+				if (Scene != null)
+				{
+					UpdateFloorLevel(floorLevel - Scene.floorLevel);
+					Scene.floorLevel = value;
+				}
+			}
+		}
+
+		[BackgroundData]
+		public Vector2? origin
+		{
+			get => _origin;
+			set
+			{
+				_origin = value;
+				if (Scene is AncientUrbanView auv && value is Vector2 v)
+				{
+					auv.sceneOrigo = v;
+					Shader.SetGlobalVector(RainWorld.ShadPropSceneOrigoPosition, v);
+				}
+			}
+		}
+		#region backingfields
+		private Vector2? _origin;
+		private float? _floorLevel;
+		#endregion
+
+		public bool redoRubble;
+
+		public AncientUrbanView? Scene { get => _Scene is AncientUrbanView acv ? acv : null; set => _Scene = value; }
+
+		public override void MakeScene(BackgroundScene self)
+		{
+			if (self is not AncientUrbanView auv) return;
+
+			Scene = auv;
+
+			base.MakeScene(self);
+
+		}
+
+		public void UpdateFloorLevel(float difference)
+		{
+			if (Scene == null) return;
+			foreach (BackgroundScene.BackgroundSceneElement element in Scene.elements)
+			{
+				if (element is RoofTopView.DistantBuilding or Building or Floor or RoofTopView.Smoke or Rubble)
+				{ element.pos.y += difference; }
+			}
+		}
+
+		public override List<string> Serialize()
+		{
+			List<string> lines = new();
+
+			if (origin is Vector2 v) lines.Add($"origin: {v.x}, {v.y}");
+
+			return lines.Concat(base.Serialize()).ToList();
+		}
+
+		public override void UpdateSceneElement(string message)
+		{
+			if (Scene == null) return;
+		}
+
+		public override void LineToData(string line)
+		{
+			base.LineToData(line);
+
+			string[] array = Regex.Split(line, ": ");
+			if (array.Length < 2) return;
+
+			switch (array[0])
+			{
+			case "Building":
+			case "Smoke":
+				if (TryGetBgElementFromString("AU_" + line, out CustomBgElement element))
+				{ backgroundElements.Add(element); }
+				break;
+			case "SmokeGradient":
+				if (TryGetBgElementFromString(line, out CustomBgElement element2))
+				{ backgroundElements.Add(element2); }
+				break;
+			}
+		}
+	}
+
+	public class RotWormScene_SceneData : BGSceneData
+	{
+		public List<RotWormScene.PebbsGrid> theGrid = new();
+
+
+		private Color _defaultAtmosphereColor = Color.black;
+		[BackgroundData(backingFieldName = nameof(_atmosphereColor), defaultFieldName = nameof(_defaultAtmosphereColor))]
+		public Color atmosphereColor
+		{
+			get
+			{
+				return _atmosphereColor ?? Shader.GetGlobalVector(RainWorld.ShadPropAboveCloudsAtmosphereColor);
+			}
+
+			set
+			{
+				_atmosphereColor = value;
+				Shader.SetGlobalVector(RainWorld.ShadPropAboveCloudsAtmosphereColor, value);
+			}
+		}
+
+		[BackgroundData]
+		public int seed
+		{
+			get => _seed ?? 123;
+			set
+			{
+				redoGrid |= value != seed;
+				_seed = value;
+			}
+		}
+
+		[BackgroundData]
+		public float sceneScale
+		{
+			get => _sceneScale ?? RotWormScene.sceneScale;
+			set
+			{
+				redoGrid |= value != sceneScale;
+				_sceneScale = value;
+				RotWormScene.sceneScale = value;
+			}
+		}
+
+		[BackgroundData]
+		public float depthScale
+		{
+			get => _depthScale ?? RotWormScene.depthScale;
+			set
+			{
+				//no redo grid necessary
+				_depthScale = value;
+				RotWormScene.depthScale = value;
+			}
+		}
+		[BackgroundData]
+		public float fogDepth
+		{
+			get => _fogDepth ?? RotWormScene.fogDepth;
+			set
+			{
+				redoGrid |= value != fogDepth;
+				_fogDepth = value;
+				RotWormScene.fogDepth = value;
+			}
+		}
+
+		[BackgroundData]
+		public Vector2 perspectiveCenter
+		{
+			//default is screen center, should adjust for screen size, but eehhh...
+			get => _perspectiveCenter ?? ((Scene != null) ? Scene.perspectiveCenter : new Vector2(683f, 384f));
+			set
+			{
+				_perspectiveCenter = value;
+				if(Scene != null) Scene.perspectiveCenter = value;
+			}
+		}
+
+		[BackgroundData]
+		public int gridLayers
+		{
+			get => _gridLayers ?? 8;
+			set
+			{
+				redoGrid |= value != gridLayers;
+				_gridLayers = value;
+			}
+		}
+		[BackgroundData]
+		public int gridParallelDepth
+		{
+			get => _gridParallelDepth ?? 24;
+			set
+			{
+				redoGrid |= value != gridParallelDepth;
+				_gridParallelDepth = value;
+			}
+		}
+		[BackgroundData]
+		public int gridPerpendicularDepth
+		{
+			get => _gridPerpendicularDepth ?? 2;
+			set
+			{
+				redoGrid |= value != gridPerpendicularDepth;
+				_gridPerpendicularDepth = value;
+			}
+		}
+
+		#region backingfields
+		Color? _atmosphereColor;
+		private int? _seed;
+		private float? _sceneScale;
+		private float? _depthScale;
+		private float? _fogDepth;
+		private Vector2? _perspectiveCenter;
+		private int? _gridLayers;
+		private int? _gridParallelDepth;
+		private int? _gridPerpendicularDepth;
+		#endregion
+
+		public bool redoGrid = false;
+
+		public RotWormScene? Scene { get => _Scene is RotWormScene rws ? rws : null; set => _Scene = value; }
+
+		public override void MakeScene(BackgroundScene self)
+		{
+			if (self is not RotWormScene rws) return;
+
+			theGrid = self.elements.Where(x => x is RotWormScene.PebbsGrid).Select(x => (RotWormScene.PebbsGrid)x).ToList();
+
+			Scene = rws;
+
+			base.MakeScene(self);
+
+			if (redoGrid)
+			{
+				redoGrid = false;
+				RedoGrid(rws);
+			}
+		}
+
+		public void RedoGrid(RotWormScene scene)
+		{
+			foreach (var grid in theGrid)
+			{
+				grid.Destroy();
+				scene.elements.Remove(grid);
+			}
+			theGrid.Clear();
+
+			UnityEngine.Random.State state = UnityEngine.Random.state;
+			UnityEngine.Random.InitState(seed);
+
+			try
+			{
+				float num4 = gridLayers * (gridParallelDepth + gridPerpendicularDepth);
+				for (int i = 0; i < gridLayers; i++)
+				{
+					for (int j = 0; j < gridParallelDepth + gridPerpendicularDepth; j++)
+					{
+						float depth = (i * (gridParallelDepth + gridPerpendicularDepth) + j) / num4;
+						var grid = new RotWormScene.PebbsGrid(scene, 0f, 0f, depth * fogDepth, 1f, j > gridParallelDepth);
+						theGrid.Add(grid);
+						scene.AddElement(grid);
+					}
+				}
+			}
+			finally
+			{
+				UnityEngine.Random.state = state;
+			}
+		}
+
+		public override void UpdateSceneElement(string message)
+		{
+			if (Scene == null) return;
+		}
+
+		public override void LineToData(string line)
+		{
+			base.LineToData(line);
+
+			string[] array = Regex.Split(line, ": ");
+			if (array.Length < 2) return;
+
+			switch (array[0])
+			{
+			case "PebbsGrid":
+				if (TryGetBgElementFromString(line, out CustomBgElement element2))
+				{ backgroundElements.Add(element2); }
+				break;
+			}
+		}
+	}
 	public static bool TryGetPathFromName(string name, out string path)
 	{
 		path = "";
@@ -1124,7 +1510,25 @@ internal static class Data
 
 	public static bool HasInstanceData(this BackgroundScene.BackgroundSceneElement element)
 	{
-		return element is AboveCloudsView.DistantBuilding or DistantLightning or FlyingCloud or Floor or
-			RoofTopView.DistantBuilding or Building or DistantGhost or DustWave or RoofTopView.Smoke;
+		if (element is BackgroundScene.Simple2DBackgroundIllustration)
+		{
+			if (element.scene is AboveCloudsView acv)
+			{
+				return element != acv.daySky && element != acv.duskSky && element != acv.nightSky;
+			}
+			else if (element.scene is RoofTopView rtv)
+			{
+				return element != rtv.daySky && element != rtv.duskSky && element != rtv.nightSky;
+			}
+		}
+		if (element is RotWormScene.PebbsGrid && element.scene.room?.roomSettings.BackgroundData().sceneData is RotWormScene_SceneData data)
+		{
+			return !data.theGrid.Contains(element);
+		}
+
+		return element is SimpleBackgroundElement or BackgroundScene.Simple2DBackgroundIllustration or
+			AboveCloudsView.DistantBuilding or DistantLightning or FlyingCloud or HorizonFog or Floor or
+			RoofTopView.DistantBuilding or Building or DistantGhost or DustWave or RoofTopView.Smoke or
+			AncientUrbanView.Building or AncientUrbanView.Smoke or AncientUrbanView.SmokeGradient or RotWorm;
 	}
 }

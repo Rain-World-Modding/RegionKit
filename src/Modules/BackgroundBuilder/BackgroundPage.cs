@@ -3,6 +3,7 @@ using System.Linq;
 using DevInterface;
 using RegionKit.Modules.DevUIMisc;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
+using Watcher;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
@@ -91,7 +92,7 @@ public class BackgroundPage : Page
 		subNodes.Add(buttonLoad);
 
 
-		//subNodes.Add(new Button(owner, "Save", this, new Vector2(200f, 600f), 60f, "Save"));
+		subNodes.Add(new Button(owner, "Save", this, new Vector2(200f, 600f), 60f, "Save"));
 
 
 		//backgroundType = new ExtEnumCycler<BackgroundTemplateType>(owner, "BackTypeCycle", this, new Vector2(170f, 580f), 120f, RoomSettings.BackgroundData().type, "Type");
@@ -187,7 +188,9 @@ public class BackgroundPage : Page
 	{
 		AboveCloudsView? aboveCloudsView = null;
 		RoofTopView? roofTopView = null;
-		VoidSea.VoidSeaScene? voidSeaView = null;
+		AncientUrbanView? ancientUrbanView = null;
+		RotWormScene? rotWormScene = null;
+		VoidSea.VoidSeaScene? voidSeaScene = null;
 		foreach (UpdatableAndDeletable uad in self.updateList)
 		{
 			if (uad is BackgroundScene)
@@ -198,8 +201,14 @@ public class BackgroundPage : Page
 				else if (uad is RoofTopView rtv)
 				{ roofTopView = rtv; }
 
+				else if (uad is AncientUrbanView auv)
+				{ ancientUrbanView = auv; }
+
+				else if (uad is RotWormScene rws)
+				{ rotWormScene = rws; }
+
 				else if (uad is VoidSea.VoidSeaScene vss)
-				{ voidSeaView = vss; }
+				{ voidSeaScene = vss; }
 			}
 		}
 		if (aboveCloudsView != null && (type != BackgroundTemplateType.AboveCloudsView || refresh))
@@ -216,11 +225,25 @@ public class BackgroundPage : Page
 			roofTopView = null;
 		}
 
-		if (voidSeaView != null && (type != BackgroundTemplateType.VoidSeaScene || refresh))
+		if (ancientUrbanView != null && (type != BackgroundTemplateType.AncientUrbanView || refresh))
 		{
-			voidSeaView.Destroy();
-			voidSeaView.RemoveFromRoom();
-			voidSeaView = null;
+			ancientUrbanView.Destroy();
+			self.RemoveObject(ancientUrbanView);
+			ancientUrbanView = null;
+		}
+
+		if (rotWormScene != null && (type != BackgroundTemplateType.RotWormScene || refresh))
+		{
+			rotWormScene.Destroy();
+			self.RemoveObject(rotWormScene);
+			rotWormScene = null;
+		}
+
+		if (voidSeaScene != null && (type != BackgroundTemplateType.VoidSeaScene || refresh))
+		{
+			voidSeaScene.Destroy();
+			voidSeaScene.RemoveFromRoom();
+			voidSeaScene = null;
 		}
 
 		if (aboveCloudsView == null && type == BackgroundTemplateType.AboveCloudsView)
@@ -233,7 +256,17 @@ public class BackgroundPage : Page
 			self.AddObject(new RoofTopView(self, new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.RoofTopView, 0f, false)));
 		}
 
-		if (voidSeaView == null && type == BackgroundTemplateType.VoidSeaScene)
+		if (ancientUrbanView == null && type == BackgroundTemplateType.AncientUrbanView)
+		{
+			self.AddObject(new AncientUrbanView(self, new RoomSettings.RoomEffect(WatcherEnums.RoomEffectType.AncientUrbanView, 0f, false)));
+		}
+
+		if (rotWormScene == null && type == BackgroundTemplateType.RotWormScene)
+		{
+			self.AddObject(new RotWormScene(self));
+		}
+
+		if (voidSeaScene == null && type == BackgroundTemplateType.VoidSeaScene)
 		{
 			//owner.room.AddObject(new VoidSea.VoidSeaScene(owner.room));
 		}
@@ -342,13 +375,16 @@ public class BackgroundPage : Page
 			foreach (string str in AssetManager.ListDirectory("Illustrations"))
 			{
 				string str2 = Path.GetFileNameWithoutExtension(str);
-				if (str2.ToLower().StartsWith("atc_") || str2.ToLower().StartsWith("rf_"))
+				if (str2.ToLower().StartsWith("atc_")
+					|| str2.ToLower().StartsWith("rf_")
+					|| str2.ToLower().StartsWith("pnk_")
+					|| str2.ToLower().StartsWith("otr_")
+					|| str2.ToLower().StartsWith("au_"))
 					result.Add(str2);
 			}
 
 			return result;
 		}
-
 	}
 	public static string[] backgroundSaves() => AssetManager.ListDirectory(_Module.BGPath).Where(x => File.ReadAllLines(x)[0] != "UNLISTED").Select(i => Path.GetFileNameWithoutExtension(i)).Prepend("<Default>").ToArray();
 }

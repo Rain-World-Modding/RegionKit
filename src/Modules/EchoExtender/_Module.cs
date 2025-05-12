@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using RWCustom;
-using UnityEngine;
+﻿using System.Runtime.CompilerServices;
 namespace RegionKit.Modules.EchoExtender;
 ///<inheritdoc/>
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Echo Extender")]
@@ -62,7 +55,7 @@ public static class _Module
 		var presenceOverride = PresenceOverride(self, testRoom);
 		if (presenceOverride != -1f) return presenceOverride;
 
-		if (!EchoParser.__echoSettings.TryGetValue(self.ghostID, out var settings)) return result;
+		if (!EchoParser.__echoSettings.TryGetValue(self.ghostID, out EchoSettings settings)) return result;
 		if (testRoom.index == self.ghostRoom.index) return 1f;
 		var echoEffectLimit = settings.EffectRadius * 1000f; //I think 1 screen is like a 1000 so I'm going with that
 		Vector2 globalDistance = Custom.RestrictInRect(worldPos, FloatRect.MakeFromVector2(self.world.RoomToWorldPos(new Vector2(), self.ghostRoom.index), self.world.RoomToWorldPos(self.ghostRoom.size.ToVector2() * 20f, self.ghostRoom.index)));
@@ -93,11 +86,12 @@ public static class _Module
 	}
 
 	//caching room values because loading a room is very expensive
-	private static ConditionalWeakTable<GhostWorldPresence, Dictionary<string, float>> _RoomOverrides = new();
-	public static Dictionary<string, float> RoomOverrides(this GhostWorldPresence p) => _RoomOverrides.GetValue(p, _ => new());
+	private static readonly ConditionalWeakTable<GhostWorldPresence, Dictionary<string, float>> _RoomOverrides = new();
+	public static Dictionary<string, float> RoomOverrides(this GhostWorldPresence p) => _RoomOverrides.GetValue(p, _ => []);
 
 	private static void RoomOnLoaded(On.Room.orig_Loaded orig, Room self)
 	{
+		if (self.game == null) return;
 		bool hasEEGhost = self.world.worldGhost != null && EchoParser.__extendedEchoIDs.Contains(self.world.worldGhost.ghostID);
 		if (hasEEGhost)
 		{
@@ -111,23 +105,20 @@ public static class _Module
 			}
 		}
 		orig(self);
-		if (hasEEGhost)
+		foreach (PlacedObject obj in self.roomSettings.placedObjects)
 		{
-			foreach (PlacedObject obj in self.roomSettings.placedObjects)
+			if (obj.type == _Enums.EEGhostSpot && obj.active)
 			{
-				if (obj.type == _Enums.EEGhostSpot && obj.active)
+				if (self.game.world.worldGhost != null && self.game.world.worldGhost.ghostRoom == self.abstractRoom)
 				{
-					if (self.game.world.worldGhost != null && self.game.world.worldGhost.ghostRoom == self.abstractRoom)
+					self.AddObject(new EEGhost(self, obj, self.game.world.worldGhost));
+				}
+				else if (self.world.region != null)
+				{
+					GhostWorldPresence.GhostID ghostID = GhostWorldPresence.GetGhostID(self.world.region.name);
+					if (self.game.session is StoryGameSession && (!self.game.GetStorySession.saveState.deathPersistentSaveData.ghostsTalkedTo.ContainsKey(ghostID) || self.game.GetStorySession.saveState.deathPersistentSaveData.ghostsTalkedTo[ghostID] == 0))
 					{
-						self.AddObject(new EEGhost(self, obj, self.game.world.worldGhost));
-					}
-					else if (self.world.region != null)
-					{
-						GhostWorldPresence.GhostID ghostID = GhostWorldPresence.GetGhostID(self.world.region.name);
-						if (self.game.session is StoryGameSession && (!self.game.GetStorySession.saveState.deathPersistentSaveData.ghostsTalkedTo.ContainsKey(ghostID) || self.game.GetStorySession.saveState.deathPersistentSaveData.ghostsTalkedTo[ghostID] == 0))
-						{
-							self.AddObject(new GhostHunch(self, ghostID));
-						}
+						self.AddObject(new GhostHunch(self, ghostID));
 					}
 				}
 			}
@@ -164,7 +155,7 @@ public static class _Module
 
 	private static GhostWorldPresence.GhostID GhostWorldPresenceOnGetGhostID(On.GhostWorldPresence.orig_GetGhostID orig, string regionname)
 	{
-		var origResult = orig(regionname);
+		GhostWorldPresence.GhostID origResult = orig(regionname);
 		return EchoParser.EchoIDExists(regionname) ? EchoParser.GetEchoID(regionname) : origResult;
 	}
 
@@ -176,7 +167,7 @@ public static class _Module
 			self.ghostRoom = world.GetAbstractRoom(EchoParser.__echoSettings[ghostid].EchoRoom);
 			self.songName = EchoParser.__echoSettings[ghostid].EchoSong;
 			LogInfo($"[Echo Extender] Set Song: {self.songName}");
-			LogInfo($"[Echo Extender] Set Room {self.ghostRoom?.name}");
+			LogInfo($"[Echo Extender] Set Room: {self.ghostRoom?.name ?? "[NULL]"}");
 		}
 	}
 }

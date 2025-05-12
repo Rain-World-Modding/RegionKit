@@ -30,13 +30,13 @@ internal static class SlugcatRoomTemplates
 			&& c.TryGotoNext(MoveType.After, x => x.MatchStfld<RoomSettings>(nameof(RoomSettings.filePath)))
 		)
 		{
-			c.Emit(OpCodes.Ldarg, 1);
+			c.Emit(OpCodes.Ldarg, 0);
 			c.Emit(OpCodes.Ldarg, 3);
 			c.Emit(OpCodes.Ldarg, 6);
 			c.EmitDelegate((RoomSettings self, Region region, SlugcatStats.Timeline playerChar) =>
 			{
 				if (playerChar == null) return;
-				string path = AssetManager.ResolveFilePath($"World{Path.DirectorySeparatorChar}{region.name}{Path.DirectorySeparatorChar}{self.name}-{playerChar.value}.txt");
+				string path = AssetManager.ResolveFilePath(Path.Combine("World", region.name, $"{self.name}-{playerChar.value}.txt"));
 				LogTrace($"path is [{path}, exists? {File.Exists(path)}]");
 				if (File.Exists(path)) self.filePath = path;
 			});

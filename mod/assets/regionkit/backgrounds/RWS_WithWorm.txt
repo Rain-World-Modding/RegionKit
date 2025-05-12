@@ -1,0 +1,3 @@
+PROTECTED
+Parent: RWS_NoWorm
+RotWorm: 0, 0, 1

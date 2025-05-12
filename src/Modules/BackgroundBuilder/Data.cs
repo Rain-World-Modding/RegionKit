@@ -24,6 +24,8 @@ public class BackgroundTemplateType : ExtEnum<BackgroundTemplateType>
 
 	public static readonly BackgroundTemplateType AncientUrbanView = new("AncientUrbanView", true);
 
+	public static readonly BackgroundTemplateType RotWormScene = new("RotWormScene", true);
+
 	public static readonly BackgroundTemplateType VoidSeaScene = new("VoidSeaScene", true);
 }
 
@@ -345,6 +347,12 @@ internal static class Data
 			else if (type == BackgroundTemplateType.RoofTopView)
 			{ sceneData = new RoofTopView_SceneData(); }
 
+			else if (type == BackgroundTemplateType.AncientUrbanView)
+			{ sceneData = new AncientUrbanView_SceneData(); }
+
+			else if (type == BackgroundTemplateType.RotWormScene)
+			{ sceneData = new RotWormScene_SceneData(); }
+
 			else { sceneData = new BGSceneData(); }
 
 		}
@@ -463,6 +471,7 @@ internal static class Data
 			{
 				switch (array2[0])
 				{
+				case "RotWorm": //these can go in any scene...
 				case "SimpleElement":
 				case "SimpleIllustration":
 					if (TryGetBgElementFromString(line, out CustomBgElement element))
@@ -1286,6 +1295,202 @@ internal static class Data
 		}
 	}
 
+	public class RotWormScene_SceneData : BGSceneData
+	{
+		public List<RotWormScene.PebbsGrid> theGrid = new();
+
+
+		private Color _defaultAtmosphereColor = Color.black;
+		[BackgroundData(backingFieldName = nameof(_atmosphereColor), defaultFieldName = nameof(_defaultAtmosphereColor))]
+		public Color atmosphereColor
+		{
+			get
+			{
+				return _atmosphereColor ?? Shader.GetGlobalVector(RainWorld.ShadPropAboveCloudsAtmosphereColor);
+			}
+
+			set
+			{
+				_atmosphereColor = value;
+				Shader.SetGlobalVector(RainWorld.ShadPropAboveCloudsAtmosphereColor, value);
+			}
+		}
+
+		[BackgroundData]
+		public int seed
+		{
+			get => _seed ?? 123;
+			set
+			{
+				redoGrid |= value != seed;
+				_seed = value;
+			}
+		}
+
+		[BackgroundData]
+		public float sceneScale
+		{
+			get => _sceneScale ?? RotWormScene.sceneScale;
+			set
+			{
+				redoGrid |= value != sceneScale;
+				_sceneScale = value;
+				RotWormScene.sceneScale = value;
+			}
+		}
+
+		[BackgroundData]
+		public float depthScale
+		{
+			get => _depthScale ?? RotWormScene.depthScale;
+			set
+			{
+				//no redo grid necessary
+				_depthScale = value;
+				RotWormScene.depthScale = value;
+			}
+		}
+		[BackgroundData]
+		public float fogDepth
+		{
+			get => _fogDepth ?? RotWormScene.fogDepth;
+			set
+			{
+				redoGrid |= value != fogDepth;
+				_fogDepth = value;
+				RotWormScene.fogDepth = value;
+			}
+		}
+
+		[BackgroundData]
+		public Vector2 perspectiveCenter
+		{
+			//default is screen center, should adjust for screen size, but eehhh...
+			get => _perspectiveCenter ?? ((Scene != null) ? Scene.perspectiveCenter : new Vector2(683f, 384f));
+			set
+			{
+				_perspectiveCenter = value;
+				if(Scene != null) Scene.perspectiveCenter = value;
+			}
+		}
+
+		[BackgroundData]
+		public int gridLayers
+		{
+			get => _gridLayers ?? 8;
+			set
+			{
+				redoGrid |= value != gridLayers;
+				_gridLayers = value;
+			}
+		}
+		[BackgroundData]
+		public int gridParallelDepth
+		{
+			get => _gridParallelDepth ?? 24;
+			set
+			{
+				redoGrid |= value != gridParallelDepth;
+				_gridParallelDepth = value;
+			}
+		}
+		[BackgroundData]
+		public int gridPerpendicularDepth
+		{
+			get => _gridPerpendicularDepth ?? 2;
+			set
+			{
+				redoGrid |= value != gridPerpendicularDepth;
+				_gridPerpendicularDepth = value;
+			}
+		}
+
+		#region backingfields
+		Color? _atmosphereColor;
+		private int? _seed;
+		private float? _sceneScale;
+		private float? _depthScale;
+		private float? _fogDepth;
+		private Vector2? _perspectiveCenter;
+		private int? _gridLayers;
+		private int? _gridParallelDepth;
+		private int? _gridPerpendicularDepth;
+		#endregion
+
+		public bool redoGrid = false;
+
+		public RotWormScene? Scene { get => _Scene is RotWormScene rws ? rws : null; set => _Scene = value; }
+
+		public override void MakeScene(BackgroundScene self)
+		{
+			if (self is not RotWormScene rws) return;
+
+			theGrid = self.elements.Where(x => x is RotWormScene.PebbsGrid).Select(x => (RotWormScene.PebbsGrid)x).ToList();
+
+			Scene = rws;
+
+			base.MakeScene(self);
+
+			if (redoGrid)
+			{
+				redoGrid = false;
+				RedoGrid(rws);
+			}
+		}
+
+		public void RedoGrid(RotWormScene scene)
+		{
+			foreach (var grid in theGrid)
+			{
+				grid.Destroy();
+				scene.elements.Remove(grid);
+			}
+			theGrid.Clear();
+
+			UnityEngine.Random.State state = UnityEngine.Random.state;
+			UnityEngine.Random.InitState(seed);
+
+			try
+			{
+				float num4 = gridLayers * (gridParallelDepth + gridPerpendicularDepth);
+				for (int i = 0; i < gridLayers; i++)
+				{
+					for (int j = 0; j < gridParallelDepth + gridPerpendicularDepth; j++)
+					{
+						float depth = (i * (gridParallelDepth + gridPerpendicularDepth) + j) / num4;
+						var grid = new RotWormScene.PebbsGrid(scene, 0f, 0f, depth * fogDepth, 1f, j > gridParallelDepth);
+						theGrid.Add(grid);
+						scene.AddElement(grid);
+					}
+				}
+			}
+			finally
+			{
+				UnityEngine.Random.state = state;
+			}
+		}
+
+		public override void UpdateSceneElement(string message)
+		{
+			if (Scene == null) return;
+		}
+
+		public override void LineToData(string line)
+		{
+			base.LineToData(line);
+
+			string[] array = Regex.Split(line, ": ");
+			if (array.Length < 2) return;
+
+			switch (array[0])
+			{
+			case "PebbsGrid":
+				if (TryGetBgElementFromString(line, out CustomBgElement element2))
+				{ backgroundElements.Add(element2); }
+				break;
+			}
+		}
+	}
 	public static bool TryGetPathFromName(string name, out string path)
 	{
 		path = "";
@@ -1316,10 +1521,14 @@ internal static class Data
 				return element != rtv.daySky && element != rtv.duskSky && element != rtv.nightSky;
 			}
 		}
+		if (element is RotWormScene.PebbsGrid && element.scene.room?.roomSettings.BackgroundData().sceneData is RotWormScene_SceneData data)
+		{
+			return !data.theGrid.Contains(element);
+		}
 
 		return element is SimpleBackgroundElement or BackgroundScene.Simple2DBackgroundIllustration or
 			AboveCloudsView.DistantBuilding or DistantLightning or FlyingCloud or HorizonFog or Floor or
 			RoofTopView.DistantBuilding or Building or DistantGhost or DustWave or RoofTopView.Smoke or
-			AncientUrbanView.Building or AncientUrbanView.Smoke or AncientUrbanView.SmokeGradient;
+			AncientUrbanView.Building or AncientUrbanView.Smoke or AncientUrbanView.SmokeGradient or RotWorm;
 	}
 }

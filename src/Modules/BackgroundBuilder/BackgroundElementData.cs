@@ -40,6 +40,7 @@ internal static class BackgroundElementData
 				"AU_Smoke" => new RTV_Smoke(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2]), float.Parse(args[3]), float.Parse(args[4]), float.Parse(args[5]), bool.Parse(args[6])),
 				"AU_Building" => new AUV_Building(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4]), float.Parse(args[5]), float.Parse(args[6])),
 				"SmokeGradient" => new AUV_SmokeGradient(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2])),
+				"PebbsGrid" => new RWS_PebbsGrid(new Vector2(float.Parse(args[0]), float.Parse(args[1])), float.Parse(args[2]), float.Parse(args[3]), bool.Parse(args[4])),
 				_ => null!
 			};
 		}
@@ -72,6 +73,8 @@ internal static class BackgroundElementData
 			AncientUrbanView.Smoke el => new RTV_Smoke(el.pos, el.depth, el.flattened, el.alpha, el.shaderInputColor, el.shaderType),
 			AncientUrbanView.SmokeGradient el => new AUV_SmokeGradient(el.pos, el.depth),
 			AncientUrbanView.Building el => new AUV_Building(el.assetName, el.pos, el.depth, el.scale, el.rotation, el.thickness),
+			RotWorm el => new RWS_RotWorm(el.pos, el.depth),
+			RotWormScene.PebbsGrid el => new RWS_PebbsGrid(el.pos / RotWormScene.sceneScale, el.depth, el.scale, el.perpendicular),
 			_ => throw new BackgroundBuilderException(BackgroundBuilderError.InvalidVanillaBgElement),//this should never happen
 		};
 	}
@@ -595,6 +598,49 @@ internal static class BackgroundElementData
 		{
 
 		}
+	}
+
+	public class RWS_RotWorm : CustomBgElement
+	{
+	public RWS_RotWorm(Vector2 pos, float depth) : base(pos, depth)
+		{
+		}
+
+		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
+		{
+			return new RotWorm(self, pos, depth);
+		}
+
+		public override string Serialize() => $"RotWorm: {pos.x}, {pos.y}, {depth}";
+
+		public override void UpdateSceneElement()
+		{
+
+		}
+	}
+	public class RWS_PebbsGrid : CustomBgElement
+	{
+		float scale;
+		bool perpendicular;
+		public RWS_PebbsGrid(Vector2 pos, float depth, float scale, bool perpendicular) : base(pos, depth)
+		{
+			this.scale = scale;
+			this.perpendicular = perpendicular;
+		}
+
+		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
+		{
+			if (self is not RotWormScene rws) throw new BackgroundBuilderException(BackgroundBuilderError.WrongVanillaBgScene);
+			return new RotWormScene.PebbsGrid(rws, pos.x, pos.y, depth, scale, perpendicular);
+		}
+
+		public override string Serialize() => $"PebbsGrid: {pos.x}, {pos.y}, {depth}, {scale}, {perpendicular}";
+
+		public override void UpdateSceneElement()
+		{
+
+		}
+
 	}
 
 	/// <summary>

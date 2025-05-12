@@ -189,7 +189,8 @@ public class BackgroundPage : Page
 		AboveCloudsView? aboveCloudsView = null;
 		RoofTopView? roofTopView = null;
 		AncientUrbanView? ancientUrbanView = null;
-		VoidSea.VoidSeaScene? voidSeaView = null;
+		RotWormScene? rotWormScene = null;
+		VoidSea.VoidSeaScene? voidSeaScene = null;
 		foreach (UpdatableAndDeletable uad in self.updateList)
 		{
 			if (uad is BackgroundScene)
@@ -203,8 +204,11 @@ public class BackgroundPage : Page
 				else if (uad is AncientUrbanView auv)
 				{ ancientUrbanView = auv; }
 
+				else if (uad is RotWormScene rws)
+				{ rotWormScene = rws; }
+
 				else if (uad is VoidSea.VoidSeaScene vss)
-				{ voidSeaView = vss; }
+				{ voidSeaScene = vss; }
 			}
 		}
 		if (aboveCloudsView != null && (type != BackgroundTemplateType.AboveCloudsView || refresh))
@@ -228,11 +232,18 @@ public class BackgroundPage : Page
 			ancientUrbanView = null;
 		}
 
-		if (voidSeaView != null && (type != BackgroundTemplateType.VoidSeaScene || refresh))
+		if (rotWormScene != null && (type != BackgroundTemplateType.RotWormScene || refresh))
 		{
-			voidSeaView.Destroy();
-			voidSeaView.RemoveFromRoom();
-			voidSeaView = null;
+			rotWormScene.Destroy();
+			self.RemoveObject(rotWormScene);
+			rotWormScene = null;
+		}
+
+		if (voidSeaScene != null && (type != BackgroundTemplateType.VoidSeaScene || refresh))
+		{
+			voidSeaScene.Destroy();
+			voidSeaScene.RemoveFromRoom();
+			voidSeaScene = null;
 		}
 
 		if (aboveCloudsView == null && type == BackgroundTemplateType.AboveCloudsView)
@@ -250,7 +261,12 @@ public class BackgroundPage : Page
 			self.AddObject(new AncientUrbanView(self, new RoomSettings.RoomEffect(WatcherEnums.RoomEffectType.AncientUrbanView, 0f, false)));
 		}
 
-		if (voidSeaView == null && type == BackgroundTemplateType.VoidSeaScene)
+		if (rotWormScene == null && type == BackgroundTemplateType.RotWormScene)
+		{
+			self.AddObject(new RotWormScene(self));
+		}
+
+		if (voidSeaScene == null && type == BackgroundTemplateType.VoidSeaScene)
 		{
 			//owner.room.AddObject(new VoidSea.VoidSeaScene(owner.room));
 		}

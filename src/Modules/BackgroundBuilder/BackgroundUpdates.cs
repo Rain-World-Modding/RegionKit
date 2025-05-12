@@ -26,6 +26,13 @@ internal static class BackgroundUpdates
 		On.AboveCloudsView.DistantLightning.InitiateSprites += Building_InitiateSprites;
 		On.RoofTopView.Smoke.InitiateSprites += Building_InitiateSprites;
 		On.BackgroundScene.FullScreenSingleColor.DrawSprites += FullScreenSingleColor_DrawSprites;
+		On.BackgroundScene.LoadGraphic += BackgroundScene_LoadGraphic;
+	}
+
+	private static void BackgroundScene_LoadGraphic(On.BackgroundScene.orig_LoadGraphic orig, BackgroundScene self, string elementName, bool crispPixels, bool clampWrapMode)
+	{
+		if (Futile.atlasManager.DoesContainElementWithName(elementName)) return;
+		orig(self, elementName, crispPixels, clampWrapMode);
 	}
 
 	private static void FullScreenSingleColor_DrawSprites(On.BackgroundScene.FullScreenSingleColor.orig_DrawSprites orig, BackgroundScene.FullScreenSingleColor self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)

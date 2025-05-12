@@ -1,3 +1,4 @@
+PROTECTED
 Type: AncientUrbanView
 OffsetX: 0
 OffsetY: 0

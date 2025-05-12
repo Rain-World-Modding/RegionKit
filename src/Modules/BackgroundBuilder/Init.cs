@@ -17,6 +17,17 @@ internal static class Init
 		On.RoofTopView.Update += RoofTopView_Update;
 		On.Watcher.AncientUrbanView.ctor += AncientUrbanView_ctor;
 		On.Watcher.AncientUrbanView.Update += AncientUrbanView_Update;
+		On.RotWormScene.ctor += RotWormScene_ctor;
+		_CommonHooks.PostRoomLoad += PostRoomLoad;
+	}
+
+	private static void PostRoomLoad(Room room)
+	{
+		if (room.game == null) return;
+		Data.RoomBGData data = room.roomSettings.BackgroundData();
+
+		if (!data.sceneData.sceneInitialized && data.type != BackgroundTemplateType.None)
+			BackgroundPage.SwitchRoomBackground(room, data.type);
 	}
 
 	public static void Undo()
@@ -28,9 +39,21 @@ internal static class Init
 		On.AboveCloudsView.DistantCloud.DrawSprites -= DistantCloud_DrawSprites;
 		On.AboveCloudsView.Update -= AboveCloudsView_Update;
 		On.RoofTopView.Update -= RoofTopView_Update;
+		On.Watcher.AncientUrbanView.ctor -= AncientUrbanView_ctor;
+		On.Watcher.AncientUrbanView.Update -= AncientUrbanView_Update;
+		On.RotWormScene.ctor -= RotWormScene_ctor;
 	}
 
+	private static void RotWormScene_ctor(On.RotWormScene.orig_ctor orig, RotWormScene self, Room room)
+	{
+		orig(self, room);
+		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
+		if (data.type != BackgroundTemplateType.RotWormScene || data.sceneData is not Data.RotWormScene_SceneData)
+		{ data.backgroundName = ""; data.SetBGTypeAndData(BackgroundTemplateType.RotWormScene); }
+		data.LoadSceneData(self);
+		data.sceneData.MakeScene(self);
+	}
 
 	private static void AncientUrbanView_Update(On.Watcher.AncientUrbanView.orig_Update orig, Watcher.AncientUrbanView self, bool eu)
 	{
@@ -46,7 +69,6 @@ internal static class Init
 			}
 		}
 	}
-
 
 	private static void AncientUrbanView_ctor(On.Watcher.AncientUrbanView.orig_ctor orig, Watcher.AncientUrbanView self, Room room, RoomSettings.RoomEffect effect)
 	{

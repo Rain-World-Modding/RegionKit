@@ -1,0 +1,13 @@
+PROTECTED
+Type: RotWormScene
+OffsetX: 0
+OffsetY: 0
+---------------
+seed: 123
+sceneScale: 160
+depthScale: 1.5
+fogDepth: 100
+gridLayers: 8
+gridParallelDepth: 24
+gridPerpendicularDepth: 2
+SimpleIllustration: pixel, -2, -1, 1000 : scale|1370.0,770.0 : anchor|0.0,0.0 : color|010101

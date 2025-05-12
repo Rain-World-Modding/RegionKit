@@ -1,3 +1,4 @@
+PROTECTED
 Parent: AtC_GeneralDefault
 startAltitude: 8500
 endAltitude: 9500

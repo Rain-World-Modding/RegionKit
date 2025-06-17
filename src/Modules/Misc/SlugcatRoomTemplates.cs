@@ -8,7 +8,7 @@ internal static class SlugcatRoomTemplates
 {
 	public static void Apply()
 	{
-		On.Region.ctor_string_int_int_Timeline += Region_ctor;
+		On.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor;
 		try
 		{
 			IL.Region.ReloadRoomSettingsTemplate += Region_ReloadRoomSettingsTemplate;
@@ -18,7 +18,7 @@ internal static class SlugcatRoomTemplates
 	}
 	public static void Undo()
 	{
-		On.Region.ctor_string_int_int_Timeline -= Region_ctor;
+		On.Region.ctor_string_int_int_RainWorldGame_Timeline -= Region_ctor;
 		IL.Region.ReloadRoomSettingsTemplate -= Region_ReloadRoomSettingsTemplate;
 		IL.RoomSettings.ctor_Room_string_Region_bool_bool_Timeline_RainWorldGame -= RoomSettings_ctor;
 	}
@@ -64,10 +64,10 @@ internal static class SlugcatRoomTemplates
 		}
 	}
 
-	private static void Region_ctor(On.Region.orig_ctor_string_int_int_Timeline orig, Region self, string name, int firstRoomIndex, int regionNumber, SlugcatStats.Timeline storyIndex)
+	private static void Region_ctor(On.Region.orig_ctor_string_int_int_RainWorldGame_Timeline orig, Region self, string name, int firstRoomIndex, int regionNumber, RainWorldGame game, SlugcatStats.Timeline storyIndex)
 	{
 		staticName = storyIndex;
-		orig(self, name, firstRoomIndex, regionNumber, storyIndex);
+		orig(self, name, firstRoomIndex, regionNumber, game, storyIndex);
 		staticName = null!;
 	}
 	private static SlugcatStats.Timeline staticName = null!;

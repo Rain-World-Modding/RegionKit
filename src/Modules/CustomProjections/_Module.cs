@@ -23,23 +23,28 @@ public static class _Module
 		LoadShaders();
 	}
 
+#pragma warning disable CS0162 // Unreachable code detected
 	private static void ImageTrigger_AttemptTriggerFire(On.ImageTrigger.orig_AttemptTriggerFire orig, RainWorldGame game, Room room, ActiveTriggerChecker triggerChecker, ShowProjectedImageEvent imgEvent)
 	{
+		const bool DO_LOGGING = false;
 		orig(game, room, triggerChecker, imgEvent);
 
 		//shadows the logic of orig for debugging
-		LogInfo("attempting to fire an image trigger");
+		if (DO_LOGGING) LogInfo("attempting to fire an image trigger");
 		if (game.session is StoryGameSession session)
 		{
 			if (imgEvent.afterEncounter != session.saveState.miscWorldSaveData.SLOracleState.playerEncounters > 0)
 			{
-				if(imgEvent.afterEncounter) LogInfo("trigger canceled due to afterEncounter without having met moon");
-				else LogInfo("trigger canceled due to beforeEncounter while having met moon");
+				if (DO_LOGGING)
+				{
+					if (imgEvent.afterEncounter) LogInfo("trigger canceled due to afterEncounter without having met moon");
+					else LogInfo("trigger canceled due to beforeEncounter while having met moon");
+				}
 				return;
 			}
 			if (session.saveState.miscWorldSaveData.playerGuideState.HasImageBeenShownInRoom(room.abstractRoom.name))
 			{
-				LogInfo("trigger canceled due to having shown image in room");
+				if (DO_LOGGING) LogInfo("trigger canceled due to having shown image in room");
 				return;
 			}
 		}
@@ -54,7 +59,7 @@ public static class _Module
 		}
 		if (overseer == null || overseer.AI == null || overseer.AI.communication == null)
 		{
-			LogInfo("trigger canceled due to not finding overseer");
+			if (DO_LOGGING) LogInfo("trigger canceled due to not finding overseer");
 			return;
 		}
 		if (imgEvent.onlyWhenShowingDirection)
@@ -65,7 +70,7 @@ public static class _Module
 				AbstractCreature firstAlivePlayer = room.game.FirstAlivePlayer;
 				if (game.AlivePlayers.Count == 0 || firstAlivePlayer == null || firstAlivePlayer.realizedCreature == null)
 				{
-					LogInfo("trigger canceled due to not finding firstAlivePlayer in coop");
+					if (DO_LOGGING) LogInfo("trigger canceled due to not finding firstAlivePlayer in coop");
 					return;
 				}
 				player = (firstAlivePlayer.realizedCreature as Player)!;
@@ -74,19 +79,20 @@ public static class _Module
 			{
 				if (game.Players.Count == 0 || game.Players[0].realizedCreature == null)
 				{
-					LogInfo("trigger canceled due to not finding player");
+					if (DO_LOGGING) LogInfo("trigger canceled due to not finding player");
 					return;
 				}
 				player = (game.Players[0].realizedCreature as Player)!;
 			}
 			if (!overseer.AI.communication.AnyProgressionDirection(player))
 			{
-				LogInfo("trigger canceled due to onlyProgDir. while there's no progDir.");
+				if (DO_LOGGING) LogInfo("trigger canceled due to onlyProgDir. while there's no progDir.");
 				return;
 			}
 		}
-		LogInfo("trigger is good!");
+		if (DO_LOGGING) LogInfo("trigger is good!");
 	}
+#pragma warning restore CS0162 // Unreachable code detected
 
 	internal static void Disable()
 	{

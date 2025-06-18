@@ -14,8 +14,6 @@ namespace RegionKit.Modules.EchoExtender;
 /// </summary>
 public struct EchoSettings
 {
-	internal bool _initialized;
-
 	/// <summary>
 	/// Which room should the echo appear in
 	/// </summary>

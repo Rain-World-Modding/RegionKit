@@ -164,7 +164,7 @@ namespace RegionKit.OptionsMenu
 
 					if (!includeHiddenSlugcats && SlugcatStats.HiddenOrUnplayableSlugcat(slugcat)) continue;
 
-					IEnumerable<Region> regions = Region.LoadAllRegions(SlugcatStats.SlugcatToTimeline(slugcat)).Where(x => regionsToBake.Contains(x.name));
+					IEnumerable<Region> regions = Region.LoadAllRegions(SlugcatStats.SlugcatToTimeline(slugcat), null).Where(x => regionsToBake.Contains(x.name));
 
 					foreach (Region region in regions)
 					{

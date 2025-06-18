@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.EchoExtender;
+﻿namespace RegionKit.Modules.EchoExtender;
 ///<inheritdoc/>
 public static class _Enums
 {
@@ -12,4 +12,9 @@ public static class _Enums
 	/// manually overrides the EchoPresence for a room
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type EchoPresenceOverride = new(nameof(EchoPresenceOverride), true);
+
+	/// <summary>
+	/// EchoExtender's Spinning Top conversation
+	/// </summary>
+	public static Conversation.ID EESpinningTopConversation = new(nameof(EESpinningTopConversation), true);
 }

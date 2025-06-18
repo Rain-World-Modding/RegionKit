@@ -10,6 +10,8 @@ internal static class EchoParser
 	internal static readonly Dictionary<string, string> __echoLocations = [];
 	internal static readonly Dictionary<GhostWorldPresence.GhostID, EchoSettings> __echoSettings = [];
 
+	internal static readonly Dictionary<string, SpinningTopSettings> __spinningTopSettings = [];
+
 	internal static readonly Dictionary<string, string> __echoSongs = new()
 	{
 		{ "CC", "NA_32 - Else1" },
@@ -23,6 +25,12 @@ internal static class EchoParser
 
 	public static GhostWorldPresence.GhostID GetEchoID(string regionShort) => new(regionShort, false);
 	public static Conversation.ID GetConversationID(string regionShort) => new($"Ghost_{regionShort}", false);
+	public static bool IsEESpinningTop(string room) => __spinningTopSettings.ContainsKey(room);
+	public static bool IsEESpinningTop(string room, out SpinningTopSettings spinningTopSettings)
+	{
+		if (__spinningTopSettings.TryGetValue(room, out spinningTopSettings)) return true;
+		return false;
+	}
 
 	public static bool EchoIDExists(string regionShort)
 	{
@@ -41,6 +49,7 @@ internal static class EchoParser
 	{
 		foreach (var regionInitials in Region.GetFullRegionOrder())
 		{
+			// Casual normal echoes
 			string settingsPath = AssetManager.ResolveFilePath($"world/{regionInitials}/echoSettings.txt");
 			if (File.Exists(settingsPath))
 			{
@@ -59,6 +68,17 @@ internal static class EchoParser
 				}
 				__echoSettings.SetKey(GetEchoID(regionInitials), settings);
 			}
+
+			// Spinning Top
+			string regionDir = AssetManager.ResolveDirectory($"world/{regionInitials}");
+			IEnumerable<string> stSettingsPaths = Directory.GetFiles(regionDir)
+				.Where(x => x.StartsWith("stSettings_") && x.EndsWith(".txt"));
+			foreach (var stPath in stSettingsPaths)
+			{
+				var room = string.Join("_", stPath[..^4].Split('_').Skip(1));
+				__spinningTopSettings[room] = SpinningTopSettings.FromFile(Path.Combine(regionDir, stPath));
+			}
+
 		}
 	}
 

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Watcher;
 namespace RegionKit.Modules.EchoExtender;
 ///<inheritdoc/>
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Echo Extender")]
@@ -9,7 +10,6 @@ public static class _Module
 	/// </summary>
 	public static void Enable()
 	{
-
 		// Tests for spawn
 		On.GhostWorldPresence.ctor_World_GhostID_int += GhostWorldPresenceOnCtor;
 		On.GhostWorldPresence.GetGhostID += GhostWorldPresenceOnGetGhostID;
@@ -18,6 +18,7 @@ public static class _Module
 		On.Room.Loaded += RoomOnLoaded;
 		On.GhostWorldPresence.SpawnGhost += GhostWorldPresenceOnSpawnGhost;
 		On.GhostWorldPresence.GhostMode_AbstractRoom_Vector2 += GhostWorldPresenceOnGhostMode;
+		On.Watcher.SpinningTop.StartConversation += SpinningTop_StartConversation;
 
 		// Save stuff
 		On.StoryGameSession.ctor += StoryGameSessionOnCtor;
@@ -35,9 +36,26 @@ public static class _Module
 		On.Room.Loaded -= RoomOnLoaded;
 		On.GhostWorldPresence.SpawnGhost -= GhostWorldPresenceOnSpawnGhost;
 		On.GhostWorldPresence.GhostMode_AbstractRoom_Vector2 -= GhostWorldPresenceOnGhostMode;
+		On.Watcher.SpinningTop.StartConversation -= SpinningTop_StartConversation;
 
 		// Save stuff
 		On.StoryGameSession.ctor -= StoryGameSessionOnCtor;
+	}
+
+	private static void SpinningTop_StartConversation(On.Watcher.SpinningTop.orig_StartConversation orig, SpinningTop self)
+	{
+		if (EchoParser.IsEESpinningTop(self.room.abstractRoom.name, out SpinningTopSettings settings) && !settings.HasDefaultConversation)
+		{
+			if (self.room.game.cameras[0].hud.dialogBox == null)
+			{
+				self.room.game.cameras[0].hud.InitDialogBox();
+			}
+			self.currentConversation = new EESpinningTopConversation(self, self.room.game.cameras[0].hud.dialogBox);
+		}
+		else
+		{
+			orig(self);
+		}
 	}
 
 

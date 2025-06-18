@@ -14,11 +14,11 @@ internal class OverseerProperties
 
 	public static void Apply()
 	{
-		IL.Region.ctor_string_int_int_Timeline += Region_ctor;
+		IL.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor;
 	}
 	public static void Undo()
 	{
-		IL.Region.ctor_string_int_int_Timeline -= Region_ctor;
+		IL.Region.ctor_string_int_int_RainWorldGame_Timeline -= Region_ctor;
 	}
 
 	private static void Region_ctor(ILContext il)

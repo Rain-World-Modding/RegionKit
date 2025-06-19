@@ -30,6 +30,7 @@ public static class _Module
 		PaletteTextInput.Undo();
 		ListFixes.Undo();
 		FadePaletteTemplate.Undo();
+		InsectPicker.Undo();
 
 		On.DevInterface.Page.ctor -= Page_ctor;
 		On.DevInterface.Page.Refresh -= Page_Refresh;

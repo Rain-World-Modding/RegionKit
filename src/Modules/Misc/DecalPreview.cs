@@ -30,6 +30,7 @@ internal static class DecalPreview
 		orig(self);
 
 		if (self is not CustomDecalRepresentation.SelectDecalPanel) return;
+		if ((self as CustomDecalRepresentation.SelectDecalPanel).parentNode is not CustomDecalRepresentation.CustomDecalControlPanel) return;
 
 		foreach (var subNode in self.subNodes)
 		{
@@ -248,6 +249,7 @@ internal static class DecalPreview
 				return;
 			}
 			string str = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
+			if (!File.Exists(str)) return;
 			Texture2D texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
 			AssetManager.SafeWWWLoadTexture(ref texture, "file:///" + str, true, true);
 			HeavyTexturesCache.LoadAndCacheAtlasFromTexture(fileName, texture, false);

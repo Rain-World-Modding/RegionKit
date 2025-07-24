@@ -185,8 +185,33 @@ internal static class MoreFadePalettes
 		}
 	}
 
+	public static RoomSettings.RoomEffect.Type PaletteEffectColorA = new("PaletteEffectColorA", true);
+	public static RoomSettings.RoomEffect.Type PaletteEffectColorB = new("PaletteEffectColorB", true);
 	private static void RoomCamera_ApplyEffectColorsToAllPaletteTextures(On.RoomCamera.orig_ApplyEffectColorsToAllPaletteTextures orig, RoomCamera self, int color1, int color2)
 	{
+		// Fix effect color crash
+		int colorCount = Convert.ToInt32(Math.Floor(self.paletteTexture.width / 2.0));
+
+		if (color1 > colorCount)
+		{
+			color1 = -1;
+		}
+		if (color2 > colorCount)
+		{
+			color2 = -1;
+		}
+
+		RoomSettings.RoomEffect roomEffect = self.room?.roomSettings.GetEffect(PaletteEffectColorA);
+		if (roomEffect != null)
+		{
+			color1 = -1;
+		}
+		roomEffect = self.room?.roomSettings.GetEffect(PaletteEffectColorB);
+		if (roomEffect != null)
+		{
+			color2 = -1;
+		}
+
 		if (self.MoreFadeTextures().Keys.Count > 0)
 		{
 			foreach (FadePalette fade in self.MoreFadeTextures().Keys.ToList())

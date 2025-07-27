@@ -124,6 +124,10 @@ internal static class MoreFadePalettes
 		_CommonHooks.RoomSettingsSave += _CommonHooks_RoomSettingsSave;
 		On.DevInterface.RoomSettingsPage.ctor += RoomSettingsPage_ctor;
 		On.RainWorldGame.ShutDownProcess += RainWorldGame_ShutDownProcess;
+
+		On.DevInterface.PaletteController.Refresh += PaletteEffectSelectorText;
+		On.DevInterface.PaletteController.Increment += ForceEffectColorRefresh;
+		On.RoomCamera.ApplyEffectColorsToPaletteTexture += PaletteEffectColorHook;
 	}
 
 	public static void Undo()
@@ -137,6 +141,10 @@ internal static class MoreFadePalettes
 		_CommonHooks.RoomSettingsSave -= _CommonHooks_RoomSettingsSave;
 		On.DevInterface.RoomSettingsPage.ctor -= RoomSettingsPage_ctor;
 		On.RainWorldGame.ShutDownProcess -= RainWorldGame_ShutDownProcess;
+
+		On.DevInterface.PaletteController.Refresh -= PaletteEffectSelectorText;
+		On.DevInterface.PaletteController.Increment -= ForceEffectColorRefresh;
+		On.RoomCamera.ApplyEffectColorsToPaletteTexture -= PaletteEffectColorHook;
 	}
 
 	private static void RainWorldGame_ShutDownProcess(On.RainWorldGame.orig_ShutDownProcess orig, RainWorldGame self)
@@ -185,12 +193,60 @@ internal static class MoreFadePalettes
 		}
 	}
 
+	private static void ForceEffectColorRefresh(On.DevInterface.PaletteController.orig_Increment orig, PaletteController self, int change)
+	{
+		orig(self, change);
+
+		self.owner.room.game.cameras[0].LoadPalette(self.RoomSettings.Palette, ref self.owner.room.game.cameras[0].fadeTexA);
+		self.owner.room.game.cameras[0].LoadPalette(self.RoomSettings.fadePalette.palette, ref self.owner.room.game.cameras[0].fadeTexB);
+		self.owner.room.game.cameras[0].ApplyEffectColorsToAllPaletteTextures(self.RoomSettings.EffectColorA, self.RoomSettings.EffectColorB);
+	}
+
 	public static RoomSettings.RoomEffect.Type PaletteEffectColorA = new("PaletteEffectColorA", true);
 	public static RoomSettings.RoomEffect.Type PaletteEffectColorB = new("PaletteEffectColorB", true);
-	private static void RoomCamera_ApplyEffectColorsToAllPaletteTextures(On.RoomCamera.orig_ApplyEffectColorsToAllPaletteTextures orig, RoomCamera self, int color1, int color2)
+
+	// Warn of invalid effect color & Palette Override
+	private static void PaletteEffectSelectorText(On.DevInterface.PaletteController.orig_Refresh orig, PaletteController self)
 	{
-		// Fix effect color crash
-		int colorCount = Convert.ToInt32(Math.Floor(self.paletteTexture.width / 2.0));
+		orig(self);
+
+		int colorCount = Convert.ToInt32(Math.Floor(RoomCamera.allEffectColorsTexture.width / 2.0));
+
+		switch (self.controlPoint)
+		{
+		case 1:
+			if (self.RoomSettings.EffectColorA > colorCount)
+			{
+				self.NumberLabelText = "ERR";
+			}
+
+			RoomSettings.RoomEffect roomEffect = self.RoomSettings.GetEffect(PaletteEffectColorA);
+			if (roomEffect != null)
+			{
+				self.NumberLabelText = "PAL";
+			}
+
+			break;
+		case 2:
+			if (self.RoomSettings.EffectColorB > colorCount)
+			{
+				self.NumberLabelText = "ERR";
+			}
+
+			roomEffect = self.RoomSettings.GetEffect(PaletteEffectColorB);
+			if (roomEffect != null)
+			{
+				self.NumberLabelText = "PAL";
+			}
+
+			break;
+		}
+	}
+
+	private static void PaletteEffectColorHook(On.RoomCamera.orig_ApplyEffectColorsToPaletteTexture orig, RoomCamera self, ref Texture2D texture, int color1, int color2)
+	{
+		// Fix for effect color crash
+		int colorCount = Convert.ToInt32(Math.Floor(RoomCamera.allEffectColorsTexture.width / 2.0));
 
 		if (color1 > colorCount)
 		{
@@ -212,6 +268,11 @@ internal static class MoreFadePalettes
 			color2 = -1;
 		}
 
+		orig(self, ref texture, color1, color2);
+	}
+
+	private static void RoomCamera_ApplyEffectColorsToAllPaletteTextures(On.RoomCamera.orig_ApplyEffectColorsToAllPaletteTextures orig, RoomCamera self, int color1, int color2)
+	{
 		if (self.MoreFadeTextures().Keys.Count > 0)
 		{
 			foreach (FadePalette fade in self.MoreFadeTextures().Keys.ToList())

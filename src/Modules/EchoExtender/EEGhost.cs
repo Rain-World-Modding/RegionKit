@@ -13,7 +13,7 @@
 			conversationID = EchoParser.GetConversationID(ghostID.value);
 			EchoParser.__echoConversations.TryGetValue(conversationID, out conversation);
 
-			settings = EchoParser.__echoSettings[ghostID];
+			settings = EchoParser.echoSettings[ghostID];
 			scale = settings.EchoSizeMultiplier * 0.75f;
 			rags.conRad = 30f * scale;
 			defaultFlip = settings.DefaultFlip;

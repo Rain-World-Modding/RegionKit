@@ -14,6 +14,7 @@ internal static class _Module
 
 		//PaletteTextInput.Apply();
 		SunBlockerFix.Apply();
+		GhostEffectColorsFix.Apply();
 		//CloudAdjustment.Apply();
 		ExtendedGates.Enable();
 		SuperstructureFusesHook.Apply();
@@ -27,6 +28,7 @@ internal static class _Module
 	{
 		//PaletteTextInput.Undo();
 		SunBlockerFix.Undo();
+		GhostEffectColorsFix.Undo();
 		//CloudAdjustment.Undo();
 		ExtendedGates.Disable();
 		SuperstructureFusesHook.Undo();

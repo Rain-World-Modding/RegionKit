@@ -128,7 +128,7 @@ internal static class MoreFadePalettes
 		On.DevInterface.PaletteController.Refresh += PaletteEffectSelectorText;
 		On.DevInterface.PaletteController.Increment += IncrementRefreshPalette;
 		On.RoomCamera.ApplyEffectColorsToPaletteTexture += PaletteEffectColorHook;
-		On.DevInterface.EffectPanel.Refresh += EffectReloadHook;
+		On.DevInterface.RoomSettingsPage.Signal += EffectReloadHook;
 	}
 
 	public static void Undo()
@@ -146,7 +146,7 @@ internal static class MoreFadePalettes
 		On.DevInterface.PaletteController.Refresh -= PaletteEffectSelectorText;
 		On.DevInterface.PaletteController.Increment -= IncrementRefreshPalette;
 		On.RoomCamera.ApplyEffectColorsToPaletteTexture -= PaletteEffectColorHook;
-		On.DevInterface.EffectPanel.Refresh -= EffectReloadHook;
+		On.DevInterface.RoomSettingsPage.Signal -= EffectReloadHook;
 	}
 
 	private static void RainWorldGame_ShutDownProcess(On.RainWorldGame.orig_ShutDownProcess orig, RainWorldGame self)
@@ -672,13 +672,20 @@ internal static class MoreFadePalettes
 		}
 	}
 
-	private static void EffectReloadHook(On.DevInterface.EffectPanel.orig_Refresh orig, EffectPanel self)
+	private static void EffectReloadHook(On.DevInterface.RoomSettingsPage.orig_Signal orig, RoomSettingsPage self, DevUISignalType type, DevUINode sender, string message)
 	{
-		orig(self);
+		orig(self, type, sender, message);
 
-		self.owner.room.game.cameras[0].LoadPalette(self.RoomSettings.Palette, ref self.owner.room.game.cameras[0].fadeTexA);
-		self.owner.room.game.cameras[0].LoadPalette(self.RoomSettings.fadePalette.palette, ref self.owner.room.game.cameras[0].fadeTexB);
-		self.owner.room.game.cameras[0].ApplyEffectColorsToAllPaletteTextures(self.RoomSettings.EffectColorA, self.RoomSettings.EffectColorB);
+		self.owner.game.cameras[0].LoadPalette(self.RoomSettings.Palette, ref self.owner.game.cameras[0].fadeTexA);
+
+		if (self.RoomSettings.fadePalette is not null)
+		{
+			self.owner.game.cameras[0].LoadPalette(self.RoomSettings.fadePalette.palette, ref self.owner.game.cameras[0].fadeTexB);
+		}
+
+		self.owner.game.cameras[0].ApplyEffectColorsToAllPaletteTextures(self.RoomSettings.EffectColorA, self.RoomSettings.EffectColorB);
+
+		self.owner.room.game.cameras[0].ChangeMoreFade(self.RoomSettings.GetAllFades());
 	}
 	
 	#endregion

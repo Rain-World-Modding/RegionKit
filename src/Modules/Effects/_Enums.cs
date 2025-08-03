@@ -76,6 +76,10 @@ public static class _Enums
 	/// FT dense fog sound
 	/// </summary>
 	public static SoundID FT_Fog_PreDeath = new(nameof(FT_Fog_PreDeath), true);
+	/// <summary>
+	/// Pole plant color effect by LB/M4rbleL1ne
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type PolePlantColor = new(nameof(PolePlantColor), true);
 
 
 

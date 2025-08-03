@@ -2,14 +2,17 @@
 
 namespace RegionKit.Modules.EchoExtender;
 
-internal static class EchoParser
+/// <summary>
+/// Please leave this public, some mods need to access EchoExtender's settings.
+/// </summary>
+public static class EchoParser
 {
 	// ConversationID to region acronym
 	internal static readonly Dictionary<Conversation.ID, string> __echoConversations = [];
 	internal static readonly HashSet<GhostWorldPresence.GhostID> __extendedEchoIDs = [];
 	internal static readonly Dictionary<string, string> __echoLocations = [];
-	internal static readonly Dictionary<GhostWorldPresence.GhostID, EchoSettings> __echoSettings = [];
-
+	// Please leave this public, some mods need to access EchoExtender's settings.
+	public static readonly Dictionary<GhostWorldPresence.GhostID, EchoSettings> echoSettings = [];
 	internal static readonly Dictionary<string, string> __echoSongs = new()
 	{
 		{ "CC", "NA_32 - Else1" },
@@ -57,7 +60,7 @@ internal static class EchoParser
 				{
 					LogWarning("[Echo Extender] An echo for this region already exists, skipping.");
 				}
-				__echoSettings.SetKey(GetEchoID(regionInitials), settings);
+				echoSettings.SetKey(GetEchoID(regionInitials), settings);
 			}
 		}
 	}

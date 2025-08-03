@@ -55,7 +55,7 @@ public static class _Module
 		var presenceOverride = PresenceOverride(self, testRoom);
 		if (presenceOverride != -1f) return presenceOverride;
 
-		if (!EchoParser.__echoSettings.TryGetValue(self.ghostID, out EchoSettings settings)) return result;
+		if (!EchoParser.echoSettings.TryGetValue(self.ghostID, out EchoSettings settings)) return result;
 		if (testRoom.index == self.ghostRoom.index) return 1f;
 		var echoEffectLimit = settings.EffectRadius * 1000f; //I think 1 screen is like a 1000 so I'm going with that
 		Vector2 globalDistance = Custom.RestrictInRect(worldPos, FloatRect.MakeFromVector2(self.world.RoomToWorldPos(new Vector2(), self.ghostRoom.index), self.world.RoomToWorldPos(self.ghostRoom.size.ToVector2() * 20f, self.ghostRoom.index)));
@@ -129,7 +129,7 @@ public static class _Module
 	{
 		var vanilla_result = orig(ghostid, karma, karmacap, ghostpreviouslyencountered, playingasred);
 		if (!EchoParser.__extendedEchoIDs.Contains(ghostid)) return vanilla_result;
-		EchoSettings settings = EchoParser.__echoSettings[ghostid];
+		EchoSettings settings = EchoParser.echoSettings[ghostid];
 		bool SODcondition = settings.SpawnOnDifficulty;
 		bool karmaCondition = settings.KarmaCondition(karma, karmacap);
 		bool karmaCapCondition = settings.MinimumKarmaCap <= karmacap;
@@ -164,8 +164,8 @@ public static class _Module
 		orig(self, world, ghostid, spinningTopSpawnId);
 		if (self.ghostRoom is null && EchoParser.__extendedEchoIDs.Contains(self.ghostID))
 		{
-			self.ghostRoom = world.GetAbstractRoom(EchoParser.__echoSettings[ghostid].EchoRoom);
-			self.songName = EchoParser.__echoSettings[ghostid].EchoSong;
+			self.ghostRoom = world.GetAbstractRoom(EchoParser.echoSettings[ghostid].EchoRoom);
+			self.songName = EchoParser.echoSettings[ghostid].EchoSong;
 			LogInfo($"[Echo Extender] Set Song: {self.songName}");
 			LogInfo($"[Echo Extender] Set Room: {self.ghostRoom?.name ?? "[NULL]"}");
 		}

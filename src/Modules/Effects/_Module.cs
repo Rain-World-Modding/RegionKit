@@ -27,6 +27,7 @@ public static class _Module
 		RainSirenBuilder.__RegisterBuilder();
 		SuffocationBuilder.__RegisterBuilder();
 		HSLDisplaySnowBuilder.__RegisterBuilder();
+		PaletteEffectColorBuilder.__RegisterBuilder();
 		MossWaterUnlit.MossLoadResources(rainworld);
 		MossWaterRGB.MossLoadResources(rainworld);
 		MurkyWater.MurkyWaterLoadResources(rainworld);
@@ -53,6 +54,7 @@ public static class _Module
 		MurkyWater.Apply();
 		DenseFogHooks.Apply();
 		SuffocationHooks.Apply();
+		PolePlantColor.Apply();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -71,6 +73,7 @@ public static class _Module
 		MurkyWater.Undo();
 		DenseFogHooks.Undo();
 		SuffocationHooks.Undo();
+		PolePlantColor.Undo();
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
 
@@ -82,7 +85,7 @@ public static class _Module
 			|| type == _Enums.ReplaceEffectColorB
 			|| type == _Enums.FogOfWarSolid
 			|| type == _Enums.FogOfWarDarkened
-
+			|| type == _Enums.PolePlantColor
 			|| type == _Enums.PWMalfunction
 			|| type == _Enums.HiveColorAlpha
 			|| type == _Enums.MossWater

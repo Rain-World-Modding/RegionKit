@@ -245,6 +245,7 @@ internal static class MoreFadePalettes
 	private static void FadeEffectColor(RoomCamera self, int effectColorOffset)
 	{
 		Texture2D effColTex = new Texture2D(2, 4);
+		effColTex.SetPixels([Color.black, Color.black, Color.black, Color.black, Color.black, Color.black, Color.black, Color.black]);
 
 		// Get all used palettes and fades
 		List<Texture2D> palettes = [self.fadeTexA];
@@ -269,7 +270,6 @@ internal static class MoreFadePalettes
 		}
 
 		// Do the mixing
-		LogMessage(palettes.Count);
 		for (int i = 0; i < palettes.Count; i++)
 		{
 			Texture2D texture = palettes[i];
@@ -277,7 +277,6 @@ internal static class MoreFadePalettes
 
 			if (PalleteHasEffectColor(ref texture, effectColorOffset))
 			{
-				LogMessage("AAAAA");
 				Color[] pixelsA = effColTex.GetPixels();
 				Color[] pixelsB = Enumerable.Concat(texture.GetPixels(30, effectColorOffset, 2, 2), texture.GetPixels(30, effectColorOffset + 8, 2, 2)).ToArray();
 				Color[] PixelsOut = new Color[8];
@@ -304,7 +303,7 @@ internal static class MoreFadePalettes
 			self.fadeTexB = palettes[1];
 		}
 
-		int outi = 2;
+		int outi = 1 + Convert.ToInt16(self.paletteB > -1);
 
 		if (self.MoreFadeTextures().Keys.Count > 0)
 		{
@@ -602,9 +601,7 @@ internal static class MoreFadePalettes
 			NumberText = ((int)(FadePanel.GetFade.fades[index] * 100f)).ToString() + "%";
 			RefreshNubPos(FadePanel.GetFade.fades[index]);
 
-			owner.room.game.cameras[0].LoadPalette(RoomSettings.Palette, ref owner.room.game.cameras[0].fadeTexA);
-			owner.room.game.cameras[0].LoadPalette(RoomSettings.fadePalette.palette, ref owner.room.game.cameras[0].fadeTexB);
-			owner.room.game.cameras[0].ApplyEffectColorsToAllPaletteTextures(RoomSettings.EffectColorA, RoomSettings.EffectColorB);
+			ReloadPalettes(owner, RoomSettings);
 		}
 
 		public override void NubDragged(float nubPos)
@@ -628,9 +625,8 @@ internal static class MoreFadePalettes
 	{
 		orig(self, change);
 
-		self.owner.room.game.cameras[0].LoadPalette(self.RoomSettings.Palette, ref self.owner.room.game.cameras[0].fadeTexA);
-		self.owner.room.game.cameras[0].LoadPalette(self.RoomSettings.fadePalette.palette, ref self.owner.room.game.cameras[0].fadeTexB);
-		self.owner.room.game.cameras[0].ApplyEffectColorsToAllPaletteTextures(self.RoomSettings.EffectColorA, self.RoomSettings.EffectColorB);
+		ReloadPalettes(self.owner, self.RoomSettings);
+
 		self.Refresh();
 	}
 
@@ -676,16 +672,21 @@ internal static class MoreFadePalettes
 	{
 		orig(self, type, sender, message);
 
-		self.owner.game.cameras[0].LoadPalette(self.RoomSettings.Palette, ref self.owner.game.cameras[0].fadeTexA);
+		ReloadPalettes(self.owner, self.RoomSettings);
+	}
 
-		if (self.RoomSettings.fadePalette is not null)
+	private static void ReloadPalettes(DevUI owner, RoomSettings roomSettings)
+	{
+		owner.game.cameras[0].LoadPalette(roomSettings.Palette, ref owner.game.cameras[0].fadeTexA);
+
+		if (roomSettings.fadePalette is not null)
 		{
-			self.owner.game.cameras[0].LoadPalette(self.RoomSettings.fadePalette.palette, ref self.owner.game.cameras[0].fadeTexB);
+			owner.game.cameras[0].LoadPalette(roomSettings.fadePalette.palette, ref owner.game.cameras[0].fadeTexB);
 		}
 
-		self.owner.game.cameras[0].ApplyEffectColorsToAllPaletteTextures(self.RoomSettings.EffectColorA, self.RoomSettings.EffectColorB);
+		owner.game.cameras[0].ChangeMoreFade(roomSettings.GetAllFades());
 
-		self.owner.room.game.cameras[0].ChangeMoreFade(self.RoomSettings.GetAllFades());
+		owner.game.cameras[0].ApplyEffectColorsToAllPaletteTextures(roomSettings.EffectColorA, roomSettings.EffectColorB);
 	}
 	
 	#endregion

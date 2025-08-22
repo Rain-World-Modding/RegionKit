@@ -136,7 +136,15 @@ public class _Module
 		}
 
 		cursor.Emit(OpCodes.Ldarg_0);
-		cursor.Emit(OpCodes.Call, typeof(_Module).GetMethod("UpdateRoomCamera", [typeof(RoomCamera)]));
+		cursor.EmitDelegate(UpdateRoomCamera);
+
+		static void UpdateRoomCamera(RoomCamera self)
+		{
+			if (ColoredSnowWeakRoomData.GetData(self.room).snow && ColoredSnowRoomCamera.GetData(self).snowChange)
+			{
+				ColoredSnowRoomCamera.UpdateSnowLight(self);
+			}
+		}
 	}
 
 	private static void RoomCamera_ChangeRoom(On.RoomCamera.orig_ChangeRoom orig, RoomCamera self, Room newRoom, int cameraPosition)

@@ -412,7 +412,7 @@ public static class _Module
 		Custom.rainWorld.Shaders["WaterFallDepth"] = FShader.CreateShader("WaterFallDepth", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/waterfalldepth")).LoadAsset<Shader>("Assets/Shaders/WaterFallDepth.shader"));
 	}
 
-	private static readonly HashSet<string> DeprecatedObjects = ["SpinningFan", "PlacedWaterfall"];
+	private static readonly HashSet<string> DeprecatedObjects = ["PlacedWaterfall"];
 	private static void RemoveDeprecatedObjects(ILContext il)
 	{
 		// Prevents objects from being added to the pane without removing them from being registered to begin with because this is an easy solution I think
@@ -420,16 +420,16 @@ public static class _Module
 
 		try
 		{
-			Instruction brTo;
-			int loc = 5;
-			c.GotoNext(x => x.MatchCall<ObjectsPage>(nameof(ObjectsPage.DevObjectGetCategoryFromPlacedType)));
-			c.GotoNext(MoveType.AfterLabel, x => x.MatchLdloca(out _));
-			brTo = c.Next;
-			c.GotoPrev(x => x.MatchNewobj<PlacedObject.Type>());
-			c.GotoNext(MoveType.After, x => x.MatchStloc(out loc));
-			c.Emit(OpCodes.Ldloc, loc);
-			c.EmitDelegate((PlacedObject.Type tp) => DeprecatedObjects.Contains(tp.value));
-			c.Emit(OpCodes.Brtrue, brTo);
+			c.GotoNext(MoveType.After, x => x.MatchStloc(1));
+
+			c.Emit(OpCodes.Ldloc, 0);
+			c.EmitDelegate((Dictionary<ObjectsPage.DevObjectCategories, List<PlacedObject.Type>> categoryDict) =>
+			{
+				foreach (List<PlacedObject.Type> list in categoryDict.Values)
+				{
+					list.RemoveAll(x => DeprecatedObjects.Contains(x.value));
+				}
+			});
 		}
 		catch (Exception ex)
 		{

@@ -12,11 +12,12 @@ public class ColoredSnowRoomCamera
 	public static Color[] empty3;
 
 	public bool snowChange;
-	public RenderTexture coloredSnowTexture;
-	public Texture2D coloredSnowSources;
-	public Texture2D coloredSnowSources2;
-	public Texture2D coloredSnowPalette;
-	public Color[] palette;
+	public RenderTexture coloredSnowTexture = null!;
+	public Texture2D coloredSnowSources = null!;
+	public Texture2D coloredSnowSources2 = null!;
+	public Texture2D coloredSnowPalette = null!;
+	public Color[] lastPalette = null!;
+	public Color[] palette = null!;
 
 	static ColoredSnowRoomCamera()
 	{
@@ -39,18 +40,15 @@ public class ColoredSnowRoomCamera
 		}
 	}
 
-	private static PropertyInfo _RoomCamera_fadeCoord = typeof(RoomCamera).GetProperty("fadeCoord", BindingFlags.NonPublic | BindingFlags.Instance);
-	private static PropertyInfo _RoomCamera_levelTexture = typeof(RoomCamera).GetProperty("levelTexture", BindingFlags.NonPublic | BindingFlags.Instance);
+	private static readonly PropertyInfo _RoomCamera_fadeCoord = typeof(RoomCamera).GetProperty("fadeCoord", BindingFlags.NonPublic | BindingFlags.Instance);
+	private static readonly PropertyInfo _RoomCamera_levelTexture = typeof(RoomCamera).GetProperty("levelTexture", BindingFlags.NonPublic | BindingFlags.Instance);
 
 	public static void UpdateSnowLight(RoomCamera camera)
 	{
 		ColoredSnowRoomCamera cameraData = ColoredSnowRoomCamera.GetData(camera);
 		ColoredSnowWeakRoomData roomData = ColoredSnowWeakRoomData.GetData(camera.room);
 
-		if (cameraData.palette == null)
-		{
-			cameraData.palette = (Color[])empty3.Clone();
-		}
+		cameraData.palette ??= (Color[])empty3.Clone();
 
 		int source = 0;
 
@@ -139,7 +137,7 @@ public class ColoredSnowRoomCamera
 			Shader.DisableKeyword("SNOW_ON");
 		}
 
-		roomData.snowObject.visibleSnow = source;
+		roomData.snowObject!.visibleSnow = source;
 		cameraData.coloredSnowSources.SetPixels(packedSources);
 		cameraData.coloredSnowSources.Apply();
 		cameraData.coloredSnowSources2.SetPixels(packedSources2);

@@ -35,7 +35,7 @@ public class ColoredSnowGroupUAD : UpdatableAndDeletable
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		this.data.update(placedObject);
+		data.update(placedObject);
 
 		ColoredSnowWeakRoomData roomData = ColoredSnowWeakRoomData.GetData(room);
 
@@ -63,12 +63,12 @@ public class ColoredSnowGroupUAD : UpdatableAndDeletable
 			}
 		}
 
-		if (data != lastData && roomData.snow && this.room.BeingViewed)
+		if (data != lastData && roomData.snow && room.BeingViewed)
 		{
-			ColoredSnowRoomCamera.GetData(this.room.game.cameras[0]).snowChange = true;
+			ColoredSnowRoomCamera.GetData(room.game.cameras[0]).snowChange = true;
+			lastData.copy(data);
 		}
 
-		this.lastData.copy(this.data);
 	}
 
 	public Color getRGBA()

@@ -1,7 +1,4 @@
-﻿using System.Drawing.Text;
-using DevInterface;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
+﻿using RegionKit.API;
 using static RegionKit.Modules.ConcealedGarden.CGCosmeticLeaves;
 using static RegionKit.Modules.ConcealedGarden.CGElectricArcs;
 using static RegionKit.Modules.ConcealedGarden.CGSlipperySlope;
@@ -114,8 +111,8 @@ internal static class _Module
 		CGNoLurkArea.Apply();
 		CGShelterRain.Apply();
 		CGCosmeticWater.Hooks.Apply();
-
-		IL.DevInterface.ObjectsPage.AssembleObjectPages += RemoveDeprecatedObjects;
+		DeprecatedItems.RegisterDeprecatedObject("CGBunkerShelterFlap");
+		DeprecatedItems.RegisterDeprecatedObject("CGCosmeticWater");
 	}
 
 	public static void Disable()
@@ -125,33 +122,5 @@ internal static class _Module
 		CGNoLurkArea.Undo();
 		CGShelterRain.Undo();
 		CGCosmeticWater.Hooks.Undo();
-
-		IL.DevInterface.ObjectsPage.AssembleObjectPages -= RemoveDeprecatedObjects;
-	}
-
-	private static readonly HashSet<string> DeprecatedObjects = ["CGCosmeticWater"];
-	private static void RemoveDeprecatedObjects(ILContext il)
-	{
-		// Prevents objects from being added to the pane without removing them from being registered to begin with because this is an easy solution I think
-		var c = new ILCursor(il);
-
-		try
-		{
-			c.GotoNext(MoveType.After, x => x.MatchStloc(1));
-
-			c.Emit(OpCodes.Ldloc, 0);
-			c.EmitDelegate((Dictionary<ObjectsPage.DevObjectCategories, List<PlacedObject.Type>> categoryDict) =>
-			{
-				foreach (List<PlacedObject.Type> list in categoryDict.Values)
-				{
-					list.RemoveAll(x => DeprecatedObjects.Contains(x.value));
-				}
-			});
-		}
-		catch (Exception ex)
-		{
-			LogError("ConcealedGarden RemoveDeprecatedObjects IL hook failed!");
-			LogError(ex);
-		}
 	}
 }

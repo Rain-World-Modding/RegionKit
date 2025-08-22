@@ -1,7 +1,6 @@
-﻿using MonoMod.RuntimeDetour;
-using DevInterface;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
+﻿using DevInterface;
+using MonoMod.RuntimeDetour;
+using RegionKit.API;
 
 namespace RegionKit.Modules.Objects;
 ///<inheritdoc/>
@@ -126,7 +125,7 @@ public static class _Module
 
 		LoadShaders();
 
-		IL.DevInterface.ObjectsPage.AssembleObjectPages += RemoveDeprecatedObjects;
+		DeprecatedItems.RegisterDeprecatedObject("PlacedWaterfall");
 	}
 
 	internal static void Disable()
@@ -154,8 +153,6 @@ public static class _Module
 		NoBatflyLurkZoneHooks.Undo();
 		NoDropwigPerchZoneHooks.Undo();
 		WaterFallDepthHooks.Undo();
-
-		IL.DevInterface.ObjectsPage.AssembleObjectPages -= RemoveDeprecatedObjects;
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)
@@ -410,31 +407,5 @@ public static class _Module
 	{
 		Custom.rainWorld.Shaders["ColorEffects"] = FShader.CreateShader("ColorEffects", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/coloreffects")).LoadAsset<Shader>("Assets/ColorEffects.shader"));
 		Custom.rainWorld.Shaders["WaterFallDepth"] = FShader.CreateShader("WaterFallDepth", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/waterfalldepth")).LoadAsset<Shader>("Assets/Shaders/WaterFallDepth.shader"));
-	}
-
-	private static readonly HashSet<string> DeprecatedObjects = ["PlacedWaterfall"];
-	private static void RemoveDeprecatedObjects(ILContext il)
-	{
-		// Prevents objects from being added to the pane without removing them from being registered to begin with because this is an easy solution I think
-		var c = new ILCursor(il);
-
-		try
-		{
-			c.GotoNext(MoveType.After, x => x.MatchStloc(1));
-
-			c.Emit(OpCodes.Ldloc, 0);
-			c.EmitDelegate((Dictionary<ObjectsPage.DevObjectCategories, List<PlacedObject.Type>> categoryDict) =>
-			{
-				foreach (List<PlacedObject.Type> list in categoryDict.Values)
-				{
-					list.RemoveAll(x => DeprecatedObjects.Contains(x.value));
-				}
-			});
-		}
-		catch (Exception ex)
-		{
-			LogError("Objects RemoveDeprecatedObjects IL hook failed!");
-			LogError(ex);
-		}
 	}
 }

@@ -103,7 +103,7 @@ internal class OverseerProperties
 		result = new();
 		string[] array4 = Regex.Split(Custom.ValidateSpacedDelimiter(s, ","), ", ");
 
-		if (float.TryParse(array4[0], out var r) && float.TryParse(array4[1], out var g) && float.TryParse(array4[2], out var b))
+		if (array4.Length >= 3 && float.TryParse(array4[0], out var r) && float.TryParse(array4[1], out var g) && float.TryParse(array4[2], out var b))
 		{ result = new Color(r, g, b); return true; }
 
 		return false;

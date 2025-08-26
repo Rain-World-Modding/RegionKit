@@ -123,6 +123,8 @@ public static class _Module
 		NoDropwigPerchZoneHooks.Apply();
 		WaterFallDepthHooks.Apply();
 
+		_CompatHooks.Enable();
+
 		LoadShaders();
 
 		DeprecatedItems.RegisterDeprecatedObject("PlacedWaterfall");
@@ -153,6 +155,8 @@ public static class _Module
 		NoBatflyLurkZoneHooks.Undo();
 		NoDropwigPerchZoneHooks.Undo();
 		WaterFallDepthHooks.Undo();
+
+		_CompatHooks.Disable();
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)

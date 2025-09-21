@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using MoreSlugcats;
 
 namespace RegionKit.Modules.Objects
 {
@@ -18,7 +19,7 @@ namespace RegionKit.Modules.Objects
 			{
 				On.Room.Loaded += Room_Loaded;
 				IL.PlayerSessionRecord.AddEat += PlayerSessionRecord_AddEat;
-				IL.SlugcatStats.NourishmentOfObjectEaten += SlugcatStats_NourishmentOfObjectEaten;
+				On.SlugcatStats.NourishmentOfObjectEaten += SlugcatStats_NourishmentOfObjectEaten;
 				On.SLOracleBehaviorHasMark.TypeOfMiscItem += SLOracleBehaviorHasMark_TypeOfMiscItem;
 				On.SLOracleBehaviorHasMark.MoonConversation.AddEvents += MoonConversation_AddEvents;
 			}
@@ -34,7 +35,9 @@ namespace RegionKit.Modules.Objects
 			{
 				On.Room.Loaded -= Room_Loaded;
 				IL.PlayerSessionRecord.AddEat -= PlayerSessionRecord_AddEat;
-				IL.SlugcatStats.NourishmentOfObjectEaten -= SlugcatStats_NourishmentOfObjectEaten;
+				On.SlugcatStats.NourishmentOfObjectEaten -= SlugcatStats_NourishmentOfObjectEaten;
+				On.SLOracleBehaviorHasMark.TypeOfMiscItem -= SLOracleBehaviorHasMark_TypeOfMiscItem;
+				On.SLOracleBehaviorHasMark.MoonConversation.AddEvents -= MoonConversation_AddEvents;
 			}
 			catch (Exception e)
 			{
@@ -77,28 +80,27 @@ namespace RegionKit.Modules.Objects
 			}
 		}
 
+		private static int SlugcatStats_NourishmentOfObjectEaten(On.SlugcatStats.orig_NourishmentOfObjectEaten orig, SlugcatStats.Name slugcatIndex, IPlayerEdible eatenobject)
+		{
+			if (eatenobject is DangleFruit fruit && fruit.abstractPhysicalObject.IsEvilDangleFruit())
+			{
+				try
+				{
+					// I tried to IL hook it, that didn't work so we're going to pretend it's a fly and if that crashes then oh well
+					var fakeCrit = new AbstractCreature(null, StaticWorld.GetCreatureTemplate(CreatureTemplate.Type.Fly), null, default, default);
+					var fakeFly = new Fly(fakeCrit, null);
+					return orig(slugcatIndex, fakeFly);
+				}
+				catch { }
+			}
+			return orig(slugcatIndex, eatenobject);
+		}
+
 		private static void PlayerSessionRecord_AddEat(ILContext il)
 		{
 			var c = new ILCursor(il);
 			c.GotoNext(x => x.MatchLdsfld<AbstractPhysicalObject.AbstractObjectType>(nameof(AbstractPhysicalObject.AbstractObjectType.EggBugEgg)));
 			c.GotoNext(MoveType.AfterLabel, x => x.MatchBrfalse(out _));
-			c.Emit(OpCodes.Ldarg_1);
-			c.EmitDelegate((bool orig, PhysicalObject obj) => orig || IsEvilDangleFruit(obj.abstractPhysicalObject));
-		}
-
-		private static void SlugcatStats_NourishmentOfObjectEaten(ILContext il)
-		{
-			var c = new ILCursor(il);
-
-			// Step 1: Saint does not like evil dangle fruit
-			c.GotoNext(x => x.MatchIsinst<Centipede>());
-			c.GotoNext(MoveType.AfterLabel, x => x.MatchBrtrue(out _));
-			c.Emit(OpCodes.Ldarg_1);
-			c.EmitDelegate((bool orig, PhysicalObject obj) => orig || IsEvilDangleFruit(obj.abstractPhysicalObject));
-
-			// Step 2: Meat eaters do like evil dangle fruit
-			c.GotoNext(x => x.MatchIsinst<Centipede>());
-			c.GotoNext(MoveType.AfterLabel, x => x.MatchBrtrue(out _));
 			c.Emit(OpCodes.Ldarg_1);
 			c.EmitDelegate((bool orig, PhysicalObject obj) => orig || IsEvilDangleFruit(obj.abstractPhysicalObject));
 		}

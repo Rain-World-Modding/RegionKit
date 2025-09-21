@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace RegionKit.Modules.Objects;
 
@@ -76,17 +77,16 @@ public static class FanLightHooks
 		for (int k = 0; k < enabledMods.Count; k++)
 		{
 			string directory = Path.Combine(enabledMods[k].path, "fanmasks");
-			if (Directory.Exists(directory))
+			if (!Directory.Exists(directory))
+				continue;
+			string[] files = Directory.GetFiles(directory);
+			for (int i = 0; i < files.Length; ++i)
 			{
-				var files = Directory.GetFiles(directory);
-				for (var i = 0; i < files.Length; i++)
+				string fn = Path.GetFileNameWithoutExtension(files[i]);
+				if (!Futile.atlasManager.DoesContainAtlas(fn))
 				{
-					var fn = Path.GetFileNameWithoutExtension(files[i]);
-					if (!Futile.atlasManager.DoesContainAtlas(fn))
-					{
-						FAtlas atlas = Futile.atlasManager.LoadFanImage(Path.Combine("fanmasks", fn));
-						atlas._texture = blur.Blur((atlas._texture as Texture2D)!, 5, 1);
-					}
+					FAtlas atlas = Futile.atlasManager.LoadFanImage(Path.Combine("fanmasks", fn));
+					atlas._texture = blur.Blur((atlas._texture as Texture2D)!, 5, 1);
 				}
 			}
 		}
@@ -98,17 +98,17 @@ public static class FanLightHooks
 		data = null!;
 	}
 
-	public static FAtlas LoadFanImage(this FAtlasManager self, string imagePath) => self.DoesContainAtlas(imagePath) ? self.GetAtlasWithName(imagePath) : self.ActuallyLoadAtlasOrImage(imagePath.Split('\\')[1], imagePath + Futile.resourceSuffix, "");
+	public static FAtlas LoadFanImage(this FAtlasManager self, string imagePath) => self.ActuallyLoadAtlasOrImage(imagePath.Split('\\')[1], imagePath + Futile.resourceSuffix, "");
 
 	public class LinearBlur
 	{
-		float _rSum;
-		float _gSum;
-		float _bSum;
 		Texture2D? _sourceImage;
 		int _sourceWidth;
 		int _sourceHeight;
+		int _sourceLength;
+		int _sourceLastYOffset;
 		int _windowSize;
+		Color[] _pixelBuffer;
 
 		public Texture2D Blur(Texture2D image, int radius, int iterations)
 		{
@@ -117,110 +117,152 @@ public static class FanLightHooks
 			_sourceHeight = image.height;
 			Texture2D tex = image;
 			for (var i = 0; i < iterations; i++)
-			{
-				tex = OneDimensialBlur(tex, radius, true);
-				tex = OneDimensialBlur(tex, radius, false);
-			}
+				tex = OneDimensialBlurY(OneDimensialBlurX(tex, radius), radius);
 			return tex;
 		}
 
-		Texture2D OneDimensialBlur(Texture2D image, int radius, bool horizontal)
+		Texture2D OneDimensialBlurX(Texture2D image, int radius)
 		{
 			_sourceImage = image;
-			var blurred = new Texture2D(image.width, image.height, image.format, false);
-			if (horizontal)
+			_pixelBuffer = _sourceImage.GetPixels();
+			float _windowSizeR = 1.0f / _windowSize;
+			Texture2D blurred = new(image.width, image.height, image.format, false);
+			Color[] pixels = new Color[_sourceWidth * _sourceHeight];
+			Parallel.For(0, _sourceHeight, imgY =>
 			{
-				for (var imgY = 0; imgY < _sourceHeight; ++imgY)
+				int y = imgY * _sourceWidth;
+				float rSum = 0f, gSum = 0f, bSum = 0f;
+				for (var x = radius * -1; x <= radius; ++x)
 				{
-					ResetSum();
-					for (var imgX = 0; imgX < _sourceWidth; imgX++)
-					{
-						if (imgX == 0)
-						{
-							for (var x = radius * -1; x <= radius; ++x)
-								AddPixel(GetPixelWithXCheck(x, imgY));
-						}
-						else
-						{
-							Color toExclude = GetPixelWithXCheck(imgX - radius - 1, imgY);
-							Color toInclude = GetPixelWithXCheck(imgX + radius, imgY);
-							SubstractPixel(toExclude);
-							AddPixel(toInclude);
-						}
-						blurred.SetPixel(imgX, imgY, CalcPixelFromSum());
-					}
+					ref Color pixel = ref GetPixelWithXCheck(x, y);
+					rSum += pixel.r;
+					gSum += pixel.g;
+					bSum += pixel.b;
 				}
-			}
-			else
-			{
-				for (var imgX = 0; imgX < _sourceWidth; imgX++)
+				ref Color pixel0 = ref pixels[y];
+				pixel0.r = rSum * _windowSizeR;
+				pixel0.g = gSum * _windowSizeR;
+				pixel0.b = bSum * _windowSizeR;
+				pixel0.a = 1f;
+				int imgX = 1;
+				for (; imgX < radius + 2; ++imgX)
 				{
-					ResetSum();
-					for (var imgY = 0; imgY < _sourceHeight; ++imgY)
-					{
-						if (imgY == 0)
-						{
-							for (var y = radius * -1; y <= radius; ++y)
-								AddPixel(GetPixelWithYCheck(imgX, y));
-						}
-						else
-						{
-							Color toExclude = GetPixelWithYCheck(imgX, imgY - radius - 1);
-							Color toInclude = GetPixelWithYCheck(imgX, imgY + radius);
-							SubstractPixel(toExclude);
-							AddPixel(toInclude);
-						}
-						blurred.SetPixel(imgX, imgY, CalcPixelFromSum());
-					}
+					ref Color toExclude = ref _pixelBuffer[y];
+					ref Color toInclude = ref _pixelBuffer[y + imgX + radius];
+					ref Color pixelX = ref pixels[y + imgX];
+					pixelX.r = (rSum += toInclude.r - toExclude.r) * _windowSizeR;
+					pixelX.g = (gSum += toInclude.g - toExclude.g) * _windowSizeR;
+					pixelX.b = (bSum += toInclude.b - toExclude.b) * _windowSizeR;
+					pixelX.a = 1f;
 				}
-			}
+				for (; imgX < _sourceWidth - radius; ++imgX)
+				{
+					ref Color toExclude = ref _pixelBuffer[y + imgX - radius - 1];
+					ref Color toInclude = ref _pixelBuffer[y + imgX + radius];
+					ref Color pixelX = ref pixels[y + imgX];
+					pixelX.r = (rSum += toInclude.r - toExclude.r) * _windowSizeR;
+					pixelX.g = (gSum += toInclude.g - toExclude.g) * _windowSizeR;
+					pixelX.b = (bSum += toInclude.b - toExclude.b) * _windowSizeR;
+					pixelX.a = 1f;
+				}
+				for (; imgX < _sourceWidth; ++imgX)
+				{
+					ref Color toExclude = ref _pixelBuffer[y + imgX - radius - 1];
+					ref Color toInclude = ref _pixelBuffer[y + _sourceWidth - 1];
+					ref Color pixelX = ref pixels[y + imgX];
+					pixelX.r = (rSum += toInclude.r - toExclude.r) * _windowSizeR;
+					pixelX.g = (gSum += toInclude.g - toExclude.g) * _windowSizeR;
+					pixelX.b = (bSum += toInclude.b - toExclude.b) * _windowSizeR;
+					pixelX.a = 1f;
+				}
+			});
+			blurred.SetPixels(pixels);
 			blurred.Apply();
 			return blurred;
 		}
 
-		Color GetPixelWithXCheck(int x, int y)
+		Texture2D OneDimensialBlurY(Texture2D image, int radius)
 		{
-			if (_sourceImage is not Texture2D text)
-				return default;
+			_sourceImage = image;
+			_pixelBuffer = _sourceImage.GetPixels();
+			_sourceLength = _sourceWidth * _sourceHeight;
+			_sourceLastYOffset = _sourceLength - _sourceWidth;
+			float _windowSizeR = 1.0f / _windowSize;
+			Texture2D blurred = new(image.width, image.height, image.format, false);
+			Color[] pixels = new Color[_sourceWidth * _sourceHeight];
+			int radiusOffsetLeft = (-radius - 1) * _sourceWidth,
+				radiusOffsetRight = radius * _sourceWidth;
+			Parallel.For(0, _sourceWidth, imgX =>
+			{
+				float rSum = 0f, gSum = 0f, bSum = 0f;
+				for (int y = radius * -1; y <= radius; ++y)
+				{
+					ref Color pixel = ref GetPixelWithYCheck(imgX, y);
+					rSum += pixel.r;
+					gSum += pixel.g;
+					bSum += pixel.b;
+				}
+				ref Color pixel0 = ref pixels[imgX];
+				pixel0.r = rSum * _windowSizeR;
+				pixel0.g = gSum * _windowSizeR;
+				pixel0.b = bSum * _windowSizeR;
+				pixel0.a = 1f;
+				int imgY = 1;
+				for (; imgY < radius + 2; ++imgY)
+				{
+					int y = imgY * _sourceWidth;
+					ref Color toExclude = ref _pixelBuffer[imgX];
+					ref Color toInclude = ref _pixelBuffer[imgX + y + radiusOffsetRight];
+					ref Color pixelX = ref pixels[y + imgX];
+					pixelX.r = (rSum += toInclude.r - toExclude.r) * _windowSizeR;
+					pixelX.g = (gSum += toInclude.g - toExclude.g) * _windowSizeR;
+					pixelX.b = (bSum += toInclude.b - toExclude.b) * _windowSizeR;
+					pixelX.a = 1f;
+				}
+				for (; imgY < _sourceHeight - radius; ++imgY)
+				{
+					int y = imgY * _sourceWidth;
+					ref Color toExclude = ref _pixelBuffer[imgX + y + radiusOffsetLeft];
+					ref Color toInclude = ref _pixelBuffer[imgX + y + radiusOffsetRight];
+					ref Color pixelX = ref pixels[y + imgX];
+					pixelX.r = (rSum += toInclude.r - toExclude.r) * _windowSizeR;
+					pixelX.g = (gSum += toInclude.g - toExclude.g) * _windowSizeR;
+					pixelX.b = (bSum += toInclude.b - toExclude.b) * _windowSizeR;
+					pixelX.a = 1f;
+				}
+				for (; imgY < _sourceHeight; ++imgY)
+				{
+					int y = imgY * _sourceWidth;
+					ref Color toExclude = ref _pixelBuffer[imgX + y + radiusOffsetLeft];
+					ref Color toInclude = ref _pixelBuffer[imgX + _sourceLastYOffset];
+					ref Color pixelX = ref pixels[y + imgX];
+					pixelX.r = (rSum += toInclude.r - toExclude.r) * _windowSizeR;
+					pixelX.g = (gSum += toInclude.g - toExclude.g) * _windowSizeR;
+					pixelX.b = (bSum += toInclude.b - toExclude.b) * _windowSizeR;
+					pixelX.a = 1f;
+				}
+			});
+			blurred.SetPixels(pixels);
+			blurred.Apply();
+			return blurred;
+		}
+
+		ref Color GetPixelWithXCheck(int x, int realY)
+		{
 			if (x <= 0)
-				return text.GetPixel(0, y);
+				return ref _pixelBuffer[realY];
 			if (x >= _sourceWidth)
-				return text.GetPixel(_sourceWidth - 1, y);
-			return text.GetPixel(x, y);
+				return ref _pixelBuffer[realY + _sourceWidth - 1];
+			return ref _pixelBuffer[realY + x];
 		}
 
-		Color GetPixelWithYCheck(int x, int y)
+		ref Color GetPixelWithYCheck(int x, int realY)
 		{
-			if (_sourceImage is not Texture2D text)
-				return default;
-			if (y <= 0)
-				return text.GetPixel(x, 0);
-			if (y >= _sourceHeight)
-				return text.GetPixel(x, _sourceHeight - 1);
-			return text.GetPixel(x, y);
+			if (realY <= 0)
+				return ref _pixelBuffer[x];
+			if (realY >= _sourceLength)
+				return ref _pixelBuffer[x + _sourceLastYOffset];
+			return ref _pixelBuffer[realY + x];
 		}
-
-		void AddPixel(Color pixel)
-		{
-			_rSum += pixel.r;
-			_gSum += pixel.g;
-			_bSum += pixel.b;
-		}
-
-		void SubstractPixel(Color pixel)
-		{
-			_rSum -= pixel.r;
-			_gSum -= pixel.g;
-			_bSum -= pixel.b;
-		}
-
-		void ResetSum()
-		{
-			_rSum = 0f;
-			_gSum = 0f;
-			_bSum = 0f;
-		}
-
-		Color CalcPixelFromSum() => new(_rSum / _windowSize, _gSum / _windowSize, _bSum / _windowSize);
 	}
 }

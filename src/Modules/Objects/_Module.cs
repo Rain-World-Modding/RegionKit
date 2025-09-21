@@ -122,6 +122,7 @@ public static class _Module
 		NoBatflyLurkZoneHooks.Apply();
 		NoDropwigPerchZoneHooks.Apply();
 		WaterFallDepthHooks.Apply();
+		EvilDangleFruit.Apply();
 
 		_CompatHooks.Enable();
 
@@ -155,6 +156,7 @@ public static class _Module
 		NoBatflyLurkZoneHooks.Undo();
 		NoDropwigPerchZoneHooks.Undo();
 		WaterFallDepthHooks.Undo();
+		EvilDangleFruit.Undo();
 
 		_CompatHooks.Disable();
 	}
@@ -181,6 +183,8 @@ public static class _Module
 			|| type == _Enums.NoBatflyLurkZone
 			|| type == _Enums.NoDropwigPerchZone)
 			res = new ObjectsPage.DevObjectCategories(GAMEPLAY_POM_CATEGORY);
+		else if (type == _Enums.EvilDangleFruit)
+			res = ObjectsPage.DevObjectCategories.Consumable;
 		return res;
 	}
 
@@ -310,6 +314,10 @@ public static class _Module
 			CreateObjectIfNeeded();
 			rep = new WaterFallDepthRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj);
 		}
+		else if (tp == _Enums.EvilDangleFruit)
+		{
+			rep = new ConsumableRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj, "Consumable: " + tp.ToString());
+		}
 
 		// Create object or call orig
 		if (rep != null)
@@ -387,6 +395,10 @@ public static class _Module
 		else if (self.type == _Enums.WaterFallDepth)
 		{
 			self.data = new WaterFallDepth.WaterFallDepthData(self);
+		}
+		else if (self.type == _Enums.EvilDangleFruit)
+		{
+			self.data = new PlacedObject.ConsumableObjectData(self);
 		}
 		orig(self);
 	}

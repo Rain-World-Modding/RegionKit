@@ -64,4 +64,12 @@ public class _Enums
 	/// Prevents dropwigs from perching in a location
 	/// </summary>
 	public static PlacedObject.Type NoDropwigPerchZone = new(nameof(NoDropwigPerchZone), true);
+	/// <summary>
+	/// Evil dangle fruit
+	/// </summary>
+	public static PlacedObject.Type EvilDangleFruit = new(nameof(EvilDangleFruit), true);
+	/// <summary>
+	/// Evil dangle fruit dialogue
+	/// </summary>
+	public static SLOracleBehaviorHasMark.MiscItemType EvilDangleFruitDialogue = new(nameof(EvilDangleFruitDialogue), true);
 }

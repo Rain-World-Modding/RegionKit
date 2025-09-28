@@ -40,9 +40,6 @@ public class ColoredSnowRoomCamera
 		}
 	}
 
-	private static readonly PropertyInfo _RoomCamera_fadeCoord = typeof(RoomCamera).GetProperty("fadeCoord", BindingFlags.NonPublic | BindingFlags.Instance);
-	private static readonly PropertyInfo _RoomCamera_levelTexture = typeof(RoomCamera).GetProperty("levelTexture", BindingFlags.NonPublic | BindingFlags.Instance);
-
 	public static void UpdateSnowLight(RoomCamera camera)
 	{
 		ColoredSnowRoomCamera cameraData = ColoredSnowRoomCamera.GetData(camera);
@@ -79,7 +76,7 @@ public class ColoredSnowRoomCamera
 
 				if (roomData.snowPalettes.ContainsKey(snowSource.data.palette))
 				{
-					cameraData.palette[snowSource.data.palette] = roomData.snowPalettes[snowSource.data.palette].getBlendedRGBA(((Vector4)_RoomCamera_fadeCoord.GetValue(camera)).y);
+					cameraData.palette[snowSource.data.palette] = roomData.snowPalettes[snowSource.data.palette].getBlendedRGBA(camera.fadeCoord.y);
 					depthBuffer[source % 2] = new Vector2((float)roomData.snowPalettes[snowSource.data.palette].data.from / 30f, (float)roomData.snowPalettes[snowSource.data.palette].data.to / 30f);
 				}
 				else
@@ -144,7 +141,7 @@ public class ColoredSnowRoomCamera
 		cameraData.coloredSnowSources2.Apply();
 		cameraData.coloredSnowPalette.SetPixels(cameraData.palette);
 		cameraData.coloredSnowPalette.Apply();
-		Graphics.Blit((Texture2D)_RoomCamera_levelTexture.GetValue(camera), cameraData.coloredSnowTexture, _Module.RKLevelSnowMaterial);
+		Graphics.Blit(camera.levelTexture, cameraData.coloredSnowTexture, _Module.RKLevelSnowMaterial);
 		cameraData.snowChange = false;
 	}
 

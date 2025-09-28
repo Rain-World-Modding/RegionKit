@@ -14,11 +14,21 @@ internal class OverseerProperties
 
 	public static void Apply()
 	{
-		IL.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor;
+		//IL.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor;
+		On.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor_string_int_int_RainWorldGame_Timeline;
 	}
+
 	public static void Undo()
 	{
 		IL.Region.ctor_string_int_int_RainWorldGame_Timeline -= Region_ctor;
+	}
+
+	private static void Region_ctor_string_int_int_RainWorldGame_Timeline(On.Region.orig_ctor_string_int_int_RainWorldGame_Timeline orig, Region self, string name, int firstRoomIndex, int regionNumber, RainWorldGame game, SlugcatStats.Timeline timelineIndex)
+	{
+		orig(self, name, firstRoomIndex, regionNumber, game, timelineIndex);
+
+		foreach (var pair in self.regionParams.unrecognizedParams)
+			GetOverseerProperties(self).SetProperties([pair.Key, pair.Value]);
 	}
 
 	private static void Region_ctor(ILContext il)

@@ -26,14 +26,14 @@ internal static class BuilderPageHooks
 	private static void SliderNub_Update(On.DevInterface.Slider.SliderNub.orig_Update orig, Slider.SliderNub self)
 	{
 		//stop other things from happening when sliding
+		DevUINode? oldDraggedNode = self.owner?.draggedNode;
 		orig(self);
-		if (self.owner.draggedNode != null)
+		if (oldDraggedNode != null)
 		{
 			self.held = false;
-			return;
+			if (self.owner != null)
+			{ self.owner.draggedNode = oldDraggedNode; }
 		}
-		if (self.held)
-		{ self.owner.draggedNode = self; }
 	}
 
 	private static void DevUI_ctor(On.DevInterface.DevUI.orig_ctor orig, DevUI self, RainWorldGame game)

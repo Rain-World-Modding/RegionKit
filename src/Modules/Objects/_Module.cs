@@ -1,7 +1,6 @@
-﻿using MonoMod.RuntimeDetour;
-using DevInterface;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
+﻿using DevInterface;
+using MonoMod.RuntimeDetour;
+using RegionKit.API;
 
 namespace RegionKit.Modules.Objects;
 ///<inheritdoc/>
@@ -123,10 +122,13 @@ public static class _Module
 		NoBatflyLurkZoneHooks.Apply();
 		NoDropwigPerchZoneHooks.Apply();
 		WaterFallDepthHooks.Apply();
+		EvilDangleFruit.Apply();
+
+		_CompatHooks.Enable();
 
 		LoadShaders();
 
-		IL.DevInterface.ObjectsPage.AssembleObjectPages += RemoveDeprecatedObjects;
+		DeprecatedItems.RegisterDeprecatedObject("PlacedWaterfall");
 	}
 
 	internal static void Disable()
@@ -154,8 +156,9 @@ public static class _Module
 		NoBatflyLurkZoneHooks.Undo();
 		NoDropwigPerchZoneHooks.Undo();
 		WaterFallDepthHooks.Undo();
+		EvilDangleFruit.Undo();
 
-		IL.DevInterface.ObjectsPage.AssembleObjectPages -= RemoveDeprecatedObjects;
+		_CompatHooks.Disable();
 	}
 
 	private static ObjectsPage.DevObjectCategories ObjectsPageDevObjectGetCategoryFromPlacedType(On.DevInterface.ObjectsPage.orig_DevObjectGetCategoryFromPlacedType orig, ObjectsPage self, PlacedObject.Type type)
@@ -180,6 +183,8 @@ public static class _Module
 			|| type == _Enums.NoBatflyLurkZone
 			|| type == _Enums.NoDropwigPerchZone)
 			res = new ObjectsPage.DevObjectCategories(GAMEPLAY_POM_CATEGORY);
+		else if (type == _Enums.EvilDangleFruit)
+			res = ObjectsPage.DevObjectCategories.Consumable;
 		return res;
 	}
 
@@ -309,6 +314,10 @@ public static class _Module
 			CreateObjectIfNeeded();
 			rep = new WaterFallDepthRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj);
 		}
+		else if (tp == _Enums.EvilDangleFruit)
+		{
+			rep = new ConsumableRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj, "Consumable: " + tp.ToString());
+		}
 
 		// Create object or call orig
 		if (rep != null)
@@ -387,6 +396,10 @@ public static class _Module
 		{
 			self.data = new WaterFallDepth.WaterFallDepthData(self);
 		}
+		else if (self.type == _Enums.EvilDangleFruit)
+		{
+			self.data = new PlacedObject.ConsumableObjectData(self);
+		}
 		orig(self);
 	}
 
@@ -410,31 +423,5 @@ public static class _Module
 	{
 		Custom.rainWorld.Shaders["ColorEffects"] = FShader.CreateShader("ColorEffects", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/coloreffects")).LoadAsset<Shader>("Assets/ColorEffects.shader"));
 		Custom.rainWorld.Shaders["WaterFallDepth"] = FShader.CreateShader("WaterFallDepth", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/waterfalldepth")).LoadAsset<Shader>("Assets/Shaders/WaterFallDepth.shader"));
-	}
-
-	private static readonly HashSet<string> DeprecatedObjects = ["SpinningFan", "PlacedWaterfall"];
-	private static void RemoveDeprecatedObjects(ILContext il)
-	{
-		// Prevents objects from being added to the pane without removing them from being registered to begin with because this is an easy solution I think
-		var c = new ILCursor(il);
-
-		try
-		{
-			Instruction brTo;
-			int loc = 5;
-			c.GotoNext(x => x.MatchCall<ObjectsPage>(nameof(ObjectsPage.DevObjectGetCategoryFromPlacedType)));
-			c.GotoNext(MoveType.AfterLabel, x => x.MatchLdloca(out _));
-			brTo = c.Next;
-			c.GotoPrev(x => x.MatchNewobj<PlacedObject.Type>());
-			c.GotoNext(MoveType.After, x => x.MatchStloc(out loc));
-			c.Emit(OpCodes.Ldloc, loc);
-			c.EmitDelegate((PlacedObject.Type tp) => DeprecatedObjects.Contains(tp.value));
-			c.Emit(OpCodes.Brtrue, brTo);
-		}
-		catch (Exception ex)
-		{
-			LogError("Objects RemoveDeprecatedObjects IL hook failed!");
-			LogError(ex);
-		}
 	}
 }

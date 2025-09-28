@@ -10,6 +10,8 @@ namespace RegionKit.Modules.Effects
 	internal class ReplaceCorruptionColors : UpdatableAndDeletable
 	{
 		private static ConditionalWeakTable<Room, CorruptionValues> corruptionCWT = new();
+		private static ConditionalWeakTable<AbstractCreature, CorruptionValues> dllCWT = new();
+		internal List<DaddyLongLegs> dllList = [];
 
 		/// <inheritdoc cref="ReplaceCorruptionColors"/>
 		public ReplaceCorruptionColors(Room room)
@@ -90,20 +92,24 @@ namespace RegionKit.Modules.Effects
 
 			self.ApplyPalette(sLeaser, rCam, rCam.currentPalette);
 
-			if (self.owner is DaddyLongLegs dLL && dLL.room != null && corruptionCWT.TryGetValue(dLL.room, out CorruptionValues corruption))
+			if (dllCWT.TryGetValue(self.daddy.abstractCreature, out CorruptionValues corruption))
 			{
 				if (corruption._originalEffectColor == null || corruption._originalEffectColor == default)
 				{
-					corruption._originalEffectColor = dLL.effectColor;
-					corruption._originalEyeColor = dLL.eyeColor;
+					corruption._originalEffectColor = self.daddy.effectColor;
+					corruption._originalEyeColor = self.daddy.eyeColor;
 				}
 				else
 				{
-					dLL.effectColor = Color.Lerp(corruption._originalEffectColor, corruption._replacementColor, corruption._amount);
-					dLL.eyeColor = Color.Lerp(corruption._originalEyeColor, corruption._replacementColor, corruption._amount);
+					self.daddy.effectColor = Color.Lerp(corruption._originalEffectColor, corruption._replacementColor, corruption._amount);
+					self.daddy.eyeColor = Color.Lerp(corruption._originalEyeColor, corruption._replacementColor, corruption._amount);
 
 					self.ApplyPalette(sLeaser, rCam, rCam.currentPalette);
 				}
+			}
+			else if (corruptionCWT.TryGetValue(self.daddy.room, out CorruptionValues corruptionValues))
+			{
+				dllCWT.Add(self.daddy.abstractCreature, corruptionValues);
 			}
 		}
 
@@ -119,11 +125,19 @@ namespace RegionKit.Modules.Effects
 		public override void Update(bool eu)
 		{
 			base.Update(eu);
-			if (room?.roomSettings is RoomSettings rs && rs.IsEffectInRoom(ReplaceCorruptionColor) && corruptionCWT.TryGetValue(room, out CorruptionValues corruption))
+			if (room?.roomSettings is RoomSettings rs && rs.IsEffectInRoom(ReplaceCorruptionColor) && corruptionCWT.TryGetValue(room, out CorruptionValues corruptionValues))
 			{
 				RoomSettings.RoomEffect.Type type = ReplaceCorruptionColor;
-				corruption._amount = rs.GetEffectAmount(type);
-				corruption._replacementColor = new(rs.GetRedAmount(type), rs.GetGreenAmount(type), rs.GetBlueAmount(type));
+				corruptionValues._amount = rs.GetEffectAmount(type);
+				corruptionValues._replacementColor = new(rs.GetRedAmount(type), rs.GetGreenAmount(type), rs.GetBlueAmount(type));
+
+				foreach (DaddyLongLegs dll in dllList)
+				{
+					if (dllCWT.TryGetValue(dll.abstractCreature, out CorruptionValues dllValues))
+					{
+						dllValues = corruptionValues;
+					}
+				}
 			}
 		}
 	}

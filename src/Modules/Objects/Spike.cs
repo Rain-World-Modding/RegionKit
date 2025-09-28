@@ -20,11 +20,11 @@ public class SpikeObj : ManagedObjectType
 		}
 		else
 		{
-			bool broken = (room.game.session as StoryGameSession).saveState.ItemConsumed(room.world, false, room.abstractRoom.index, m);
+			bool broken = room.game.GetStorySession.saveState.ItemConsumed(room.world, false, room.abstractRoom.index, m);
 			room.AddObject(new Spike(room, placedObject, broken));
 		}
 
-		return null;
+		return null!;
 	}
 }
 
@@ -71,7 +71,7 @@ public class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosi
 			}
 		}
 		wc = this.room.GetWorldCoordinate(room.GetTilePosition(po.pos));
-		stickPositions = new Vector2[(int)Mathf.Clamp((pObj.data as PlacedObject.ResizableObjectData).handlePos.magnitude / 11f, 3f, 30f)];
+		stickPositions = new Vector2[(int)Mathf.Clamp((pObj.data as PlacedObject.ResizableObjectData)!.handlePos.magnitude / 11f, 3f, 30f)];
 		impalePoint = new FloatRect(po.pos.x - 13f, po.pos.y - 13f, po.pos.x + 13f, po.pos.y + 13f);
 		varA = UnityEngine.Random.Range(0.5f, 1f);
 		varB = UnityEngine.Random.Range(0.5f, 1f);
@@ -79,7 +79,7 @@ public class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosi
 		{
 			snap = room.game.rainWorld.progression.currentSaveState.ItemConsumed(room.world, false, room.abstractRoom.index, index);
 		}
-		startAngle = Custom.AimFromOneVectorToAnother(po.pos, po.pos + (po.data as PlacedObject.ResizableObjectData).handlePos);
+		startAngle = Custom.AimFromOneVectorToAnother(po.pos, po.pos + (po.data as PlacedObject.ResizableObjectData)!.handlePos);
 	}
 
 	public override void Update(bool eu)
@@ -87,7 +87,7 @@ public class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosi
 		base.Update(eu);
 		if (broken) return;
 
-		var data = po.data as PlacedObject.ResizableObjectData;
+		var data = (po.data as PlacedObject.ResizableObjectData)!;
 		Vector2 poPos = po.pos;
 		Vector2 handlePos = data.handlePos;
 		float angle = Custom.AimFromOneVectorToAnother(poPos, poPos + handlePos);
@@ -233,10 +233,10 @@ public class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosi
 
 	public void Break()
 	{
-		var data = po.data as PlacedObject.ResizableObjectData;
+		var data = (po.data as PlacedObject.ResizableObjectData)!;
 		Vector2 poPos = po.pos;
 		Vector2 handlePos = data.handlePos;
-		if (impaledChunk != null)
+		if (impaledChunk != null && impaledCreature != null)
 		{
 			for (int b = 0; b < impaledCreature.bodyChunks.Length; b++)
 			{
@@ -268,7 +268,7 @@ public class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosi
 		//50% chance to spawn a spike tip
 		if (UnityEngine.Random.value > 0.5f)
 		{
-			SpikeAbstractTip apo = new(room.world, null, wc, room.game.GetNewID());
+			SpikeAbstractTip apo = new(room.world, null!, wc, room.game.GetNewID());
 			room.abstractRoom.AddEntity(apo);
 			apo.RealizeInRoom();
 		}
@@ -286,12 +286,12 @@ public class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosi
 			scale = 1f,
 			alpha = 0f
 		};
-		AddToContainer(sLeaser, rCam, null);
+		AddToContainer(sLeaser, rCam, null!);
 	}
 	public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		Vector2 a = po.pos;
-		Vector2 vector = po.pos + (po.data as PlacedObject.ResizableObjectData).handlePos;
+		Vector2 vector = po.pos + (po.data as PlacedObject.ResizableObjectData)!.handlePos;
 		Vector2 vector2 = a + Custom.DirVec(vector, po.pos) * breakSize;
 		Vector2 a2 = vector + Custom.DirVec(vector2, vector) * 5f;
 		float num = 1f;
@@ -299,15 +299,16 @@ public class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosi
 		for (int j = 0; j < stickPositions.Length; j++)
 		{
 			float t = j / (float)(stickPositions.Length - 1);
-			float num2 = Mathf.Lerp(baseWidth + Mathf.Min((po.data as PlacedObject.ResizableObjectData).handlePos.magnitude / 190f, 3f), tipWidth, t);
+			float num2 = Mathf.Lerp(baseWidth + Mathf.Min((po.data as PlacedObject.ResizableObjectData)!.handlePos.magnitude / 190f, 3f), tipWidth, t);
 			Vector2 vector3 = Vector2.Lerp(vector, vector2, t) + stickPositions[j] * Mathf.Lerp(num2 * 0.6f, 1f, t);
 			Vector2 normalized = (a2 - vector3).normalized;
 			Vector2 a3 = Custom.PerpendicularVector(normalized);
 			float d = Vector2.Distance(a2, vector3) / 5f;
-			(sLeaser.sprites[0] as TriangleMesh).MoveVertice(j * 4, a2 - normalized * d - a3 * (num2 + num) * varA - camPos);
-			(sLeaser.sprites[0] as TriangleMesh).MoveVertice(j * 4 + 1, a2 - normalized * d + a3 * (num2 + num) * varB - camPos);
-			(sLeaser.sprites[0] as TriangleMesh).MoveVertice(j * 4 + 2, vector3 + normalized * d - a3 * num2 - camPos);
-			(sLeaser.sprites[0] as TriangleMesh).MoveVertice(j * 4 + 3, vector3 + normalized * d + a3 * num2 - camPos);
+			TriangleMesh mesh = (sLeaser.sprites[0] as TriangleMesh)!;
+			mesh.MoveVertice(j * 4, a2 - normalized * d - a3 * (num2 + num) * varA - camPos);
+			mesh.MoveVertice(j * 4 + 1, a2 - normalized * d + a3 * (num2 + num) * varB - camPos);
+			mesh.MoveVertice(j * 4 + 2, vector3 + normalized * d - a3 * num2 - camPos);
+			mesh.MoveVertice(j * 4 + 3, vector3 + normalized * d + a3 * num2 - camPos);
 			a2 = vector3;
 			num = num2;
 		}
@@ -340,20 +341,21 @@ public class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosi
 	}
 	public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 	{
+		TriangleMesh mesh = (sLeaser.sprites[0] as TriangleMesh)!;
 		color = palette.blackColor;
-		sLeaser.sprites[0].color = palette.blackColor;
-		for (int i = 0; i < (sLeaser.sprites[0] as TriangleMesh).verticeColors.Length; i++)
+		mesh.color = palette.blackColor;
+		for (int i = 0; i < mesh.verticeColors.Length; i++)
 		{
 			float fade;
 			if (broken)
 			{
-				fade = Mathf.InverseLerp((sLeaser.sprites[0] as TriangleMesh).verticeColors.Length / 2, (sLeaser.sprites[0] as TriangleMesh).verticeColors.Length * 2, i);
-				(sLeaser.sprites[0] as TriangleMesh).verticeColors[i] = Color.Lerp(color, Color.Lerp(color, tipColor, 0.5f), fade);
+				fade = Mathf.InverseLerp(mesh.verticeColors.Length / 2, mesh.verticeColors.Length * 2, i);
+				mesh.verticeColors[i] = Color.Lerp(color, Color.Lerp(color, tipColor, 0.5f), fade);
 			}
 			else
 			{
-				fade = Mathf.InverseLerp((sLeaser.sprites[0] as TriangleMesh).verticeColors.Length / 2, (sLeaser.sprites[0] as TriangleMesh).verticeColors.Length, i);
-				(sLeaser.sprites[0] as TriangleMesh).verticeColors[i] = Color.Lerp(color, Color.Lerp(color, tipColor, 0.6f), fade);
+				fade = Mathf.InverseLerp(mesh.verticeColors.Length / 2, mesh.verticeColors.Length, i);
+				mesh.verticeColors[i] = Color.Lerp(color, Color.Lerp(color, tipColor, 0.6f), fade);
 			}
 		}
 		sLeaser.sprites[1].color = new Color(1f, 1f, 1f);
@@ -362,7 +364,7 @@ public class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosi
     public void Explosion(Explosion explosion)
     {
 		Vector2 tip = po.pos;
-		Vector2 bottom = po.pos + (po.data as PlacedObject.ResizableObjectData).handlePos;
+		Vector2 bottom = po.pos + (po.data as PlacedObject.ResizableObjectData)!.handlePos;
 		if (explosion != null && Custom.DistLess((tip + bottom) / 2, explosion.pos, explosion.rad * 2f))
 		{
 			Break();
@@ -426,7 +428,7 @@ public static class SpikeSetup
 			{
 				string[] data = Regex.Split(objString, "<oA>");
 				apo = new SpikeAbstractTip(world, null!, apo.pos, apo.ID);
-				(apo as SpikeAbstractTip).stuckInWallCycles = int.Parse(data[3], NumberStyles.Any, CultureInfo.InvariantCulture);
+				(apo as SpikeAbstractTip)!.stuckInWallCycles = int.Parse(data[3], NumberStyles.Any, CultureInfo.InvariantCulture);
 
 			}
 			catch (Exception e)
@@ -435,7 +437,7 @@ public static class SpikeSetup
 				apo = null;
 			}
 		}
-		return apo;
+		return apo!;
 	}
 
 	private static void RainWorld_Start(On.RainWorld.orig_Start orig, RainWorld self)
@@ -458,7 +460,7 @@ public class SpikeTip(AbstractPhysicalObject abstractPhysicalObject, World world
 		{
 			alpha = 0.4f
 		};
-		AddToContainer(sLeaser, rCam, null);
+		AddToContainer(sLeaser, rCam, null!);
 	}
 	public override void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 	{
@@ -518,7 +520,7 @@ public class SpikeTip(AbstractPhysicalObject abstractPhysicalObject, World world
 			sLeaser.sprites[0].RemoveFromContainer();
 			sLeaser.sprites[1].RemoveFromContainer();
 
-			AddToContainer(sLeaser, rCam, null);
+			AddToContainer(sLeaser, rCam, null!);
 			updateSpriteLayer = false;
 		}
 	}
@@ -533,7 +535,7 @@ public class SpikeTip(AbstractPhysicalObject abstractPhysicalObject, World world
 	public override void PlaceInRoom(Room placeRoom)
 	{
 		base.PlaceInRoom(placeRoom);
-		if ((abstractPhysicalObject as SpikeAbstractTip).StuckInWall)
+		if ((abstractPhysicalObject as SpikeAbstractTip)!.StuckInWall)
 		{
 			stuckInWall = new Vector2?(placeRoom.MiddleOfTile(abstractPhysicalObject.pos.Tile));
 			ChangeMode(Mode.StuckInWall);

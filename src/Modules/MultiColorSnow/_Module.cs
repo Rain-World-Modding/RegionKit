@@ -136,14 +136,14 @@ public class _Module
 		}
 
 		cursor.Emit(OpCodes.Ldarg_0);
-		cursor.Emit(OpCodes.Call, typeof(_Module).GetMethod("UpdateRoomCamera", [typeof(RoomCamera)]));
-	}
+		cursor.EmitDelegate(UpdateRoomCamera);
 
-	public static void UpdateRoomCamera(RoomCamera self)
-	{
-		if (ColoredSnowWeakRoomData.GetData(self.room).snow)
+		static void UpdateRoomCamera(RoomCamera self)
 		{
-			ColoredSnowRoomCamera.UpdateSnowLight(self);
+			if (ColoredSnowWeakRoomData.GetData(self.room).snow && ColoredSnowRoomCamera.GetData(self).snowChange)
+			{
+				ColoredSnowRoomCamera.UpdateSnowLight(self);
+			}
 		}
 	}
 
@@ -222,6 +222,7 @@ public class _Module
 		ColoredSnowRoomCamera cameraData = ColoredSnowRoomCamera.GetData(self);
 		ColoredSnowWeakRoomData roomData = ColoredSnowWeakRoomData.GetData(self.room);
 
+		cameraData.lastPalette = cameraData.palette;
 		cameraData.palette ??= (Color[])ColoredSnowRoomCamera.empty3.Clone();
 
 		int source = 0;
@@ -247,8 +248,11 @@ public class _Module
 
 		}
 
-		cameraData.coloredSnowPalette.SetPixels(cameraData.palette);
-		cameraData.coloredSnowPalette.Apply();
+		if (cameraData.lastPalette == null || !cameraData.palette.SequenceEqual(cameraData.lastPalette))
+		{
+			cameraData.coloredSnowPalette.SetPixels(cameraData.palette);
+			cameraData.coloredSnowPalette.Apply();
+		}
 	}
 
 	private static void Room_NowViewed(On.Room.orig_NowViewed orig, Room self)

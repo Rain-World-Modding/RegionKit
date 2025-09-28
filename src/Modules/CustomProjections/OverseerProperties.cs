@@ -14,11 +14,21 @@ internal class OverseerProperties
 
 	public static void Apply()
 	{
-		IL.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor;
+		//IL.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor;
+		On.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor_string_int_int_RainWorldGame_Timeline;
 	}
+
 	public static void Undo()
 	{
 		IL.Region.ctor_string_int_int_RainWorldGame_Timeline -= Region_ctor;
+	}
+
+	private static void Region_ctor_string_int_int_RainWorldGame_Timeline(On.Region.orig_ctor_string_int_int_RainWorldGame_Timeline orig, Region self, string name, int firstRoomIndex, int regionNumber, RainWorldGame game, SlugcatStats.Timeline timelineIndex)
+	{
+		orig(self, name, firstRoomIndex, regionNumber, game, timelineIndex);
+
+		foreach (var pair in self.regionParams.unrecognizedParams)
+			GetOverseerProperties(self).SetProperties([pair.Key, pair.Value]);
 	}
 
 	private static void Region_ctor(ILContext il)
@@ -103,7 +113,7 @@ internal class OverseerProperties
 		result = new();
 		string[] array4 = Regex.Split(Custom.ValidateSpacedDelimiter(s, ","), ", ");
 
-		if (float.TryParse(array4[0], out var r) && float.TryParse(array4[1], out var g) && float.TryParse(array4[2], out var b))
+		if (array4.Length >= 3 && float.TryParse(array4[0], out var r) && float.TryParse(array4[1], out var g) && float.TryParse(array4[2], out var b))
 		{ result = new Color(r, g, b); return true; }
 
 		return false;

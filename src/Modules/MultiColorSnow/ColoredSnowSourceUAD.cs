@@ -91,7 +91,11 @@ public class ColoredSnowSourceUAD : UpdatableAndDeletable
 	}
 }
 
+#pragma warning disable CS0660 // Type defines operator == or operator != but does not override Object.Equals(object o)
+#pragma warning disable CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
 public class ColoredSnowSourceData
+#pragma warning restore CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode()
+#pragma warning restore CS0660 // Type defines operator == or operator != but does not override Object.Equals(object o)
 {
 
 	public Vector2 pos;
@@ -121,7 +125,7 @@ public class ColoredSnowSourceData
 		this.intensity = (float)data.GetValue<int>("intensity") / 100.0F;
 		this.noisiness = (float)data.GetValue<int>("irregularity") / 100.0F;
 		this.palette = data.GetValue<int>("palette");
-		this.shape = data.GetValue<ColoredSnowShape>("shape");
+		this.shape = data.GetValue<ColoredSnowShape>("shape")!;
 		this.unsnow = data.GetValue<bool>("unsnow");
 	}
 

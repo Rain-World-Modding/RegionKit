@@ -1,4 +1,5 @@
-﻿using RegionKit.Modules.Effects;
+﻿using RegionKit.API;
+using RegionKit.Modules.Effects;
 using RegionKit.Modules.GateCustomization;
 using RegionKit.Modules.RoomSlideShow;
 
@@ -10,7 +11,7 @@ namespace RegionKit;
 [BepInEx.BepInPlugin(MOD_GUID, MOD_FRIENDLYNAME, MOD_VERSION)]
 public class Mod : BepInEx.BaseUnityPlugin
 {
-	internal const string MOD_VERSION = "3.17.5";
+	internal const string MOD_VERSION = "3.17.6";
 	internal const string MOD_FRIENDLYNAME = "RegionKit";
 	internal const string MOD_GUID = "rwmodding.coreorg.rk";
 	internal const string RK_POM_CATEGORY = "RegionKit";
@@ -83,6 +84,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 			LogDebug($"Load time for modules: ");
 			foreach ((ModuleInfo module, TimeSpan elapsed) in enableTimes) LogDebug($"\t{module.name} : {elapsed}");
 		}
+		DeprecatedItems.Enable();
 	}
 
 	private void RunEnableOn(ModuleInfo mod)
@@ -114,6 +116,7 @@ public class Mod : BepInEx.BaseUnityPlugin
 		{
 			RunDisableOn(mod);
 		}
+		DeprecatedItems.Disable();
 		__inst = null!;
 	}
 

@@ -122,7 +122,7 @@ public static class _Module
 		NoBatflyLurkZoneHooks.Apply();
 		NoDropwigPerchZoneHooks.Apply();
 		WaterFallDepthHooks.Apply();
-		EvilDangleFruit.Apply();
+		//EvilDangleFruit.Apply();
 
 		_CompatHooks.Enable();
 
@@ -156,7 +156,7 @@ public static class _Module
 		NoBatflyLurkZoneHooks.Undo();
 		NoDropwigPerchZoneHooks.Undo();
 		WaterFallDepthHooks.Undo();
-		EvilDangleFruit.Undo();
+		//EvilDangleFruit.Undo();
 
 		_CompatHooks.Disable();
 	}

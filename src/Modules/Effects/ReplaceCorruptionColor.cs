@@ -107,7 +107,7 @@ namespace RegionKit.Modules.Effects
 					self.ApplyPalette(sLeaser, rCam, rCam.currentPalette);
 				}
 			}
-			else if (corruptionCWT.TryGetValue(self.daddy.room, out CorruptionValues corruptionValues))
+			else if (self.daddy.abstractCreature.room != null && corruptionCWT.TryGetValue(self.daddy.abstractCreature.room, out CorruptionValues corruptionValues))
 			{
 				dllCWT.Add(self.daddy.abstractCreature, corruptionValues);
 			}

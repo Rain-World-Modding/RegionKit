@@ -48,8 +48,8 @@ namespace RegionKit.Modules.Objects
 		public static bool IsEvilDangleFruit(this AbstractPhysicalObject abstractPhysicalObject)
 		{
 			return abstractPhysicalObject.type == AbstractPhysicalObject.AbstractObjectType.DangleFruit
-				&& abstractPhysicalObject.unrecognizedAttributes.Contains(EVIL_DANGLE_FRUIT_IDENTIFIER, StringComparer.OrdinalIgnoreCase)
-				&& abstractPhysicalObject is DangleFruit.AbstractDangleFruit { rotted: false };
+				&& abstractPhysicalObject is DangleFruit.AbstractDangleFruit { rotted: false, unrecognizedAttributes: not null }
+				&& abstractPhysicalObject.unrecognizedAttributes.Contains(EVIL_DANGLE_FRUIT_IDENTIFIER, StringComparer.OrdinalIgnoreCase);
 		}
 
 		private static void Room_Loaded(On.Room.orig_Loaded orig, Room self)

@@ -1,0 +1,14 @@
+{
+  "WorkshopID": 2920439476,
+  "LatestGameVersion": "v1.11.3",
+  "UpdateTitle": false,
+  "UpdateDescription": false,
+  "MarkAsPublic": true,
+  "Tags": [
+    "Dependency",
+    "Tools",
+    "Base",
+    "Downpour",
+    "Watcher"
+  ]
+}

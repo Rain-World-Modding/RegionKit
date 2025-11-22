@@ -55,14 +55,14 @@ public static class _Module
 		var presenceOverride = PresenceOverride(self, testRoom);
 		if (presenceOverride != -1f) return presenceOverride;
 
-		if (!EchoParser.echoSettings.TryGetValue(self.ghostID, out EchoSettings settings)) return result;
+		if (!EchoParser.echoSettings.TryGetValue(self.ghostID, out EchoSettings settings) || self.ghostRoom == null) return result;
 		if (testRoom.index == self.ghostRoom.index) return 1f;
 		var echoEffectLimit = settings.EffectRadius * 1000f; //I think 1 screen is like a 1000 so I'm going with that
 		Vector2 globalDistance = Custom.RestrictInRect(worldPos, FloatRect.MakeFromVector2(self.world.RoomToWorldPos(new Vector2(), self.ghostRoom.index), self.world.RoomToWorldPos(self.ghostRoom.size.ToVector2() * 20f, self.ghostRoom.index)));
 		if (!Custom.DistLess(worldPos, globalDistance, echoEffectLimit)) return 0;
 		var someValue = self.DegreesOfSeparation(testRoom); //No clue what this number does
 		return someValue == -1 ? 0.0f
-			: (float)(Mathf.Pow(Mathf.InverseLerp(echoEffectLimit, echoEffectLimit / 8f, Vector2.Distance(worldPos, globalDistance)), 2f) * (double)Custom.LerpMap(someValue, 1f, 3f, 0.6f, 0.15f) * (testRoom.layer != self.ghostRoom.layer ? 0.600000023841858 : 1.0));
+			: Mathf.Pow(Mathf.InverseLerp(echoEffectLimit, echoEffectLimit / 8f, Vector2.Distance(worldPos, globalDistance)), 2f) * Custom.LerpMap(someValue, 1f, 3f, 0.6f, 0.15f) * (testRoom.layer != self.ghostRoom.layer ? 0.6f : 1.0f);
 	}
 
 	private static float PresenceOverride(GhostWorldPresence self, AbstractRoom testRoom)

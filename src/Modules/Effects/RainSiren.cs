@@ -91,29 +91,34 @@ namespace RegionKit.Modules.Effects
 			if (self.room == null) return;
 			ProcessManager? manager = self.room.world?.game?.manager;
 			MusicPlayer? musicPlayer = manager?.musicPlayer;
-			if (manager == null || musicPlayer == null) return;
-			if (musicPlayer.song is MSSirenSong) return;
+			if (manager == null || musicPlayer == null || musicPlayer.song is MSSirenSong)
+				return;
 			RainSirenUAD? sirenUAD = self.room.updateList.OfType<RainSirenUAD>().FirstOrDefault<RainSirenUAD>();
 			string? songname = sirenUAD?.songname;
 
 			if (musicPlayer.song is RainSirenSong)
 			{
-				if (self.room.roomSettings.GetEffect(_Enums.RainSiren) == null || songname == null || (musicPlayer.song.name != songname) || self.room.world?.rainCycle.RainApproaching > 0.5f)
+				if (self.room.roomSettings.GetEffect(_Enums.RainSiren) == null
+				    || songname == null
+				    || (musicPlayer.song.name != songname)
+				    || self.room.world?.rainCycle.RainApproaching > 0.5f)
 					musicPlayer.song.baseVolume = 0f;
 				return;
 			}
-			if (sirenUAD == null || songname == null) return;
-			if (musicPlayer.nextSong is RainSirenSong) return;
-			if (self.room.roomSettings.GetEffect(_Enums.RainSiren) == null) return;
 			if (self.room.world?.rainCycle.RainApproaching >= 0.5f)
 			{
 				RainSirenHasPlayed = false;
 				return;
 			}
-			if (!(manager.currentMainLoop is RainWorldGame rainWorldGame) || !rainWorldGame.IsStorySession) return;
-			if (!manager.rainWorld.setup.playMusic) return;
-			if (self.room.world?.rainCycle.preTimer > 0) return;
-			if (RainSirenHasPlayed && !sirenUAD.looping) return;
+			if (sirenUAD == null
+			    || songname == null
+			    || musicPlayer.nextSong is RainSirenSong
+			    || self.room.roomSettings.GetEffect(_Enums.RainSiren) == null
+				|| manager.currentMainLoop is not RainWorldGame { IsStorySession: true }
+			    || !manager.rainWorld.setup.playMusic
+			    || self.room.world?.rainCycle.preTimer > 0
+			    || RainSirenHasPlayed && !sirenUAD.looping)
+				return;
 			RainSirenHasPlayed = true;
 			
 			Song mssiren = new RainSirenSong(musicPlayer, self, songname, sirenUAD.fadein, sirenUAD.looping);
@@ -138,3 +143,4 @@ namespace RegionKit.Modules.Effects
 		}
 	}
 }
+

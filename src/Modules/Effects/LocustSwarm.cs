@@ -1,5 +1,6 @@
 using System.Reflection;
 using EffExt;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -52,9 +53,9 @@ namespace RegionKit.Modules.Effects
 			}
 			if (locustUAD.StartTime < 0)
 				locustUAD.StartTime = self.room.game.timeInRegionThisCycle;
-			if (self.room.game.timeInRegionThisCycle - locustUAD.Delay * self.room.game.framesPerSecond < locustUAD.StartTime) return;
+			if (self.room.game.timeInRegionThisCycle - locustUAD.Delay * 40 < locustUAD.StartTime) return;
 
-            if (self.room.game.timeInRegionThisCycle % self.room.game.framesPerSecond != 0)
+            if (self.room.game.timeInRegionThisCycle % 40 != 0)
                 return;
             // Gradually increase the density and volume
             // amount: Density
@@ -91,7 +92,7 @@ namespace RegionKit.Modules.Effects
 
         static float Hook_GetAvoidanceRadius(On.LocustSystem.orig_GetAvoidanceRadius orig, LocustSystem self, AbstractPhysicalObject obj)
         {
-            return orig(self, obj);
+            return orig(self, obj); //TODO: Make Locusts ignore mud/paint/spores at 100% density, maybe have a follow radius that shrinks until attacking
         }
 
         // Ignore creature mass above 70% density, kill everyone
@@ -104,16 +105,23 @@ namespace RegionKit.Modules.Effects
             return true;
         }
 
-        // Allow pathfinding around obstacles above 70% density
-        public static bool AllowPathfinding(Room room)
+        // Allow pathfinding around obstacles above 70% density. Various methods and fields here are referenced via IL code
+        /*public static Dictionary<LocustSystem.Swarm, Vector2[]> SwarmPaths = new Dictionary<LocustSystem.Swarm, Vector2[]>();
+        public static bool CanPathfinding(LocustSystem.Swarm self)
         {
-            LocustSwarmBuilder.LocustSwarmUAD? locustUAD = room.updateList.OfType<LocustSwarmBuilder.LocustSwarmUAD>().FirstOrDefault();
-            RoomSettings.RoomEffect? locustEffect = room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig);
+            LogInfo("LocustSwarm.cs: AllowPathfinding called");
+            LocustSwarmBuilder.LocustSwarmUAD? locustUAD = self.owner.room.updateList.OfType<LocustSwarmBuilder.LocustSwarmUAD>().FirstOrDefault();
+            RoomSettings.RoomEffect? locustEffect = self.owner.room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig);
             return locustUAD != null
                    && locustEffect != null
                    && locustEffect.amount >= 0.7f
-                   && room.world?.rainCycle.RainApproaching < 0.5f;
+                   && self.owner.room.world?.rainCycle.RainApproaching < 0.5f;
         }
+
+        public static void DoPathfind(LocustSystem.Swarm self)
+        {
+            LogInfo("LocustSwarm.cs: DoPathfind called");
+        }*/
 
         internal static void Setup()
         {
@@ -123,21 +131,46 @@ namespace RegionKit.Modules.Effects
             On.LocustSystem.CanKill += Hook_CanKill;
 			On.Player.Update += Update;
             
-            LocustSwarmILHooks.Setup();
+            //LocustSwarmILHooks.Setup();
         }
 	}
 
-    internal static class LocustSwarmILHooks
-    {
-        internal static void Setup()
-        {
+    /*internal static class LocustSwarmILHooks  // TODO: Implement pathfinding via IL hooks :(
+    {                                           // I hate IL hooks I hate IL hooks I hate IL hooks
+        internal static void Setup()            // I tried everything this just seems to do nothing no matter what I try
+        {                                       // -Blake
             IL.LocustSystem.Swarm.Update += ILSwarmUpdate;
         }
 
         static void ILSwarmUpdate(ILContext il)
         {
-            // TODO: Pathfind to the target at high density using AllowPathfinding check
-            // I hate IL hooks so much and can't motivate myself to touch this -blake
+            ILCursor c = new ILCursor(il);
+            try
+            {
+                // Implement custom logic if pathfinding is allowed and skip the code, or run the original code
+                if (c.TryGotoNext(MoveType.After,
+                        x => x.MatchLdloc(out _),
+                        x => x.MatchAnd(),
+                        x => x.MatchBrfalse(out _)))
+                {
+                    LogDebug("LocustSwarm.cs: BEGIN STACK");
+
+                    //ILLabel skip = il.DefineLabel();
+                    //c.Prev.OpCode = OpCodes.Brtrue;
+                    //c.Emit(OpCodes.Ldarg_0);
+                    //c.Emit(OpCodes.Callvirt, typeof(LocustSwarm).GetMethod("CanPathfind"));
+                    //c.Emit(OpCodes.Brfalse, skip);
+                    //c.MarkLabel(skip);
+                    
+                    LogDebug("LocustSwarm.cs: END STACK");
+                }
+                else
+                    LogWarning("LocustSwarm.cs: Failed to inject IL hook in Swarm.Update() - IL instruction not found");
+            }
+            catch (Exception e)
+            {
+                LogWarning($"LocustSwarm.cs: Failed to inject IL hook in Swarm.Update() - {e}");
+            }
         }
-    }
+    }*/
 }

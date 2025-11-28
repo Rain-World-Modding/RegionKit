@@ -247,7 +247,9 @@ namespace RegionKit.Modules.Effects
             if (self.room == null
                 || !HasLocustEffect(self.room, out RoomSettings.RoomEffect? effect)
                 || effect!.amount < 0.95f) return orig(self, obj);
-            return Mathf.Clamp((1 - ((self.room.game.timeInRegionThisCycle - StartTime - 1400f) / 1200)), 0f, 1f) * 1000;
+            return Mathf.Clamp((1 - ((self.room.game.timeInRegionThisCycle - 
+                (self.room.world.rainCycle.preCycleRain_Intensity > 0 ? self.room.game.timeInRegionThisCycle : StartTime)
+                - 1400f) / 1200)), 0f, 1f) * 1000;
         }
 
         // Convenience method for IL hooking
@@ -382,3 +384,4 @@ namespace RegionKit.Modules.Effects
         }
     }
 }
+

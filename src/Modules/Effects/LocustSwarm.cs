@@ -1,10 +1,10 @@
-using System.Reflection;
 using EffExt;
-using Mono.Cecil;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
+using MoreSlugcats;
+using Watcher;
 
+// NOTE: Pathfinding has been disabled until I can convert Vector2 coordinates into tile coordinates
 namespace RegionKit.Modules.Effects
 {
 	internal static class LocustSwarmBuilder
@@ -16,7 +16,7 @@ namespace RegionKit.Modules.Effects
 				new EffectDefinitionBuilder("LocustSwarm")
 					.AddIntField("delay", 0, 300, 0, "Swarm Delay")
                     .AddFloatField("speed", 0f, 5f, 0.01f, 1f, "Speed")
-					.SetUADFactory((Room room, EffectExtraData data, bool firstTimeRealized) => new LocustSwarmUAD(data))
+					.SetUADFactory((Room room, EffectExtraData data, bool firstTimeRealized) => new LocustSwarm.UAD(data))
 					.SetCategory("RegionKit")
 					.Register();
 				LocustSwarm.Setup();
@@ -26,119 +26,299 @@ namespace RegionKit.Modules.Effects
 				LogWarning($"Error registering locust swarm threat: {e.Message}");
 			}
 		}
-
-		internal class LocustSwarmUAD(EffectExtraData effectData) : UpdatableAndDeletable
-		{
-            public readonly float Amount = effectData.Amount < 0.8f ? effectData.Amount : 1f;
-			public readonly int Delay = effectData.GetInt("delay");
-            public readonly float Speed = effectData.GetFloat("speed");
-			public int StartTime = -1;
-		}
 	}
 
 	public static class LocustSwarm
 	{
+        public class UAD(EffectExtraData effectData) : UpdatableAndDeletable
+        {
+            public readonly float Amount = effectData.Amount < 0.8f ? effectData.Amount : 1f;
+            public readonly int Delay = effectData.GetInt("delay");
+            public readonly float Speed = effectData.GetFloat("speed");
+            public float StartDensity = -1;
+            public float StartVolume = -1;
+            public float StartDistance = -1;
+            public float StartShadows = -1;
+            public float PrecycleIntensity = -1;
+            //public Dictionary<LocustSystem.Swarm, LocustSwarm.PathingInformation> SwarmPaths = new Dictionary<LocustSystem.Swarm, LocustSwarm.PathingInformation>();
+        }
+        
+        /*public class PathingInformation(LocustSystem.Swarm swarm)
+        {
+            public List<WorldCoordinate> Nodes = new List<WorldCoordinate>();
+            public QuickPathFinder QPF = new(swarm.owner.room.GetTilePosition(swarm.center),
+                swarm.owner.room.GetTilePosition(swarm.target.mainBodyChunk.pos),
+                swarm.owner.room.aimap,
+                GetCreatureTemplate(CreatureTemplate.Type.Fly));
+        }*/
 
+        private static List<Room> SwarmRooms = new List<Room>();
+        private static int StartTime = -1;
 		static void Update(On.Player.orig_Update orig, Player self, bool firstUpdate)
-		{
+        {
 			orig(self, firstUpdate);
-			if (self.room == null) return;
-			LocustSwarmBuilder.LocustSwarmUAD? locustUAD = self.room.updateList.OfType<LocustSwarmBuilder.LocustSwarmUAD>().FirstOrDefault();
-			RoomSettings.RoomEffect? locustEffect = self.room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig);
-			if (locustUAD == null || locustEffect == null || locustUAD.Amount < locustEffect.amount) return;
-			if (self.room.world?.rainCycle.RainApproaching >= 0.5f)
-			{
-				locustUAD.StartTime = -1;
-				return;
-			}
-			if (locustUAD.StartTime < 0)
-				locustUAD.StartTime = self.room.game.timeInRegionThisCycle;
-			if (self.room.game.timeInRegionThisCycle - locustUAD.Delay * 40 < locustUAD.StartTime) return;
+            foreach (Room room in self.room.world.activeRooms)
+                RoomUpdate(room);
 
-            if (self.room.game.timeInRegionThisCycle % 40 != 0)
+            return;
+            void RoomUpdate(Room room)
+            {
+                if (!HasLocustEffect(room, out UAD? uad, out RoomSettings.RoomEffect? effect) ||
+                    uad!.Amount < effect!.amount) return;
+                if (uad.StartDensity < 0)
+                {
+                    uad.StartDensity = effect.amount;
+                    uad.StartVolume = effect.extraAmounts[0];
+                    uad.StartDistance = effect.extraAmounts[1];
+                    uad.StartShadows = effect.extraAmounts[2];
+                }
+
+                float progress;
+                if (room.world.rainCycle.RainApproaching >= 0.5f || room.world.rainCycle.preTimer > 0)
+                {
+                    StartTime = -1;
+                    if (room.world.rainCycle.preTimer <= 0)
+                    {
+                        progress = (float)room.world.rainCycle.timer / room.world.rainCycle.cycleLength;
+                        if (effect.amount > 0)
+                            effect.amount = Mathf.Lerp(uad.StartDensity,
+                                Math.Max(uad.StartDensity, 0.7f * uad.Amount), progress);
+                        effect.extraAmounts[0] = uad.StartVolume;
+                        effect.extraAmounts[1] = Mathf.Lerp(uad.StartDistance,
+                            Math.Max(uad.StartDistance, (effect.amount > 0 ? 0.75f : 0.45f) * uad.Amount), progress);
+                        effect.extraAmounts[2] = Mathf.Lerp(uad.StartShadows,
+                            Math.Max(uad.StartShadows, 0.45f * uad.Amount), progress);
+                    }
+                    else
+                    {
+                        if (uad.PrecycleIntensity < 0)
+                            uad.PrecycleIntensity = room.world.rainCycle.preCycleRain_Intensity;
+                        progress = Mathf.Clamp(room.world.rainCycle.preCycleRain_Intensity,
+                            uad.PrecycleIntensity-0.005f, // Round off the effects slightly. It doesn't do much in long rooms, but it helps.
+                            uad.PrecycleIntensity+0.005f);
+                        uad.PrecycleIntensity = progress;
+                        if (effect.amount > 0)
+                            effect.amount = Mathf.Lerp(uad.StartDensity,
+                                Math.Max(uad.StartDensity, uad.Amount), progress);
+                        effect.extraAmounts[0] = Mathf.Lerp(uad.StartVolume,
+                            Math.Max(uad.StartVolume, (effect.amount > 0 ? 0.5f : 0.25f) * uad.Amount), progress);
+                        effect.extraAmounts[1] = Mathf.Lerp(uad.StartDistance,
+                            Math.Max(uad.StartDistance, (effect.amount > 0 ? uad.Amount : 0.7f)), progress);
+                        effect.extraAmounts[2] = Mathf.Lerp(uad.StartShadows,
+                            Math.Max(uad.StartShadows, uad.Amount), progress);
+                    }
+                    return;
+                }
+                if (StartTime < 0)
+                    StartTime = room.game.timeInRegionThisCycle;
+                progress = Mathf.Clamp((room.game.timeInRegionThisCycle - StartTime) / 1400f, 0f, 1f); // 40fps * 35s = 1400
+                if (effect.amount > 0)
+                    effect.amount = Mathf.Lerp(Math.Max(uad.StartDensity, 0.7f * uad.Amount),
+                        Math.Max(uad.StartDensity, uad.Amount), progress);
+                effect.extraAmounts[0] = Mathf.Lerp(uad.StartVolume,
+                    Math.Max(uad.StartVolume, (effect.amount > 0 ? 0.5f : 0.25f) * uad.Amount), progress);
+                effect.extraAmounts[1] = Mathf.Lerp(Math.Max(uad.StartDistance, 0.75f * uad.Amount),
+                    Math.Max(uad.StartDistance, (effect.amount > 0 ? uad.Amount : 0.7f)), progress);
+                effect.extraAmounts[2] = Mathf.Lerp(Math.Max(uad.StartShadows, 0.45f * uad.Amount),
+                    Math.Max(uad.StartShadows, uad.Amount), progress);
+            }
+        }
+
+        static void Hook_LSUpdate(On.LocustSystem.orig_Update orig, LocustSystem self, bool eu)
+        {
+            orig(self, eu);
+            if (self.room == null
+                || self.room.game.timeInRegionThisCycle % 40 != 0
+                || !HasLocustEffect(self.room, out UAD? uad, out RoomSettings.RoomEffect? effect)
+                || effect!.amount < 0.95f)
                 return;
-            // Gradually increase the density and volume
-            // amount: Density
-            // 0: Volume, 1: Sound Distance, 2: Shadows, 3: Grounded
-            if (locustEffect.amount < 1)
-                locustEffect.amount = Math.Min(locustEffect.amount + 0.01f * locustUAD.Speed, locustUAD.Amount);
-            if (locustEffect.amount > 0.4f)
-                locustEffect.extraAmounts[2] = Math.Min(locustEffect.extraAmounts[2] + 0.015f * locustUAD.Speed, 1f);
-            if (locustEffect.extraAmounts[1] < 1)
-                locustEffect.extraAmounts[1] = Math.Min(locustEffect.extraAmounts[1] + 0.0101f * locustUAD.Speed, locustUAD.Amount);
-            else
-                locustEffect.extraAmounts[0] = Math.Min(Math.Min(locustEffect.extraAmounts[0] + 0.01f * locustUAD.Speed, locustUAD.Amount), 0.7f);
+            foreach (var crit in self.room.abstractRoom.creatures.Select(c => c.realizedCreature))
+                crit.repelLocusts = 0;
+            //foreach (LocustSystem.Swarm swarm in self.disbandingSwarms)
+            //    uad!.SwarmPaths.Remove(swarm);
+            //foreach (var swarm in self.swarms.Where(swarm => uad!.SwarmPaths.ContainsKey(swarm)))
+            //    uad!.SwarmPaths[swarm].QPF.Update();
+        }
+
+        public static bool HasLocustEffect(Room room)
+        {
+            return room.updateList.OfType<UAD>().Any()
+                && room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig) != null;
+        }
+
+        public static bool HasLocustEffect(Room room, out RoomSettings.RoomEffect? effect)
+        {
+            effect = room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig);
+            return (room.updateList.OfType<UAD>().Any() && effect != null);
+        }
+
+        public static bool HasLocustEffect(Room room, out UAD? uad)
+        {
+            uad = room.updateList.OfType<UAD>().FirstOrDefault();
+            return  (uad != null && room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig) != null);
+        }
+        public static bool HasLocustEffect(Room room, out UAD? uad, out RoomSettings.RoomEffect? effect)
+        {
+            uad = room.updateList.OfType<UAD>().FirstOrDefault();
+            effect = room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig);
+            return uad != null && effect != null;
         }
 
         // Attack even if under a structure at above 70% density
 		static float Hook_ExposedToSky(On.LocustSystem.orig_ExposedToSky orig, LocustSystem self, Creature feature)
 		{
-			if (self.room == null || self.room.world?.rainCycle.RainApproaching >= 0.5f) return orig(self, feature);
-			LocustSwarmBuilder.LocustSwarmUAD? locustUAD = self.room.updateList.OfType<LocustSwarmBuilder.LocustSwarmUAD>().FirstOrDefault();
-			RoomSettings.RoomEffect? locustEffect = self.room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig);
-			if (locustUAD == null || locustEffect == null || locustEffect.amount < 0.7f) return orig(self, feature);
-			return 1f;
-		}
+			return self.room != null
+                && HasLocustEffect(self.room, out RoomSettings.RoomEffect? effect)
+                && effect!.amount > 0.7f ? 1f : orig(self, feature);
+        }
         
         // Increase the swarm size of attacking locusts above 85% density
         static void Hook_SwarmUpdate(On.LocustSystem.Swarm.orig_Update orig, LocustSystem.Swarm self)
         {
             orig(self);
-            LocustSwarmBuilder.LocustSwarmUAD? locustUAD = self.owner.room.updateList.OfType<LocustSwarmBuilder.LocustSwarmUAD>().FirstOrDefault();
-            RoomSettings.RoomEffect? locustEffect = self.owner.room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig);
-            if (locustUAD == null || locustEffect == null || locustEffect.amount < 0.85f) return;
+            if (!HasLocustEffect(self.owner.room, out RoomSettings.RoomEffect? effect) || effect!.amount < 0.85f)
+                return;
             self.maxLocusts = 150;
         }
 
-        static float Hook_GetAvoidanceRadius(On.LocustSystem.orig_GetAvoidanceRadius orig, LocustSystem self, AbstractPhysicalObject obj)
-        {
-            return orig(self, obj); //TODO: Make Locusts ignore mud/paint/spores at 100% density, maybe have a follow radius that shrinks until attacking
-        }
-
         // Ignore creature mass above 70% density, kill everyone
+        internal static List<CreatureTemplate.Type> LocustImmune = [
+            CreatureTemplate.Type.BrotherLongLegs,
+            CreatureTemplate.Type.DaddyLongLegs,
+            CreatureTemplate.Type.Deer,
+            CreatureTemplate.Type.GarbageWorm,
+            CreatureTemplate.Type.KingVulture,
+            CreatureTemplate.Type.Leech,
+            CreatureTemplate.Type.MirosBird,
+            CreatureTemplate.Type.Overseer,
+            CreatureTemplate.Type.PoleMimic,
+            CreatureTemplate.Type.RedCentipede,
+            CreatureTemplate.Type.SeaLeech,
+            CreatureTemplate.Type.Vulture,
+            DLCSharedEnums.CreatureTemplateType.AquaCenti,
+            DLCSharedEnums.CreatureTemplateType.Inspector,
+            DLCSharedEnums.CreatureTemplateType.JungleLeech,
+            DLCSharedEnums.CreatureTemplateType.MirosVulture,
+            DLCSharedEnums.CreatureTemplateType.TerrorLongLegs,
+            MoreSlugcatsEnums.CreatureTemplateType.HunterDaddy,
+            MoreSlugcatsEnums.CreatureTemplateType.TrainLizard,
+            WatcherEnums.CreatureTemplateType.Angler,
+            WatcherEnums.CreatureTemplateType.BasiliskLizard,
+            WatcherEnums.CreatureTemplateType.BigMoth,
+            WatcherEnums.CreatureTemplateType.BigSandGrub,
+            WatcherEnums.CreatureTemplateType.BlizzardLizard,
+            WatcherEnums.CreatureTemplateType.BoxWorm,
+            WatcherEnums.CreatureTemplateType.DrillCrab,
+            WatcherEnums.CreatureTemplateType.FireSprite,
+            WatcherEnums.CreatureTemplateType.IndigoLizard,
+            WatcherEnums.CreatureTemplateType.Loach,
+            WatcherEnums.CreatureTemplateType.Rattler,
+            WatcherEnums.CreatureTemplateType.RippleSpider,
+            WatcherEnums.CreatureTemplateType.RotLoach,
+            WatcherEnums.CreatureTemplateType.SandGrub,
+            WatcherEnums.CreatureTemplateType.SkyWhale,
+            WatcherEnums.CreatureTemplateType.Tardigrade,
+            WatcherEnums.CreatureTemplateType.TowerCrab
+        ];
         static bool Hook_CanKill(On.LocustSystem.orig_CanKill orig, LocustSystem self, Creature creature)
         {
-            if (self.room == null || self.room.world?.rainCycle.RainApproaching >= 0.5f) return orig(self, creature);
-            LocustSwarmBuilder.LocustSwarmUAD? locustUAD = self.room.updateList.OfType<LocustSwarmBuilder.LocustSwarmUAD>().FirstOrDefault();
-            RoomSettings.RoomEffect? locustEffect = self.room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig);
-            if (locustUAD == null || locustEffect == null || locustEffect.amount < 0.7f) return orig(self, creature);
-            return true;
+            if (self.room == null
+                || !HasLocustEffect(self.room, out RoomSettings.RoomEffect? effect)
+                || effect!.amount < 0.7f) return orig(self, creature);
+            return !LocustImmune.Contains(creature.Template.type);
         }
 
-        // Allow pathfinding around obstacles above 70% density. Various methods and fields here are referenced via IL code
-        /*public static Dictionary<LocustSystem.Swarm, Vector2[]> SwarmPaths = new Dictionary<LocustSystem.Swarm, Vector2[]>();
-        public static bool CanPathfinding(LocustSystem.Swarm self)
+        static bool Hook_IsTargetValid(On.LocustSystem.Swarm.orig_IsTargetValid orig, LocustSystem.Swarm self)
         {
-            LogInfo("LocustSwarm.cs: AllowPathfinding called");
-            LocustSwarmBuilder.LocustSwarmUAD? locustUAD = self.owner.room.updateList.OfType<LocustSwarmBuilder.LocustSwarmUAD>().FirstOrDefault();
-            RoomSettings.RoomEffect? locustEffect = self.owner.room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig);
-            return locustUAD != null
-                   && locustEffect != null
-                   && locustEffect.amount >= 0.7f
-                   && self.owner.room.world?.rainCycle.RainApproaching < 0.5f;
+            if (self.owner.room == null
+                || !HasLocustEffect(self.owner.room, out RoomSettings.RoomEffect? effect)
+                || effect!.amount < 0.95f) return orig(self);
+            return self.target != null
+                   && self.target.room == self.owner.room
+                   && self.target.abstractCreature.rippleLayer == 0
+                   && (double) Mathf.Abs(self.target.mainBodyChunk.pos.x - self.center.x) < 300.0;
         }
 
-        public static void DoPathfind(LocustSystem.Swarm self)
+        static float Hook_SwarmScore(On.LocustSystem.orig_SwarmScore_Creature orig, LocustSystem self, Creature crit)
         {
-            LogInfo("LocustSwarm.cs: DoPathfind called");
+            if (self.room != null && HasLocustEffect(self.room, out RoomSettings.RoomEffect? effect) && effect!.amount >= 0.95f)
+                crit.repelLocusts = 0;
+            return orig(self, crit);
+        }
+
+        static float Hook_GetAvoidance(On.LocustSystem.orig_GetAvoidanceRadius orig, LocustSystem self, AbstractPhysicalObject obj)
+        {
+            if (self.room == null
+                || !HasLocustEffect(self.room, out RoomSettings.RoomEffect? effect)
+                || effect!.amount < 0.95f) return orig(self, obj);
+            return Mathf.Clamp((1 - ((self.room.game.timeInRegionThisCycle - StartTime - 1400f) / 1200)), 0f, 1f) * 1000;
+        }
+
+        // Convenience method for IL hooking
+        public static bool ShouldKillFaster(LocustSystem.Swarm self)
+        {
+            return HasLocustEffect(self.owner.room, out RoomSettings.RoomEffect? effect)
+                   && effect!.amount > 0.7f;
+        }
+        
+        // Allow pathfinding around obstacles above 70% density.
+        public static bool CanPathfind(LocustSystem.Swarm self)
+        {
+            return false;
+            //return HasLocustEffect(self.owner.room, out RoomSettings.RoomEffect? effect)
+            //       && effect!.amount >= 0.75f;
+        }
+        
+        /*public static void DoPathfind(LocustSystem.Swarm self)
+        {
+            LogDebug("LocustSwarm.cs: DoPathfind");
+            UAD uad = self.owner.room.updateList.OfType<UAD>().FirstOrDefault()!;
+            if (!uad.SwarmPaths.ContainsKey(self))
+                uad.SwarmPaths.Add(self, new PathingInformation(self));
+            
+            PathingInformation path = uad.SwarmPaths[self];
+            if (path.Nodes.Count < 1)
+            {
+                if (path.QPF.status == 1)
+                    foreach (IntVector2 tile in path.QPF.ReturnPath().tiles)
+                        path.Nodes.Add(self.owner.room.GetWorldCoordinate(tile));
+                if (path.QPF.status == -1 && self.owner.room.game.timeInRegionThisCycle % 200 == 0)
+                    path.QPF.status = 0;
+                else
+                    path.QPF.status = -1;
+                return;
+            }
+            LogDebug($"LocustSwarm.cs: Dist to target: {Vector2.Distance(self.center, path.Nodes.First().Vec2())}/{Vector2.Distance(self.owner.room.GetTilePosition(self.center).ToVector2(), path.Nodes.First().IntVec2().ToVector2())}");
+            LogDebug($"LocustSwarm.cs: Position: {self.center} Target: {path.Nodes.First().Vec2()}");
+            LogDebug($"LocustSwarm.cs: IntPosition: {self.owner.room.GetTilePosition(self.center)} IntTarget: {path.Nodes.First().IntVec2()}");
+            self.targetPos = path.Nodes.First().Vec2();
+            self.disbandCounter = 0;
+            if (Vector2.Distance(self.center, self.targetPos) < 500)
+            {
+                LogDebug("LocustSwarm.cs: Clearing node");
+                path.Nodes.RemoveAt(0);
+            }
         }*/
 
         internal static void Setup()
         {
 			On.LocustSystem.ExposedToSky += Hook_ExposedToSky;
             On.LocustSystem.Swarm.Update += Hook_SwarmUpdate;
-            On.LocustSystem.GetAvoidanceRadius += Hook_GetAvoidanceRadius;
             On.LocustSystem.CanKill += Hook_CanKill;
+            On.LocustSystem.Swarm.IsTargetValid += Hook_IsTargetValid;
+            On.LocustSystem.SwarmScore_Creature += Hook_SwarmScore;
+            On.LocustSystem.GetAvoidanceRadius += Hook_GetAvoidance;
+            On.LocustSystem.Update += Hook_LSUpdate;
 			On.Player.Update += Update;
             
-            //LocustSwarmILHooks.Setup();
+            LocustSwarmILHooks.Setup();
         }
 	}
 
-    /*internal static class LocustSwarmILHooks  // TODO: Implement pathfinding via IL hooks :(
-    {                                           // I hate IL hooks I hate IL hooks I hate IL hooks
-        internal static void Setup()            // I tried everything this just seems to do nothing no matter what I try
-        {                                       // -Blake
+    internal static class LocustSwarmILHooks
+    {
+        internal static void Setup()
+        {
             IL.LocustSystem.Swarm.Update += ILSwarmUpdate;
         }
 
@@ -153,24 +333,56 @@ namespace RegionKit.Modules.Effects
                         x => x.MatchAnd(),
                         x => x.MatchBrfalse(out _)))
                 {
-                    LogDebug("LocustSwarm.cs: BEGIN STACK");
+                    ILLabel cont = il.DefineLabel();
+                    ILLabel skip = il.DefineLabel();
+                    c.Index--;
+                    c.Emit(OpCodes.Brtrue_S, cont);
+                    c.Emit(OpCodes.Ldarg_0);
+                    c.Emit(OpCodes.Callvirt, typeof(LocustSwarm).GetMethod("CanPathfind"));
+                    //original brfalse.s IL_02b5
+                    c.Index++;
+                    c.Emit(OpCodes.Ldarg_0);
+                    c.Emit(OpCodes.Callvirt, typeof(LocustSwarm).GetMethod("DoPathfind"));
+                    c.Emit(OpCodes.Br, skip);
+                    c.MarkLabel(cont);
 
-                    //ILLabel skip = il.DefineLabel();
-                    //c.Prev.OpCode = OpCodes.Brtrue;
-                    //c.Emit(OpCodes.Ldarg_0);
-                    //c.Emit(OpCodes.Callvirt, typeof(LocustSwarm).GetMethod("CanPathfind"));
-                    //c.Emit(OpCodes.Brfalse, skip);
-                    //c.MarkLabel(skip);
-                    
-                    LogDebug("LocustSwarm.cs: END STACK");
+                    if (c.TryGotoNext(MoveType.Before,
+                            x => x.MatchLdarg(0),
+                            x => x.MatchLdarg(0),
+                            x => x.MatchLdfld(typeof(LocustSystem.Swarm).GetField("locusts"))))
+                    {
+                        c.MarkLabel(skip);
+                        if (c.TryGotoNext(MoveType.After,
+                                x => x.MatchConvR4(),
+                                x => x.MatchDiv(),
+                                x => x.MatchStloc(out _)))
+                        {
+                            ILLabel cont2 = il.DefineLabel();
+                            ILLabel skip2 = il.DefineLabel();
+                            c.Index -= 4;
+                            c.Emit(OpCodes.Callvirt, typeof(LocustSwarm).GetMethod("ShouldKillFaster"));
+                            c.Emit(OpCodes.Brfalse_S, cont2);
+                            c.Emit(OpCodes.Ldc_R4, 30f);
+                            c.Emit(OpCodes.Br_S, skip2);
+                            c.MarkLabel(cont2);
+                            c.Emit(OpCodes.Ldarg_0);
+                            c.Index++;
+                            c.MarkLabel(skip2);
+                            LogInfo("LocustSwarm.cs: All IL hooks successfully injected.");
+                        }
+                        else
+                            LogWarning("LocustSwarm.cs: Unable to locate 2nd IL instruction in Swarm.Update()");
+                    }
+                    else
+                        LogWarning("LocustSwarm.cs: Unable to mark skip label in Swarm.Update() - IL instruction not found");
                 }
                 else
                     LogWarning("LocustSwarm.cs: Failed to inject IL hook in Swarm.Update() - IL instruction not found");
             }
             catch (Exception e)
             {
-                LogWarning($"LocustSwarm.cs: Failed to inject IL hook in Swarm.Update() - {e}");
+                LogError($"LocustSwarm.cs: Failed to inject IL hook in Swarm.Update() - {e}");
             }
         }
-    }*/
+    }
 }

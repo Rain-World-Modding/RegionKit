@@ -81,7 +81,9 @@ public class DenseFogGradient : CosmeticSprite
 	static float GetDenseFogIntensity(Room rm)
 	{
 		float effectAmount = rm.roomSettings.GetEffectAmount(_Enums.DenseFog),
-			cycleProgress = (float)rm.world.rainCycle.timer / rm.world.rainCycle.cycleLength;
+			cycleProgress = rm.world.rainCycle.preTimer > 0 
+                ? (float)rm.world.rainCycle.preTimer / rm.world.rainCycle.maxPreTimer
+                : (float)rm.world.rainCycle.timer / rm.world.rainCycle.cycleLength;
 		//Debug.Log(cycleProgress);
 		var intensity = Mathf.Exp((cycleProgress * 3f) - 3f);
 		intensity /= ((1f - effectAmount) * .3f) + 1;

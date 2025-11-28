@@ -75,6 +75,7 @@ namespace RegionKit.Modules.Effects
                     StartTime = -1;
                     if (room.world.rainCycle.preTimer <= 0)
                     {
+						uad.PrecycleIntensity = -1;
                         progress = (float)room.world.rainCycle.timer / room.world.rainCycle.cycleLength;
                         if (effect.amount > 0)
                             effect.amount = Mathf.Lerp(uad.StartDensity,
@@ -384,4 +385,5 @@ namespace RegionKit.Modules.Effects
         }
     }
 }
+
 

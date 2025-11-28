@@ -14,8 +14,6 @@ namespace RegionKit.Modules.Effects
 			try
 			{
 				new EffectDefinitionBuilder("LocustSwarm")
-					.AddIntField("delay", 0, 300, 0, "Swarm Delay")
-                    .AddFloatField("speed", 0f, 5f, 0.01f, 1f, "Speed")
 					.SetUADFactory((Room room, EffectExtraData data, bool firstTimeRealized) => new LocustSwarm.UAD(data))
 					.SetCategory("RegionKit")
 					.Register();
@@ -33,8 +31,6 @@ namespace RegionKit.Modules.Effects
         public class UAD(EffectExtraData effectData) : UpdatableAndDeletable
         {
             public readonly float Amount = effectData.Amount < 0.8f ? effectData.Amount : 1f;
-            public readonly int Delay = effectData.GetInt("delay");
-            public readonly float Speed = effectData.GetFloat("speed");
             public float StartDensity = -1;
             public float StartVolume = -1;
             public float StartDistance = -1;

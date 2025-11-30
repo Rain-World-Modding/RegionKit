@@ -36,6 +36,7 @@ public static class _Module
 		HSLDisplaySnow.RDSLoadResources(rainworld);
 		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
 		LegacyColoredSprite2.LegacyColoredSprite2Load(rainworld);
+		LocustSwarmBuilder.__RegisterBuilder();
 	}
 
 	internal static void Enable()
@@ -100,3 +101,4 @@ public static class _Module
 		return res;
 	}
 }
+

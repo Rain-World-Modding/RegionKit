@@ -1,4 +1,4 @@
-﻿using Random = UnityEngine.Random;
+using Random = UnityEngine.Random;
 
 namespace RegionKit.Modules.Effects;
 
@@ -11,49 +11,46 @@ public class DenseFogGradient : CosmeticSprite
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
-		if (room is Room rm)
-		{
-			float intensity = GetDenseFogIntensity(room);
+        if (room is not Room rm) return;
 
-			// Sound volume
-			FloatRect roomRect = rm.RoomRect;
-			float volumeEffectAmount = rm.roomSettings.GetEffectAmount(_Enums.DenseFogSoundVolume);
-			float fogSoundVolume = (rm.roomSettings.GetEffect(_Enums.DenseFogSoundVolume) is null) ? intensity : volumeEffectAmount * ((float)rm.world.rainCycle.timer / rm.world.rainCycle.cycleLength);
-			float fogSoundVolume2 = Mathf.Max(0f, fogSoundVolume - .5f);
+        float intensity = GetDenseFogIntensity(room);
 
-			// Spooky sounds
-			rm.PlayRectSound(SoundID.Coral_Circuit_Break, roomRect, false, fogSoundVolume, Random.value / 2f);
-			rm.PlayRectSound(SoundID.Reds_Illness_LOOP, roomRect, false, fogSoundVolume, Random.value / 2f);
-			rm.PlayRectSound(SoundID.Distant_Deer_Summoned, roomRect, false, fogSoundVolume, Random.value / 2f);
-			rm.PlayRectSound(SoundID.Coral_Circuit_Jump_Explosion, roomRect, false, fogSoundVolume2, Random.value / 2f);
-			rm.PlayRectSound(SoundID.Death_Lightning_Spark_Spontaneous, roomRect, false, fogSoundVolume2, Random.value / 2f);
-			//Debug.Log(s0.alpha);
-			//Debug.Log(fogSoundVolume);
-			//Debug.Log(room.world.rainCycle.timer);
+        // Sound volume
+        FloatRect roomRect = rm.RoomRect;
+        float volumeEffectAmount = rm.roomSettings.GetEffectAmount(_Enums.DenseFogSoundVolume);
+        float fogSoundVolume = (rm.roomSettings.GetEffect(_Enums.DenseFogSoundVolume) is null) ? intensity
+            : rm.world.rainCycle.preTimer > 0 ? volumeEffectAmount * rm.world.rainCycle.preTimer / rm.world.rainCycle.maxPreTimer
+            : volumeEffectAmount * rm.world.rainCycle.timer / rm.world.rainCycle.cycleLength;
+        float fogSoundVolume2 = Mathf.Max(0f, fogSoundVolume - .5f);
 
-			// Danger + fog demon sound
-			if (rm.roomSettings.GetEffectAmount(_Enums.DenseFogSoundVolume) <= 0f)
-				_danger = 2;
-			if (_danger == 0 && intensity >= .8f)
-				++_danger;
-			if (_danger == 1 && intensity < .99f)
-			{
-				room.PlayRectSound(_Enums.FT_Fog_PreDeath, roomRect, false, .4f + volumeEffectAmount * .4f, 1f);
-				++_danger;
-			}
+        // Spooky sounds
+        rm.PlayRectSound(SoundID.Coral_Circuit_Break, roomRect, false, fogSoundVolume, Random.value / 2f);
+        rm.PlayRectSound(SoundID.Reds_Illness_LOOP, roomRect, false, fogSoundVolume, Random.value / 2f);
+        rm.PlayRectSound(SoundID.Distant_Deer_Summoned, roomRect, false, fogSoundVolume, Random.value / 2f);
+        rm.PlayRectSound(SoundID.Coral_Circuit_Jump_Explosion, roomRect, false, fogSoundVolume2, Random.value / 2f);
+        rm.PlayRectSound(SoundID.Death_Lightning_Spark_Spontaneous, roomRect, false, fogSoundVolume2, Random.value / 2f);
+        //Debug.Log(s0.alpha);
+        //Debug.Log(fogSoundVolume);
+        //Debug.Log(room.world.rainCycle.timer);
 
-			// Fog demon kill
-			if (intensity >= .99f)
-			{
-				List<AbstractCreature> crits = rm.abstractRoom.creatures;
-				for (var i = 0; i < crits.Count; i++)
-				{
-					if (crits[i].realizedCreature is Player p && !p.dead)
-						p.Die();
-				}
-			}
-		}
-	}
+        // Danger + fog demon sound
+        if (rm.world.rainCycle.preTimer > 0) return; // Cannot be killed during precycle
+        if (rm.roomSettings.GetEffectAmount(_Enums.DenseFogSoundVolume) <= 0f)
+            _danger = 2;
+        if (_danger == 0 && intensity >= .8f)
+            ++_danger;
+        if (_danger == 1 && intensity < .99f)
+        {
+            room.PlayRectSound(_Enums.FT_Fog_PreDeath, roomRect, false, .4f + volumeEffectAmount * .4f, 1f);
+            ++_danger;
+        }
+
+        // Fog demon kill
+        if (intensity < .99f) return;
+        foreach (AbstractCreature t in rm.abstractRoom.creatures)
+            if (t.realizedCreature is Player { dead: false } p)
+                p.Die();
+    }
 
 	public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 	{
@@ -81,7 +78,9 @@ public class DenseFogGradient : CosmeticSprite
 	static float GetDenseFogIntensity(Room rm)
 	{
 		float effectAmount = rm.roomSettings.GetEffectAmount(_Enums.DenseFog),
-			cycleProgress = (float)rm.world.rainCycle.timer / rm.world.rainCycle.cycleLength;
+			cycleProgress = rm.world.rainCycle.preTimer > 0 
+                ? (float)rm.world.rainCycle.preTimer / rm.world.rainCycle.maxPreTimer
+                : (float)rm.world.rainCycle.timer / rm.world.rainCycle.cycleLength;
 		//Debug.Log(cycleProgress);
 		var intensity = Mathf.Exp((cycleProgress * 3f) - 3f);
 		intensity /= ((1f - effectAmount) * .3f) + 1;

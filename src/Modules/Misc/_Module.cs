@@ -23,6 +23,7 @@ internal static class _Module
 		RainSong.Enable();
 		FadePaletteCombiner.Enable();
 		DecalPreview.Enable();
+		RegionConfigs.Apply();
 	}
 	public static void Disable()
 	{
@@ -37,5 +38,6 @@ internal static class _Module
 		RainSong.Disable();
 		FadePaletteCombiner.Disable();
 		DecalPreview.Disable();
+		RegionConfigs.Undo();
 	}
 }

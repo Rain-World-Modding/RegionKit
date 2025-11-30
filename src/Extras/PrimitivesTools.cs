@@ -19,10 +19,15 @@ public static class PrimitivesTools
 	/// <summary>
 	/// Creates a Color from a vector and makes sure its alpha is not zero.
 	/// </summary>
+	/// <param name="vec">Vector4 to check</param>
 	public static Color ToOpaqueCol(in this Vector4 vec)
 		=> vec.w is not 0f ? vec : new(vec.x, vec.y, vec.z, 1f);
+	/// <summary>
+	/// Converts Vector2 to IntVector2. If converting between world and tile coordinates, you should use <see cref="Room"/>.GetTilePosition() instead.
+	/// </summary>
+	/// <param name="vec"></param>
+	/// <returns></returns>
 	public static IntVector2 ToIntVector2(this Vector2 vec) => new((int)vec.x, (int)vec.y);
-	public static Vector2 ToVector2(this IntVector2 ivec) => new(ivec.x, ivec.y);
 	public static void ClampToNormal(ref this Color self)
 	{
 		self.r = Clamp01(self.r);

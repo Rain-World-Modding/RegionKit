@@ -14,7 +14,7 @@ namespace RegionKit.Modules.Effects
 			try
 			{
 				new EffectDefinitionBuilder("LocustSwarm")
-					.SetUADFactory((Room room, EffectExtraData data, bool firstTimeRealized) => new LocustSwarm.UAD(data))
+					.SetUADFactory((_, data, _) => new LocustSwarm.UAD(data))
 					.SetCategory("RegionKit")
 					.Register();
 				LocustSwarm.Setup();
@@ -36,7 +36,7 @@ namespace RegionKit.Modules.Effects
             public float StartDistance = -1;
             public float StartShadows = -1;
             public float PrecycleIntensity = -1;
-            //public Dictionary<LocustSystem.Swarm, LocustSwarm.PathingInformation> SwarmPaths = new Dictionary<LocustSystem.Swarm, LocustSwarm.PathingInformation>();
+            //public Dictionary<LocustSystem.Swarm, LocustSwarm.PathingInformation> SwarmPaths = new();
         }
         
         /*public class PathingInformation(LocustSystem.Swarm swarm)
@@ -48,8 +48,7 @@ namespace RegionKit.Modules.Effects
                 GetCreatureTemplate(CreatureTemplate.Type.Fly));
         }*/
 
-        private static List<Room> SwarmRooms = new List<Room>();
-        private static int StartTime = -1;
+        private static int _startTime = -1;
 		static void Update(On.Player.orig_Update orig, Player self, bool firstUpdate)
         {
 			orig(self, firstUpdate);
@@ -72,7 +71,7 @@ namespace RegionKit.Modules.Effects
                 float progress;
                 if (room.world.rainCycle.RainApproaching >= 0.5f || room.world.rainCycle.preTimer > 0)
                 {
-                    StartTime = -1;
+                    _startTime = -1;
                     if (room.world.rainCycle.preTimer <= 0)
                     {
 						uad.PrecycleIntensity = -1;
@@ -106,9 +105,9 @@ namespace RegionKit.Modules.Effects
                     }
                     return;
                 }
-                if (StartTime < 0)
-                    StartTime = room.game.timeInRegionThisCycle;
-                progress = Mathf.Clamp((room.game.timeInRegionThisCycle - StartTime) / 1400f, 0f, 1f); // 40fps * 35s = 1400
+                if (_startTime < 0)
+                    _startTime = room.game.timeInRegionThisCycle;
+                progress = Mathf.Clamp((room.game.timeInRegionThisCycle - _startTime) / 1400f, 0f, 1f); // 40fps * 35s = 1400
                 if (effect.amount > 0)
                     effect.amount = Mathf.Lerp(Math.Max(uad.StartDensity, 0.7f * uad.Amount),
                         Math.Max(uad.StartDensity, uad.Amount), progress);
@@ -137,23 +136,6 @@ namespace RegionKit.Modules.Effects
             //    uad!.SwarmPaths[swarm].QPF.Update();
         }
 
-        public static bool HasLocustEffect(Room room)
-        {
-            return room.updateList.OfType<UAD>().Any()
-                && room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig) != null;
-        }
-
-        public static bool HasLocustEffect(Room room, out RoomSettings.RoomEffect? effect)
-        {
-            effect = room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig);
-            return (room.updateList.OfType<UAD>().Any() && effect != null);
-        }
-
-        public static bool HasLocustEffect(Room room, out UAD? uad)
-        {
-            uad = room.updateList.OfType<UAD>().FirstOrDefault();
-            return  (uad != null && room.roomSettings.GetEffect(RoomSettings.RoomEffect.Type.LocustSwarmConfig) != null);
-        }
         public static bool HasLocustEffect(Room room, out UAD? uad, out RoomSettings.RoomEffect? effect)
         {
             uad = room.updateList.OfType<UAD>().FirstOrDefault();
@@ -165,7 +147,7 @@ namespace RegionKit.Modules.Effects
 		static float Hook_ExposedToSky(On.LocustSystem.orig_ExposedToSky orig, LocustSystem self, Creature feature)
 		{
 			return self.room != null
-                && HasLocustEffect(self.room, out RoomSettings.RoomEffect? effect)
+                && HasLocustEffect(self.room, out _, out RoomSettings.RoomEffect? effect)
                 && effect!.amount > 0.7f ? 1f : orig(self, feature);
         }
         
@@ -173,7 +155,7 @@ namespace RegionKit.Modules.Effects
         static void Hook_SwarmUpdate(On.LocustSystem.Swarm.orig_Update orig, LocustSystem.Swarm self)
         {
             orig(self);
-            if (!HasLocustEffect(self.owner.room, out RoomSettings.RoomEffect? effect) || effect!.amount < 0.85f)
+            if (!HasLocustEffect(self.owner.room, out _, out RoomSettings.RoomEffect? effect) || effect!.amount < 0.85f)
                 return;
             self.maxLocusts = 150;
         }
@@ -220,7 +202,7 @@ namespace RegionKit.Modules.Effects
         static bool Hook_CanKill(On.LocustSystem.orig_CanKill orig, LocustSystem self, Creature creature)
         {
             if (self.room == null
-                || !HasLocustEffect(self.room, out RoomSettings.RoomEffect? effect)
+                || !HasLocustEffect(self.room, out _, out RoomSettings.RoomEffect? effect)
                 || effect!.amount < 0.7f) return orig(self, creature);
             return !LocustImmune.Contains(creature.Template.type);
         }
@@ -228,17 +210,17 @@ namespace RegionKit.Modules.Effects
         static bool Hook_IsTargetValid(On.LocustSystem.Swarm.orig_IsTargetValid orig, LocustSystem.Swarm self)
         {
             if (self.owner.room == null
-                || !HasLocustEffect(self.owner.room, out RoomSettings.RoomEffect? effect)
+                || !HasLocustEffect(self.owner.room, out _, out RoomSettings.RoomEffect? effect)
                 || effect!.amount < 0.95f) return orig(self);
             return self.target != null
                    && self.target.room == self.owner.room
                    && self.target.abstractCreature.rippleLayer == 0
-                   && (double) Mathf.Abs(self.target.mainBodyChunk.pos.x - self.center.x) < 300.0;
+                   && Mathf.Abs(self.target.mainBodyChunk.pos.x - self.center.x) < 300.0;
         }
 
         static float Hook_SwarmScore(On.LocustSystem.orig_SwarmScore_Creature orig, LocustSystem self, Creature crit)
         {
-            if (self.room != null && HasLocustEffect(self.room, out RoomSettings.RoomEffect? effect) && effect!.amount >= 0.95f)
+            if (self.room != null && HasLocustEffect(self.room, out _,out RoomSettings.RoomEffect? effect) && effect!.amount >= 0.95f)
                 crit.repelLocusts = 0;
             return orig(self, crit);
         }
@@ -246,17 +228,17 @@ namespace RegionKit.Modules.Effects
         static float Hook_GetAvoidance(On.LocustSystem.orig_GetAvoidanceRadius orig, LocustSystem self, AbstractPhysicalObject obj)
         {
             if (self.room == null
-                || !HasLocustEffect(self.room, out RoomSettings.RoomEffect? effect)
+                || !HasLocustEffect(self.room, out _, out RoomSettings.RoomEffect? effect)
                 || effect!.amount < 0.95f) return orig(self, obj);
             return Mathf.Clamp((1 - ((self.room.game.timeInRegionThisCycle - 
-                (self.room.world.rainCycle.preCycleRain_Intensity > 0 ? self.room.game.timeInRegionThisCycle : StartTime)
+                (self.room.world.rainCycle.preCycleRain_Intensity > 0 ? self.room.game.timeInRegionThisCycle : _startTime)
                 - 1400f) / 1200)), 0f, 1f) * 1000;
         }
 
         // Convenience method for IL hooking
         public static bool ShouldKillFaster(LocustSystem.Swarm self)
         {
-            return HasLocustEffect(self.owner.room, out RoomSettings.RoomEffect? effect)
+            return HasLocustEffect(self.owner.room, out _, out RoomSettings.RoomEffect? effect)
                    && effect!.amount > 0.7f;
         }
         

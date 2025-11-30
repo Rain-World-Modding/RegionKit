@@ -16,7 +16,7 @@ public static class _Module
 		CustomProjections.Apply();
 		ReliableIggyEntrance.Apply();
 		CustomDoorPointer.Apply();
-		OverseerProperties.Apply();
+		//OverseerProperties.Apply();
 		PointerHooks.Apply();
 		OverseerRecolor.Apply();
 		On.ImageTrigger.AttemptTriggerFire += ImageTrigger_AttemptTriggerFire;
@@ -49,15 +49,15 @@ public static class _Module
 			}
 		}
 		Overseer overseer = null!;
-		for (int i = 0; i < room.abstractRoom.creatures.Count; i++)
-		{
-			if (room.abstractRoom.creatures[i].creatureTemplate.type == CreatureTemplate.Type.Overseer && (room.abstractRoom.creatures[i].abstractAI as OverseerAbstractAI)!.playerGuide && room.abstractRoom.creatures[i].realizedCreature != null)
-			{
-				overseer = (room.abstractRoom.creatures[i].realizedCreature as Overseer)!;
-				break;
-			}
-		}
-		if (overseer == null || overseer.AI == null || overseer.AI.communication == null)
+		foreach (AbstractCreature t in room.abstractRoom.creatures)
+        {
+            if (t.creatureTemplate.type == CreatureTemplate.Type.Overseer && (t.abstractAI as OverseerAbstractAI)!.playerGuide && t.realizedCreature != null)
+            {
+                overseer = (t.realizedCreature as Overseer)!;
+                break;
+            }
+        }
+		if (overseer?.AI?.communication == null)
 		{
 			if (DO_LOGGING) LogInfo("trigger canceled due to not finding overseer");
 			return;
@@ -99,7 +99,7 @@ public static class _Module
 		CustomProjections.Undo();
 		ReliableIggyEntrance.Undo();
 		CustomDoorPointer.Undo();
-		OverseerProperties.Undo();
+		//OverseerProperties.Undo();
 		PointerHooks.Undo();
 		OverseerRecolor.Undo();
 	}

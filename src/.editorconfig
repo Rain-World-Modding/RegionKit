@@ -76,6 +76,7 @@ dotnet_style_namespace_match_folder = true:suggestion
 dotnet_style_allow_multiple_blank_lines_experimental = true:suggestion
 dotnet_style_allow_statement_immediately_after_block_experimental = true:silent
 dotnet_code_quality_unused_parameters = all:suggestion
+dotnet_style_prefer_collection_expression = when_types_loosely_match:suggestion
 ###############################
 # C# Coding Conventions       #
 ###############################
@@ -118,7 +119,7 @@ csharp_new_line_before_members_in_anonymous_types = true
 csharp_new_line_between_query_expression_clauses = true
 # Indentation preferences
 csharp_indent_case_contents = true
-csharp_indent_switch_labels = false
+csharp_indent_switch_labels = true
 csharp_indent_labels = one_less_than_current
 # Space preferences
 csharp_space_after_cast = false
@@ -159,6 +160,16 @@ csharp_style_prefer_pattern_matching = true:silent
 csharp_style_prefer_not_pattern = true:suggestion
 csharp_style_prefer_extended_property_pattern = true:suggestion
 csharp_indent_case_contents_when_block = false
+csharp_style_prefer_top_level_statements = true:silent
+csharp_style_prefer_primary_constructors = false:silent
+csharp_prefer_system_threading_lock = true:suggestion
+csharp_style_prefer_unbound_generic_type_in_nameof = true:suggestion
+csharp_style_prefer_utf8_string_literals = true:suggestion
+csharp_prefer_static_anonymous_function = true:suggestion
+csharp_style_prefer_readonly_struct = true:suggestion
+csharp_style_prefer_readonly_struct_member = true:suggestion
+csharp_style_allow_blank_line_after_token_in_conditional_expression_experimental = true:silent
+csharp_style_allow_blank_line_after_token_in_arrow_expression_clause_experimental = true:silent
 ###############################
 # VB Coding Conventions       #
 ###############################

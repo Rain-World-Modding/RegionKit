@@ -6,6 +6,18 @@ namespace RegionKit.Modules.Misc;
 
 public static class _Enums
 {
+	static _Enums()
+	{
+		_ = RoomPalette.ColorName.BlackColor; // static initialize first so items appear at the end
+		EffectColor1 = new(nameof(EffectColor1), true);
+		EffectColor2 = new(nameof(EffectColor2), true);
+		White = new(nameof(White), true);
+	}
+
+	public static RoomPalette.ColorName EffectColor1;
+	public static RoomPalette.ColorName EffectColor2;
+	public static RoomPalette.ColorName White;
+
 	public static Req Construction = new(nameof(Construction), true);
 	public static Req uwu = new(nameof(uwu), true);
 	public static Req Open = new(nameof(Open), true);
@@ -20,6 +32,7 @@ public static class _Enums
 	public static Req TenKarma = new("10", true);
 	public static Req[] alt = new Req[17];
 	public static Req[] txt = new Req[10];
+
 	public static void Register()
 	{
 		const int numericals = 10;

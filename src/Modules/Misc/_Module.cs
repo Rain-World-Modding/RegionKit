@@ -24,7 +24,10 @@ internal static class _Module
 		FadePaletteCombiner.Enable();
 		DecalPreview.Enable();
 		RegionConfigs.Apply();
+
+		On.RoomPalette.GetColor += RoomPalette_GetColor;
 	}
+
 	public static void Disable()
 	{
 		//PaletteTextInput.Undo();
@@ -39,5 +42,22 @@ internal static class _Module
 		FadePaletteCombiner.Disable();
 		DecalPreview.Disable();
 		RegionConfigs.Undo();
+	}
+
+	private static Color RoomPalette_GetColor(On.RoomPalette.orig_GetColor orig, ref RoomPalette self, RoomPalette.ColorName colorName)
+	{
+		if (colorName == _Enums.EffectColor1)
+		{
+			return self.texture.GetPixel(30, 5);
+		}
+		else if (colorName == _Enums.EffectColor2)
+		{
+			return self.texture.GetPixel(30, 3);
+		}
+		else if (colorName == _Enums.White)
+		{
+			return Color.white;
+		}
+		return orig(ref self, colorName);
 	}
 }

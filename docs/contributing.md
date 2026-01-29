@@ -13,6 +13,9 @@ When a module has a single class that serves as entrypoint, that class should be
 
 It is recommended to prefix nonpublic static members with double underscore and nonpublic instance members with single underscore, although for self-preservation purposes this is not required.
 
+## Pull requests
+Pull requests should target the worker branch, not the main branch!
+
 ### Examples
 
 Using RegionKitAttribute to define a module:

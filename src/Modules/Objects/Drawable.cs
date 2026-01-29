@@ -13,7 +13,7 @@ public class Drawable : CosmeticSprite
 		new StringField("spriteName", "Futile_White", "Decal Name"),
 		new FloatField("depth", 0f, 1f, 1f, displayName: "Depth"),
 		new StringField("shader", "Basic", "Shader"),
-		new EnumField<FContainer>("container", FContainer.Foreground, displayName: "FContainer"),
+		new EnumField<ContainerCodes>("container", ContainerCodes.Foreground, displayName: "FContainer"),
 		new IntegerField("alpha", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Alpha"),
 		new BooleanField("useColour", false, displayName: "Use Colour"),
 		new ColorField("colour", Color.white, ManagedFieldWithPanel.ControlType.button, "Colour")
@@ -25,27 +25,6 @@ public class Drawable : CosmeticSprite
 	{
 		this.room = room;
 		_LocalPlacedObject = pObj;
-	}
-	/// <summary>
-	/// Enum for container codes
-	/// </summary>
-	public enum FContainer
-	{
-		#pragma warning disable 1591
-		Shadows,
-		BackgroundShortcuts,
-		Background,
-		Midground,
-		Items,
-		Foreground,
-		ForegroundLights,
-		Shortcuts,
-		Water,
-		GrabShaders,
-		Bloom,
-		HUD,
-		HUD2
-		#pragma warning restore 1591
 	}
 
 	private ManagedData _Data => (ManagedData)_LocalPlacedObject.data;
@@ -89,11 +68,11 @@ public class Drawable : CosmeticSprite
 	{
 		base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
 		sLeaser.sprites[0].alpha = _Data.GetValue<int>("alpha") / 255f;
-		rCam.ReturnFContainer(_Data.GetValue<FContainer>("container").ToString())
+		rCam.ReturnFContainer(_Data.GetValue<ContainerCodes>("container")!.ToString())
 			.AddChildAtIndex(sLeaser.sprites[0],
 				Mathf.FloorToInt(
 					_Data.GetValue<float>("depth") *
-					rCam.ReturnFContainer(_Data.GetValue<FContainer>("container").ToString())
+					rCam.ReturnFContainer(_Data.GetValue<ContainerCodes>("container")!.ToString())
 						.GetChildCount()));
 		try
 		{

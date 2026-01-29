@@ -1,6 +1,7 @@
 ﻿using DevInterface;
 using MonoMod.RuntimeDetour;
 using RegionKit.API;
+using RegionKit.Modules.Objects.AdvancedShaderController;
 
 namespace RegionKit.Modules.Objects;
 ///<inheritdoc/>
@@ -58,8 +59,8 @@ public static class _Module
 
 		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", GAMEPLAY_POM_CATEGORY);
 		RegisterManagedObject<CameraNoise, CameraNoise.CameraNoiseData, ManagedRepresentation>("CameraNoise", DECORATIONS_POM_CATEGORY);
-        RegisterManagedObject<SlugcatEyeSelector, SlugcatEyeSelectorData, ManagedRepresentation>("SlugcatEyeSelector", DECORATIONS_POM_CATEGORY);
-        RegisterFullyManagedObjectType(
+		RegisterManagedObject<SlugcatEyeSelector, SlugcatEyeSelectorData, ManagedRepresentation>("SlugcatEyeSelector", DECORATIONS_POM_CATEGORY);
+		RegisterFullyManagedObjectType(
 			[
 				new IntegerField("reqkarma", 0, 9, 0, displayName:"Req Karma"),
 				new IntegerField("reqkarmacap", 0, 9, 9, displayName:"Req Karma Cap"),
@@ -88,45 +89,52 @@ public static class _Module
 
 		RegisterFullyManagedObjectType(
 		[
-			new IntVector2Field("0zone", new(1, 1), IntVector2Field.IntVectorReprType.rect), 
-			new FloatField("1traction", 0f, 1f, 1f, displayName:"Traction", increment: 0.02f), 
-			new BooleanField("2slope", false, displayName:"slippery slopes"), 
-			new BooleanField("3tunnel", false, displayName:"no tunnel crawl") 
+			new IntVector2Field("0zone", new(1, 1), IntVector2Field.IntVectorReprType.rect),
+			new FloatField("1traction", 0f, 1f, 1f, displayName:"Traction", increment: 0.02f),
+			new BooleanField("2slope", false, displayName:"slippery slopes"),
+			new BooleanField("3tunnel", false, displayName:"no tunnel crawl")
 		], typeof(SlipperyZone), "SlipperyZone", GAMEPLAY_POM_CATEGORY);
 	}
 
 	internal static void Enable()
 	{
 		//TODO: make unapplies?
-		foreach (var hk in __objectHooks) if (!hk.IsApplied) hk.Apply();
-		On.PlacedObject.GenerateEmptyData += MakeEmptyData;
-		On.DevInterface.ObjectsPage.CreateObjRep += CreateObjectReps;
-		On.DevInterface.ObjectsPage.DevObjectGetCategoryFromPlacedType += ObjectsPageDevObjectGetCategoryFromPlacedType;
-		On.Room.NowViewed += Room_Viewed;
-		On.Room.NoLongerViewed += Room_NotViewed;
-		CustomEntranceSymbols.Apply();
-		ColoredLightBeam.Apply();
-		NoWallSlideZones.Apply();
-		RKAdditionalClimbables.Apply();
-		//todo: check if it's okay to have like this
-		_CommonHooks.PostRoomLoad += RoomPostLoad;
-		//On.RainWorld.LoadResources += LoadLittlePlanetResources;
-		ShortcutCannon.Apply();
-		SlugcatEyeSelector.Apply();
-		BigKarmaShrine.Apply();
-		CustomWallMycelia.Apply();
-		GuardProtectNode.Apply();
-		SlipperyZone.ApplyHooks();
-		WaterSpout.Apply();
-		FanLightHooks.Apply();
-		NoBatflyLurkZoneHooks.Apply();
-		NoDropwigPerchZoneHooks.Apply();
-		WaterFallDepthHooks.Apply();
-		EvilDangleFruit.Apply();
+		try
+		{
+			foreach (var hk in __objectHooks) if (!hk.IsApplied) hk.Apply();
+			On.PlacedObject.GenerateEmptyData += MakeEmptyData;
+			On.DevInterface.ObjectsPage.CreateObjRep += CreateObjectReps;
+			On.DevInterface.ObjectsPage.DevObjectGetCategoryFromPlacedType += ObjectsPageDevObjectGetCategoryFromPlacedType;
+			On.Room.NowViewed += Room_Viewed;
+			On.Room.NoLongerViewed += Room_NotViewed;
+			CustomEntranceSymbols.Apply();
+			ColoredLightBeam.Apply();
+			NoWallSlideZones.Apply();
+			RKAdditionalClimbables.Apply();
+			//todo: check if it's okay to have like this
+			_CommonHooks.PostRoomLoad += RoomPostLoad;
+			//On.RainWorld.LoadResources += LoadLittlePlanetResources;
+			ShortcutCannon.Apply();
+			SlugcatEyeSelector.Apply();
+			BigKarmaShrine.Apply();
+			CustomWallMycelia.Apply();
+			GuardProtectNode.Apply();
+			SlipperyZone.ApplyHooks();
+			WaterSpout.Apply();
+			FanLightHooks.Apply();
+			NoBatflyLurkZoneHooks.Apply();
+			NoDropwigPerchZoneHooks.Apply();
+			WaterFallDepthHooks.Apply();
+			EvilDangleFruit.Apply();
 
-		_CompatHooks.Enable();
+			_CompatHooks.Enable();
 
-		LoadShaders();
+			LoadShaders();
+		}
+		catch (Exception e)
+		{
+			LogError(e);
+		}
 
 		DeprecatedItems.RegisterDeprecatedObject("PlacedWaterfall");
 	}
@@ -172,7 +180,10 @@ public static class _Module
 			|| type == _Enums.LittlePlanet
 			|| type == _Enums.FanLight
 			|| type == _Enums.PCPlayerSensitiveLightSource
-			|| type == _Enums.WaterFallDepth)
+			|| type == _Enums.WaterFallDepth
+			|| type == _Enums.BGFlatLight
+			|| type == _Enums.AdvancedShader
+			|| type == _Enums.BigWaterWheel)
 			res = new ObjectsPage.DevObjectCategories(DECORATIONS_POM_CATEGORY);
 		else if (type == _Enums.NoWallSlideZone
 			|| type == _Enums.ClimbablePole
@@ -252,6 +263,15 @@ public static class _Module
 				case nameof(_Enums.WaterFallDepth):
 					self.AddObject(new WaterFallDepth(self, pObj));
 					break;
+				case nameof(_Enums.BGFlatLight):
+					self.AddObject(new BGFlatLight(pObj));
+					break;
+				case nameof(_Enums.AdvancedShader):
+					self.AddObject(new AdvancedShader(pObj));
+					break;
+				case nameof(_Enums.BigWaterWheel):
+					self.AddObject(new BigWaterWheel(pObj, self));
+					break;
 			}
 			if (pObj.data is WormgrassRectData && !wormgrassDataFound)
 			{
@@ -317,6 +337,21 @@ public static class _Module
 		else if (tp == _Enums.EvilDangleFruit)
 		{
 			rep = new ConsumableRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj, "Consumable: " + tp.ToString());
+		}
+		else if (tp == _Enums.BGFlatLight)
+		{
+			CreateObjectIfNeeded();
+			rep = new BGFlatLightRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj);
+		}
+		else if (tp == _Enums.AdvancedShader)
+		{
+			CreateObjectIfNeeded();
+			rep = new AdvancedShaderRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj);
+		}
+		else if (tp == _Enums.BigWaterWheel)
+		{
+			CreateObjectIfNeeded();
+			rep = new BigWaterWheelRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
 		}
 
 		// Create object or call orig
@@ -400,6 +435,18 @@ public static class _Module
 		{
 			self.data = new PlacedObject.ConsumableObjectData(self);
 		}
+		else if (self.type == _Enums.BGFlatLight)
+		{
+			self.data = new BGFlatLight.Data(self);
+		}
+		else if (self.type == _Enums.AdvancedShader)
+		{
+			self.data = new AdvancedShader.Data(self);
+		}
+		else if (self.type == _Enums.BigWaterWheel)
+		{
+			self.data = new BigWaterWheel.Data(self);
+		}
 		orig(self);
 	}
 
@@ -423,5 +470,9 @@ public static class _Module
 	{
 		Custom.rainWorld.Shaders["ColorEffects"] = FShader.CreateShader("ColorEffects", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/coloreffects")).LoadAsset<Shader>("Assets/ColorEffects.shader"));
 		Custom.rainWorld.Shaders["WaterFallDepth"] = FShader.CreateShader("WaterFallDepth", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/waterfalldepth")).LoadAsset<Shader>("Assets/Shaders/WaterFallDepth.shader"));
+		AssetBundle bgFlatLightBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/bgflatlight"));
+		Custom.rainWorld.Shaders["BGFlatLight"] = FShader.CreateShader("BGFlatLight", bgFlatLightBundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLight.shader"));
+		Custom.rainWorld.Shaders["BGCloudLight"] = FShader.CreateShader("BGCloudLight", bgFlatLightBundle.LoadAsset<Shader>("Assets/Shaders/BGCloudLight.shader"));
+		Custom.rainWorld.Shaders["ASAxisHandleLine"] = FShader.CreateShader("ASAxisHandleLine", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/ASAxisHandleLine")).LoadAsset<Shader>("Assets/Shaders/ASAxisHandleLine.shader"));
 	}
 }

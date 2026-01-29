@@ -98,7 +98,7 @@ internal static class _Module
 
 		RegisterFullyManagedObjectType(new ManagedField[]
 		{
-			new EnumField<Objects.Drawable.FContainer>("container", Objects.Drawable.FContainer.Foreground, displayName: "FContainer"),
+			new EnumField<ContainerCodes>("container", ContainerCodes.Foreground, displayName: "FContainer"),
 			new StringField("shader", "Basic", "Shader"),
 			new FloatField("alpha", 0f, 1f, 0f, 0.01f, ManagedFieldWithPanel.ControlType.slider, "amount")
 		}, typeof(CGCameraEffects.CGCameraEffectsObj), "CGFullScreenShader", CG_POM_CATEGORY);

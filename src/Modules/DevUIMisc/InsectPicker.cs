@@ -1,4 +1,4 @@
-using DevInterface;
+﻿using DevInterface;
 
 namespace RegionKit.Modules.DevUIMisc;
 
@@ -48,7 +48,7 @@ internal static class InsectPicker
 			}
 			else
 			{
-				((self.parentNode as InsectGroupRepresentation).pObj.data as PlacedObject.InsectGroupData).insectType =
+				((self.parentNode as InsectGroupRepresentation)!.pObj.data as PlacedObject.InsectGroupData)!.insectType =
 					new CosmeticInsect.Type(sender.IDstring, false);
 
 				self.subNodes.Remove(selectPanel);

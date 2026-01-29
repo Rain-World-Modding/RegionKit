@@ -18,9 +18,7 @@ namespace RegionKit.Modules.ShaderTools {
 			if (Futile.screen != null) {
 				RenderTexture rt = Futile.screen.renderTexture;
 				if (rt.depth < DEPTH_AND_STENCIL_BUFFER_BITS) {
-					// Use this check in case another mod happens to enable the 32 bit buffer for whatever reason.
-					rt.Release();
-					rt.depth = DEPTH_AND_STENCIL_BUFFER_BITS;
+					Futile.screen.ReinitRenderTexture((int)Futile.screen._futileParams.resLevels[0].maxLength);
 				}
 			}
 		}
@@ -40,7 +38,12 @@ namespace RegionKit.Modules.ShaderTools {
 			int newDepth = (_hasStencilBuffer && @this.renderTexture.depth < DEPTH_AND_STENCIL_BUFFER_BITS) ? DEPTH_AND_STENCIL_BUFFER_BITS : @this.renderTexture.depth;
 			if (@this.renderTexture.depth != newDepth) {
 				@this.renderTexture.Release();
-				@this.renderTexture.depth = newDepth;
+				@this.renderTexture.DiscardContents();
+				FilterMode filterMode = @this.renderTexture.filterMode;
+				@this.renderTexture = new RenderTexture(@this.renderTexture.width * @this.renderScale, @this.renderTexture.height * @this.renderScale, newDepth)
+				{
+					filterMode = filterMode
+				};
 			}			
 		}
 
@@ -51,7 +54,12 @@ namespace RegionKit.Modules.ShaderTools {
 			if (@this.renderTexture.depth != newDepth)
 			{
 				@this.renderTexture.Release();
-				@this.renderTexture.depth = newDepth;
+				@this.renderTexture.DiscardContents();
+				FilterMode filterMode = @this.renderTexture.filterMode;
+				@this.renderTexture = new RenderTexture(@this.renderTexture.width * @this.renderScale, @this.renderTexture.height * @this.renderScale, newDepth)
+				{
+					filterMode = filterMode
+				};
 			}
 		}
 

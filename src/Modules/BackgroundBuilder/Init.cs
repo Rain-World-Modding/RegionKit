@@ -11,8 +11,6 @@ internal static class Init
 		On.RoofTopView.ctor += RoofTopView_ctor;
 		On.AboveCloudsView.ctor += AboveCloudsView_ctor;
 		On.BackgroundScene.RoomToWorldPos += BackgroundScene_RoomToWorldPos;
-		On.AboveCloudsView.CloseCloud.DrawSprites += CloseCloud_DrawSprites;
-		On.AboveCloudsView.DistantCloud.DrawSprites += DistantCloud_DrawSprites;
 		On.AboveCloudsView.Update += AboveCloudsView_Update;
 		On.RoofTopView.Update += RoofTopView_Update;
 		On.Watcher.AncientUrbanView.ctor += AncientUrbanView_ctor;
@@ -26,8 +24,6 @@ internal static class Init
 		On.RoofTopView.ctor -= RoofTopView_ctor;
 		On.AboveCloudsView.ctor -= AboveCloudsView_ctor;
 		On.BackgroundScene.RoomToWorldPos -= BackgroundScene_RoomToWorldPos;
-		On.AboveCloudsView.CloseCloud.DrawSprites -= CloseCloud_DrawSprites;
-		On.AboveCloudsView.DistantCloud.DrawSprites -= DistantCloud_DrawSprites;
 		On.AboveCloudsView.Update -= AboveCloudsView_Update;
 		On.RoofTopView.Update -= RoofTopView_Update;
 		On.Watcher.AncientUrbanView.ctor -= AncientUrbanView_ctor;
@@ -122,20 +118,6 @@ internal static class Init
 				dayNightScene.ColorUpdate();
 			}
 		}
-	}
-
-	private static void DistantCloud_DrawSprites(On.AboveCloudsView.DistantCloud.orig_DrawSprites orig, DistantCloud self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
-	{
-		//pixel fix
-		orig(self, sLeaser, rCam, timeStacker, camPos);
-		sLeaser.sprites[0].scaleY += 2f;
-	}
-
-	private static void CloseCloud_DrawSprites(On.AboveCloudsView.CloseCloud.orig_DrawSprites orig, CloseCloud self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
-	{
-		//pixel fix
-		orig(self, sLeaser, rCam, timeStacker, camPos);
-		sLeaser.sprites[0].scaleY += 2f;
 	}
 
 	private static Vector2 BackgroundScene_RoomToWorldPos(On.BackgroundScene.orig_RoomToWorldPos orig, BackgroundScene self, Vector2 inRoomPos)

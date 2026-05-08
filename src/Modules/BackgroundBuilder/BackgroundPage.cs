@@ -40,22 +40,12 @@ internal static class BuilderPageHooks
 	{
 		orig(self, game);
 
-		if (!self.pages.Contains("Background"))
-		{
-			var list = self.pages.ToList();
-			list.Add("Background");
-			self.pages = list.ToArray();
-		}
+		AddBackgroundToPagesList(self);
 	}
 
 	private static void DevUI_SwitchPage(On.DevInterface.DevUI.orig_SwitchPage orig, DevUI self, int newPage)
 	{
-		if (!self.pages.Contains("Background"))
-		{
-			var list = self.pages.ToList();
-			list.Add("Background");
-			self.pages = list.ToArray();
-		}
+		AddBackgroundToPagesList(self);
 
 		if (newPage == self.pages.IndexOf("Background"))
 		{
@@ -64,6 +54,20 @@ internal static class BuilderPageHooks
 		}
 
 		else { orig(self, newPage); }
+	}
+
+	private static void AddBackgroundToPagesList(DevUI self)
+	{
+
+		if (!self.pages.Contains("Background"))
+		{
+			var list = self.pages.ToList();
+			int ind = list.IndexOf("Relationships");
+			if (ind == -1)
+				ind = list.Count();
+			list.Insert(ind, "Background");
+			self.pages = list.ToArray();
+		}
 	}
 }
 

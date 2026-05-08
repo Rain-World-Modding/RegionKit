@@ -35,48 +35,26 @@ namespace RegionKit.Modules.Objects
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		private record ColorData(Color? activeColor, Color? brokenColor);
+		private class ColorData { public Color? activeColor; public Color? brokenColor; }
+
 		private static readonly ConditionalWeakTable<Region, ColorData> ssFuseColorTable = new();
 
 		internal static void Apply()
 		{
 			On.SuperStructureFuses.DrawSprites += SuperStructureFuses_DrawSprites;
-			On.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor_string_int_int_RainWorldGame_Timeline;
+			_CommonHooks.SpecificUnrecognizedRegionParamProcessor["SSFuseActiveColor"] = ProcessActiveColor;
+			_CommonHooks.SpecificUnrecognizedRegionParamProcessor["SSFuseBrokenColor"] = ProcessBrokenColor;
 		}
 
 		internal static void Undo()
 		{
 			On.SuperStructureFuses.DrawSprites -= SuperStructureFuses_DrawSprites;
-			On.Region.ctor_string_int_int_RainWorldGame_Timeline -= Region_ctor_string_int_int_RainWorldGame_Timeline;
+			_CommonHooks.SpecificUnrecognizedRegionParamProcessor.Remove("SSFuseActiveColor");
+			_CommonHooks.SpecificUnrecognizedRegionParamProcessor.Remove("SSFuseBrokenColor");
 		}
 
-		private static void Region_ctor_string_int_int_RainWorldGame_Timeline(On.Region.orig_ctor_string_int_int_RainWorldGame_Timeline orig, Region self, string name, int firstRoomIndex, int regionNumber, RainWorldGame game, SlugcatStats.Timeline timelineIndex)
-		{
-			orig(self, name, firstRoomIndex, regionNumber, game, timelineIndex);
-			Color? activeColor = null, brokenColor = null;
-			foreach (var pair in self.regionParams.unrecognizedParams)
-			{
-				try
-				{
-					if (pair.Key == "SSFuseActiveColor")
-					{
-						activeColor = Custom.hexToColor(pair.Value);
-					}
-					else if (pair.Key == "SSFuseBrokenColor")
-					{
-						brokenColor = Custom.hexToColor(pair.Value);
-					}
-				}
-				catch (Exception e)
-				{
-					LogError(e);
-				}
-			}
-			if (activeColor != null || brokenColor != null)
-			{
-				ssFuseColorTable.Add(self, new(activeColor, brokenColor));
-			}
-		}
+		private static void ProcessActiveColor(Region region, string key, string value) => ssFuseColorTable.GetValue(region, p => new()).activeColor = Custom.hexToColor(value);
+		private static void ProcessBrokenColor(Region region, string key, string value) => ssFuseColorTable.GetValue(region, p => new()).brokenColor = Custom.hexToColor(value);
 
 		private static void SuperStructureFuses_DrawSprites(On.SuperStructureFuses.orig_DrawSprites orig, SuperStructureFuses self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{

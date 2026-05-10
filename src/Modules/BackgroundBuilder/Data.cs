@@ -84,9 +84,19 @@ internal static class Data
 			}
 			else
 			{
-				data.LineToData(line);
+				string lineCopy = line;
+				while (data.currentParsingGroup != null && !lineCopy.StartsWith(data.currentParsingGroup.RecursiveEmbedString()))
+				{
+					data.currentParsingGroup = data.currentParsingGroup?.group;
+				}
+
+				if (data.currentParsingGroup != null)
+					lineCopy = lineCopy.Substring(data.currentParsingGroup.RecursiveEmbedString().Length);
+
+				data.LineToData(lineCopy);
 			}
 		}
+		data.currentParsingGroup = null;
 	}
 
 	private static Dictionary<string, Tuple<PropertyInfo, BackgroundDataAttribute>> GetPropertyAttributes(BGSceneData data)
@@ -433,9 +443,22 @@ internal static class Data
 				{
 					try
 					{
-						var e = element.MakeSceneElement(self);
-						e.CData().dataElement = element;
-						self.AddElement(e);
+						if (element is BG_ElementGroup group)
+						{
+							foreach (var e in group.MakeSceneElements(self))
+							{
+								e.CData().dataElement = element;
+								element.element = e;
+								self.AddElement(e);
+							}
+						}
+						else
+						{
+							var e = element.MakeSceneElement(self);
+							e.CData().dataElement = element;
+							element.element = e;
+							self.AddElement(e);
+						}
 					}
 					catch (BackgroundBuilderException bgex)
 					{
@@ -448,7 +471,7 @@ internal static class Data
 				foreach (BackgroundScene.BackgroundSceneElement element in self.elements)
 				{
 					if (element.HasInstanceData())
-					{ backgroundElements.Add(element.DataFromElement()); }
+					{ backgroundElements.Add(element.DataFromElement()); backgroundElements[^1].element = element; }
 				}
 			}
 		}
@@ -465,18 +488,23 @@ internal static class Data
 		}
 		public virtual void LineToData(string line)
 		{
-
-			string[] array2 = Regex.Split(line, ": ");
-			if (array2.Length >= 2)
+			var scopedElements = GetScopedElements(currentParsingGroup);
+			if (TryGetBgElementFromString(line, out CustomBgElement element))
 			{
-				switch (array2[0])
+				scopedElements.Add(element);
+
+				if (element is BG_ElementGroup group)
 				{
-				case "RotWorm": //these can go in any scene...
-				case "SimpleElement":
-				case "SimpleIllustration":
-					if (TryGetBgElementFromString(line, out CustomBgElement element))
-					{ backgroundElements.Add(element); }
-					break;
+					foreach (var groupElement in scopedElements)
+					{
+						if (groupElement is BG_ElementGroup subGroup && subGroup.name == group.name)
+						{
+							group = subGroup;
+							break;
+						}
+					}
+
+					currentParsingGroup = group;
 				}
 			}
 
@@ -486,15 +514,32 @@ internal static class Data
 				if (array.Length < 2) return;
 
 				string removeElement = $"{array[0]}: {array[1]}";
-				backgroundElements.RemoveAll(x => x.Serialize() + x.SerializeTags() == removeElement);
+				scopedElements.RemoveAll(x => x.Serialize() + x.SerializeTags() == removeElement);
 			}
 		}
+
+		public virtual bool ElementAllowedInScene(CustomBgElement element)
+		{
+			return element is RWS_RotWorm or BG_SimpleElement or BG_Illustration or BG_ElementGroup;
+		}
+
+		public List<CustomBgElement> GetScopedElements(BG_ElementGroup? group)
+		{
+			if (group == null)
+				return backgroundElements;
+			else
+				return group.elements;
+		}
+
 
 		public List<CustomBgElement> backgroundElements = new();
 
 		public bool sceneInitialized = false;
 
 		public BackgroundScene? _Scene;
+
+		//should only be used for parsing, probably?
+		internal BG_ElementGroup? currentParsingGroup = null;
 	}
 
 	public class DayNightSceneData : BGSceneData
@@ -974,6 +1019,9 @@ internal static class Data
 				float cloudDepth = i / (cloudsCount - 1f);
 				CloseCloud cloud = new CloseCloud(scene, new Vector2(0f, 0f), cloudDepth, i);
 				scene.AddElement(cloud);
+
+				if (scene.elementsAddedToRoom)
+					cloud.CData().needsAddToRoom = true;
 			}
 
 			for (int j = 0; j < distantCloudsCount; j++)
@@ -982,6 +1030,9 @@ internal static class Data
 				num15 = Mathf.Pow(num15, curveCloudDepth);
 				var dcloud = new DistantCloud(scene, new Vector2(0f, Mathf.Lerp(overrideYStart, overrideYEnd, num15)), num15, j);
 				scene.AddElement(dcloud);
+
+				if (scene.elementsAddedToRoom)
+					dcloud.CData().needsAddToRoom = true;
 			}
 		}
 
@@ -1014,23 +1065,9 @@ internal static class Data
 			}
 		}
 
-		public override void LineToData(string line)
+		public override bool ElementAllowedInScene(CustomBgElement element)
 		{
-			base.LineToData(line);
-
-			string[] array = Regex.Split(line, ": ");
-			if (array.Length < 2) return;
-
-			switch (array[0])
-			{
-			case "DistantBuilding":
-			case "DistantLightning":
-			case "FlyingCloud":
-			case "HorizonFog":
-				if (TryGetBgElementFromString(line, out CustomBgElement element))
-				{ backgroundElements.Add(element); }
-				break;
-			}
+			return base.ElementAllowedInScene(element) || element is ACV_DistantBuilding or ACV_DistantLightning or ACV_FlyingCloud or ACV_HorizonFog;
 		}
 	}
 
@@ -1176,26 +1213,15 @@ internal static class Data
 
 		public override void LineToData(string line)
 		{
-			base.LineToData(line);
+			string prepend = "";
+			if (line.StartsWith("DistantBuilding"))
+				prepend = "RF_";
+			base.LineToData(prepend + line);
+		}
 
-			string[] array = Regex.Split(line, ": ");
-			if (array.Length < 2) return;
-
-			switch (array[0])
-			{
-			case "DistantBuilding":
-				if (TryGetBgElementFromString("RF_" + line, out CustomBgElement element))
-				{ backgroundElements.Add(element); }
-				break;
-			case "Floor":
-			case "Building":
-			case "DistantGhost":
-			case "DustWave":
-			case "Smoke":
-				if (TryGetBgElementFromString(line, out CustomBgElement element2))
-				{ backgroundElements.Add(element2); }
-				break;
-			}
+		public override bool ElementAllowedInScene(CustomBgElement element)
+		{
+			return base.ElementAllowedInScene(element) || element is RTV_DistantBuilding or RTV_Floor or RTV_Building or RTV_DistantGhost or RTV_DustWave or RTV_Smoke;
 		}
 	}
 
@@ -1275,23 +1301,15 @@ internal static class Data
 
 		public override void LineToData(string line)
 		{
-			base.LineToData(line);
+			string prepend = "";
+			if (line.StartsWith("Building") || line.StartsWith("Smoke"))
+				prepend = "AU_";
+			base.LineToData(prepend + line);
+		}
 
-			string[] array = Regex.Split(line, ": ");
-			if (array.Length < 2) return;
-
-			switch (array[0])
-			{
-			case "Building":
-			case "Smoke":
-				if (TryGetBgElementFromString("AU_" + line, out CustomBgElement element))
-				{ backgroundElements.Add(element); }
-				break;
-			case "SmokeGradient":
-				if (TryGetBgElementFromString(line, out CustomBgElement element2))
-				{ backgroundElements.Add(element2); }
-				break;
-			}
+		public override bool ElementAllowedInScene(CustomBgElement element)
+		{
+			return base.ElementAllowedInScene(element) || element is AUV_Building or RTV_Smoke or AUV_SmokeGradient;
 		}
 	}
 
@@ -1475,20 +1493,9 @@ internal static class Data
 			if (Scene == null) return;
 		}
 
-		public override void LineToData(string line)
+		public override bool ElementAllowedInScene(CustomBgElement element)
 		{
-			base.LineToData(line);
-
-			string[] array = Regex.Split(line, ": ");
-			if (array.Length < 2) return;
-
-			switch (array[0])
-			{
-			case "PebbsGrid":
-				if (TryGetBgElementFromString(line, out CustomBgElement element2))
-				{ backgroundElements.Add(element2); }
-				break;
-			}
+			return base.ElementAllowedInScene(element) || element is RWS_PebbsGrid;
 		}
 	}
 	public static bool TryGetPathFromName(string name, out string path)

@@ -25,6 +25,7 @@ internal static class BackgroundElementData
 		{
 			element = array[0] switch
 			{
+				"GROUP" => new BG_ElementGroup(args[0], args.Length > 3 ? new Vector2(float.Parse(args[1]), float.Parse(args[2])) : Vector2.zero, args.Length > 4 ? float.Parse(args[3]) : 0),
 				"DistantBuilding" => new ACV_DistantBuilding(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4])),
 				"DistantLightning" => new ACV_DistantLightning(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3]), float.Parse(args[4])),
 				"SimpleElement" => new BG_SimpleElement(args[0], new Vector2(float.Parse(args[1]), float.Parse(args[2])), float.Parse(args[3])),
@@ -97,6 +98,8 @@ internal static class BackgroundElementData
 		public BackgroundScene.BackgroundSceneElement? element = null;
 
 		public List<string> unrecognizedTags;
+
+		public BG_ElementGroup? group = null;
 
 		protected CustomBgElement(Vector2 pos, float depth)
 		{
@@ -231,6 +234,76 @@ internal static class BackgroundElementData
 			}
 		}
 	}
+
+	public class BG_ElementGroup : CustomBgElement
+	{
+		public List<CustomBgElement> elements = new();
+		public string name;
+
+		public void AddElement(CustomBgElement element)
+		{
+			this.elements.Add(element);
+			element.group = this;
+		}
+
+		public BG_ElementGroup(string name, Vector2 pos, float depth) : base(pos, depth)
+		{
+			this.name = name;
+		}
+
+		public override BackgroundScene.BackgroundSceneElement MakeSceneElement(BackgroundScene self)
+		{
+			throw new NotImplementedException("for groups, use MakeSceneElements() instead!");
+		}
+
+		public List<BackgroundScene.BackgroundSceneElement> MakeSceneElements(BackgroundScene self)
+		{
+			List<BackgroundScene.BackgroundSceneElement> sceneElements = new();
+
+			foreach (var s in elements)
+			{
+				if (s is BG_ElementGroup group)
+				{
+					sceneElements.AddRange(group.MakeSceneElements(self));
+				}
+				else
+				{
+					sceneElements.Add(s.MakeSceneElement(self));
+				}
+			}
+
+			return sceneElements;
+		}
+
+		public override string Serialize()
+		{
+			string groupString = "GROUP: " + name;
+			if (pos != Vector2.zero || depth != 0)
+			{
+				groupString += $", {pos.x}, {pos.y}";
+
+				if(depth != 0)
+					groupString += $", {depth}";
+			}
+
+			return groupString + "\n" + string.Join("\n", GROUP_EMBED_STRING + elements.Select(e => e.Serialize()));
+		}
+
+		public override void UpdateSceneElement()
+		{
+			foreach (var element in elements)
+				element.UpdateSceneElement();
+		}
+
+		public const string GROUP_EMBED_STRING = "- ";
+
+		public string RecursiveEmbedString()
+		{
+			string parentGroupString = group?.RecursiveEmbedString() ?? "";
+			return parentGroupString + GROUP_EMBED_STRING;
+		}
+	}
+
 
 	public class BG_SimpleElement : CustomBgElement
 	{

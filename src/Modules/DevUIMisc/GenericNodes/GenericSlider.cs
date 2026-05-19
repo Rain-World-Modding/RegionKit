@@ -19,6 +19,8 @@ public class GenericSlider : Slider, IDevUISignals
 	bool stringControl;
 
 	float stringWidth;
+
+	public float Width => 92f + SliderStartCoord;
 	public GenericSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title, bool inheritButton, float titleWidth, float? initialValue = null, bool stringControl = true, float stringWidth = 16) : base(owner, IDstring, parentNode, pos, title, inheritButton, titleWidth)
 	{
 		actualValue = (float)((initialValue != null) ? initialValue : defaultValue);

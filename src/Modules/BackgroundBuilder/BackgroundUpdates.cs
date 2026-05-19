@@ -15,7 +15,7 @@ internal static class BackgroundUpdates
 {
 	public static void Apply()
 	{
-		//On.BackgroundScene.Update += BackgroundScene_Update;
+		On.BackgroundScene.Update += BackgroundScene_Update;
 		On.BackgroundScene.BackgroundSceneElement.DrawSprites += BackgroundSceneElement_DrawSprites;
 		On.BackgroundScene.BackgroundSceneElement.InitiateSprites += BackgroundSceneElement_InitiateSprites;
 		On.BackgroundScene.BackgroundSceneElement.AddToContainer += BackgroundSceneElement_AddToContainer;
@@ -31,7 +31,7 @@ internal static class BackgroundUpdates
 
 	public static void Undo()
 	{
-		//On.BackgroundScene.Update += BackgroundScene_Update;
+		On.BackgroundScene.Update += BackgroundScene_Update;
 		On.BackgroundScene.BackgroundSceneElement.DrawSprites -= BackgroundSceneElement_DrawSprites;
 		On.BackgroundScene.BackgroundSceneElement.InitiateSprites -= BackgroundSceneElement_InitiateSprites;
 		On.BackgroundScene.BackgroundSceneElement.AddToContainer -= BackgroundSceneElement_AddToContainer;
@@ -121,27 +121,66 @@ internal static class BackgroundUpdates
 
 		if (self.CData().DepthUpdate)
 		{
-			LogMessage("updating depth");
 			self.CData().DepthUpdate = false;
-			FNode? otherNode = null;
-			bool otherNodeFound = false;
+			FNode? justBehindNode = null;
+			FNode? frontmostNode = null;
+			float frontmostDepth = float.MaxValue;
+			float backDepth = float.MinValue;
 			foreach (RoomCamera.SpriteLeaser i in rCam.spriteLeasers)
 			{
-				if (i.drawableObject is BackgroundScene.BackgroundSceneElement element)
+				if (i.drawableObject is BackgroundScene.BackgroundSceneElement element && element != self && !element.CData().ReInitiateSprites && !element.CData().DepthUpdate)
 				{
-					if (element.depth < self.depth)
+					if (element.depth < self.depth && element.depth > backDepth)
 					{
-						otherNode = i.sprites[^1];
-						otherNodeFound = true;
-						break;
+						justBehindNode = i.sprites[^1];
+						backDepth = element.depth;
 					}
+
+					if (element.depth < frontmostDepth)
+					{
+					frontmostNode = i.sprites[^1];
+						frontmostDepth = element.depth;
+					}
+
+					if (self.room.roomSettings.BackgroundData().sceneData is Data.DayNightSceneData dayNight)
+					{
+						if (self == dayNight.SceneDaySky && i.drawableObject == dayNight.SceneDuskSky)
+						{
+							justBehindNode = null;
+							frontmostNode = i.sprites[^1];
+							break;
+						}
+						if (self == dayNight.SceneDuskSky && i.drawableObject == dayNight.SceneDaySky)
+						{
+							justBehindNode = i.sprites[^1];
+							frontmostNode = null;
+							break;
+						}
+						if (self == dayNight.SceneNightSky && i.drawableObject == dayNight.SceneDuskSky)
+						{
+							justBehindNode = i.sprites[^1];
+							frontmostNode = null;
+							break;
+						}
+					}
+
 				}
 			}
 
-			if (otherNodeFound && otherNode != null)
+			if (justBehindNode != null)
 			{
 				foreach (FSprite sprite in sLeaser.sprites)
-				{ sprite.MoveInFrontOfOtherNode(otherNode); }
+				{
+					sprite.MoveBehindOtherNode(justBehindNode);
+				}
+			}
+			else if (frontmostNode != null)
+			{
+
+				foreach (FSprite sprite in sLeaser.sprites)
+				{
+					sprite.MoveInFrontOfOtherNode(frontmostNode);
+				}
 			}
 		}
 
@@ -175,129 +214,7 @@ internal static class BackgroundUpdates
 				element.CData().DepthUpdate = true;
 			}
 		}
-
-
-		bool controlPressed = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-
-		if (!Input.GetMouseButton(0) && ActiveDrag)
-		{ ActiveDrag = false; }
-
-		if (ActiveDrag && editObject != null)
-		{
-			if (controlPressed)
-			{
-				CData(editObject).DepthUpdate = true;
-				editObject.depth += Futile.mousePosition.y - OldMousePos.y;
-				if (editObject is AboveCloudsView.DistantBuilding dbuilding)
-				{
-
-					dbuilding.atmosphericalDepthAdd += Futile.mousePosition.x - OldMousePos.x;
-				}
-
-				else if (editObject is RoofTopView.DistantBuilding rfdbuilding)
-				{
-					rfdbuilding.atmosphericalDepthAdd += Futile.mousePosition.x - OldMousePos.x;
-				}
-
-				else if (editObject is Building building)
-				{
-				}
-
-			}
-			else
-			{
-				var vector = new Vector2(Futile.mousePosition.x, Futile.mousePosition.y);
-				Vector2 movement = self.PosFromDrawPosAtNeutralCamPos(vector, editObject.depth) - self.PosFromDrawPosAtNeutralCamPos(OldMousePos, editObject.depth);
-				editObject.pos += movement;
-				OldMousePos = vector;
-			}
-
-			OldMousePos = Futile.mousePosition;
-		}
-
-		if (Input.GetMouseButton(0) && !ActiveDrag)
-		{
-			OldMousePos = new Vector2(Futile.mousePosition.x, Futile.mousePosition.y);
-			editObject = null;
-			foreach (BackgroundScene.BackgroundSceneElement element in self.elements)
-			{
-				if (ElementClicked(element, self.room.game.cameras[0]))
-				{
-					editObject = element;
-					ActiveDrag = true;
-					break;
-				}
-			}
-		}
-
 	}
-
-	public static bool ElementClicked(BackgroundScene.BackgroundSceneElement element, RoomCamera cam)
-	{
-		if (!ElementIsDraggable(element)) return false;
-
-		FSprite? sprite = GetSpriteOfElement(element);
-		if (sprite == null || (sprite._atlas.texture is not Texture2D tex)) return false;
-
-		Vector2 offset = new();
-		if (element.scene is AboveCloudsView acv)
-		{ offset = new Vector2(0, acv.yShift); }
-
-		Vector2 mouseOnSpritePos = MouseOnElementPos(element, cam, tex.width, offset);
-
-		if (mouseOnSpritePos.x < 0 || mouseOnSpritePos.x > tex.width || mouseOnSpritePos.y < 0 || mouseOnSpritePos.y > tex.height) return false;
-		if (tex.GetPixel((int)mouseOnSpritePos.x, (int)mouseOnSpritePos.y).a <= 0.5f) return false;
-
-		return true;
-	}
-
-	public static Vector2 MouseOnElementPos(BackgroundScene.BackgroundSceneElement element, RoomCamera cam, float texWidth, Vector2 shift = new())
-	{
-		var mousePos = new Vector2(Futile.mousePosition.x, Futile.mousePosition.y);
-		Vector2 drawPos = element.DrawPos(cam.pos + shift, cam.hDisplace);
-		return mousePos - drawPos + new Vector2(texWidth / 2, 0);
-	}
-
-	public static FSprite? GetSpriteOfElement(BackgroundScene.BackgroundSceneElement element)
-	{
-		if (element is AboveCloudsView.DistantBuilding dbuilding)
-		{ return new FSprite(dbuilding.assetName, true); }
-
-		else if (element is RoofTopView.DistantBuilding rfdbuilding)
-		{ return new FSprite(rfdbuilding.assetName, true); }
-
-		else if (element is Floor floor)
-		{ return new FSprite(floor.assetName, true); }
-
-		else if (element is Rubble rubble)
-		{ return new FSprite(rubble.assetName, true); }
-
-		else if (element is Building Building)
-		{ return new FSprite(Building.assetName, true); }
-
-		else if (element is CloseCloud cloud)
-		{ return new FSprite("clouds" + (cloud.index % 3 + 1).ToString(), true); }
-
-		else if (element is DistantCloud dcloud)
-		{ return new FSprite("clouds" + (dcloud.index % 3 + 1).ToString(), true); }
-
-		else if (element is FlyingCloud)
-		{ return new FSprite("flyingClouds1", true); }
-
-		else return null;
-	}
-
-	public static bool ElementIsDraggable(BackgroundScene.BackgroundSceneElement element)
-	{
-		return (element is AboveCloudsView.DistantBuilding or RoofTopView.DistantBuilding or DistantLightning or Building or Rubble or Floor);
-	}
-
-	static Vector2 OldMousePos;
-
-	static BackgroundScene.BackgroundSceneElement? editObject = null;
-
-	static bool ActiveDrag;
-
 
 	private static readonly ConditionalWeakTable<BackgroundScene.BackgroundSceneElement, InstanceData> table = new();
 

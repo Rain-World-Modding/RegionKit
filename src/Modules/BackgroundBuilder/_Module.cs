@@ -1,18 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RegionKit.Modules.Effects;
-using static RegionKit.Modules.DevUIMisc.SettingsSaveOptions;
-using DevInterface;
-using System.Diagnostics;
-using RegionKit.Modules.BackgroundBuilder;
-using MonoMod.RuntimeDetour;
-using static AboveCloudsView;
-using static RoofTopView;
-
-namespace RegionKit.Modules.BackgroundBuilder;
+﻿namespace RegionKit.Modules.BackgroundBuilder;
 
 
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "BackgroundBuilder")]
@@ -26,6 +12,8 @@ public static class _Module
 		BuilderPageHooks.Apply();
 		ExceptionFixes.Apply();
 		BackgroundUpdates.Apply();
+		Registry.InitSceneMakerRegistry();
+		Registry.InitElementFactoryRegistry();
 	}
 	internal static void Disable()
 	{

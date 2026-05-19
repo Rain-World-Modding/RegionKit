@@ -8,6 +8,7 @@ using static RegionKit.Modules.BackgroundBuilder.CustomBackgroundElements;
 using System.Reflection;
 using System;
 using Watcher;
+using DevInterface;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
@@ -286,7 +287,7 @@ internal static class Data
 						break;
 
 					case "Type":
-						SetBGTypeAndData((BackgroundTemplateType)ExtEnumBase.Parse(typeof(BackgroundTemplateType), array[1], false));
+						type = new BackgroundTemplateType(array[1], false);
 						break;
 
 					case "Parent":
@@ -311,11 +312,20 @@ internal static class Data
 				parent.LoadSceneData(scene);
 				InheritFromParent();
 			}
-			if (!TryGetPathFromName(backgroundName, out string path) || !File.Exists(path)) return;
+
+			if (parent == null || parent.type != type)
+			{
+				if (Registry.SceneDataMakerRegistry.TryGetValue(type, out var a))
+					sceneData = a.Invoke();
+
+				else { sceneData = new BGSceneData(); }
+			}
+
+			if (!TryGetPathFromName(backgroundName, out string path) || !File.Exists(path))
+				return;
 
 			string[] lines = ProcessTimelineConditions(File.ReadAllLines(path), timeline);
-			if (sceneData is AboveCloudsView_SceneData acvd && scene is AboveCloudsView acv) { acvd.Scene = acv; }
-			if (sceneData is RoofTopView_SceneData rtvd && scene is RoofTopView rtv) { rtvd.Scene = rtv; }
+			sceneData._Scene = scene;
 			sceneData.LoadData(lines);
 		}
 
@@ -345,23 +355,13 @@ internal static class Data
 			sceneData = parent.sceneData;
 		}
 
-		public void SetBGTypeAndData(BackgroundTemplateType type)
+
+		public void SetBGTypeAndData()
 		{
-			if (parent?.type == type) return;
+			if (parent != null && parent.type == type) return;
 
-			this.type = type;
-
-			if (type == BackgroundTemplateType.AboveCloudsView)
-			{ sceneData = new AboveCloudsView_SceneData(); }
-
-			else if (type == BackgroundTemplateType.RoofTopView)
-			{ sceneData = new RoofTopView_SceneData(); }
-
-			else if (type == BackgroundTemplateType.AncientUrbanView)
-			{ sceneData = new AncientUrbanView_SceneData(); }
-
-			else if (type == BackgroundTemplateType.RotWormScene)
-			{ sceneData = new RotWormScene_SceneData(); }
+			if (Registry.SceneDataMakerRegistry.TryGetValue(type, out var a))
+				sceneData = a.Invoke();
 
 			else { sceneData = new BGSceneData(); }
 
@@ -448,7 +448,6 @@ internal static class Data
 							foreach (var e in group.MakeSceneElements(self))
 							{
 								e.CData().dataElement = element;
-								element.element = e;
 								self.AddElement(e);
 							}
 						}
@@ -456,7 +455,7 @@ internal static class Data
 						{
 							var e = element.MakeSceneElement(self);
 							e.CData().dataElement = element;
-							element.element = e;
+							element.sceneElement = e;
 							self.AddElement(e);
 						}
 					}
@@ -470,9 +469,54 @@ internal static class Data
 			{
 				foreach (BackgroundScene.BackgroundSceneElement element in self.elements)
 				{
-					if (element.HasInstanceData())
-					{ backgroundElements.Add(element.DataFromElement()); backgroundElements[^1].element = element; }
+					if (element.HasInstanceData() && element.TryMakeDataFromElement(this, out CustomBgElement dataElement))
+					{ backgroundElements.Add(dataElement); backgroundElements[^1].sceneElement = element; }
 				}
+			}
+		}
+
+		public void AddNewBackgroundElement(CustomBgElement element, BG_ElementGroup? group)
+		{
+			if (group != null)
+				group.AddElement(element);
+			else
+				backgroundElements.Add(element);
+
+			if (sceneInitialized && _Scene != null && element is not BG_ElementGroup)
+			{
+
+				var e = element.MakeSceneElement(_Scene);
+				e.CData().dataElement = element;
+				element.sceneElement = e;
+				_Scene.AddElement(e);
+				e.CData().needsAddToRoom = true;
+			}
+		}
+
+		public void RemoveBackgroundElement(CustomBgElement element)
+		{
+			element.deleted = true;
+			if (element is BG_ElementGroup group)
+			{
+				for (int i = group.elements.Count - 1; i >= 0; i--)
+				{
+					RemoveBackgroundElement(group.elements[i]);
+				}
+			}
+
+			if (element.sceneElement != null)
+			{
+				element.sceneElement.RemoveFromRoom();
+				_Scene?.elements.Remove(element.sceneElement);
+			}
+
+			if (element.group != null)
+			{
+				element.group.elements.Remove(element);
+			}
+			else
+			{
+				this.backgroundElements.Remove(element);
 			}
 		}
 
@@ -489,9 +533,12 @@ internal static class Data
 		public virtual void LineToData(string line)
 		{
 			var scopedElements = GetScopedElements(currentParsingGroup);
-			if (TryGetBgElementFromString(line, out CustomBgElement element))
+			if (TryGetBgElementFromString(line, this, out CustomBgElement element))
 			{
-				scopedElements.Add(element);
+				if (currentParsingGroup != null)
+					currentParsingGroup.AddElement(element);
+				else
+					scopedElements.Add(element);
 
 				if (element is BG_ElementGroup group)
 				{
@@ -518,9 +565,14 @@ internal static class Data
 			}
 		}
 
-		public virtual bool ElementAllowedInScene(CustomBgElement element)
+		public virtual string PrependAlias(string line)
 		{
-			return element is RWS_RotWorm or BG_SimpleElement or BG_Illustration or BG_ElementGroup;
+			return "";
+		}
+
+		public virtual bool ElementAllowedInScene(Type element)
+		{
+			return element == typeof(RWS_RotWorm) || element == typeof(BG_SimpleElement) || element == typeof(BG_Illustration) || element == typeof(BG_ElementGroup);
 		}
 
 		public List<CustomBgElement> GetScopedElements(BG_ElementGroup? group)
@@ -540,6 +592,11 @@ internal static class Data
 
 		//should only be used for parsing, probably?
 		internal BG_ElementGroup? currentParsingGroup = null;
+
+		public virtual DevInterface.DevUINode? MakeDevUI(DevUI owner, DevUINode parent)
+		{
+			return null;
+		}
 	}
 
 	public class DayNightSceneData : BGSceneData
@@ -551,9 +608,7 @@ internal static class Data
 		{
 			get
 			{
-				return _atmosphereColor ?? 
-					((_Scene is AboveCloudsView acv) ? acv.atmosphereColor : 
-					(_Scene is RoofTopView rtv) ? rtv.atmosphereColor : _defaultAtmosphereColor);
+				return _atmosphereColor ?? _defaultAtmosphereColor;
 			}
 
 			set
@@ -631,10 +686,7 @@ internal static class Data
 		{
 			get
 			{
-				return _daySky ?? 
-					((_Scene is AboveCloudsView acv) ? acv.daySky.illustrationName : 
-					(_Scene is RoofTopView rtv) ? rtv.daySky.illustrationName : 
-					(_Scene is AncientUrbanView auv && (auv.elements.First(x => x is AncientUrbanView.Sky) is AncientUrbanView.Sky sky)) ? sky.illustrationName : "AtC_Sky");
+				return _daySky ?? SceneDaySky?.illustrationName ?? "AtC_Sky";
 			}
 
 			set
@@ -643,9 +695,11 @@ internal static class Data
 				if (DoesTextureExist(value) && _Scene != null)
 				{
 					_Scene.LoadGraphic(value, true, true);
-					if (_Scene is AboveCloudsView acv) acv.daySky.illustrationName = value;
-					if (_Scene is RoofTopView rtv) rtv.daySky.illustrationName = value;
-					if (_Scene is AncientUrbanView auv && (auv.elements.First(x => x is AncientUrbanView.Sky) is AncientUrbanView.Sky sky)) sky.illustrationName = value;
+					if (SceneDaySky != null)
+					{
+						SceneDaySky.illustrationName = value;
+						SceneDaySky.CData().ReInitiateSprites = true;
+					}
 				}
 			}
 		}
@@ -655,9 +709,7 @@ internal static class Data
 		{
 			get
 			{
-				return _duskSky ??
-					((_Scene is AboveCloudsView acv) ? acv.duskSky.illustrationName :
-					(_Scene is RoofTopView rtv) ? rtv.duskSky.illustrationName : "AtC_Sky");
+				return _duskSky ?? SceneDuskSky?.illustrationName ?? "AtC_Sky";
 			}
 
 			set
@@ -666,8 +718,11 @@ internal static class Data
 				if (DoesTextureExist(value) && _Scene != null)
 				{
 					_Scene.LoadGraphic(value, true, true);
-					if (_Scene is AboveCloudsView acv) acv.duskSky.illustrationName = value;
-					if (_Scene is RoofTopView rtv) rtv.duskSky.illustrationName = value;
+					if (SceneDuskSky != null)
+					{
+						SceneDuskSky.illustrationName = value;
+						SceneDuskSky.CData().ReInitiateSprites = true;
+					}
 				}
 			}
 		}
@@ -677,21 +732,34 @@ internal static class Data
 		{
 			get
 			{
-				return _nightSky ??
-					((_Scene is AboveCloudsView acv) ? acv.nightSky.illustrationName :
-					(_Scene is RoofTopView rtv) ? rtv.nightSky.illustrationName : "AtC_Sky");
+				return _nightSky ?? SceneNightSky?.illustrationName ?? "AtC_Sky";
 			}
 
 			set
 			{
-				_daySky = value;
+				_nightSky = value;
 				if (DoesTextureExist(value) && _Scene != null)
 				{
 					_Scene.LoadGraphic(value, true, true);
-					if (_Scene is AboveCloudsView acv) acv.nightSky.illustrationName = value;
-					if (_Scene is RoofTopView rtv) rtv.nightSky.illustrationName = value;
+					if (SceneNightSky != null)
+					{
+						SceneNightSky.illustrationName = value;
+						SceneNightSky.CData().ReInitiateSprites = true;
+					}
 				}
 			}
+		}
+
+		public virtual BackgroundScene.Simple2DBackgroundIllustration? SceneDaySky => null;
+
+		public virtual BackgroundScene.Simple2DBackgroundIllustration? SceneDuskSky => null;
+
+		public virtual BackgroundScene.Simple2DBackgroundIllustration? SceneNightSky => null;
+
+		public virtual Color? SceneAtmosphereColor
+		{
+			get => null;
+			set { }
 		}
 
 		public override void MakeScene(BackgroundScene self)
@@ -759,10 +827,7 @@ internal static class Data
 			}
 			if (atmoColor is Color color)
 			{
-
-				if (_Scene is AboveCloudsView acv) acv.atmosphereColor = color;
-				if (_Scene is RoofTopView rtv) rtv.atmosphereColor = color;
-
+				SceneAtmosphereColor = color;
 				Shader.SetGlobalVector(RainWorld.ShadPropAboveCloudsAtmosphereColor, color);
 			}
 
@@ -772,7 +837,7 @@ internal static class Data
 			}
 		}
 
-		private bool NeedColorUpdate = false;
+		public bool NeedColorUpdate = false;
 
 		#region backingfields
 		private string? _daySky;
@@ -791,6 +856,20 @@ internal static class Data
 
 	public class AboveCloudsView_SceneData : DayNightSceneData
 	{
+		public override BackgroundScene.Simple2DBackgroundIllustration? SceneDaySky => Scene?.daySky ?? base.SceneDaySky;
+		public override BackgroundScene.Simple2DBackgroundIllustration? SceneDuskSky => Scene?.duskSky ?? base.SceneDuskSky;
+		public override BackgroundScene.Simple2DBackgroundIllustration? SceneNightSky => Scene?.nightSky ?? base.SceneNightSky;
+
+		public override Color? SceneAtmosphereColor
+		{
+			get => Scene?.atmosphereColor ?? base.atmosphereColor;
+			set
+			{
+				if(Scene != null && value is Color color)
+					Scene.atmosphereColor = color;
+			}
+		}
+
 		[BackgroundData]
 		public float startAltitude 
 		{ 
@@ -1011,7 +1090,7 @@ internal static class Data
 
 		public void RedoClouds(AboveCloudsView scene)
 		{
-			scene.elements.RemoveAll(x => { if (x is Cloud) { x.Destroy(); return true; } return false; });
+			scene.elements.RemoveAll(x => { if (x is Cloud && x is not FlyingCloud) { x.Destroy(); return true; } return false; });
 			scene.clouds = new();
 
 			for (int i = 0; i < cloudsCount; i++)
@@ -1065,14 +1144,36 @@ internal static class Data
 			}
 		}
 
-		public override bool ElementAllowedInScene(CustomBgElement element)
+		public override bool ElementAllowedInScene(Type element)
 		{
-			return base.ElementAllowedInScene(element) || element is ACV_DistantBuilding or ACV_DistantLightning or ACV_FlyingCloud or ACV_HorizonFog;
+			return base.ElementAllowedInScene(element)
+				|| element == typeof(ACV_DistantBuilding) || element == typeof(ACV_DistantLightning)
+				|| element == typeof(ACV_FlyingCloud) || element == typeof(ACV_HorizonFog);
+		}
+
+		public override DevUINode? MakeDevUI(DevUI owner, DevUINode parent)
+		{
+			//return new DayNightScenePanel(owner, "atcUI", parent, new Vector2(120f, 540f - (AboveCloudsUINode.sliderRows * 20 + 10)));
+			return new AboveCloudsUINode(owner, "atcUI", parent, new Vector2(120f, 540f - (AboveCloudsUINode.shortRows * 20 + 10)));
 		}
 	}
 
 	public class RoofTopView_SceneData : DayNightSceneData
 	{
+		public override Color? SceneAtmosphereColor
+		{
+			get => Scene?.atmosphereColor ?? base.atmosphereColor;
+			set
+			{
+				if (Scene != null && value is Color color)
+					Scene.atmosphereColor = color;
+			}
+		}
+		public override BackgroundScene.Simple2DBackgroundIllustration? SceneDaySky => Scene?.daySky ?? base.SceneDaySky;
+		public override BackgroundScene.Simple2DBackgroundIllustration? SceneDuskSky => Scene?.duskSky ?? base.SceneDuskSky;
+		public override BackgroundScene.Simple2DBackgroundIllustration? SceneNightSky => Scene?.nightSky ?? base.SceneNightSky;
+
+
 		[BackgroundData]
 		public float floorLevel
 		{
@@ -1095,10 +1196,17 @@ internal static class Data
 			set
 			{
 				_origin = value;
-				if (Scene is RoofTopView rtv && value is Vector2 v)
+				if (Scene is RoofTopView rtv)
 				{
-					rtv.sceneOrigo = v;
-					Shader.SetGlobalVector(RainWorld.ShadPropSceneOrigoPosition, v);
+					if (value is Vector2 v)
+					{
+						rtv.sceneOrigo = v;
+					}
+					else
+					{
+						rtv.sceneOrigo = Scene.RoomToWorldPos(Scene.room.abstractRoom.size.ToVector2() * 10f);
+					}
+					Shader.SetGlobalVector(RainWorld.ShadPropSceneOrigoPosition, rtv.sceneOrigo);
 				}
 			}
 		}
@@ -1219,14 +1327,39 @@ internal static class Data
 			base.LineToData(prepend + line);
 		}
 
-		public override bool ElementAllowedInScene(CustomBgElement element)
+		public override string PrependAlias(string line)
 		{
-			return base.ElementAllowedInScene(element) || element is RTV_DistantBuilding or RTV_Floor or RTV_Building or RTV_DistantGhost or RTV_DustWave or RTV_Smoke;
+			if (line.StartsWith("DistantBuilding"))
+				return "RF_";
+			return base.PrependAlias(line);
+		}
+
+		public override bool ElementAllowedInScene(Type element)
+		{
+			return base.ElementAllowedInScene(element)
+				|| element == typeof(RTV_DistantBuilding) || element == typeof(RTV_Floor) || element == typeof(RTV_Building)
+				|| element == typeof(RTV_DistantGhost) || element == typeof(RTV_DustWave) || element == typeof(RTV_Smoke);
+		}
+
+		public override DevUINode? MakeDevUI(DevUI owner, DevUINode parent)
+		{
+			//return new DayNightScenePanel(owner, "atcUI", parent, new Vector2(120f, 540f - (AboveCloudsUINode.sliderRows * 20 + 10)));
+			return new RoofTopUINode(owner, "rtvUI", parent, new Vector2(120f, 540f - (RoofTopUINode.shortRows * 20 + 10)));
 		}
 	}
 
 	public class AncientUrbanView_SceneData : DayNightSceneData
 	{
+		public override BackgroundScene.Simple2DBackgroundIllustration? SceneDaySky
+		{
+			get
+			{
+				if (Scene != null && Scene.elements.First(x => x is AncientUrbanView.Sky) is AncientUrbanView.Sky sky)
+					return sky;
+				else
+					return base.SceneDaySky;
+			}
+		}
 		[BackgroundData]
 		public float floorLevel
 		{
@@ -1302,14 +1435,23 @@ internal static class Data
 		public override void LineToData(string line)
 		{
 			string prepend = "";
-			if (line.StartsWith("Building") || line.StartsWith("Smoke"))
+			if (line.StartsWith("Building: ") || line.StartsWith("Smoke: "))
 				prepend = "AU_";
 			base.LineToData(prepend + line);
 		}
 
-		public override bool ElementAllowedInScene(CustomBgElement element)
+
+
+		public override string PrependAlias(string line)
 		{
-			return base.ElementAllowedInScene(element) || element is AUV_Building or RTV_Smoke or AUV_SmokeGradient;
+			if (line.StartsWith("Building") || (line.StartsWith("Smoke") && !line.StartsWith("SmokeGradient")))
+				return "AU_";
+			return base.PrependAlias(line);
+		}
+
+		public override bool ElementAllowedInScene(Type element)
+		{
+			return base.ElementAllowedInScene(element) || element == typeof(AUV_Building) || element == typeof(RTV_Smoke) || element == typeof(AUV_SmokeGradient);
 		}
 	}
 
@@ -1493,9 +1635,9 @@ internal static class Data
 			if (Scene == null) return;
 		}
 
-		public override bool ElementAllowedInScene(CustomBgElement element)
+		public override bool ElementAllowedInScene(Type element)
 		{
-			return base.ElementAllowedInScene(element) || element is RWS_PebbsGrid;
+			return base.ElementAllowedInScene(element) || element == typeof(RWS_PebbsGrid);
 		}
 	}
 	public static bool TryGetPathFromName(string name, out string path)
@@ -1533,7 +1675,7 @@ internal static class Data
 			return !data.theGrid.Contains(element);
 		}
 
-		return element is SimpleBackgroundElement or BackgroundScene.Simple2DBackgroundIllustration or
+		return element is CustomBackgroundElements.SimpleBackgroundElement or BackgroundScene.Simple2DBackgroundIllustration or
 			AboveCloudsView.DistantBuilding or DistantLightning or FlyingCloud or HorizonFog or Floor or
 			RoofTopView.DistantBuilding or Building or DistantGhost or DustWave or RoofTopView.Smoke or
 			AncientUrbanView.Building or AncientUrbanView.Smoke or AncientUrbanView.SmokeGradient or RotWorm;

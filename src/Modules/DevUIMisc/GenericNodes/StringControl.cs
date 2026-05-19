@@ -108,6 +108,10 @@ public class StringControl : DevUILabel
 	{
 		return float.TryParse(value, out _);
 	}
+	public static bool TextIsPositiveFloat(string value)
+	{
+		return float.TryParse(value, out var f) && f >= 0;
+	}
 
 	public static bool TextIsInt(string value)
 	{

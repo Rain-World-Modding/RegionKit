@@ -8,44 +8,20 @@ public class ExtEnumCycler<T> : Button, Modules.Iggy.IGiveAToolTip where T : Ext
 	public T Type;
 	public string? toolTipTextOverride;
 
-	public ExtEnumCycler(
-		DevUI owner,
-		string IDstring,
-		DevUINode parentNode,
-		Vector2 pos,
-		float width,
-		T defaultValue,
-		string title = "Title",
-		bool label = true) : base(
-			owner,
-			IDstring,
-			parentNode,
-			pos,
-			width,
-			"")
+	public ExtEnumCycler(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width, T defaultValue, string? title = null, float titleWidth = 40f)
+		: base(owner, IDstring, parentNode, pos, width, "")
 	{
 		Type = defaultValue;
-		if (label)
-		{ subNodes.Add(new DevUILabel(owner, title + "_label", this, new Vector2(-50f, 0f), 40f, title)); }
+		if (title != null)
+		{ subNodes.Add(new DevUILabel(owner, title + "_label", this, new Vector2(-(titleWidth + 10f), 0f), titleWidth, title)); }
 	}
 
-	public ExtEnumCycler(
-		PositionedDevUINode inheritNode,
-		float width,
-		T defaultValue,
-		string title = "Title",
-		bool label = true)
-		: base(
-			inheritNode.owner,
-			inheritNode.IDstring,
-			inheritNode.parentNode,
-			inheritNode.pos,
-			width,
-			"")
+	public ExtEnumCycler(PositionedDevUINode inheritNode, float width, T defaultValue, string? title = null, float titleWidth = 40f)
+		: base(inheritNode.owner, inheritNode.IDstring, inheritNode.parentNode, inheritNode.pos, width, "")
 	{
 		Type = defaultValue;
-		if (label)
-		{ subNodes.Add(new DevUILabel(owner, title + "_label", this, new Vector2(-50f, 0f), 40f, title)); }
+		if (title != null)
+		{ subNodes.Add(new DevUILabel(owner, title + "_label", this, new Vector2(-(titleWidth + 10f), 0f), titleWidth, title)); }
 	}
 
 	public override void Refresh()

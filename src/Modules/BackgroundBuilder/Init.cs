@@ -47,8 +47,8 @@ internal static class Init
 		orig(self, room);
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
-		if (data.type != BackgroundTemplateType.RotWormScene || data.sceneData is not Data.RotWormScene_SceneData)
-		{ data.backgroundName = ""; data.SetBGTypeAndData(BackgroundTemplateType.RotWormScene); }
+		if (data.type != BackgroundTemplateType.RotWormScene)
+		{ data.backgroundName = ""; data.type = BackgroundTemplateType.RotWormScene; }
 		data.LoadSceneData(self);
 		data.sceneData.MakeScene(self);
 	}
@@ -58,10 +58,11 @@ internal static class Init
 		orig(self, eu);
 
 		RainCycle rainCycle = self.room.world.rainCycle;
-		if ((self.room.game.cameras[0].effect_dayNight > 0f && rainCycle.timer >= rainCycle.cycleLength)
-			|| (ModManager.Expedition && self.room.game.rainWorld.ExpeditionMode))
+
+		if (self.room.roomSettings.BackgroundData().sceneData is Data.DayNightSceneData dayNightScene)
 		{
-			if (self.room.roomSettings.BackgroundData().sceneData is Data.DayNightSceneData dayNightScene)
+			if (dayNightScene.NeedColorUpdate || (self.room.game.cameras[0].effect_dayNight > 0f && rainCycle.timer >= rainCycle.cycleLength)
+			|| (ModManager.Expedition && self.room.game.rainWorld.ExpeditionMode))
 			{
 				dayNightScene.ColorUpdate();
 			}
@@ -84,8 +85,8 @@ internal static class Init
 
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
-		if (data.type != BackgroundTemplateType.AncientUrbanView || data.sceneData is not Data.AncientUrbanView_SceneData)
-		{ data.backgroundName = ""; data.SetBGTypeAndData(BackgroundTemplateType.AncientUrbanView); }
+		if (data.type != BackgroundTemplateType.AncientUrbanView)
+		{ data.backgroundName = ""; data.type = BackgroundTemplateType.AncientUrbanView; }
 		data.LoadSceneData(self);
 		data.sceneData.MakeScene(self);
 	}
@@ -95,10 +96,10 @@ internal static class Init
 		orig(self, eu);
 
 		RainCycle rainCycle = self.room.world.rainCycle;
-		if ((self.room.game.cameras[0].effect_dayNight > 0f && rainCycle.timer >= rainCycle.cycleLength)
-			|| (ModManager.Expedition && self.room.game.rainWorld.ExpeditionMode))
+		if (self.room.roomSettings.BackgroundData().sceneData is Data.DayNightSceneData dayNightScene)
 		{
-			if (self.room.roomSettings.BackgroundData().sceneData is Data.DayNightSceneData dayNightScene)
+			if (dayNightScene.NeedColorUpdate || (self.room.game.cameras[0].effect_dayNight > 0f && rainCycle.timer >= rainCycle.cycleLength)
+			|| (ModManager.Expedition && self.room.game.rainWorld.ExpeditionMode))
 			{
 				dayNightScene.ColorUpdate();
 			}
@@ -110,10 +111,10 @@ internal static class Init
 		orig(self, eu);
 
 		RainCycle rainCycle = self.room.world.rainCycle;
-		if ((self.room.game.cameras[0].effect_dayNight > 0f && rainCycle.timer >= rainCycle.cycleLength)
-			|| (ModManager.Expedition && self.room.game.rainWorld.ExpeditionMode))
+		if (self.room.roomSettings.BackgroundData().sceneData is Data.DayNightSceneData dayNightScene)
 		{
-			if (self.room.roomSettings.BackgroundData().sceneData is Data.DayNightSceneData dayNightScene)
+			if (dayNightScene.NeedColorUpdate || (self.room.game.cameras[0].effect_dayNight > 0f && rainCycle.timer >= rainCycle.cycleLength)
+			|| (ModManager.Expedition && self.room.game.rainWorld.ExpeditionMode))
 			{
 				dayNightScene.ColorUpdate();
 			}
@@ -133,8 +134,8 @@ internal static class Init
 		Shader.SetGlobalFloat("_windDir", ModManager.MSC ? -1f : 1f);
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
-		if (data.type != BackgroundTemplateType.AboveCloudsView || data.sceneData is not Data.AboveCloudsView_SceneData)
-		{ data.backgroundName = ""; data.SetBGTypeAndData(BackgroundTemplateType.AboveCloudsView); }
+		if (data.type != BackgroundTemplateType.AboveCloudsView)
+		{ data.backgroundName = ""; data.type = BackgroundTemplateType.AboveCloudsView; }
 		data.LoadSceneData(self);
 		data.sceneData.MakeScene(self);
 	}
@@ -155,8 +156,8 @@ internal static class Init
 
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
-		if (data.type != BackgroundTemplateType.RoofTopView || data.sceneData is not Data.RoofTopView_SceneData)
-		{ data.backgroundName = ""; data.SetBGTypeAndData(BackgroundTemplateType.RoofTopView); }
+		if (data.type != BackgroundTemplateType.RoofTopView)
+		{ data.backgroundName = ""; data.type = BackgroundTemplateType.RoofTopView; }
 		data.LoadSceneData(self);
 		data.sceneData.MakeScene(self);
 	}

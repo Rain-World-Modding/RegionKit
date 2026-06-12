@@ -337,12 +337,16 @@ internal static class MoreFadePalettes
 		RoomSettings.RoomEffect roomEffect = self.room?.roomSettings.GetEffect(PaletteEffectColorA);
 		if (roomEffect != null)
 		{
-			FadeEffectColor(self, 4);
+			FadeEffectColor(self, 4); 
+			self.LoadPalette(self.room.roomSettings.Palette, ref self.fadeTexA);
+			self.LoadPalette(self.room.roomSettings.fadePalette.palette, ref self.fadeTexB);
 		}
 		roomEffect = self.room?.roomSettings.GetEffect(PaletteEffectColorB);
 		if (roomEffect != null)
 		{
 			FadeEffectColor(self, 2);
+			self.LoadPalette(self.room.roomSettings.Palette, ref self.fadeTexA);
+			self.LoadPalette(self.room.roomSettings.fadePalette.palette, ref self.fadeTexB);
 		}
 
 		orig(self, color1, color2);

@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing.Text;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RegionKit.Modules.Objects.AdvancedShaderController
 {
@@ -86,7 +80,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 			public string spriteName = "Futile_White";
 			public ContainerCodes container = ContainerCodes.Foreground;
 
-			public List<string> folderPath = ["illustrations", "icon0.png"];
+			public string filePath = "illustrations/icon0.png";
 			public bool useFile = false;
 
 			public AdvancedShaderRepresentation.ShapeLock shapeLock = AdvancedShaderRepresentation.ShapeLock.None; // this does not get saved
@@ -104,12 +98,10 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 				if (useFile)
 				{
 					// Get file to load
-					string filePath = string.Join("/", folderPath);
 					string fullFilePath = AssetManager.ResolveFilePath(filePath);
 					if (!File.Exists(fullFilePath))
 					{
 						// Doesn't exist, so load something that we do know exists
-						folderPath = ["illustrations", "icon0.png"];
 						filePath = "illustrations/icon0.png";
 						fullFilePath = AssetManager.ResolveFilePath(filePath);
 					}
@@ -160,7 +152,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 					spriteName,
 					container,
 					useFile,
-					string.Join("/", folderPath),
+					filePath,
 					restrictUVs,
 					restrictColors,
 					lockColors,
@@ -188,7 +180,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 				if (split.Length > 3) spriteName = split[3];
 				if (split.Length > 4) _ = Enum.TryParse(split[4], out container);
 				if (split.Length > 5) _ = bool.TryParse(split[5], out useFile);
-				if (split.Length > 6) folderPath = [.. split[6].Split('/')];
+				if (split.Length > 6) filePath = split[6];
 				if (split.Length > 7) _ = bool.TryParse(split[7], out restrictUVs);
 				if (split.Length > 8) _ = bool.TryParse(split[8], out restrictColors);
 				if (split.Length > 9) _ = bool.TryParse(split[9], out lockColors);

@@ -96,7 +96,7 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes
 			// Find folders and assign (no special handling needed)
 			if (!_restrictDir)
 			{
-				_folders = [.. AssetManager.ListDirectory(_currentDir, true, false, false).Select(x => Path.GetFileName(x)).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+				_folders = [.. AssetManager.ListDirectory(_currentDir, true, false, false).Select(x => Path.GetFileName(x)).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
 			}
 			else
 			{
@@ -104,7 +104,7 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes
 			}
 
 			// Find files
-			string[] foundFiles = [.. AssetManager.ListDirectory(_currentDir, false, false, false).Select(x => Path.GetFileName(x)).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+			string[] foundFiles = [.. AssetManager.ListDirectory(_currentDir, false, false, false).Select(x => Path.GetFileName(x)).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
 
 			// Filter and assign
 			if (_fileRegex != null)

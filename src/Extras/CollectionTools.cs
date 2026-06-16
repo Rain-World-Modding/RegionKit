@@ -1,4 +1,4 @@
-namespace RegionKit.Extras;
+﻿namespace RegionKit.Extras;
 
 public static class CollectionTools
 {
@@ -180,5 +180,29 @@ public static class CollectionTools
 		if (self == null) self = new List<T>();
 		self.AddRange(range);
 		return self;
+	}
+
+	public static int IndexOfComparable<T>(this T[] array, T item, IEqualityComparer<T> comparer)
+	{
+		for (int i = 0; i < array.Length; i++)
+		{
+			if (comparer.Equals(array[i], item))
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public static int IndexOfComparable<T>(this List<T> list, T item, IEqualityComparer<T> comparer)
+	{
+		for (int i = 0; i < list.Count; i++)
+		{
+			if (comparer.Equals(list[i], item))
+			{
+				return i;
+			}
+		}
+		return -1;
 	}
 }

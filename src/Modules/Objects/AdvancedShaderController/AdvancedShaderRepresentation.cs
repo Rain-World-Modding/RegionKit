@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 using DevInterface;
-using RegionKit.Modules.DevUIMisc;
+using RegionKit.Modules.DevUIMisc.GenericNodes;
 using Watcher;
 
 namespace RegionKit.Modules.Objects.AdvancedShaderController
@@ -190,7 +190,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 			private readonly ArrowButton containerLeft, containerRight;
 			private readonly DevUILabel containerLabel;
 
-			private CustomDecalRepresentation.SelectDecalPanel? shaderSelectPanel, spriteSelectPanel;
+			private SelectPanel? shaderSelectPanel, spriteSelectPanel;
 			private FilePicker? filePicker;
 
 			private AdvancedShaderColorPanel? colorPanel;
@@ -286,10 +286,13 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 					}
 					else
 					{
-						shaderSelectPanel = new CustomDecalRepresentation.SelectDecalPanel(owner, this, new Vector2(250f, 15f) - absPos, [.. Custom.rainWorld.Shaders.Keys.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)])
+						string[] shaders = [.. Custom.rainWorld.Shaders.Keys.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+						shaderSelectPanel = new AdvancedShaderSelectPanel(owner, "AdvancedShader_ShaderSelect", this, new Vector2(250f, 15f) - absPos, "Select Shader", shaders, data.shader);
+						int index = shaders.IndexOfComparable(data.shader, StringComparer.Ordinal);
+						if (index >= 0)
 						{
-							Title = "Select Shader"
-						};
+							shaderSelectPanel.PopulateItems((index / shaderSelectPanel.perpage) * shaderSelectPanel.perpage);
+						}
 						subNodes.Add(shaderSelectPanel);
 					}
 				}
@@ -305,10 +308,13 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 						}
 						else
 						{
-							spriteSelectPanel = new CustomDecalRepresentation.SelectDecalPanel(owner, this, new Vector2(250f, 15f) - absPos, [.. Futile.atlasManager._allElementsByName.Keys.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)])
+							string[] sprites = [.. Futile.atlasManager._allElementsByName.Keys.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+							spriteSelectPanel = new AdvancedShaderSelectPanel(owner, "AdvancedShader_SpriteSelect", this, new Vector2(250f, 15f) - absPos, "Select Sprite", sprites, data.spriteName);
+							int index = sprites.IndexOfComparable(data.spriteName, StringComparer.Ordinal);
+							if (index >= 0)
 							{
-								Title = "Select Sprite"
-							};
+								spriteSelectPanel.PopulateItems((index / spriteSelectPanel.perpage) * spriteSelectPanel.perpage);
+							}
 							subNodes.Add(spriteSelectPanel);
 						}
 					}
@@ -323,6 +329,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 						else
 						{
 							filePicker = new FilePicker(owner, "AdvancedShader_FilePicker", this, new Vector2(250f, 15f) - absPos, Path.GetDirectoryName(data.filePath), FilePicker.PNGRegex);
+							filePicker.SetPageToItem(Path.GetFileName(data.filePath));
 							subNodes.Add(filePicker);
 						}
 					}
@@ -340,7 +347,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 						filePicker = null;
 					}
 				}
-				else if (sender.parentNode is CustomDecalRepresentation.SelectDecalPanel selectPanel)
+				else if (sender.parentNode is SelectPanel selectPanel)
 				{
 					if (sender.IDstring == "BackPage99289..?/~")
 					{
@@ -350,7 +357,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 					{
 						selectPanel.NextPage();
 					}
-					else
+					else if (sender.IDstring != "Search99289..?/~")
 					{
 						if (selectPanel == shaderSelectPanel)
 						{

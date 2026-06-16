@@ -1,8 +1,9 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 using DevInterface;
+using Menu.Remix.MixedUI;
 
-namespace RegionKit.Modules.DevUIMisc
+namespace RegionKit.Modules.DevUIMisc.GenericNodes
 {
 	/// <summary>
 	/// File picker panel. Handles pages automatically, sends a signal when finished
@@ -12,6 +13,9 @@ namespace RegionKit.Modules.DevUIMisc
 		public static readonly Regex PNGRegex = new(@".*\.png", RegexOptions.IgnoreCase);
 		public static readonly Regex TXTRegex = new(@".*\.txt", RegexOptions.IgnoreCase);
 		public static readonly DevUISignalType FilePickedSignal = new(nameof(FilePickedSignal), true);
+
+		private const string SEARCH_LABEL = "Search: ";
+		private static readonly float widthOfSearchText = LabelTest.GetWidth(SEARCH_LABEL);
 
 		private static readonly float _buttonWidth = 195f;
 		private static readonly int _rows = 18;
@@ -27,8 +31,41 @@ namespace RegionKit.Modules.DevUIMisc
 		private int _pages = 0;
 		private readonly Regex? _fileRegex;
 
+		private string filterBy = "";
+		private StringControl? searchBar;
+
+		private string[] FilteredFiles
+		{
+			get
+			{
+				if (filterBy.Length == 0)
+				{
+					return _files;
+				}
+				else
+				{
+					return [.. _files.Where(x => x.IndexOf(filterBy, StringComparison.InvariantCultureIgnoreCase) > -1)];
+				}
+			}
+		}
+
+		private string[] FilteredFolders
+		{
+			get
+			{
+				if (filterBy.Length == 0)
+				{
+					return _folders;
+				}
+				else
+				{
+					return [.. _folders.Where(x => x.IndexOf(filterBy, StringComparison.InvariantCultureIgnoreCase) > -1)];
+				}
+			}
+		}
+
 		public FilePicker(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string? startPath, Regex? fileRegex, bool restrictDir = false) 
-			: base(owner, IDstring, parentNode, pos, new Vector2(_buttonWidth * _columns + 5f * (_columns + 1), 30f + 20f * _rows), "Select file or folder")
+			: base(owner, IDstring, parentNode, pos, new Vector2(_buttonWidth * _columns + 5f * (_columns + 1), 50f + 20f * _rows), "Select file or folder")
 		{
 			_fileRegex = fileRegex;
 			_restrictDir = restrictDir;
@@ -90,9 +127,16 @@ namespace RegionKit.Modules.DevUIMisc
 			// Clear out previous items
 			foreach (DevUINode node in subNodes)
 			{
-				node.ClearSprites();
+				if (node != searchBar)
+				{
+					node.ClearSprites();
+				}
 			}
 			subNodes.Clear();
+			if (searchBar != null)
+			{
+				subNodes.Add(searchBar);
+			}
 
 			// Top buttons
 			float headerButtonWidth = (size.x - 20f) / 3;
@@ -100,35 +144,80 @@ namespace RegionKit.Modules.DevUIMisc
 			{
 				subNodes.Add(new ParentButton(owner, "FilePicker_Parent", this, new Vector2(5f, size.y - 20f), headerButtonWidth, "Parent folder"));
 			}
-			subNodes.Add(new PageButton(owner, "FilePicker_Prev", this, new Vector2(5f + (headerButtonWidth + 5f) * 1, size.y - 20f), headerButtonWidth, "Previous", -1));
-			subNodes.Add(new PageButton(owner, "FilePicker_Next", this, new Vector2(5f + (headerButtonWidth + 5f) * 2, size.y - 20f), headerButtonWidth, "Next", 1));
+			if (_pages > 1)
+			{
+				subNodes.Add(new PageButton(owner, "FilePicker_Prev", this, new Vector2(5f + (headerButtonWidth + 5f) * 1, size.y - 20f), headerButtonWidth, "Previous", -1));
+				subNodes.Add(new PageButton(owner, "FilePicker_Next", this, new Vector2(5f + (headerButtonWidth + 5f) * 2, size.y - 20f), headerButtonWidth, "Next", 1));
+			}
+
+			// Add search bar
+			subNodes.Add(new DevUILabel(owner, "FilePicker_SearchLabel", this, new Vector2(5f, size.y - 40f), widthOfSearchText, SEARCH_LABEL));
+			if (searchBar == null)
+			{
+				searchBar = new StringControlNoSignal(owner, "FilePicker_Search", this, new Vector2(10f + widthOfSearchText, size.y - 40f), size.x - 15f - widthOfSearchText, filterBy, StringControl.TextIsAny);
+				subNodes.Add(searchBar);
+			}
 
 			// Option buttons
+			string[] folders = FilteredFolders;
+			string[] files = FilteredFiles;
 			for (int i = 0; i < _columns; i++)
 			{
 				for (int j = 0; j < _rows; j++)
 				{
-					Vector2 buttonPos = new Vector2(5f + (_buttonWidth + 5f) * i, 5f + 20f * (_rows - 1 - j));
-					int k = (i * _rows) + j + ItemsPerPage * _currPage;
-					if (k < _folders.Length)
+					var buttonPos = new Vector2(5f + (_buttonWidth + 5f) * i, 5f + 20f * (_rows - 1 - j));
+					int k = i * _rows + j + ItemsPerPage * _currPage;
+					if (k < folders.Length)
 					{
-						subNodes.Add(new FileButton(owner, "FilePicker_Folder_" + _folders[k], this, buttonPos, _buttonWidth, _folders[k], true));
+						subNodes.Add(new FileButton(owner, "FilePicker_Folder_" + folders[k], this, buttonPos, _buttonWidth, folders[k], true));
 					}
 					else
 					{
-						k -= _folders.Length;
-						if (k < _files.Length)
+						k -= folders.Length;
+						if (k < files.Length)
 						{
-							subNodes.Add(new FileButton(owner, "FilePicker_File_" + _files[k], this, buttonPos, _buttonWidth, _files[k], false));
+							subNodes.Add(new FileButton(owner, "FilePicker_File_" + files[k], this, buttonPos, _buttonWidth, files[k], false));
 						}
 					}
 				}
 			}
 		}
 
+		public override void Update()
+		{
+			base.Update();
+			if (searchBar != null && searchBar.actualValue != filterBy)
+			{
+				filterBy = searchBar.actualValue;
+				_currPage = 0;
+				if (filterBy.Length == 0)
+				{
+					_pages = (_folders.Length + _files.Length + ItemsPerPage - 1) / ItemsPerPage; // ceiling int division
+				}
+				else
+				{
+					_pages = (FilteredFolders.Length + FilteredFiles.Length + ItemsPerPage - 1) / ItemsPerPage; // also ceiling int division
+				}
+				Populate();
+			}
+		}
+
+		public void SetPageToItem(string item, bool isFolder = false)
+		{
+			string[] folders = FilteredFolders; // calling this here so it can be reused
+			string[] arr = isFolder ? folders : FilteredFiles;
+			int index = Array.IndexOf(arr, item);
+			if (index >= 0)
+			{
+				int actualIndex = isFolder ? index : folders.Length + index;
+				_currPage = actualIndex / ItemsPerPage;
+				Populate();
+			}
+		}
+
 		private void ChangePage(int direction)
 		{
-			_currPage = Custom.IntClamp(_currPage + Math.Sign(direction), 0, _pages - 1);
+			_currPage = IntClamp(_currPage + Math.Sign(direction), 0, _pages - 1);
 			Populate();
 		}
 

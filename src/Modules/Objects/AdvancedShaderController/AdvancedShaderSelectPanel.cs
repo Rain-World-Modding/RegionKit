@@ -46,7 +46,6 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 
 		public override void PopulateItems(int offset)
 		{
-			Log("Populating items!");
 			// Clear out previous sprites
 			foreach (DevUINode node in subNodes)
 			{

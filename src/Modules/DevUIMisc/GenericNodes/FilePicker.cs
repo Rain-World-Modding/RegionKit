@@ -11,7 +11,10 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes
 	public class FilePicker : Panel
 	{
 		public static readonly Regex PNGRegex = new(@".*\.png", RegexOptions.IgnoreCase);
+		public static readonly Regex ImageRegex = new(@".*\.(?:png|jpe?g|gif)", RegexOptions.IgnoreCase); // the ones that can be read by the game
 		public static readonly Regex TXTRegex = new(@".*\.txt", RegexOptions.IgnoreCase);
+		public static readonly Regex SoundRegex = new(@".*\.(?:wav|ogg)", RegexOptions.IgnoreCase); // also the ones that can be read by the game
+
 		public static readonly DevUISignalType FilePickedSignal = new(nameof(FilePickedSignal), true);
 
 		private const string SEARCH_LABEL = "Search: ";

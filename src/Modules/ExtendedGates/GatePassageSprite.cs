@@ -1,6 +1,6 @@
 ﻿using MoreSlugcats;
 
-namespace RegionKit.Modules.Misc
+namespace RegionKit.Modules.ExtendedGates
 {
 	public class GatePassageSprite : CosmeticSprite
 	{
@@ -42,7 +42,7 @@ namespace RegionKit.Modules.Misc
 		{
 			get
 			{
-				if (referenceGlyph.PlayNoEnergyAnimation || (referenceGlyph.animationFinished && referenceGlyph.ShouldPlayCitizensIDAnimation() < 0) || FlashRed)
+				if (referenceGlyph.PlayNoEnergyAnimation || referenceGlyph.animationFinished && referenceGlyph.ShouldPlayCitizensIDAnimation() < 0 || FlashRed)
 				{
 					return Color.Lerp(myDefaultColor, new Color(1f, 0f, 0f), 0.4f + 0.5f * Mathf.Sin(sinAdder / 12f));
 				}
@@ -86,10 +86,10 @@ namespace RegionKit.Modules.Misc
 
 			pos = referenceGlyph.pos + offsetFromGlyph;
 			lastFade = fade;
-			fade = Custom.LerpAndTick(fade, Mathf.Min(goalFade, 1f - flicker), 0.01f, 0.05f);
+			fade = LerpAndTick(fade, Mathf.Min(goalFade, 1f - flicker), 0.01f, 0.05f);
 			lastColor = color;
 			color = Color.Lerp(color, GetToColor, 0.2f);
-			if (referenceGlyph.requirement == RegionGate.GateRequirement.DemoLock || (ModManager.MSC && referenceGlyph.requirement == MoreSlugcatsEnums.GateRequirement.OELock) || redSine > 0f)
+			if (referenceGlyph.requirement == RegionGate.GateRequirement.DemoLock || ModManager.MSC && referenceGlyph.requirement == MoreSlugcatsEnums.GateRequirement.OELock || redSine > 0f)
 			{
 				color = referenceGlyph.col;
 			}
@@ -133,7 +133,7 @@ namespace RegionKit.Modules.Misc
 			{
 				sLeaser.sprites[i].x = Mathf.Lerp(lastPos.x, pos.x, timeStacker) - camPos.x;
 				sLeaser.sprites[i].y = Mathf.Lerp(lastPos.y, pos.y, timeStacker) - camPos.y;
-				sLeaser.sprites[i].isVisible = (f > 0f);
+				sLeaser.sprites[i].isVisible = f > 0f;
 				sLeaser.sprites[i].color = Color.Lerp(lastColor, color, timeStacker);
 			}
 			if (symbolDirty)

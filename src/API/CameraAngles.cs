@@ -2,17 +2,16 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace RegionKit.Modules
+namespace RegionKit.API
 {
 	/// <summary>
-	/// Retrieves camera angles from the room, if rendered in Community Editor or Drizzle above I forgot what version number it was for both.
-	/// Leaving as internal for now just in case
+	/// Retrieves camera angles from the room, if rendered in Community Editor (v0.4.53+) or Drizzle (v0.2.4.0+).
 	/// </summary>
-	internal static class CameraAngles
+	public static class CameraAngles
 	{
 		private static readonly ConditionalWeakTable<Room, CameraAngle[]?> cangleCWT = new();
 
-		private static CameraAngle? GetAngle(Room room, int camera)
+		public static CameraAngle? GetAngle(Room room, int camera)
 		{
 			if (!cangleCWT.TryGetValue(room, out var cangleBox))
 			{
@@ -29,14 +28,14 @@ namespace RegionKit.Modules
 					{
 						// Extract camera angles from line
 						string[] cangleInfos = cangleLine[IDENTIFIER.Length..].Trim().Split('|');
-						CameraAngle[] angles = new CameraAngle[cangleInfos.Length];
+						var angles = new CameraAngle[cangleInfos.Length];
 
 						LogDebug("FOUND CANGLES FOR ROOM " + room.abstractRoom.FileName);
 						for (int i = 0; i < cangleInfos.Length; i++)
 						{
 							Vector2[] rawAngles = [.. cangleInfos[i].Split(';')
 								.Select(x => x.Split(','))
-								.Select(x => Custom.DegToVec(float.Parse(x[0], CultureInfo.InvariantCulture)) * float.Parse(x[1], CultureInfo.InvariantCulture))];
+								.Select(x => DegToVec(float.Parse(x[0], CultureInfo.InvariantCulture)) * float.Parse(x[1], CultureInfo.InvariantCulture))];
 							angles[i] = new CameraAngle
 							{
 								tl = rawAngles[0],
@@ -78,20 +77,20 @@ namespace RegionKit.Modules
 			CameraAngle angle = maybeAngle.Value;
 
 			// Apply angle stretch (from renderLightStart.lingo)
-			Vector2 renderSize = new Vector2(1500f, 900f);
+			var renderSize = new Vector2(1500f, 900f);
 			Vector2 posOnCamera = pos - self.CamPos(self.currentCameraPosition);
 			Vector2 edgePad = renderSize - self.game.rainWorld.options.ScreenSize;
 			float xLerp = Mathf.InverseLerp(0f, renderSize.x, posOnCamera.x - edgePad.x / 2f);
 			float yLerp = Mathf.InverseLerp(0f, renderSize.y, posOnCamera.y - edgePad.y / 2f);
-			Vector2 topLerp = Vector2.Lerp(angle.tl, angle.tr, xLerp);
-			Vector2 btmLerp = Vector2.Lerp(angle.bl, angle.br, xLerp);
+			var topLerp = Vector2.Lerp(angle.tl, angle.tr, xLerp);
+			var btmLerp = Vector2.Lerp(angle.bl, angle.br, xLerp);
 			Vector2 sizePad = new Vector2(1400f, 800f) - self.game.rainWorld.options.ScreenSize;
-			Vector2 depthPnt = Custom.ApplyDepthOnVector(posOnCamera, new Vector2(1400f / 2f, 800f * 2f / 3f) - sizePad / 2f, depth);
+			Vector2 depthPnt = ApplyDepthOnVector(posOnCamera, new Vector2(1400f / 2f, 800f * 2f / 3f) - sizePad / 2f, depth);
 
 			return Vector2.Lerp(btmLerp, topLerp, yLerp) * (depth - 5f) * 1.5f * 2.5f + pos + (depthPnt - posOnCamera);
 		}
 
-		private struct CameraAngle
+		public struct CameraAngle
 		{
 			public Vector2 tl;
 			public Vector2 tr;

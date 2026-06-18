@@ -1,6 +1,6 @@
-namespace RegionKit.API;
+﻿namespace RegionKit.API;
 
-using Impl = RegionKit.Modules.Misc.ExtendedGates;
+using Impl = Modules.ExtendedGates.ExtendedGates;
 
 /// <summary>
 /// Functionality for adding custom gate activation conditions.

@@ -11,7 +11,7 @@ using MonoMod.RuntimeDetour;
 using Gate = RegionGate;
 using Req = RegionGate.GateRequirement;
 
-namespace RegionKit.Modules.Misc;
+namespace RegionKit.Modules.ExtendedGates;
 
 /// <summary>
 /// Adds more options for gate requirements
@@ -26,7 +26,7 @@ public static class ExtendedGates
 		{
 			public string GateElementName(GateKarmaGlyph glyph);
 			public string MapElementName(Map.GateMarker gateMarker);
-			public bool Requirement(RegionGate regionGate);
+			public bool Requirement(Gate regionGate);
 		}
 
 		public class Open : LockData
@@ -45,7 +45,7 @@ public static class ExtendedGates
 		{
 			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbol10reinforced";
 			public string MapElementName(Map.GateMarker gateMarker) => "smallKarma10reinforced";
-			public bool Requirement(Gate gate) => (gate.room.game.Players[0].realizedCreature is Player p) && p.Karma == 9 && p.KarmaIsReinforced;
+			public bool Requirement(Gate gate) => gate.room.game.Players[0].realizedCreature is Player p && p.Karma == 9 && p.KarmaIsReinforced;
 		}
 		public class ComsMark : LockData
 		{
@@ -125,7 +125,7 @@ public static class ExtendedGates
 			public bool Requirement(Gate gate)
 			{
 				AbstractCreature firstAlivePlayer = gate.room.game.FirstAlivePlayer;
-				if (gate.room.game.Players.Count == 0 || firstAlivePlayer == null || (firstAlivePlayer.realizedCreature == null && ModManager.CoopAvailable))
+				if (gate.room.game.Players.Count == 0 || firstAlivePlayer == null || firstAlivePlayer.realizedCreature == null && ModManager.CoopAvailable)
 				{ return false; }
 
 				Player player;
@@ -221,9 +221,9 @@ public static class ExtendedGates
 		public void SpawnGateSymbol(Gate gate, int index, int total)
 		{
 			GateKarmaGlyph parentGlyph = gate.karmaGlyphs[side ? 0 : 1];
-			bool lastRow = (index / AmountPerRow) == (total / AmountPerRow);
-			int amountThisRow = lastRow ? (total % AmountPerRow) : AmountPerRow;
-			float x = (index % AmountPerRow) - (amountThisRow - 1) / 2f;
+			bool lastRow = index / AmountPerRow == total / AmountPerRow;
+			int amountThisRow = lastRow ? total % AmountPerRow : AmountPerRow;
+			float x = index % AmountPerRow - (amountThisRow - 1) / 2f;
 			x *= HorizontalSpacing;
 			float y = VerticalSpacing * (index / AmountPerRow) + 60f;
 			gate.room.AddObject(new GatePassageSprite(side, gate, parentGlyph, passage, new Vector2(x, y)));
@@ -248,9 +248,9 @@ public static class ExtendedGates
 
 	public static Dictionary<Req, ExtendedLocks.LockData> SpecialConditions = new();
 
-	private static readonly ConditionalWeakTable<RegionGate, List<string>> _Tags = new();
-	private static readonly ConditionalWeakTable<RegionGate, List<PassageExtraReq>> _Passages = new();
-	public static List<string> Tags(this RegionGate p) => _Tags.GetValue(p, _ => new());
+	private static readonly ConditionalWeakTable<Gate, List<string>> _Tags = new();
+	private static readonly ConditionalWeakTable<Gate, List<PassageExtraReq>> _Passages = new();
+	public static List<string> Tags(this Gate p) => _Tags.GetValue(p, _ => new());
 
 	public static void InitExLocks()
 	{
@@ -343,7 +343,7 @@ public static class ExtendedGates
 		On.RegionGate.customKarmaGateRequirements += RegionGate_customKarmaGateRequirements;
 		On.RegionGate.Update += RegionGate_Update;
 
-		RegionGateMeetRequirementHook = new Hook(typeof(RegionGate).GetProperty("MeetRequirement",
+		RegionGateMeetRequirementHook = new Hook(typeof(Gate).GetProperty("MeetRequirement",
 			BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetGetMethod(), RegionGate_MeetRequirement);
 
 		On.GateKarmaGlyph.DrawSprites += GateKarmaGlyph_DrawSprites;
@@ -378,8 +378,8 @@ public static class ExtendedGates
 		if (self.gate is ElectricGate eg && eg.batteryLeft > 1.1f)
 		{
 			sLeaser.sprites[self.BatteryMeterSprite].scaleX = 420f;
-			float num4 = (!eg.batteryChanging) ? 0f : 1f;
-			sLeaser.sprites[self.BatteryMeterSprite].color = Color.Lerp(RWCustom.Custom.HSL2RGB(0.03f + 0.3f * (Mathf.InverseLerp(1.1f, 30f, eg.batteryLeft)) + UnityEngine.Random.value * (0.035f * num4 + 0.025f), 1f, (0.5f + UnityEngine.Random.value * 0.2f * num4) * Mathf.Lerp(1f, 0.25f, self.darkness)), self.blackColor, 0.5f);
+			float num4 = !eg.batteryChanging ? 0f : 1f;
+			sLeaser.sprites[self.BatteryMeterSprite].color = Color.Lerp(HSL2RGB(0.03f + 0.3f * Mathf.InverseLerp(1.1f, 30f, eg.batteryLeft) + UnityEngine.Random.value * (0.035f * num4 + 0.025f), 1f, (0.5f + UnityEngine.Random.value * 0.2f * num4) * Mathf.Lerp(1f, 0.25f, self.darkness)), self.blackColor, 0.5f);
 		}
 	}
 
@@ -431,7 +431,7 @@ public static class ExtendedGates
 				c.Emit(OpCodes.Ldloc_0);
 				c.Emit(OpCodes.Ldloc_2);
 				c.Emit(OpCodes.Ldelem_Ref);
-				c.EmitDelegate((RegionGate self, string line) =>
+				c.EmitDelegate((Gate self, string line) =>
 				{
 					string[] array = Regex.Split(line, " : ");
 					self.Tags().Clear();
@@ -535,7 +535,7 @@ public static class ExtendedGates
 			//alt art ig
 			if (int.TryParse(self.karmaRequirements[i].value, out int v) && self.room?.game != null && DoesPlayerDeserveAltArt(self.room.game))
 			{
-				Req alt = new Req(v + ALT_POSTFIX, false);
+				var alt = new Req(v + ALT_POSTFIX, false);
 				if (alt.index != -1) { self.karmaRequirements[i] = alt; }
 			}
 		}
@@ -547,21 +547,21 @@ public static class ExtendedGates
 	/// <summary>
 	/// Adds support for special gate types UwU
 	/// </summary>
-	private static void RegionGate_Update(On.RegionGate.orig_Update orig, RegionGate self, bool eu)
+	private static void RegionGate_Update(On.RegionGate.orig_Update orig, Gate self, bool eu)
 	{
 		orig(self, eu);
 		if (!self.room.game.IsStorySession) return; // Paranoid, just like in the base game
 
 		switch (self.mode.ToString())
 		{
-		case nameof(RegionGate.Mode.ClosingAirLock):
+		case nameof(Gate.Mode.ClosingAirLock):
 			if (self.room.game.overWorld.worldLoader == null) // In-region gate support
 			{
 				self.waitingForWorldLoader = false;
 			}
 			break;
-		case nameof(RegionGate.Mode.Closed): // Support for multi-usage gates
-			if (self.EnergyEnoughToOpen) self.mode = RegionGate.Mode.MiddleClosed;
+		case nameof(Gate.Mode.Closed): // Support for multi-usage gates
+			if (self.EnergyEnoughToOpen) self.mode = Gate.Mode.MiddleClosed;
 			break;
 		}
 	}
@@ -586,7 +586,7 @@ public static class ExtendedGates
 	/// <summary>
 	/// Image used in the gate room
 	/// </summary>
-	private static void GateKarmaGlyph_DrawSprites(On.GateKarmaGlyph.orig_DrawSprites orig, GateKarmaGlyph self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, UnityEngine.Vector2 camPos)
+	private static void GateKarmaGlyph_DrawSprites(On.GateKarmaGlyph.orig_DrawSprites orig, GateKarmaGlyph self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		if (self.symbolDirty) // redraw
 		{

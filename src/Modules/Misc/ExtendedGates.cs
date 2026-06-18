@@ -1,5 +1,6 @@
 ﻿//extended gates by Henpemaz
 
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -133,22 +134,42 @@ public static class ExtendedGates
 				else
 				{ player = (gate.room.game.Players[0].realizedCreature as Player)!; }
 
-				int num = player.Karma;
+				int karma = player.Karma;
 				if (ModManager.MSC && player.SlugCatClass == MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName.Artificer && player.grasps.Length != 0)
 				{
 					for (int i = 0; i < player.grasps.Length; i++)
 					{
 						if (player.grasps[i] != null && player.grasps[i].grabbedChunk != null && player.grasps[i].grabbedChunk.owner is Scavenger scav)
 						{
-							num = ((StoryGameSession)gate.room.game.session).saveState.deathPersistentSaveData.karma + scav.abstractCreature.karmicPotential;
+							karma = ((StoryGameSession)gate.room.game.session).saveState.deathPersistentSaveData.karma + scav.abstractCreature.karmicPotential;
 							break;
 						}
 					}
 				}
 
-				return num >= req.GetKarmaLevel();
+				return karma >= req.GetKarmaLevel();
 			}
 		}
+
+		public class Ripple : LockData
+		{
+			private readonly float req;
+
+			public Ripple(float req)
+			{
+				this.req = req;
+			}
+
+			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolRipple" + req.ToString("#.0", CultureInfo.InvariantCulture);
+			public string MapElementName(Map.GateMarker gateMarker) => "smallRipple" + req.ToString("#.0", CultureInfo.InvariantCulture);
+
+			public bool Requirement(Gate regionGate)
+			{
+				float rippleLevel = regionGate.room.game.GetStorySession.saveState.deathPersistentSaveData.rippleLevel;
+				return rippleLevel >= req;
+			}
+		}
+
 		public class Alt : LockData
 		{
 			protected LockData wrapped;
@@ -164,6 +185,7 @@ public static class ExtendedGates
 			public Txt(LockData wrapped) : base(wrapped) { }
 			public override string GateElementName(GateKarmaGlyph glyph) => wrapped.GateElementName(glyph) + TXT_POSTFIX;
 		}
+
 		internal record DelegateDriven(
 			Req req,
 			string gateElementName,
@@ -246,6 +268,15 @@ public static class ExtendedGates
 			[_Enums.EightKarma] = new ExtendedLocks.Numerical(_Enums.EightKarma),
 			[_Enums.NineKarma] = new ExtendedLocks.Numerical(_Enums.NineKarma),
 			[_Enums.TenKarma] = new ExtendedLocks.Numerical(_Enums.TenKarma),
+			[_Enums.Ripple1_0] = new ExtendedLocks.Ripple(1.0f),
+			[_Enums.Ripple1_5] = new ExtendedLocks.Ripple(1.5f),
+			[_Enums.Ripple2_0] = new ExtendedLocks.Ripple(2.0f),
+			[_Enums.Ripple2_5] = new ExtendedLocks.Ripple(2.5f),
+			[_Enums.Ripple3_0] = new ExtendedLocks.Ripple(3.0f),
+			[_Enums.Ripple3_5] = new ExtendedLocks.Ripple(3.5f),
+			[_Enums.Ripple4_0] = new ExtendedLocks.Ripple(4.0f),
+			[_Enums.Ripple4_5] = new ExtendedLocks.Ripple(4.5f),
+			[_Enums.Ripple5_0] = new ExtendedLocks.Ripple(5.0f),
 		};
 
 		foreach (Req alt in _Enums.alt)

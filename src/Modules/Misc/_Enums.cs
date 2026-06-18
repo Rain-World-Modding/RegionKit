@@ -30,6 +30,15 @@ public static class _Enums
 	public static Req EightKarma = new("8", true);
 	public static Req NineKarma = new("9", true);
 	public static Req TenKarma = new("10", true);
+	public static Req Ripple1_0 = new("Ripple1.0", true);
+	public static Req Ripple1_5 = new("Ripple1.5", true);
+	public static Req Ripple2_0 = new("Ripple2.0", true);
+	public static Req Ripple2_5 = new("Ripple2.5", true);
+	public static Req Ripple3_0 = new("Ripple3.0", true);
+	public static Req Ripple3_5 = new("Ripple3.5", true);
+	public static Req Ripple4_0 = new("Ripple4.0", true);
+	public static Req Ripple4_5 = new("Ripple4.5", true);
+	public static Req Ripple5_0 = new("Ripple5.0", true);
 	public static Req[] alt = new Req[17];
 	public static Req[] txt = new Req[10];
 

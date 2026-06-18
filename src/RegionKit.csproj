@@ -20,7 +20,7 @@
     	<PathMap>$(AppOutputBase)=RegionKit\</PathMap>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<OutputPath>../mod/newest/plugins</OutputPath>
-		<Nowarn>CS1591,CS0649,CS0169</Nowarn>
+		<Nowarn>CS1591,CS0649,CS0169,IDE0028</Nowarn>
 	</PropertyGroup>
 	<!-- Debug configuration. Build for release. -->
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

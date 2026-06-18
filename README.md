@@ -5,6 +5,7 @@ A unified dependency and object kit for Rain World region modding. Created by Th
 #### Table of Contents
 - [The Goal](#the-goal)
 - [Modules](#modules)
+- [Additional features](#additional-features)
 - [Credits](#credits)
 - [Download](#download)
 - [More Info](#more-info)
@@ -114,7 +115,8 @@ Our goal for RegionKit is to have a unified mod to hold objects, room effects, a
 	- Allows easily loading in atlases or separate sprites without additional code, loads from assetpath `assets/regionkit` (recursively) across all mods.
 - Turbo Baker
 	- Easily and quickly bake or rebake any region from the Remix menu. Includes progress updates and multithreading to heavily reduce the time it takes.
-
+- Camera angles
+	- Includes a system to retrieve camera angles in rooms rendered by the Community Editor or Drizzle. Located in RegionKit.API.CameraAngles
 
 ## Credits
 ### Feature credits

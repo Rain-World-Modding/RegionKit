@@ -14,23 +14,24 @@ ExtendedGates uses the same file for managing gate locks as vanilla, under asset
 ### Gate requirements
 Below is a table of all requirement types (case-sensitive) added by ExtendedGates:
 
-| Requirement       | Description                                      | Remarks                                                   |
-| ----------------- | ------------------------------------------------ | --------------------------------------------------------- |
-| <any number 1-10> | Requires that karma level or higher to pass.     | 1-5 are carried from base game. 6-10 are ExtendedGates.   |
-| Open              | Always open. Works like karma 1 but looks cooler |                                                           |
-| TenReinforced     | Requires karma 10 + karma flower effect.         | Cannot be opened on Hunter without cheats.                |
-| Forbidden         | Does not open from the given side.               | Equivalent to Outer Expanse gate lock, but always locked. |
-| Glow              | Requires neuron glow effect.                     |                                                           |
-| uwu               | uwu                                              | Requires UwU mod to open. Opens for free.                 |
-| Ripple<level>     | Requires that ripple level or higher to pass.    | Works on 0.5 increments. Example: `Ripple1.5`             |
+| Requirement         | Description                                      | Remarks                                                   |
+| ------------------- | ------------------------------------------------ | --------------------------------------------------------- |
+| `<any number 1-10>` | Requires that karma level or higher to pass.     | 1-5 are carried from base game. 6-10 are ExtendedGates.   |
+| `Open`              | Always open. Works like karma 1 but looks cooler |                                                           |
+| `TenReinforced`     | Requires karma 10 + karma flower effect.         | Cannot be opened on Hunter without cheats.                |
+| `Forbidden`         | Does not open from the given side.               | Equivalent to Outer Expanse gate lock, but always locked. |
+| `CommsMark`         | Requires the mark.                               | Cannot be opened on Saint without cheats.                 |
+| `Glow`              | Requires neuron glow effect.                     |                                                           |
+| `uwu`               | uwu                                              | Requires UwU mod to open. Opens for free.                 |
+| `Ripple<level>`     | Requires that ripple level or higher to pass.    | Works on 0.5 increments. Example: `Ripple1.5`             |
 
 #### Alternate symbols
 ExtendedGates has alternate custom symbols that can be used in place of the default symbol on the gate. They are keywords that are appended to the end of the requirement. They only work for some gate requirements.
 
 | Keyword | Description                                                        | Supported requirements                                      |
 | ------- | ------------------------------------------------------------------ | ----------------------------------------------------------- |
-| alt     | Replaces the usual art below the requirement icon with custom art. | All karma levels, Open, TenReinforced, Forbidden, Glow, uwu |
-| txt     | Adds text-like lines below the requirement icon.                   | All karma levels                                            |
+| `alt`   | Replaces the usual art below the requirement icon with custom art. | All karma levels, Open, TenReinforced, Forbidden, Glow, uwu |
+| `txt`   | Adds text-like lines below the requirement icon.                   | All karma levels                                            |
 
 Example:
 ```
@@ -47,38 +48,46 @@ GATE_DS_CG : 7 : 3 : SWAPMAPSYMBOL : multi : OELock
 (SWAPMAPSYMBOL is a vanilla tag and must always come first when it is used)
 
 Below is a table of all tags (case-sensitive) added by ExtendedGates:
-| Tag    | Description                                                                    | Remarks                                                      |
-| ------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
-| multi  | Specifies a gate as reusable.                                                  |                                                              |
-| OELock | Makes a gate Forbidden unless the requirements for unlocking OE are fulfilled. | Requires *More Slugcats Expansion*. Does nothing without it. |
+| Tag      | Description                                                                    | Remarks                                                      |
+| -------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| `multi`  | Specifies a gate as reusable.                                                  |                                                              |
+| `OELock` | Makes a gate Forbidden unless the requirements for unlocking OE are fulfilled. | Requires *More Slugcats Expansion*. Does nothing without it. |
 
-#### Passage extra requirements
-In addition to the normal requirements for the gates, you can additionally specify specific passages to be completed, including requiring multiple passages. These also use the tags system and should work with any passage in the game, including modded ones. These are shown as the passage's symbol placed above the gate's requirement symbol, in rows if there are multiple.
+#### Extra requirements
+In addition to the normal requirements for the gates, you can additionally specify extra requirements for the gate to open, including multiple. These are shown as symbols placed above the gate's requirement symbol or around the unlock symbol on the region map. The syntax for these is `<side>_<keyword>` where
+- `<side>` is either `Left` or `Right`
+- `<keyword>` is the keyword of the requirement, which are listed below
+- *Not* case-sensitive
 
-The syntax for these tags is `<side>_Passage_<passage code name>` where
-- `<side>` is either `Left` or `Right` (case-sensitive)
-- `<passage code name>` is the code name of the passage, case-sensitive. A table is provided below for reference.
+| Keyword             | Description                                           | Remarks                                            |
+| ------------------- | ----------------------------------------------------- | -------------------------------------------------- |
+| `TheMark`           | Requires the mark                                     | Cannot be opened on Saint without cheats.          |
+| `TheGlow`           | Requires neuron glow                                  |                                                    |
+| `Reinforcement`     | Requires karma reinforcment                           | Cannot be opened on Hunter without cheats.         |
+| `Passage-<passage>` | Requires a specific passage, specified in `<passage>` | `<passage>` must use the code name of the passage. |
 
-| Code name    | Passage                 | Remarks                                                                                                 |
-| ------------ | ----------------------- | ------------------------------------------------------------------------------------------------------- |
-| Survivor     | The Survivor            |                                                                                                         |
-| Hunter       | The Hunter              |                                                                                                         |
-| Saint        | The Saint               |                                                                                                         |
-| Traveller    | The Wanderer            |                                                                                                         |
-| Chieftain    | The Chieftain           |                                                                                                         |
-| Monk         | The Monk                |                                                                                                         |
-| Outlaw       | The Outlaw              |                                                                                                         |
-| DragonSlayer | The Dragon Slayer       |                                                                                                         |
-| Scholar      | The Scholar             |                                                                                                         |
-| Friend       | The Friend              |                                                                                                         |
-| Nomad        | The Nomad               | Requires MSC                                                                                            |
-| Martyr       | The Martyr              | Requires MSC                                                                                            |
-| Pilgrim      | The Pilgrim             | Requires MSC                                                                                            |
-| Mother       | The Mother              | Requires MSC                                                                                            |
-| Gourmand     | (Gourmand's food quest) | Requires MSC + Gourmand. As it is tracked as a passage, it can be used here, although it has no symbol. |
+On passage requirements, any passage (in-game or modded) should be supported. Below is a reference of the code names of in-game passages.
+
+| Code name      | Passage                 | Remarks                                                                                                 |
+| -------------- | ----------------------- | ------------------------------------------------------------------------------------------------------- |
+| `Survivor`     | The Survivor            |                                                                                                         |
+| `Hunter`       | The Hunter              |                                                                                                         |
+| `Saint`        | The Saint               |                                                                                                         |
+| `Traveller`    | The Wanderer            |                                                                                                         |
+| `Chieftain`    | The Chieftain           |                                                                                                         |
+| `Monk`         | The Monk                |                                                                                                         |
+| `Outlaw`       | The Outlaw              |                                                                                                         |
+| `DragonSlayer` | The Dragon Slayer       |                                                                                                         |
+| `Scholar`      | The Scholar             |                                                                                                         |
+| `Friend`       | The Friend              |                                                                                                         |
+| `Nomad`        | The Nomad               | Requires MSC                                                                                            |
+| `Martyr`       | The Martyr              | Requires MSC                                                                                            |
+| `Pilgrim`      | The Pilgrim             | Requires MSC                                                                                            |
+| `Mother`       | The Mother              | Requires MSC                                                                                            |
+| `Gourmand`     | (Gourmand's food quest) | Requires MSC + Gourmand. As it is tracked as a passage, it can be used here, although it has no symbol. |
 
 ## Code API
-ExtendedGates features a public API for adding custom gate requirements from other mods, found within the `RegionKit.API.ExtendedGates` class.
+ExtendedGates features a public API for adding custom gate requirements or extra requirements from code, found within the `RegionKit.API.ExtendedGates` class.
 
 ## Changelog
 - Version 1.0
@@ -93,7 +102,8 @@ ExtendedGates features a public API for adding custom gate requirements from oth
 - Version 1.4 (07/06/2023)
 	- \[Bro748\] refactored to Work™ and to easily support new requirements
 - Version 1.5 (06/18/2026)
-	- \[Korii\] added passage extra requirements
+	- \[Korii\] added extra requirements, implemented for passages
+	- \[Alduris\] added more extra requirements, implemented for mark, glow, and reinforcement, as well as showing on map and public API
 	- \[Alduris\] added ripple gate requirements
 
 

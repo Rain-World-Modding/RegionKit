@@ -5,8 +5,7 @@ public static class RainWorldTools
 	/// <summary>
 	/// Current RainWorld instance. Uses Unity lookup, may be slow.
 	/// </summary>
-	public static RainWorld CRW
-		=> UnityEngine.Object.FindObjectOfType<RainWorld>();
+	public static RainWorld CRW => Custom.rainWorld;
 	/// <summary>
 	/// Gets a <see cref="StaticWorld"/> template object by type.
 	/// </summary>

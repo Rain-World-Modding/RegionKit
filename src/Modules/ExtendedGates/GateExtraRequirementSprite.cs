@@ -2,38 +2,31 @@
 
 namespace RegionKit.Modules.ExtendedGates
 {
-	public class GatePassageSprite : CosmeticSprite
+	public class GateExtraRequirementSprite : CosmeticSprite
 	{
 		public bool side;
 		public RegionGate gate;
 		public GateKarmaGlyph referenceGlyph;
-		public WinState.EndgameID passage;
-		public WinState.EndgameTracker? passageTracker;
+		public ExtraRequirement requirement;
+		protected Vector2 offsetFromGlyph;
 
-		private FAtlasElement passageSprite;
-		private Vector2 offsetFromGlyph;
+		protected virtual FAtlasElement GetSprite() => requirement.SpriteElement;
 
-		private float flicker => referenceGlyph.flicker;
-		private float fade;
-		private float lastFade;
-		private float goalFade
+		protected float flicker => referenceGlyph.flicker;
+		protected float fade;
+		protected float lastFade;
+		protected float goalFade
 		{
 			get { return redSine > 0f ? 1f : referenceGlyph.goalFade; }
 			set => referenceGlyph.goalFade = value;
 		}
-		private Color myDefaultColor => referenceGlyph.myDefaultColor;
-		private float sinAdder;
+		protected virtual Color myDefaultColor => referenceGlyph.myDefaultColor;
+		protected float sinAdder;
 		public bool symbolDirty = true;
 		public Color color;
 		public Color lastColor;
-		private bool extraRedSineActive = false;
-		private float _extraRedSine = 0f;
-		internal float extraRedSine
-		{
-			get { return _extraRedSine; }
-			set { _extraRedSine = value; extraRedSineActive = true; }
-		}
-		internal float redSine
+		protected float extraRedSine = 0f;
+		protected float redSine
 		{
 			get { return referenceGlyph.redSine + extraRedSine; }
 		}
@@ -50,29 +43,20 @@ namespace RegionKit.Modules.ExtendedGates
 			}
 		}
 
-		private bool FlashRed => !referenceGlyph.PlayNoEnergyAnimation && gate.letThroughDir == side && gate.PlayersInZone() > 0 && (passageTracker == null || !passageTracker.GoalFullfilled);
+		protected virtual bool FlashRed => !referenceGlyph.PlayNoEnergyAnimation && gate.letThroughDir == side && gate.PlayersInZone() > 0 && !requirement.CompletedAtGate(gate);
 
-		public GatePassageSprite(bool side, RegionGate gate, GateKarmaGlyph referenceGlyph, WinState.EndgameID passage, Vector2 offsetFromGlyph)
+		public GateExtraRequirementSprite(bool side, RegionGate gate, GateKarmaGlyph referenceGlyph, ExtraRequirement requirement, Vector2 offsetFromGlyph)
 		{
 			this.side = side;
 			this.gate = gate;
 			this.referenceGlyph = referenceGlyph;
-			this.passage = passage;
+			this.requirement = requirement;
 			room = gate.room;
-
-			passageTracker = room.game.GetStorySession.saveState.deathPersistentSaveData.winState.GetTracker(passage, false);
-			if (!Futile.atlasManager.TryGetElementWithName(passage.value + "B", out passageSprite!) || passageSprite == null)
-			{
-				LogWarning("Could not find passage sprite for " + passage.value + "!");
-				passageSprite = Futile.atlasManager.GetElementWithName("Sandbox_QuestionMark");
-			}
-
 			this.offsetFromGlyph = offsetFromGlyph;
 			pos = referenceGlyph.pos + offsetFromGlyph;
 			lastPos = pos;
 			color = GetToColor;
 			lastColor = color;
-			gate.room.AddObject(this);
 		}
 
 		public override void Update(bool eu)
@@ -98,16 +82,15 @@ namespace RegionKit.Modules.ExtendedGates
 				sinAdder += 1f;
 			}
 
-			if (_extraRedSine > 0f && !extraRedSineActive)
+			if (extraRedSine > 0f)
 			{
 				float twoPi = 2 * Mathf.PI;
-				float wrappedPhase = _extraRedSine / 25f % twoPi;
+				float wrappedPhase = extraRedSine / 25f % twoPi;
 				if (wrappedPhase < 0) wrappedPhase += twoPi;
-				_extraRedSine = wrappedPhase * 25f;
-				_extraRedSine -= 3f;
-				if (_extraRedSine < 0f) _extraRedSine = 0f;
+				extraRedSine = wrappedPhase * 25f;
+				extraRedSine -= 3f;
+				if (extraRedSine < 0f) extraRedSine = 0f;
 			}
-			extraRedSineActive = false;
 		}
 
 		public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
@@ -138,11 +121,12 @@ namespace RegionKit.Modules.ExtendedGates
 			}
 			if (symbolDirty)
 			{
-				sLeaser.sprites[1].element = passageSprite;
+				sLeaser.sprites[1].element = GetSprite();
 				symbolDirty = false;
 			}
 			sLeaser.sprites[0].scale = Mathf.Lerp(20f, 30f, f) / 16f;
 			sLeaser.sprites[0].alpha = f * Mathf.Lerp(0.55f, 0.6f, UnityEngine.Random.value) * 0.6f;
+			sLeaser.sprites[1].scale = requirement.SpriteScale(f);
 			sLeaser.sprites[1].alpha = f * 0.9f;
 			base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
 		}

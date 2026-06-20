@@ -15,6 +15,7 @@ public static class _Module
 		ListFixes.Apply();
 		FadePaletteTemplate.Apply();
 		InsectPicker.Apply();
+		PagedFadePalettes.Apply();
 
 		//currently used for settings saving options stuffs, but will probably later be used for much more
 		On.DevInterface.Page.ctor += Page_ctor;
@@ -31,6 +32,7 @@ public static class _Module
 		ListFixes.Undo();
 		FadePaletteTemplate.Undo();
 		InsectPicker.Undo();
+		PagedFadePalettes.Undo();
 
 		On.DevInterface.Page.ctor -= Page_ctor;
 		On.DevInterface.Page.Refresh -= Page_Refresh;

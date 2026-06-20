@@ -7,7 +7,7 @@ public sealed class ModOptions : OptionsTemplate
 {
     public static ModOptions Instance { get; } = new();
 
-    public static void RegisterOI(string remixModId)
+    internal static void RegisterOI(string remixModId)
     {
 		if (MachineConnector.GetRegisteredOI(remixModId) != Instance)
 		{
@@ -32,6 +32,10 @@ public sealed class ModOptions : OptionsTemplate
 	public static Configurable<bool> AltGateArt { get; } = Instance.config.Bind(nameof(AltGateArt), false, new ConfigurableInfo(
 		"When checked, uses an alternative set of art for region gate glyphs.", null, "",
 		"Alt Gate Art?"));
+
+	public static Configurable<bool> PagedFadePalettes { get; } = Instance.config.Bind(nameof(PagedFadePalettes), true, new ConfigurableInfo(
+		"When checked, makes the fade palette panel paged. Turn off if it is causing issues with other mods.", null, "",
+		"Paged Fade Palettes?"));
 
 
 
@@ -69,6 +73,7 @@ public sealed class ModOptions : OptionsTemplate
 		DrawCheckBoxes(ref Tabs[tabIndex]);
 
 		AddCheckBox(EnableRant);
+		AddCheckBox(PagedFadePalettes);
 		DrawCheckBoxes(ref Tabs[tabIndex]);
 
 

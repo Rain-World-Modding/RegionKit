@@ -189,7 +189,9 @@ internal static class MoreFadePalettes
 					Color origColor = self.paletteTexture.GetPixel(i, j - 8);
 					var newColor = Color.Lerp(fadeTex.GetPixel(i, j), fadeTex.GetPixel(i, j - 8), self.fadeCoord.y);
 					if (fade.fades.Length > self.currentCameraPosition) //we're not throwing, even if it'll fail to render the fade
-					{ self.paletteTexture.SetPixel(i, j - 8, Color.Lerp(origColor, newColor, fade.fades[self.currentCameraPosition])); }
+					{ 
+						self.paletteTexture.SetPixel(i, j - 8, Color.Lerp(origColor, newColor, fade.fades[self.currentCameraPosition]));
+					}
 				}
 			}
 		}
@@ -211,7 +213,7 @@ internal static class MoreFadePalettes
 			color2 = -1;
 		}
 
-		RoomSettings.RoomEffect roomEffect = self.room?.roomSettings.GetEffect(PaletteEffectColorA);
+		RoomSettings.RoomEffect? roomEffect = self.room?.roomSettings.GetEffect(PaletteEffectColorA);
 		if (roomEffect != null)
 		{
 			color1 = -1;
@@ -334,18 +336,18 @@ internal static class MoreFadePalettes
 		}
 
 		// Custom effect color fading stuff
-		RoomSettings.RoomEffect roomEffect = self.room?.roomSettings.GetEffect(PaletteEffectColorA);
+		RoomSettings.RoomEffect? roomEffect = self.room?.roomSettings.GetEffect(PaletteEffectColorA);
 		if (roomEffect != null)
 		{
 			FadeEffectColor(self, 4); 
-			self.LoadPalette(self.room.roomSettings.Palette, ref self.fadeTexA);
+			self.LoadPalette(self.room!.roomSettings.Palette, ref self.fadeTexA);
 			self.LoadPalette(self.room.roomSettings.fadePalette.palette, ref self.fadeTexB);
 		}
 		roomEffect = self.room?.roomSettings.GetEffect(PaletteEffectColorB);
 		if (roomEffect != null)
 		{
 			FadeEffectColor(self, 2);
-			self.LoadPalette(self.room.roomSettings.Palette, ref self.fadeTexA);
+			self.LoadPalette(self.room!.roomSettings.Palette, ref self.fadeTexA);
 			self.LoadPalette(self.room.roomSettings.fadePalette.palette, ref self.fadeTexB);
 		}
 
@@ -357,7 +359,11 @@ internal static class MoreFadePalettes
 		self.currentCameraPosition = cameraPosition; //THIS IS REALLY IMPORTANT idk why the base game doesn't do this, shouldn't break anything
 
 		self.ClearMoreFadeTextures();
-		if (newRoom == null) { orig(self, newRoom, cameraPosition); return; }
+		if (newRoom == null) 
+		{ 
+			orig(self, newRoom, cameraPosition); 
+			return; 
+		}
 		foreach (FadePalette fade in newRoom.roomSettings.GetAllFades())
 		{
 			Texture2D moreTex = null!;
@@ -388,9 +394,13 @@ internal static class MoreFadePalettes
 		for (int i = 0; i <= greatest; i++)
 		{
 			if (moreFadeIndex.ContainsKey(i))
-			{ self.AllFadePalettes().Add(moreFadeIndex[i]); }
+			{ 
+				self.AllFadePalettes().Add(moreFadeIndex[i]); 
+			}
 			else
-			{ self.AllFadePalettes().Add(null!); }
+			{ 
+				self.AllFadePalettes().Add(null!); 
+			}
 		}
 
 		return true;
@@ -423,11 +433,6 @@ internal static class MoreFadePalettes
 	{
 		orig(self, owner, IDstring, parentNode, name);
 		self.subNodes.Add(new MoreFadeDevPanel(owner, self, new Vector2(450f, 360f), self.RoomSettings.GetAllFades().Count() - 1));
-		return;
-		for (int i = 0; i < self.RoomSettings.GetAllFades().Length; i++)
-		{
-			self.subNodes.Add(new MoreFadeDevPanel(owner, self, new Vector2(250f + 210f * i, 190f), i));
-		}
 	}
 	#endregion
 
@@ -438,12 +443,22 @@ internal static class MoreFadePalettes
 	#region devUI
 	public class MoreFadeDevPanel : Panel, IDevUISignals
 	{
+		public static readonly int SlidersPerSubpage = 20;
+
 		public int index;
+		public int screensPage = 0;
+		public int screensTotalPages = 0;
 		public int camCount => owner.room.cameraPositions.Length;
 		public FadePalette GetFade => RoomSettings.GetMoreFade(index);
 		public MoreFadeDevPanel(DevUI owner, DevUINode parentNode, Vector2 pos, int index) : base(owner, $"MoreFade_{index}", parentNode, pos, new Vector2(210f, 25f + 20f * owner.room.cameraPositions.Length), $"Fade Palette: {(index == -1 ? "None" : +2)}")
 		{
 			this.index = index;
+
+			if (camCount > SlidersPerSubpage)
+			{
+				size.y = 45f + 20f * SlidersPerSubpage;
+				screensTotalPages = (camCount + SlidersPerSubpage - 1) / SlidersPerSubpage;
+			}
 
 			RefreshSubnodes();
 		}
@@ -454,19 +469,27 @@ internal static class MoreFadePalettes
 			if (index == -1) Title = "Fade Palette: None";
 
 			for (int i = subNodes.Count - 1; i >= 0; i--)
-			{ subNodes[i].ClearSprites(); }
+			{ 
+				subNodes[i].ClearSprites(); 
+			}
 			subNodes.Clear();
 
 			float height = 25f;
 			height += 40f;
 			if (index != -1)
-			{ height += 20f + camCount * 20f; }
+			{ 
+				height += 20f + Math.Min(camCount, SlidersPerSubpage) * 20f;
+				if (camCount > SlidersPerSubpage)
+				{
+					height += 25f;
+				}
+			}
 
 			Resize(new Vector2(210f, height));
 
-			if (pos.y + height > 700f)
+			if (pos.y + height > 660f)
 			{
-				Move(new Vector2(pos.x, 700f - height));
+				Move(new Vector2(pos.x, 660f - height));
 			}
 
 			height -= 20f;
@@ -474,7 +497,7 @@ internal static class MoreFadePalettes
 			subNodes.Add(new Button(owner, "Add_New", this, new Vector2(5f, height), 90f, "Add New"));
 
 			height -= 20f;
-			if (RoomSettings.GetAllFades().Count() > (index == -1 ? 0 : 0))
+			if (RoomSettings.GetAllFades().Count() > 0)
 			{
 				subNodes.Add(new Button(owner, "Move_Prev", this, new Vector2(5f, height), 90f, "Prev"));
 				subNodes.Add(new Button(owner, "Move_Next", this, new Vector2(105f, height), 90f, "Next"));
@@ -489,15 +512,29 @@ internal static class MoreFadePalettes
 			subNodes.Add(new MorePaletteFadeController(owner, IDstring + "_FadePalette", this, new Vector2(5f, height), "Fade Palette: "));
 			for (int i = 0; i < camCount; i++)
 			{
-				height -= 20f;
-				subNodes.Add(new MorePaletteFadeSlider(owner, IDstring + "_PaletteFadeSlider_" + i.ToString(), this, new Vector2(5f, height), "Screen " + i.ToString() + ": ", i));
+				int pageStart = screensPage * SlidersPerSubpage;
+				if (i >= pageStart && i < pageStart + SlidersPerSubpage)
+				{
+					height -= 20f;
+					subNodes.Add(new MorePaletteFadeSlider(owner, IDstring + "_PaletteFadeSlider_" + i.ToString(), this, new Vector2(5f, height), "Screen " + i.ToString() + ": ", i));
+				}
 			}
+
+			subNodes.Add(new Button(owner, "Screens_Prev", this, new Vector2(5f, 5f), 90f, "Prev Page"));
+			subNodes.Add(new Button(owner, "Screens_Next", this, new Vector2(105f, 5f), 90f, "Next Page"));
 		}
 
-		public void SwitchPages(int index)
+		public void SwitchPalettePage(int index)
 		{
 			if (index >= RoomSettings.GetAllFades().Count() || index < 0) return;
 			this.index = index;
+			RefreshSubnodes();
+		}
+
+		public void SwitchScreenPage(int index)
+		{
+			if (index < 0 || index >= screensTotalPages) return;
+			screensPage = index;
 			RefreshSubnodes();
 		}
 
@@ -512,31 +549,39 @@ internal static class MoreFadePalettes
 
 		public void Signal(DevUISignalType type, DevUINode sender, string message)
 		{
-			LogMessage("signalis");
 			switch (sender.IDstring)
 			{
-			case "Add_New":
-				RoomSettings.SetMoreFade(RoomSettings.GetAllFades().Count(), new FadePalette(0, camCount));
-				index = RoomSettings.GetAllFades().Count() - 1;
-				RefreshSubnodes();
-				break;
-			case "Delete":
-				RoomSettings.DeleteMoreFade(index);
-				index = Mathf.Max(0, index - 1);
-				if (RoomSettings.GetAllFades().Count() <= 0)
-				{
-					index = -1;
+				case "Add_New":
+					RoomSettings.SetMoreFade(RoomSettings.GetAllFades().Count(), new FadePalette(0, camCount));
+					index = RoomSettings.GetAllFades().Count() - 1;
 					RefreshSubnodes();
-				}
-				else { SwitchPages(index); }
-				owner.room.game.cameras[0].ChangeMoreFade(RoomSettings.GetAllFades());
-				break;
-			case "Move_Prev":
-				SwitchPages(index - 1);
-				break;
-			case "Move_Next":
-				SwitchPages(index + 1);
-				break;
+					break;
+				case "Delete":
+					RoomSettings.DeleteMoreFade(index);
+					index = Mathf.Max(0, index - 1);
+					if (RoomSettings.GetAllFades().Count() <= 0)
+					{
+						index = -1;
+						RefreshSubnodes();
+					}
+					else 
+					{ 
+						SwitchPalettePage(index);
+					}
+					owner.room.game.cameras[0].ChangeMoreFade(RoomSettings.GetAllFades());
+					break;
+				case "Move_Prev":
+					SwitchPalettePage(index - 1);
+					break;
+				case "Move_Next":
+					SwitchPalettePage(index + 1);
+					break;
+				case "Screens_Prev":
+					SwitchScreenPage(screensPage - 1);
+					break;
+				case "Screens_Next":
+					SwitchScreenPage(screensPage + 1);
+					break;
 			}
 		}
 	}

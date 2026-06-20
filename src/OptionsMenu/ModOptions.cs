@@ -106,6 +106,7 @@ public sealed class ModOptions : OptionsTemplate
 		("Alduris", hexToColor("f21035")),
 		("LudoCrypt", hexToColor("c6a3be")),
 		("Ved-s", hexToColor("ee6225")),
+		("Seroen", hexToColor("2ecc71")),
 		("MagicaJaphet", hexToColor("c00a20")),
 		("k0rii", hexToColor("ea4970")),
 		("tpd1864blake", hexToColor("ff0000")),

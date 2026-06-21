@@ -1,0 +1,172 @@
+{"frames": {
+
+"gateSymbol1reinforced.png":
+{
+	"frame": {"x":0,"y":0,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbol2reinforced.png":
+{
+	"frame": {"x":62,"y":0,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbol3reinforced.png":
+{
+	"frame": {"x":124,"y":0,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbol4reinforced.png":
+{
+	"frame": {"x":186,"y":0,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbol5reinforced.png":
+{
+	"frame": {"x":248,"y":0,"w":62,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
+	"sourceSize": {"w":62,"h":149}
+},
+"gateSymbol1reinforcedalt.png":
+{
+	"frame": {"x":0,"y":149,"w":66,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":66,"h":149},
+	"sourceSize": {"w":66,"h":149}
+},
+"gateSymbol2reinforcedalt.png":
+{
+	"frame": {"x":66,"y":149,"w":66,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":66,"h":149},
+	"sourceSize": {"w":66,"h":149}
+},
+"gateSymbol3reinforcedalt.png":
+{
+	"frame": {"x":132,"y":149,"w":66,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":66,"h":149},
+	"sourceSize": {"w":66,"h":149}
+},
+"gateSymbol4reinforcedalt.png":
+{
+	"frame": {"x":198,"y":149,"w":66,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":66,"h":149},
+	"sourceSize": {"w":66,"h":149}
+},
+"gateSymbol5reinforcedalt.png":
+{
+	"frame": {"x":264,"y":149,"w":66,"h":149},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":66,"h":149},
+	"sourceSize": {"w":66,"h":149}
+},
+"smallKarma0reinforced.png":
+{
+	"frame": {"x":0,"y":298,"w":45,"h":45},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
+	"sourceSize": {"w":45,"h":45}
+},
+"smallKarma1reinforced.png":
+{
+	"frame": {"x":45,"y":298,"w":45,"h":45},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
+	"sourceSize": {"w":45,"h":45}
+},
+"smallKarma2reinforced.png":
+{
+	"frame": {"x":90,"y":298,"w":45,"h":45},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
+	"sourceSize": {"w":45,"h":45}
+},
+"smallKarma3reinforced.png":
+{
+	"frame": {"x":135,"y":298,"w":45,"h":45},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
+	"sourceSize": {"w":45,"h":45}
+},
+"smallKarma4reinforced.png":
+{
+	"frame": {"x":180,"y":298,"w":45,"h":45},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
+	"sourceSize": {"w":45,"h":45}
+},
+"smallKarmaNoRing0reinforced.png":
+{
+	"frame": {"x":0,"y":298,"w":45,"h":45},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
+	"sourceSize": {"w":45,"h":45}
+},
+"smallKarmaNoRing1reinforced.png":
+{
+	"frame": {"x":45,"y":298,"w":45,"h":45},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
+	"sourceSize": {"w":45,"h":45}
+},
+"smallKarmaNoRing2reinforced.png":
+{
+	"frame": {"x":90,"y":298,"w":45,"h":45},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
+	"sourceSize": {"w":45,"h":45}
+},
+"smallKarmaNoRing3reinforced.png":
+{
+	"frame": {"x":135,"y":298,"w":45,"h":45},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
+	"sourceSize": {"w":45,"h":45}
+},
+"smallKarmaNoRing4reinforced.png":
+{
+	"frame": {"x":180,"y":298,"w":45,"h":45},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":45,"h":45},
+	"sourceSize": {"w":45,"h":45}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "ReinforcedGateSymbols.png",
+	"format": "RGBA8888",
+	"size": {"w":330,"h":343},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:3e9eb9b947c740902ee7e65bbf8fe2da:d10dd3d420afd446438b2b6412ad61f0:91174c6b396ff50d7f2cfb4e2396d231$"
+}
+}

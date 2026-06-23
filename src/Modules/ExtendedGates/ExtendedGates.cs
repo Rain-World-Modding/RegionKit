@@ -44,7 +44,7 @@ public static class ExtendedGates
 			[_Enums.CommsMark] = new ExtendedLocks.ComsMark(),
 			[_Enums.Glow] = new ExtendedLocks.Glow(),
 			[_Enums.uwu] = new ExtendedLocks.UWU(),
-			[_Enums.TenReinforced] = new ExtendedLocks.TenReinforced(),
+			[_Enums.TenReinforced] = new ExtendedLocks.Reinforced(new ExtendedLocks.Numerical(_Enums.TenKarma)),
 			[_Enums.SixKarma] = new ExtendedLocks.Numerical(_Enums.SixKarma),
 			[_Enums.SevenKarma] = new ExtendedLocks.Numerical(_Enums.SevenKarma),
 			[_Enums.EightKarma] = new ExtendedLocks.Numerical(_Enums.EightKarma),
@@ -150,7 +150,7 @@ public static class ExtendedGates
 	}
 	internal const string ALT_POSTFIX = "alt";
 	internal const string TXT_POSTFIX = "txt";
-	internal const string REINFORCED_POSTFIX = "reinforced";
+	internal const string REINFORCED_POSTFIX = "Reinforced";
 
 	internal static void Enable()
 	{

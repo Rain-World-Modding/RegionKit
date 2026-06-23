@@ -20,12 +20,6 @@ namespace RegionKit.Modules.ExtendedGates
 			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaForbidden";
 			public bool Requirement(Gate gate) => false;
 		}
-		public class TenReinforced : LockData
-		{
-			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbol10reinforced";
-			public string MapElementName(Map.GateMarker gateMarker) => "smallKarma10reinforced";
-			public bool Requirement(Gate gate) => gate.room.game.Players[0].realizedCreature is Player p && p.Karma == 9 && p.KarmaIsReinforced;
-		}
 		public class ComsMark : LockData
 		{
 			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolComsmark";
@@ -151,11 +145,14 @@ namespace RegionKit.Modules.ExtendedGates
 
 		public class Reinforced : LockData
 		{
+			// Different from ExtendedGates.REINFORCED_POSTFIX because it's lowercase
+			public string REINFORCED_SPRITE_POSTFIX = "reinforced"
+
 			protected LockData wrapped;
 			public Reinforced(LockData wrapped) { this.wrapped = wrapped; }
-			public string GateElementName(GateKarmaGlyph glyph) => wrapped.GateElementName(glyph) + ExtendedGates.REINFORCED_POSTFIX;
+			public string GateElementName(GateKarmaGlyph glyph) => wrapped.GateElementName(glyph) + REINFORCED_SPRITE_POSTFIX;
 
-			public string MapElementName(Map.GateMarker gateMarker) => wrapped.MapElementName(gateMarker) + ExtendedGates.REINFORCED_POSTFIX;
+			public string MapElementName(Map.GateMarker gateMarker) => wrapped.MapElementName(gateMarker) + REINFORCED_SPRITE_POSTFIX;
 
 			public bool Requirement(Gate regionGate) => wrapped.Requirement(regionGate) && regionGate.room.game.Players[0].realizedCreature is Player p && p.KarmaIsReinforced;
 		}

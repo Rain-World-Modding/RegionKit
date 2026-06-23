@@ -27,21 +27,21 @@ public static class _Enums
 	public static Req Ripple4_0 = new("Ripple4.0", true);
 	public static Req Ripple4_5 = new("Ripple4.5", true);
 	public static Req Ripple5_0 = new("Ripple5.0", true);
-	public static Req[] reinforced = new Req[5];
+	public static Req[] reinforced = new Req[6];
 	public static Req[] alt = new Req[22];
 	public static Req[] txt = new Req[10];
 
 	public static void Register()
 	{
 		const int numericals = 10;
-		const int numericalsReinforced = 5;
+		var reinforced = new Req[6] { Req.OneKarma, Req.TwoKarma, Req.ThreeKarma, Req.FourKarma, Req.FiveKarma, TenKarma }
 		var specials = new Req[7] { Construction, uwu, Open, Forbidden, Glow, CommsMark, TenReinforced };
 
-		alt = new Req[numericals + specials.Length + numericalsReinforced];
+		alt = new Req[numericals + specials.Length + reinforced];
 
-		foreach (int i in Range(5))
+		for (int i = 0; i < reinforced.Length; i++)
 		{
-			reinforced[i] = new(i + 1 + ExtendedGates.REINFORCED_POSTFIX, true);
+			reinforced[i] = new(reinforced[i].value + ExtendedGates.REINFORCED_POSTFIX, true);
 		}
 
 		foreach (int i in Range(10))

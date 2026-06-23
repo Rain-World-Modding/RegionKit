@@ -138,6 +138,7 @@ public static class ExtendedGates
 		{
 			str = str[..^TXT_POSTFIX.Length];
 		}
+		// note that reinforcedalt must be done in that order and not the reverse
 		if (str.EndsWith(REINFORCED_POSTFIX))
 		{
 			str = str[..^REINFORCED_POSTFIX.Length];

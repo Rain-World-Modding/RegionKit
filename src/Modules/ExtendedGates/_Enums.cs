@@ -12,7 +12,6 @@ public static class _Enums
 	public static Req Forbidden = new(nameof(Forbidden), true);
 	public static Req Glow = new(nameof(Glow), true);
 	public static Req CommsMark = new(nameof(CommsMark), true);
-	public static Req TenReinforced = new(nameof(TenReinforced), true);
 	public static Req SixKarma = new("6", true);
 	public static Req SevenKarma = new("7", true);
 	public static Req EightKarma = new("8", true);
@@ -28,21 +27,21 @@ public static class _Enums
 	public static Req Ripple4_5 = new("Ripple4.5", true);
 	public static Req Ripple5_0 = new("Ripple5.0", true);
 	public static Req[] reinforced = new Req[6];
-	public static Req[] alt = new Req[22];
+	public static Req[] alt = new Req[21];
 	public static Req[] txt = new Req[10];
 
 	public static void Register()
 	{
-		const int numericals = 10;
-		var reinforced = new Req[6] { Req.OneKarma, Req.TwoKarma, Req.ThreeKarma, Req.FourKarma, Req.FiveKarma, TenKarma };
-		var specials = new Req[7] { Construction, uwu, Open, Forbidden, Glow, CommsMark, TenReinforced };
-
-		alt = new Req[numericals + specials.Length + reinforced.Length];
-
+		reinforced = [Req.OneKarma, Req.TwoKarma, Req.ThreeKarma, Req.FourKarma, Req.FiveKarma, TenKarma];
 		for (int i = 0; i < reinforced.Length; i++)
 		{
 			reinforced[i] = new(reinforced[i].value + ExtendedGates.REINFORCED_POSTFIX, true);
 		}
+
+		const int numericals = 10;
+		var specials = new Req[6] { Construction, uwu, Open, Forbidden, Glow, CommsMark };
+
+		alt = new Req[numericals + specials.Length + reinforced.Length];
 
 		foreach (int i in Range(10))
 		{

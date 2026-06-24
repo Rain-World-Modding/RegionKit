@@ -1,6 +1,6 @@
 {"frames": {
 
-"gateSymbol1reinforced.png":
+"gateSymbol1Reinforced.png":
 {
 	"frame": {"x":0,"y":0,"w":68,"h":180},
 	"rotated": false,
@@ -8,7 +8,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":68,"h":180},
 	"sourceSize": {"w":68,"h":180}
 },
-"gateSymbol2reinforced.png":
+"gateSymbol2Reinforced.png":
 {
 	"frame": {"x":68,"y":0,"w":68,"h":180},
 	"rotated": false,
@@ -16,7 +16,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":68,"h":180},
 	"sourceSize": {"w":68,"h":180}
 },
-"gateSymbol3reinforced.png":
+"gateSymbol3Reinforced.png":
 {
 	"frame": {"x":136,"y":0,"w":68,"h":180},
 	"rotated": false,
@@ -24,7 +24,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":68,"h":180},
 	"sourceSize": {"w":68,"h":180}
 },
-"gateSymbol4reinforced.png":
+"gateSymbol4Reinforced.png":
 {
 	"frame": {"x":204,"y":0,"w":68,"h":180},
 	"rotated": false,
@@ -32,7 +32,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":68,"h":180},
 	"sourceSize": {"w":68,"h":180}
 },
-"gateSymbol5reinforced.png":
+"gateSymbol5Reinforced.png":
 {
 	"frame": {"x":272,"y":0,"w":68,"h":180},
 	"rotated": false,
@@ -40,7 +40,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":68,"h":180},
 	"sourceSize": {"w":68,"h":180}
 },
-"gateSymbol1reinforcedalt.png":
+"gateSymbol1Reinforcedalt.png":
 {
 	"frame": {"x":0,"y":180,"w":69,"h":180},
 	"rotated": false,
@@ -48,7 +48,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":69,"h":180},
 	"sourceSize": {"w":69,"h":180}
 },
-"gateSymbol2reinforcedalt.png":
+"gateSymbol2Reinforcedalt.png":
 {
 	"frame": {"x":69,"y":180,"w":69,"h":180},
 	"rotated": false,
@@ -56,7 +56,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":69,"h":180},
 	"sourceSize": {"w":69,"h":180}
 },
-"gateSymbol3reinforcedalt.png":
+"gateSymbol3Reinforcedalt.png":
 {
 	"frame": {"x":138,"y":180,"w":69,"h":180},
 	"rotated": false,
@@ -64,7 +64,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":69,"h":180},
 	"sourceSize": {"w":69,"h":180}
 },
-"gateSymbol4reinforcedalt.png":
+"gateSymbol4Reinforcedalt.png":
 {
 	"frame": {"x":207,"y":180,"w":69,"h":180},
 	"rotated": false,
@@ -72,7 +72,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":69,"h":180},
 	"sourceSize": {"w":69,"h":180}
 },
-"gateSymbol5reinforcedalt.png":
+"gateSymbol5Reinforcedalt.png":
 {
 	"frame": {"x":276,"y":180,"w":69,"h":180},
 	"rotated": false,
@@ -80,7 +80,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":69,"h":180},
 	"sourceSize": {"w":69,"h":180}
 },
-"smallKarma0reinforced.png":
+"smallKarma0Reinforced.png":
 {
 	"frame": {"x":0,"y":360,"w":61,"h":61},
 	"rotated": false,
@@ -88,7 +88,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
 	"sourceSize": {"w":61,"h":61}
 },
-"smallKarma1reinforced.png":
+"smallKarma1Reinforced.png":
 {
 	"frame": {"x":61,"y":360,"w":61,"h":61},
 	"rotated": false,
@@ -96,7 +96,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
 	"sourceSize": {"w":61,"h":61}
 },
-"smallKarma2reinforced.png":
+"smallKarma2Reinforced.png":
 {
 	"frame": {"x":122,"y":360,"w":61,"h":61},
 	"rotated": false,
@@ -104,7 +104,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
 	"sourceSize": {"w":61,"h":61}
 },
-"smallKarma3reinforced.png":
+"smallKarma3Reinforced.png":
 {
 	"frame": {"x":183,"y":360,"w":61,"h":61},
 	"rotated": false,
@@ -112,7 +112,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
 	"sourceSize": {"w":61,"h":61}
 },
-"smallKarma4reinforced.png":
+"smallKarma4Reinforced.png":
 {
 	"frame": {"x":244,"y":360,"w":61,"h":61},
 	"rotated": false,
@@ -120,7 +120,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
 	"sourceSize": {"w":61,"h":61}
 },
-"smallKarmaNoRing0reinforced.png":
+"smallKarmaNoRing0Reinforced.png":
 {
 	"frame": {"x":0,"y":360,"w":61,"h":61},
 	"rotated": false,
@@ -128,7 +128,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
 	"sourceSize": {"w":61,"h":61}
 },
-"smallKarmaNoRing1reinforced.png":
+"smallKarmaNoRing1Reinforced.png":
 {
 	"frame": {"x":61,"y":360,"w":61,"h":61},
 	"rotated": false,
@@ -136,7 +136,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
 	"sourceSize": {"w":61,"h":61}
 },
-"smallKarmaNoRing2reinforced.png":
+"smallKarmaNoRing2Reinforced.png":
 {
 	"frame": {"x":122,"y":360,"w":61,"h":61},
 	"rotated": false,
@@ -144,7 +144,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
 	"sourceSize": {"w":61,"h":61}
 },
-"smallKarmaNoRing3reinforced.png":
+"smallKarmaNoRing3Reinforced.png":
 {
 	"frame": {"x":183,"y":360,"w":61,"h":61},
 	"rotated": false,
@@ -152,7 +152,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":61,"h":61},
 	"sourceSize": {"w":61,"h":61}
 },
-"smallKarmaNoRing4reinforced.png":
+"smallKarmaNoRing4Reinforced.png":
 {
 	"frame": {"x":244,"y":360,"w":61,"h":61},
 	"rotated": false,

@@ -34,10 +34,10 @@ public static class _Enums
 	public static void Register()
 	{
 		const int numericals = 10;
-		var reinforced = new Req[6] { Req.OneKarma, Req.TwoKarma, Req.ThreeKarma, Req.FourKarma, Req.FiveKarma, TenKarma }
+		var reinforced = new Req[6] { Req.OneKarma, Req.TwoKarma, Req.ThreeKarma, Req.FourKarma, Req.FiveKarma, TenKarma };
 		var specials = new Req[7] { Construction, uwu, Open, Forbidden, Glow, CommsMark, TenReinforced };
 
-		alt = new Req[numericals + specials.Length + reinforced];
+		alt = new Req[numericals + specials.Length + reinforced.Length];
 
 		for (int i = 0; i < reinforced.Length; i++)
 		{

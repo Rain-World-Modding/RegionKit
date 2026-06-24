@@ -146,7 +146,7 @@ namespace RegionKit.Modules.ExtendedGates
 		public class Reinforced : LockData
 		{
 			// Different from ExtendedGates.REINFORCED_POSTFIX because it's lowercase
-			public string REINFORCED_SPRITE_POSTFIX = "reinforced"
+			public string REINFORCED_SPRITE_POSTFIX = "reinforced";
 
 			protected LockData wrapped;
 			public Reinforced(LockData wrapped) { this.wrapped = wrapped; }

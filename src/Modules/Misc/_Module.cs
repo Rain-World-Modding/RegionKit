@@ -21,6 +21,7 @@ internal static class _Module
 		FadePaletteCombiner.Enable();
 		DecalPreview.Enable();
 		CustomSSSong.Enable();
+		LightningFix.Apply();
 
 		On.RoomPalette.GetColor += RoomPalette_GetColor;
 	}
@@ -38,6 +39,7 @@ internal static class _Module
 		FadePaletteCombiner.Disable();
 		DecalPreview.Disable();
 		CustomSSSong.Disable();
+		LightningFix.Undo();
 	}
 
 	private static Color RoomPalette_GetColor(On.RoomPalette.orig_GetColor orig, ref RoomPalette self, RoomPalette.ColorName colorName)

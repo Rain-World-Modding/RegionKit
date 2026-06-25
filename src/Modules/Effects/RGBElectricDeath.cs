@@ -160,7 +160,12 @@ namespace RegionKit.Modules.Effects
 			if (cursor.TryGotoNext(MoveType.After, i => i.MatchNewobj<Color>())) 
 			{
 				cursor.Emit(OpCodes.Ldarg_0);
-				cursor.EmitDelegate<Func<Color, ElectricDeath.SparkFlash, Color>>((Color origColor, ElectricDeath.SparkFlash self) => (Color)((self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null && self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.affectElectricDeath == true) ? self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.color : origColor)); 
+				cursor.EmitDelegate((Color origColor, ElectricDeath.SparkFlash self) =>
+				{
+					return (self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null && self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.affectElectricDeath == true) 
+						? self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.color ?? origColor
+						: origColor;
+				}); 
 			}
 		}
 		

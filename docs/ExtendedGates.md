@@ -14,24 +14,25 @@ ExtendedGates uses the same file for managing gate locks as vanilla, under asset
 ### Gate requirements
 Below is a table of all requirement types (case-sensitive) added by ExtendedGates:
 
-| Requirement         | Description                                      | Remarks                                                   |
-| ------------------- | ------------------------------------------------ | --------------------------------------------------------- |
-| `<any number 1-10>` | Requires that karma level or higher to pass.     | 1-5 are carried from base game. 6-10 are ExtendedGates.   |
-| `Open`              | Always open. Works like karma 1 but looks cooler |                                                           |
-| `TenReinforced`     | Requires karma 10 + karma flower effect.         | Cannot be opened on Hunter without cheats.                |
-| `Forbidden`         | Does not open from the given side.               | Equivalent to Outer Expanse gate lock, but always locked. |
-| `CommsMark`         | Requires the mark.                               | Cannot be opened on Saint without cheats.                 |
-| `Glow`              | Requires neuron glow effect.                     |                                                           |
-| `uwu`               | uwu                                              | Requires UwU mod to open. Opens for free.                 |
-| `Ripple<level>`     | Requires that ripple level or higher to pass.    | Works on 0.5 increments. Example: `Ripple1.5`             |
+| Requirement                  | Description                                                | Remarks                                                   |
+| ---------------------------- | ---------------------------------------------------------- | --------------------------------------------------------- |
+| `<any number 1-10>`          | Requires that karma level or higher to pass.               | 1-5 are carried from base game. 6-10 are ExtendedGates.   |
+| `Open`                       | Always open. Works like karma 1 but looks cooler           |                                                           |
+| `<any number 1-5>Reinforced` | Requires that karma level or higher + karma flower effect. | Cannot be opened on Hunter without cheats.                |
+| `10Reinforced`               | Requires karma 10 + karma flower effect.                   | Cannot be opened on Hunter without cheats.                |
+| `Forbidden`                  | Does not open from the given side.                         | Equivalent to Outer Expanse gate lock, but always locked. |
+| `CommsMark`                  | Requires the mark.                                         | Cannot be opened on Saint without cheats.                 |
+| `Glow`                       | Requires neuron glow effect.                               |                                                           |
+| `uwu`                        | uwu                                                        | Requires UwU mod to open. Opens for free.                 |
+| `Ripple<level>`              | Requires that ripple level or higher to pass.              | Works on 0.5 increments. Example: `Ripple1.5`             |
 
 #### Alternate symbols
 ExtendedGates has alternate custom symbols that can be used in place of the default symbol on the gate. They are keywords that are appended to the end of the requirement. They only work for some gate requirements.
 
-| Keyword | Description                                                        | Supported requirements                                      |
-| ------- | ------------------------------------------------------------------ | ----------------------------------------------------------- |
-| `alt`   | Replaces the usual art below the requirement icon with custom art. | All karma levels, Open, TenReinforced, Forbidden, Glow, uwu |
-| `txt`   | Adds text-like lines below the requirement icon.                   | All karma levels                                            |
+| Keyword | Description                                                        | Supported requirements                                                    |
+| ------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| `alt`   | Replaces the usual art below the requirement icon with custom art. | All karma levels, All reinforced karma levels, Open, Forbidden, Glow, uwu |
+| `txt`   | Adds text-like lines below the requirement icon.                   | All karma levels                                                          |
 
 Example:
 ```

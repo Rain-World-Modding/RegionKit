@@ -20,12 +20,6 @@ namespace RegionKit.Modules.ExtendedGates
 			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaForbidden";
 			public bool Requirement(Gate gate) => false;
 		}
-		public class TenReinforced : LockData
-		{
-			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbol10reinforced";
-			public string MapElementName(Map.GateMarker gateMarker) => "smallKarma10reinforced";
-			public bool Requirement(Gate gate) => gate.room.game.Players[0].realizedCreature is Player p && p.Karma == 9 && p.KarmaIsReinforced;
-		}
 		public class ComsMark : LockData
 		{
 			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolComsmark";
@@ -147,6 +141,19 @@ namespace RegionKit.Modules.ExtendedGates
 				float rippleLevel = regionGate.room.game.GetStorySession.saveState.deathPersistentSaveData.rippleLevel;
 				return rippleLevel >= req;
 			}
+		}
+
+		public class Reinforced : LockData
+		{
+			public string REINFORCED_SPRITE_POSTFIX = ExtendedGates.REINFORCED_POSTFIX;
+
+			protected LockData wrapped;
+			public Reinforced(LockData wrapped) { this.wrapped = wrapped; }
+			public string GateElementName(GateKarmaGlyph glyph) => wrapped.GateElementName(glyph) + REINFORCED_SPRITE_POSTFIX;
+
+			public string MapElementName(Map.GateMarker gateMarker) => wrapped.MapElementName(gateMarker) + REINFORCED_SPRITE_POSTFIX;
+
+			public bool Requirement(Gate regionGate) => wrapped.Requirement(regionGate) && regionGate.room.game.Players[0].realizedCreature is Player p && p.KarmaIsReinforced;
 		}
 
 		public class Alt : LockData

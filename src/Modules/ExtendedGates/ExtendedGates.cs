@@ -26,6 +26,8 @@ public static class ExtendedGates
 
 	public static Dictionary<Req, LockData> ExLocks = new();
 
+	public static Dictionary<string, Req> RequirementAliases = new();
+
 	public static Dictionary<Req, LockData> SpecialConditions = new();
 	public static List<ExtraRequirement> ExtraRequirements = new();
 
@@ -44,7 +46,6 @@ public static class ExtendedGates
 			[_Enums.CommsMark] = new ExtendedLocks.ComsMark(),
 			[_Enums.Glow] = new ExtendedLocks.Glow(),
 			[_Enums.uwu] = new ExtendedLocks.UWU(),
-			[_Enums.TenReinforced] = new ExtendedLocks.TenReinforced(),
 			[_Enums.SixKarma] = new ExtendedLocks.Numerical(_Enums.SixKarma),
 			[_Enums.SevenKarma] = new ExtendedLocks.Numerical(_Enums.SevenKarma),
 			[_Enums.EightKarma] = new ExtendedLocks.Numerical(_Enums.EightKarma),
@@ -60,6 +61,20 @@ public static class ExtendedGates
 			[_Enums.Ripple4_5] = new ExtendedLocks.Ripple(4.5f),
 			[_Enums.Ripple5_0] = new ExtendedLocks.Ripple(5.0f),
 		};
+
+		// load reinforced before alt because so that reinforcedalt is loaded properly
+		foreach (Req reinforced in _Enums.reinforced)
+		{
+			Req baseReq = new(reinforced.value[..^REINFORCED_POSTFIX.Length], false);
+
+			if (ExLocks.TryGetValue(baseReq, out LockData data))
+			{ ExLocks[reinforced] = new ExtendedLocks.Reinforced(data); }
+
+			else if (int.TryParse(baseReq.value, out _))
+			{ ExLocks[reinforced] = new ExtendedLocks.Reinforced(new ExtendedLocks.Numerical(baseReq)); }
+
+			else { LogError("ExtendedGates failed to register reinforced lock for " + reinforced.value[..^REINFORCED_POSTFIX.Length]); }
+		}
 
 		foreach (Req alt in _Enums.alt)
 		{
@@ -86,6 +101,8 @@ public static class ExtendedGates
 
 			else { LogError("ExtendedGates failed to register txt lock for " + txt.value[..^TXT_POSTFIX.Length]); }
 		}
+
+		RequirementAliases.Add("TenReinforced", new Req(_Enums.TenKarma + REINFORCED_POSTFIX, false));
 
 		ExtraRequirements.Add(new ExtendedRequirements.CommsMark());
 		ExtraRequirements.Add(new ExtendedRequirements.Glow());
@@ -124,6 +141,11 @@ public static class ExtendedGates
 		{
 			str = str[..^TXT_POSTFIX.Length];
 		}
+		// note that reinforcedalt must be done in that order and not the reverse
+		if (str.EndsWith(REINFORCED_POSTFIX))
+		{
+			str = str[..^REINFORCED_POSTFIX.Length];
+		}
 		if (int.TryParse(str, out int result))
 		{ return result - 1; }
 
@@ -131,6 +153,7 @@ public static class ExtendedGates
 	}
 	internal const string ALT_POSTFIX = "alt";
 	internal const string TXT_POSTFIX = "txt";
+	internal const string REINFORCED_POSTFIX = "Reinforced";
 
 	internal static void Enable()
 	{
@@ -331,9 +354,12 @@ public static class ExtendedGates
 		//guard clause, stop crashing when there are no locks!
 		for (int i = 0; i < self.karmaRequirements.Length; i++)
 		{
+			if (self.karmaRequirements[i] != null && RequirementAliases.TryGetValue(self.karmaRequirements[i].value, out Req realRequirement))
+			{ self.karmaRequirements[i] = realRequirement; }
+
 			if (self.karmaRequirements[i] == null || self.karmaRequirements[i].index == -1)
 			{ self.karmaRequirements[i] = Req.OneKarma; }
-
+			
 			//alt art ig
 			if (int.TryParse(self.karmaRequirements[i].value, out int v) && self.room?.game != null && DoesPlayerDeserveAltArt(self.room.game))
 			{
@@ -413,6 +439,9 @@ public static class ExtendedGates
 
 	private static void GateMarker_ctor(On.HUD.Map.GateMarker.orig_ctor orig, Map.GateMarker self, Map map, int room, Req req, bool showAsOpen)
 	{
+		if (req != null && RequirementAliases.TryGetValue(req.value, out Req realValue))
+		{ req = realValue; }
+
 		orig(self, map, room, !(req != null && ExLocks.ContainsKey(req)) ? req : null, showAsOpen);
 
 		// Custom icon

@@ -520,8 +520,11 @@ internal static class MoreFadePalettes
 				}
 			}
 
-			subNodes.Add(new Button(owner, "Screens_Prev", this, new Vector2(5f, 5f), 90f, "Prev Page"));
-			subNodes.Add(new Button(owner, "Screens_Next", this, new Vector2(105f, 5f), 90f, "Next Page"));
+			if (screensTotalPages > 1)
+			{
+				subNodes.Add(new Button(owner, "Screens_Prev", this, new Vector2(5f, 5f), 90f, "Prev Page"));
+				subNodes.Add(new Button(owner, "Screens_Next", this, new Vector2(105f, 5f), 90f, "Next Page"));
+			}
 		}
 
 		public void SwitchPalettePage(int index)

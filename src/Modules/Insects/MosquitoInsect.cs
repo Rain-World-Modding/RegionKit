@@ -46,7 +46,7 @@ public class MosquitoInsect : RedSwarmer
 			List<AbstractCreature> crits = rm.abstractRoom.creatures;
 			for (var i = 0; i < crits.Count; i++)
 			{
-				if (crits[i].realizedCreature is Creature c && !c.dead && (c.abstractCreature.rippleLayer == 0 || c.abstractCreature.rippleBothSides) && !ProhibitedCreatureType(c) && c.Submersion < 1f)
+				if (crits[i].realizedCreature is Creature c && !c.dead && (c.abstractCreature.rippleLayer == rippleLayer || c.abstractCreature.rippleBothSides) && !ProhibitedCreatureType(c) && c.Submersion < 1f)
 				{
 					BodyChunk[] chs = c.bodyChunks;
 					for (var k = 0; k < chs.Length; k++)

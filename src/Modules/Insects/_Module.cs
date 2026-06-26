@@ -99,6 +99,10 @@ namespace RegionKit.Modules.Insects
 				{
 					insect = new MosquitoInsect(self.room, pos);
 				}
+				else if (type == _Enums.Seedling)
+				{
+					insect = new Seedling(self.room, pos);
+				}
 				else if (type == _Enums.Zipper)
 				{
 					insect = new Zipper(self.room, pos);
@@ -143,6 +147,11 @@ namespace RegionKit.Modules.Insects
 			{
 				return !room.GetTile(testPos).DeepWater;
 			}
+			// Deep water *and* on a camera
+			if (type == _Enums.Seedling)
+			{
+				return room.GetTile(testPos).DeepWater && room.CameraViewingPoint(testPos) > -1;
+			}
 
 			return orig(type, room, testPos);
 		}
@@ -157,7 +166,7 @@ namespace RegionKit.Modules.Insects
 			{
 				return !room.readyForAI || !room.aimap.getAItile(testPos).narrowSpace;
 			}
-			if (type == _Enums.GlowingSwimmerInsect || type == _Enums.MosquitoInsect)
+			if (type == _Enums.GlowingSwimmerInsect || type == _Enums.MosquitoInsect || type == _Enums.Seedling)
 			{
 				return true;
 			}
@@ -173,6 +182,10 @@ namespace RegionKit.Modules.Insects
 			if (type == _Enums.MosquitoInsect)
 			{
 				return 1.5f;
+			}
+			if (type == _Enums.Seedling)
+			{
+				return 4f;
 			}
 			return orig(type);
 		}

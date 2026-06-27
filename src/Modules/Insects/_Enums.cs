@@ -34,6 +34,11 @@
 		/// Ripple flies effect enum
 		/// </summary>
 		public static RoomSettings.RoomEffect.Type RippleFlies = new(nameof(RippleFlies), true);
+		/// <summary>
+		/// Ripple glowworms effect enum
+		/// </summary>
+		public static RoomSettings.RoomEffect.Type RippleGlowworms = new(nameof(RippleGlowworms), true);
+
 
 		/// <summary>
 		/// Glowing Swimmer insect enum
@@ -67,11 +72,17 @@
 		/// Ripple fly enum
 		/// </summary>
 		public static CosmeticInsect.Type RippleFly = new(nameof(RippleFly), true);
+		/// <summary>
+		/// Ripple glowworm enum
+		/// </summary>
+		public static CosmeticInsect.Type RippleGlowworm = new(nameof(RippleGlowworm), true);
+
 
 		/// <summary>
 		/// Insect category
 		/// </summary>
 		public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKitInsects = new(nameof(RegionKitInsects), true);
+
 
 		/// <summary>
 		/// Returns whether or not the cosmetic insect type is from RegionKit
@@ -88,7 +99,8 @@
 				|| type == ButterflyB
 				|| type == Zipper
 				|| type == Seedling
-				|| type == RippleFly;
+				|| type == RippleFly
+				|| type == RippleGlowworm;
 		}
 
 		/// <summary>
@@ -105,7 +117,8 @@
 				|| type == ButterfliesB
 				|| type == Zippers
 				|| type == Seedlings
-				|| type == RippleFlies;
+				|| type == RippleFlies
+				|| type == RippleGlowworms;
 		}
 	}
 }

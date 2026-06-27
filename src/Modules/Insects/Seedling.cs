@@ -66,7 +66,7 @@ namespace RegionKit.Modules.Insects
 			maxSegLength = 2f;
 			roomSchool = AddToRoomSchool();
 			orbitPoint = pos;
-			orbitIdealDistance = Random.Range(minOrbitIdealDist, maxOrbitIdealDist); // random
+			orbitIdealDistance = Mathf.Sqrt(Random.Range(minOrbitIdealDist / maxOrbitIdealDist, 1f)) * maxOrbitIdealDist; // random, but accounting for area coverage
 			tailSin = Random.Range(0, 32767);
 			tailWiggleSpeed = Random.Range(14f, 22f);
 			tailWiggleOffset = Random.Range(6f, 8f);

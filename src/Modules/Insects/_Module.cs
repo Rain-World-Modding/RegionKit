@@ -8,7 +8,7 @@ namespace RegionKit.Modules.Insects
 	public static class _Module
 	{
 		private const bool DEBUG = false;
-		private static readonly CosmeticInsect.Type? debugType = _Enums.RippleFly;
+		private static readonly CosmeticInsect.Type? debugType = _Enums.RippleGlowworm;
 
 		internal static void Setup()
 		{
@@ -54,22 +54,24 @@ namespace RegionKit.Modules.Insects
 
 		private static CosmeticInsect.Type InsectCoordinator_RoomEffectToInsectType(On.InsectCoordinator.orig_RoomEffectToInsectType orig, RoomSettings.RoomEffect.Type type)
 		{
-			if (type == _Enums.ButterfliesA)
+			if (type == _Enums.GlowingSwimmers)
+				return _Enums.GlowingSwimmerInsect;
+			else if (type == _Enums.ColoredCamoBeetles)
+				return _Enums.ColoredCamoBeetle;
+			else if (type == _Enums.MosquitoInsects)
+				return _Enums.MosquitoInsect;
+			else if (type == _Enums.ButterfliesA)
 				return _Enums.ButterflyA;
 			else if (type == _Enums.ButterfliesB)
 				return _Enums.ButterflyB;
-			else if (type == _Enums.ColoredCamoBeetles)
-				return _Enums.ColoredCamoBeetle;
-			else if (type == _Enums.GlowingSwimmers)
-				return _Enums.GlowingSwimmerInsect;
-			else if (type == _Enums.MosquitoInsects)
-				return _Enums.MosquitoInsect;
-			else if (type == _Enums.RippleFlies)
-				return _Enums.RippleFly;
-			else if (type == _Enums.Seedlings)
-				return _Enums.Seedling;
 			else if (type == _Enums.Zippers)
 				return _Enums.Zipper;
+			else if (type == _Enums.Seedlings)
+				return _Enums.Seedling;
+			else if (type == _Enums.RippleFlies)
+				return _Enums.RippleFly;
+			else if (type == _Enums.RippleGlowworms)
+				return _Enums.RippleGlowworm;
 			else
 				return orig(type);
 		}
@@ -90,9 +92,9 @@ namespace RegionKit.Modules.Insects
 
 				// Try to create insect
 				CosmeticInsect? insect = null;
-				if (type == _Enums.ButterflyA || type == _Enums.ButterflyB)
+				if (type == _Enums.GlowingSwimmerInsect)
 				{
-					insect = new Butterfly(self.room, pos, type == _Enums.ButterflyA);
+					insect = new GlowingSwimmer(self.room, pos);
 				}
 				else if (type == _Enums.ColoredCamoBeetle)
 				{
@@ -112,25 +114,29 @@ namespace RegionKit.Modules.Insects
 
 					insect = new ColoredCamoBeetleInsect(rm, pos);
 				}
-				else if (type == _Enums.GlowingSwimmerInsect)
-				{
-					insect = new GlowingSwimmer(self.room, pos);
-				}
 				else if (type == _Enums.MosquitoInsect)
 				{
 					insect = new MosquitoInsect(self.room, pos);
 				}
-				else if (type == _Enums.RippleFly)
+				else if (type == _Enums.ButterflyA || type == _Enums.ButterflyB)
 				{
-					insect = new RippleFly(self.room, pos);
+					insect = new Butterfly(self.room, pos, type == _Enums.ButterflyA);
+				}
+				else if (type == _Enums.Zipper)
+				{
+					insect = new Zipper(self.room, pos);
 				}
 				else if (type == _Enums.Seedling)
 				{
 					insect = new Seedling(self.room, pos);
 				}
-				else if (type == _Enums.Zipper)
+				else if (type == _Enums.RippleFly)
 				{
-					insect = new Zipper(self.room, pos);
+					insect = new RippleFly(self.room, pos);
+				}
+				else if (type == _Enums.RippleGlowworm)
+				{
+					insect = new RippleGlowworm(self.room, pos);
 				}
 
 				// Add insect to room
@@ -158,7 +164,7 @@ namespace RegionKit.Modules.Insects
 				return !room.GetTile(testPos).AnyWater && !room.readyForAI || !room.aimap.getAItile(testPos).narrowSpace;
 			}
 			// No water
-			if (type == _Enums.ColoredCamoBeetle || type == _Enums.Zipper || type == _Enums.RippleFly)
+			if (type == _Enums.ColoredCamoBeetle || type == _Enums.Zipper || type == _Enums.RippleFly || type == _Enums.RippleGlowworm)
 			{
 				return !room.GetTile(testPos).AnyWater;
 			}
@@ -187,7 +193,7 @@ namespace RegionKit.Modules.Insects
 			{
 				return Mathf.Pow(Random.value, 1f - effectAmount) > (room.readyForAI ? room.aimap.getTerrainProximity(testPos) : 5) * 0.05f;
 			}
-			if (type == _Enums.ColoredCamoBeetle)
+			if (type == _Enums.ColoredCamoBeetle || type == _Enums.RippleGlowworm)
 			{
 				return !room.readyForAI || !room.aimap.getAItile(testPos).narrowSpace;
 			}
@@ -211,6 +217,10 @@ namespace RegionKit.Modules.Insects
 			if (type == _Enums.Seedling)
 			{
 				return 4f;
+			}
+			if (type == _Enums.RippleGlowworm)
+			{
+				return 0.5f;
 			}
 			return orig(type);
 		}

@@ -7,12 +7,16 @@ namespace RegionKit.Modules.Insects
 	[RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Insects")]
 	public static class _Module
 	{
+		private const bool DEBUG = false;
+		private static readonly CosmeticInsect.Type? debugType = _Enums.RippleFly;
+
 		internal static void Setup()
 		{
 		}
 
 		internal static void Enable()
 		{
+			// Common hooks
 			On.InsectCoordinator.RoomEffectToInsectType += InsectCoordinator_RoomEffectToInsectType;
 			On.InsectCoordinator.CreateInsect += InsectCoordinator_CreateInsect;
 			On.InsectCoordinator.TileLegalForInsect += InsectCoordinator_TileLegalForInsect;
@@ -20,6 +24,19 @@ namespace RegionKit.Modules.Insects
 			On.InsectCoordinator.SpeciesDensity_Type_1 += InsectCoordinator_SpeciesDensity_Type_1;
 			On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 			_CommonHooks.PostRoomLoad += PostRoomLoad;
+
+			// Specific hooks
+			RippleFly.RippleLight.Apply();
+
+			// Shaders
+			Custom.rainWorld.Shaders["LightSourceRippleSideAlt"] = FShader.CreateShader("LightSource", Shader.Find("Futile/LightSource"), ["ripple_other_side_alt"]);
+			Custom.rainWorld.Shaders["FlatLightRippleSideAlt"] = FShader.CreateShader("FlatLight", Shader.Find("Futile/FlatLight"), ["ripple_other_side_alt"]);
+
+			// Debug
+			if (DEBUG)
+			{
+				On.Player.Update += DebugSpawnHook;
+			}
 		}
 
 		internal static void Disable()
@@ -31,6 +48,8 @@ namespace RegionKit.Modules.Insects
 			On.InsectCoordinator.SpeciesDensity_Type_1 -= InsectCoordinator_SpeciesDensity_Type_1;
 			On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 			_CommonHooks.PostRoomLoad -= PostRoomLoad;
+
+			RippleFly.RippleLight.Undo();
 		}
 
 		private static CosmeticInsect.Type InsectCoordinator_RoomEffectToInsectType(On.InsectCoordinator.orig_RoomEffectToInsectType orig, RoomSettings.RoomEffect.Type type)
@@ -45,6 +64,8 @@ namespace RegionKit.Modules.Insects
 				return _Enums.GlowingSwimmerInsect;
 			else if (type == _Enums.MosquitoInsects)
 				return _Enums.MosquitoInsect;
+			else if (type == _Enums.RippleFlies)
+				return _Enums.RippleFly;
 			else if (type == _Enums.Seedlings)
 				return _Enums.Seedling;
 			else if (type == _Enums.Zippers)
@@ -99,6 +120,10 @@ namespace RegionKit.Modules.Insects
 				{
 					insect = new MosquitoInsect(self.room, pos);
 				}
+				else if (type == _Enums.RippleFly)
+				{
+					insect = new RippleFly(self.room, pos);
+				}
 				else if (type == _Enums.Seedling)
 				{
 					insect = new Seedling(self.room, pos);
@@ -133,7 +158,7 @@ namespace RegionKit.Modules.Insects
 				return !room.GetTile(testPos).AnyWater && !room.readyForAI || !room.aimap.getAItile(testPos).narrowSpace;
 			}
 			// No water
-			if (type == _Enums.ColoredCamoBeetle || type == _Enums.Zipper)
+			if (type == _Enums.ColoredCamoBeetle || type == _Enums.Zipper || type == _Enums.RippleFly)
 			{
 				return !room.GetTile(testPos).AnyWater;
 			}
@@ -158,7 +183,7 @@ namespace RegionKit.Modules.Insects
 
 		private static bool InsectCoordinator_EffectSpawnChanceForInsect(On.InsectCoordinator.orig_EffectSpawnChanceForInsect orig, CosmeticInsect.Type type, Room room, Vector2 testPos, float effectAmount)
 		{
-			if (type == _Enums.ButterflyA || type == _Enums.ButterflyB || type == _Enums.Zipper)
+			if (type == _Enums.ButterflyA || type == _Enums.ButterflyB || type == _Enums.Zipper || type == _Enums.RippleFly)
 			{
 				return Mathf.Pow(Random.value, 1f - effectAmount) > (room.readyForAI ? room.aimap.getTerrainProximity(testPos) : 5) * 0.05f;
 			}
@@ -175,7 +200,7 @@ namespace RegionKit.Modules.Insects
 
 		private static float InsectCoordinator_SpeciesDensity_Type_1(On.InsectCoordinator.orig_SpeciesDensity_Type_1 orig, CosmeticInsect.Type type)
 		{
-			if (type == _Enums.GlowingSwimmerInsect)
+			if (type == _Enums.GlowingSwimmerInsect || type == _Enums.RippleFly)
 			{
 				return 0.8f;
 			}
@@ -211,6 +236,27 @@ namespace RegionKit.Modules.Insects
 					}
 					self.insectCoordinator.AddEffect(self.roomSettings.effects[i]);
 				}
+			}
+		}
+
+		private static void DebugSpawnHook(On.Player.orig_Update orig, Player self, bool eu)
+		{
+			orig(self, eu);
+			if (self.room != null && Input.GetMouseButtonDown(0) && Input.GetKey(KeyCode.RightShift) && debugType != null)
+			{
+				self.room.insectCoordinator ??= new InsectCoordinator(self.room);
+				self.room.AddObject(self.room.insectCoordinator);
+
+				var po = new PlacedObject(PlacedObject.Type.InsectGroup, null);
+				po.pos = (Vector2)Futile.mousePosition + self.room.game.cameras[0].pos;
+
+				var data = (po.data as PlacedObject.InsectGroupData)!;
+				data.insectType = debugType;
+				data.density = Random.Range(0.5f, 1f);
+				self.room.roomSettings.placedObjects.Add(po);
+
+				self.room.insectCoordinator.AddGroup(po);
+				self.room.insectCoordinator.swarms[^1].Initiate();
 			}
 		}
 	}

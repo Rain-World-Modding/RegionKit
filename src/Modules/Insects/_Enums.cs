@@ -30,6 +30,10 @@
 		/// Seedling effect enum
 		/// </summary>
 		public static RoomSettings.RoomEffect.Type Seedlings = new(nameof(Seedlings), true);
+		/// <summary>
+		/// Ripple flies effect enum
+		/// </summary>
+		public static RoomSettings.RoomEffect.Type RippleFlies = new(nameof(RippleFlies), true);
 
 		/// <summary>
 		/// Glowing Swimmer insect enum
@@ -59,6 +63,10 @@
 		/// Seedling enum
 		/// </summary>
 		public static CosmeticInsect.Type Seedling = new(nameof(Seedling), true);
+		/// <summary>
+		/// Ripple fly enum
+		/// </summary>
+		public static CosmeticInsect.Type RippleFly = new(nameof(RippleFly), true);
 
 		/// <summary>
 		/// Insect category
@@ -79,7 +87,8 @@
 				|| type == ButterflyA
 				|| type == ButterflyB
 				|| type == Zipper
-				|| type == Seedling;
+				|| type == Seedling
+				|| type == RippleFly;
 		}
 
 		/// <summary>
@@ -95,7 +104,8 @@
 				|| type == ButterfliesA
 				|| type == ButterfliesB
 				|| type == Zippers
-				|| type == Seedlings;
+				|| type == Seedlings
+				|| type == RippleFlies;
 		}
 	}
 }

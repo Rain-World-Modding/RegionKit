@@ -26,6 +26,8 @@ namespace RegionKit.Modules.Insects
 			roomSchool?.RemoveSeedling(this);
 		}
 
+		private static bool showDebug = false;
+
 		private Vector2 lastHeadDir;
 		private Vector2 headDir;
 		private SimpleSegment[] actualSegments;
@@ -80,25 +82,8 @@ namespace RegionKit.Modules.Insects
 				segment.Reset(pos + Custom.RNV());
 			}
 		}
-
-		private static Seedling? seedlingLock = null;
-		private static bool showDebug = false;
 		public override void Update(bool eu)
 		{
-
-			if (seedlingLock == null)
-			{
-				if (Input.GetKeyDown(KeyCode.Comma))
-				{
-					showDebug = !showDebug;
-					seedlingLock = this;
-				}
-			}
-			else if (seedlingLock == this || seedlingLock.room == null)
-			{
-				seedlingLock = null;
-			}
-
 			base.Update(eu);
 			if (room == null) return;
 

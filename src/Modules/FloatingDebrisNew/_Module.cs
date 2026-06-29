@@ -13,6 +13,8 @@ internal static class _Module
 
 			FloatingDebris.types["RK Dust"] = new Dust.DustSpawner(false);
 			FloatingDebris.types["RK White Dust"] = new Dust.DustSpawner(true);
+
+			IFloaterExtraData.Implementation.Enable();
 		}
 		catch (Exception ex)
 		{
@@ -26,6 +28,8 @@ internal static class _Module
 		{
 			FloatingDebris.types.Remove("RK Dust");
 			FloatingDebris.types.Remove("RK White Dust");
+
+			IFloaterExtraData.Implementation.Disable();
 		}
 		catch (Exception ex)
 		{

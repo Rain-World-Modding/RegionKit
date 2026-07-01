@@ -244,6 +244,12 @@ namespace RegionKit.Modules.FloatingDebrisNew
 					if (FloatingDebris.types[self.type] is ICreateFloaterExtraData dataFactory)
 					{
 						data.dataHolders.Insert(0, dataFactory.CreateData());
+
+						/*StoreData(self);
+						if (data.dataHolders.Count > 1 && dataFactory.CopyDataToNewPoints)
+						{
+							data.dataHolders[0].LoadFloaterData(data.dataHolders[1].SaveFloaterData());
+						}*/
 					}
 				}
 			}
@@ -261,6 +267,12 @@ namespace RegionKit.Modules.FloatingDebrisNew
 					if (FloatingDebris.types[self.type] is ICreateFloaterExtraData dataFactory)
 					{
 						data.dataHolders.Add(dataFactory.CreateData());
+
+						/*StoreData(self);
+						if (data.dataHolders.Count > 1 && dataFactory.CopyDataToNewPoints)
+						{
+							data.dataHolders[^1].LoadFloaterData(data.dataHolders[^2].SaveFloaterData());
+						}*/
 					}
 				}
 			}

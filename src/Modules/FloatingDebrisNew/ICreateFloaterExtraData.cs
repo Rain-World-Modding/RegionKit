@@ -11,6 +11,9 @@ namespace RegionKit.Modules.FloatingDebrisNew
 		/// <summary>Identifier to associate with this floater data</summary>
 		public string DataKeyword { get; }
 
+		/// <summary>Whether to copy the data from the neighboring control point when one is added</summary>
+		public bool CopyDataToNewPoints { get; }
+
 		/// <summary>
 		/// Factory to create a <see cref="IFloaterExtraData"/> implementation.
 		/// This will be called per floating debris control point.

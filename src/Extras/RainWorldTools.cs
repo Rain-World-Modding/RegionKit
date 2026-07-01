@@ -178,4 +178,10 @@ public static class RainWorldTools
 		if (incl) return pos.x >= rect.left && pos.x <= rect.right && pos.y >= rect.bottom && pos.y <= rect.top;
 		return pos.x > rect.left && pos.x < rect.right && pos.y > rect.bottom && pos.y < rect.top;
 	}
+
+	public static HSLColor HSL(this Color color)
+	{
+		Vector3 v = Custom.RGB2HSL(color);
+		return new HSLColor(v.x, v.y, v.z);
+	}
 }

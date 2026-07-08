@@ -81,7 +81,7 @@
 		/// <summary>
 		/// Insect category
 		/// </summary>
-		public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKitInsects = new(nameof(RegionKitInsects), true);
+		public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKitInsects = new("RegionKit-Insects", true);
 
 
 		/// <summary>

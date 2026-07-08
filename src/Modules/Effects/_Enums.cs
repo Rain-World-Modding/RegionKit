@@ -80,11 +80,16 @@ public static class _Enums
 	/// Pole plant color effect by LB/M4rbleL1ne
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type PolePlantColor = new(nameof(PolePlantColor), true);
+	/// <summary>
+	/// Fadable fog by Alduris
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type FlatFog = new(nameof(FlatFog), true);
 
 
 
 	/// <summary>
 	/// Effect category
 	/// </summary>
-	public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKit = new(nameof(RegionKit), true);
+	public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKit_Gameplay = new("RegionKit-Gameplay", true);
+	public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKit_Decoration = new("RegionKit-Decoration", true);
 }

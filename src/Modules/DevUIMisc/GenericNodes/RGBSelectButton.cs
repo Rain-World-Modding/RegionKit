@@ -39,7 +39,7 @@ public class RGBSelectButton : Button, IDevUISignals
 		}
 		else
 		{
-			RGBSelectPanel = new RGBSelectPanel(owner, this, panelPos - pos, IDstring + "_Panel", panelName, actualValue);
+			RGBSelectPanel = new RGBSelectPanel(owner, this, panelPos - absPos, IDstring + "_Panel", panelName, actualValue);
 			subNodes.Add(RGBSelectPanel);
 		}
 	}
@@ -63,5 +63,5 @@ public class RGBSelectButton : Button, IDevUISignals
 
 	public Color actualValue;
 
-	public Vector2 panelPos = new Vector2(420f, 280f);
+	public Vector2 panelPos = new Vector2(220f, 15f);
 }

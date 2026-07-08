@@ -13,6 +13,9 @@ internal static class _Module
 
 			FloatingDebris.types["RK Dust"] = new Dust.DustSpawner(false);
 			FloatingDebris.types["RK White Dust"] = new Dust.DustSpawner(true);
+			FloatingDebris.types["RK Colored Dust"] = new ColoredDust.ColoredDustSpawner();
+
+			IFloaterExtraData.Implementation.Enable();
 		}
 		catch (Exception ex)
 		{
@@ -26,6 +29,9 @@ internal static class _Module
 		{
 			FloatingDebris.types.Remove("RK Dust");
 			FloatingDebris.types.Remove("RK White Dust");
+			FloatingDebris.types.Remove("RK Colored Dust");
+
+			IFloaterExtraData.Implementation.Disable();
 		}
 		catch (Exception ex)
 		{
@@ -36,7 +42,8 @@ internal static class _Module
 	private static void LoadShaders()
 	{
 		AssetBundle bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rkfloatingdebris"));
-		Custom.rainWorld.Shaders["RKDust"] = FShader.CreateShader("RKDust", bundle.LoadAsset<Shader>("Assets/Shaders/FloatingDust.shader"));
-		Custom.rainWorld.Shaders["RKWhiteDust"] = FShader.CreateShader("RKWhiteDust", bundle.LoadAsset<Shader>("Assets/Shaders/FloatingDust.shader"), ["lightdust"]);
+		Custom.rainWorld.Shaders["RKDust"] = FShader.CreateShader("RKDust", bundle.LoadAsset<Shader>("Assets/Shaders/RKFloatingDust.shader"));
+		Custom.rainWorld.Shaders["RKWhiteDust"] = FShader.CreateShader("RKWhiteDust", bundle.LoadAsset<Shader>("Assets/Shaders/RKFloatingDust.shader"), ["lightdust"]);
+		Custom.rainWorld.Shaders["RKColoredDust"] = FShader.CreateShader("RKColoredDust", bundle.LoadAsset<Shader>("Assets/Shaders/RKColoredDust.shader"));
 	}
 }

@@ -16,7 +16,7 @@ public static class _Module
 		EffectDefinitionBuilder builder = new EffectDefinitionBuilder("NonlethalWater");
 		builder
 			.SetUADFactory((room, data, firstTimeRealized) => new NonlethalWater(data))
-			.SetCategory("RegionKit")
+			.SetCategory(_Enums.RegionKit_Gameplay.value)
 			.Register();
 
 		RainWorld rainworld = CRW;
@@ -191,7 +191,8 @@ public static class _Module
 			|| type == _Enums.DenseFog
 			|| type == _Enums.DenseFogSoundVolume
 			|| type == _Enums.RainSiren
-			|| type == _Enums.Suffocation)
+			|| type == _Enums.Suffocation
+			|| type == AridBarrens._Enums.SandStorm)
 		{
 			return _Enums.RegionKit_Gameplay;
 		}

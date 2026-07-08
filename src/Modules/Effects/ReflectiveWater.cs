@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using EffExt;
+﻿using EffExt;
 
 namespace RegionKit.Modules.Effects
 {
@@ -19,7 +13,7 @@ namespace RegionKit.Modules.Effects
 					.AddFloatField("LerpAngle", 0, 100, 1, 90)
 					.AddFloatField("Alpha", 0, 255, 1, 1)
 					.SetUADFactory((room, data, firstTimeRealized) => new ReflectiveWaterUAD(data))
-					.SetCategory("RegionKit")
+					.SetCategory(_Enums.RegionKit_Decoration.value)
 					.Register();
 			}
 			catch (Exception ex)

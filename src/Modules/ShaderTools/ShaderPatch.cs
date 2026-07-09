@@ -11,8 +11,6 @@
 
 		internal static void Undo()
 		{
-			bundle?.Unload(true);
-			bundle = null;
 		}
 
 		private static void LoadShaders()

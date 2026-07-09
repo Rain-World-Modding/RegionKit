@@ -30,7 +30,19 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 		public AdvancedShaderSelectPanel(DevUI owner, string id, DevUINode parentNode, Vector2 pos, string name, string[] items, string? selectedItem) : base(owner, id, parentNode, pos, new Vector2(15f + 2 * BUTTON_WIDTH, 415f), name, items)
 		{
 			this.selectedItem = selectedItem;
-			PopulateItems(currentOffset);
+			if (selectedItem != null)
+			{
+				int index = Array.IndexOf(items, selectedItem);
+				currentOffset = (index / perpage) * perpage;
+				if (index >= 0)
+				{
+					PopulateItems(currentOffset);
+				}
+			}
+			else
+			{
+				PopulateItems(currentOffset);
+			}
 		}
 
 		public override void Update()

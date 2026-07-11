@@ -1,4 +1,5 @@
-﻿using DevInterface;
+﻿using System.Drawing.Text;
+using DevInterface;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 
@@ -90,6 +91,10 @@ public static class _Module
 		if (type == _Enums.PlaySoundEvent)
 		{
 			return new PlaySoundEvent();
+		}
+		if (type == _Enums.RegionBumpEvent)
+		{
+			return new RegionBumpEvent();
 		}
 
 		return InternalAPI.MaybeGetEventFromAPI(type);
@@ -198,6 +203,12 @@ public static class _Module
 	private static void ActiveTriggerChecker_Update(On.ActiveTriggerChecker.orig_Update orig, ActiveTriggerChecker self, bool eu)
 	{
 		orig(self, eu);
+
+		if (self.eventTrigger?.tEvent is IBeforeTriggerUpdate beforeTriggerUpdate)
+		{
+			beforeTriggerUpdate.PreTriggerUpdate(self.room);
+		}
+
 		if (self.counter < 0)
 		{
 			if (self.eventTrigger is SeeCreatureTrigger seeCreatureTrigger && self.room.game.Players.Count > 0)

@@ -16,7 +16,7 @@ namespace RegionKit.Modules.Triggers
 
 		public AddFadePaletteEvent() : base(_Enums.AddFadePaletteEvent)
 		{
-			AddFadePaletteHandler.ApplyHooks();
+			Implementation.ApplyHooks();
 		}
 
 		public override string ToString()
@@ -80,7 +80,7 @@ namespace RegionKit.Modules.Triggers
 			room.AddObject(new FadePaletteApplier(room, palette, fadeAmount, fadeTime, untilPlayerLeaves));
 			if (!untilPlayerLeaves)
 			{
-				AddFadePaletteHandler.SaveFadeForLater(room, palette, fadeAmount);
+				Implementation.SaveFadeForLater(room, palette, fadeAmount);
 			}
 		}
 
@@ -146,7 +146,7 @@ namespace RegionKit.Modules.Triggers
 			}
 		}
 
-		public static class AddFadePaletteHandler
+		public static class Implementation
 		{
 			private static readonly ConditionalWeakTable<RainWorldGame, Dictionary<string, List<Fade>>> _fadeHandler = new();
 			private static bool _appliedHooks = false;

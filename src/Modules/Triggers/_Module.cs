@@ -27,33 +27,22 @@ public static class _Module
 		IL.DevInterface.TriggerPanel.ctor += TriggerPanel_ctor;
 		On.DevInterface.TriggerPanel.AddEvent += TriggerPanel_AddEvent;
 		On.DevInterface.TriggerPanel.AddEventPanel += TriggerPanel_AddEventPanel;
-
-		// Debug
-		On.Room.Update += (orig, self) =>
-		{
-			orig(self);
-			if (self.game.cameras[0].room == self && Input.GetKeyDown(KeyCode.Delete))
-			{
-				self.PlaySound(SoundID.Distant_Deer_Summoned);
-				var trigger = new PickUpObjectTrigger()
-				{
-					panelPosition = new Vector2(1366f / 2f, 768f / 3f) + Custom.RNV() * 50,
-					objectType = AbstractPhysicalObject.AbstractObjectType.DangleFruit,
-					tEvent = new AddFadePaletteEvent()
-					{
-						palette = 1,
-						fadeAmount = 1f,
-						fadeTime = 1f
-					}
-				};
-				self.roomSettings.triggers.Add(trigger);
-				self.AddObject(new ActiveTriggerChecker(trigger));
-			}
-		};
 	}
 
 	internal static void Disable()
 	{
+		IL.RoomSettings.LoadTriggers -= RoomSettings_LoadTriggers;
+		IL.EventTrigger.FromString -= EventTrigger_FromString;
+
+		On.ActiveTriggerChecker.FireEvent -= ActiveTriggerChecker_FireEvent;
+		On.ActiveTriggerChecker.Update -= ActiveTriggerChecker_Update;
+
+		On.DevInterface.TriggersPage.ctor -= TriggersPage_ctor;
+		On.DevInterface.SelectEventPanel.ctor -= SelectEventPanel_ctor;
+		On.DevInterface.TriggersPage.CreateTriggerRep -= TriggersPage_CreateTriggerRep;
+		IL.DevInterface.TriggerPanel.ctor -= TriggerPanel_ctor;
+		On.DevInterface.TriggerPanel.AddEvent -= TriggerPanel_AddEvent;
+		On.DevInterface.TriggerPanel.AddEventPanel -= TriggerPanel_AddEventPanel;
 	}
 
 	#region Functionality

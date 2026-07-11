@@ -205,4 +205,28 @@ public static class CollectionTools
 		}
 		return -1;
 	}
+
+	public static int FirstIndexOr<T>(this T[] array, Predicate<T> predicate, int defaultValue = -1)
+	{
+		for (int i = 0; i < array.Length; i++)
+		{
+			if (predicate(array[i]))
+			{
+				return i;
+			}
+		}
+		return defaultValue;
+	}
+
+	public static int LastIndexOr<T>(this T[] array, Predicate<T> predicate, int defaultValue = -1)
+	{
+		for (int i = array.Length - 1; i >= 0; i--)
+		{
+			if (predicate(array[i]))
+			{
+				return i;
+			}
+		}
+		return defaultValue;
+	}
 }

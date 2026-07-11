@@ -19,12 +19,11 @@ namespace RegionKit.Modules.Triggers
 		{
 			string text = base.BaseSaveString() + string.Format(CultureInfo.InvariantCulture, 
 				"<tA>handle1<tB>{0}<tB>{1}<tA>handle2<tB>{2}<tB>{3}<tA>handle3<tB>{4}<tB>{5}<tA>handle4<tB>{6}<tB>{7}", 
-				[
-					handle1.x, handle1.y,
-					handle2.x, handle2.y,
-					handle3.x, handle3.y,
-					handle4.x, handle4.y
-				]);
+				handle1.x, handle1.y,
+				handle2.x, handle2.y,
+				handle3.x, handle3.y,
+				handle4.x, handle4.y
+				);
 			foreach (KeyValuePair<string, string> keyValuePair in unrecognizedSaveStrings)
 			{
 				text = string.Concat([text, "<tA>", keyValuePair.Key, "<tB>", keyValuePair.Value]);

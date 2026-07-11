@@ -25,10 +25,10 @@ namespace RegionKit.Modules.Triggers
 
 		public override string ToString()
 		{
-			string text = base.BaseSaveString() + string.Format(CultureInfo.InvariantCulture, "<tA>handle1<tB>{0}<tB>{1}<tA>handle2<tB>{2}<tB>{3}", [
+			string text = base.BaseSaveString() + string.Format(CultureInfo.InvariantCulture, "<tA>handle1<tB>{0}<tB>{1}<tA>handle2<tB>{2}<tB>{3}",
 				rectHandle1.x, rectHandle1.y, 
 				rectHandle2.x, rectHandle2.y
-				]);
+				);
 			foreach (KeyValuePair<string, string> keyValuePair in unrecognizedSaveStrings)
 			{
 				text = string.Concat([text, "<tA>", keyValuePair.Key, "<tB>", keyValuePair.Value]);

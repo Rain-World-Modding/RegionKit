@@ -32,7 +32,7 @@ internal static class MoreFadePalettes
 
 	public static FadePalette GetMoreFade(this RoomSettings rs, int index)
 	{
-		if (index < 0) throw new IndexOutOfRangeException("Palette infex below zero");
+		if (index < 0) throw new IndexOutOfRangeException("Palette index below zero");
 
 		if (rs.AllFadePalettes().Count > index && rs.AllFadePalettes()[index] != null)
 		{ return rs.AllFadePalettes()[index]; }
@@ -45,7 +45,7 @@ internal static class MoreFadePalettes
 
 	public static void SetMoreFade(this RoomSettings rs, int index, FadePalette palette)
 	{
-		if (index < 0) throw new IndexOutOfRangeException("Palette infex below zero");
+		if (index < 0) throw new IndexOutOfRangeException("Palette index below zero");
 		if (rs.AllFadePalettes().Count > index)
 		{
 			rs.AllFadePalettes()[index] = palette;
@@ -56,9 +56,16 @@ internal static class MoreFadePalettes
 		}
 	}
 
+	public static int AddMoreFade(this RoomSettings rs, FadePalette palette)
+	{
+		List<FadePalette> allFadePalettes = rs.AllFadePalettes();
+		allFadePalettes.Add(palette);
+		return allFadePalettes.Count - 1;
+	}
+
 	public static void DeleteMoreFade(this RoomSettings rs, int index)
 	{
-		if (index < 0) throw new IndexOutOfRangeException("Palette infex below zero");
+		if (index < 0) throw new IndexOutOfRangeException("Palette index below zero");
 		if (rs.AllFadePalettes().Count > index && index >= 0)
 		{
 			rs.AllFadePalettes().RemoveAt(index);
@@ -94,8 +101,15 @@ internal static class MoreFadePalettes
 		else { return null!; }
 	}
 
+	public static void RefreshMoreFade(this RoomCamera self)
+	{
+		if (self.room?.roomSettings == null) return;
+		ChangeMoreFade(self, self.room.roomSettings.GetAllFades());
+	}
+
 	public static void ChangeMoreFade(this RoomCamera self, FadePalette[] newFades)
 	{
+		if (self.room?.roomSettings == null) return;
 		self.ClearMoreFadeTextures();
 		foreach (FadePalette fade in newFades)
 		{

@@ -5,7 +5,7 @@ using MonoMod.Cil;
 namespace RegionKit.Modules.Triggers;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Triggers")]
-internal static class _Module
+public static class _Module
 {
 	internal static void Enable()
 	{
@@ -27,6 +27,29 @@ internal static class _Module
 		IL.DevInterface.TriggerPanel.ctor += TriggerPanel_ctor;
 		On.DevInterface.TriggerPanel.AddEvent += TriggerPanel_AddEvent;
 		On.DevInterface.TriggerPanel.AddEventPanel += TriggerPanel_AddEventPanel;
+
+		// Debug
+		On.Room.Update += (orig, self) =>
+		{
+			orig(self);
+			if (self.game.cameras[0].room == self && Input.GetKeyDown(KeyCode.Delete))
+			{
+				self.PlaySound(SoundID.Distant_Deer_Summoned);
+				var trigger = new PickUpObjectTrigger()
+				{
+					panelPosition = new Vector2(1366f / 2f, 768f / 3f) + Custom.RNV() * 50,
+					objectType = AbstractPhysicalObject.AbstractObjectType.DangleFruit,
+					tEvent = new AddFadePaletteEvent()
+					{
+						palette = 1,
+						fadeAmount = 1f,
+						fadeTime = 1f
+					}
+				};
+				self.roomSettings.triggers.Add(trigger);
+				self.AddObject(new ActiveTriggerChecker(trigger));
+			}
+		};
 	}
 
 	internal static void Disable()
@@ -35,7 +58,7 @@ internal static class _Module
 
 	#region Functionality
 
-	private static EventTrigger? CreateEventTrigger(EventTrigger.TriggerType type)
+	public static EventTrigger? CreateEventTrigger(EventTrigger.TriggerType type)
 	{
 		if (type == EventTrigger.TriggerType.SeeCreature)
 		{
@@ -49,18 +72,38 @@ internal static class _Module
 		{
 			return new RectTrigger();
 		}
+		if (type == _Enums.ScavengerOutpostTrigger)
+		{
+			return new ScavengerOutpostTrigger();
+		}
+		if (type == _Enums.PickUpObjectTrigger)
+		{
+			return new PickUpObjectTrigger();
+		}
 
-		return null;
+		return InternalAPI.MaybeGetTriggerFromAPI(type);
 	}
 
-	private static TriggeredEvent? CreateTriggeredEvent(TriggeredEvent.EventType type)
+	public static TriggeredEvent? CreateTriggeredEvent(TriggeredEvent.EventType type)
 	{
 		if (type == _Enums.ExplodeEvent)
 		{
 			return new ExplodeEvent();
 		}
+		if (type == _Enums.SpawnCreatureEvent)
+		{
+			return new SpawnCreatureEvent();
+		}
+		if (type == _Enums.AddFadePaletteEvent)
+		{
+			return new AddFadePaletteEvent();
+		}
+		if (type == _Enums.PlaySoundEvent)
+		{
+			return new PlaySoundEvent();
+		}
 
-		return null;
+		return InternalAPI.MaybeGetEventFromAPI(type);
 	}
 
 	#endregion

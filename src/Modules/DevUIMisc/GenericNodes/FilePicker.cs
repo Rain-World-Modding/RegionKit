@@ -157,7 +157,7 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes
 			subNodes.Add(new DevUILabel(owner, "FilePicker_SearchLabel", this, new Vector2(5f, size.y - 40f), widthOfSearchText, SEARCH_LABEL));
 			if (searchBar == null)
 			{
-				searchBar = new StringControlNoSignal(owner, "FilePicker_Search", this, new Vector2(10f + widthOfSearchText, size.y - 40f), size.x - 15f - widthOfSearchText, filterBy, StringControl.TextIsAny);
+				searchBar = new StringControl(owner, "FilePicker_Search", this, new Vector2(10f + widthOfSearchText, size.y - 40f), size.x - 15f - widthOfSearchText, filterBy, StringControl.TextIsAny) { sendSignal = false };
 				subNodes.Add(searchBar);
 			}
 

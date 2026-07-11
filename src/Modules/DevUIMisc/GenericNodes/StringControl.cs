@@ -5,6 +5,7 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 public class StringControl : DevUILabel
 {
 	protected FSprite[] outlineSprites;
+	public event OnValueChangedHandler? OnValueChanged;
 
 	public StringControl(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width, string text, IsTextValid del) : base(owner, IDstring, parentNode, pos, width, text)
 	{
@@ -33,6 +34,7 @@ public class StringControl : DevUILabel
 	protected bool clickedLastUpdate = false;
 
 
+	public bool sendSignal = true;
 	public string actualValue;
 
 	public override void Refresh()
@@ -107,9 +109,11 @@ public class StringControl : DevUILabel
 
 		// Update outline sprite visibility
 		bool focused = ManagedStringControl.activeStringControl == this;
+		Color outlineColor = isTextValid(actualValue) ? Color.white : Color.red;
 		foreach (FSprite sprite in outlineSprites)
 		{
 			sprite.isVisible = focused;
+			sprite.color = outlineColor;
 		}
 	}
 
@@ -120,22 +124,35 @@ public class StringControl : DevUILabel
 
 	protected virtual void TrySetValue(string newValue, bool endTransaction)
 	{
+		if (fLabels.Count == 0) return;
 		if (isTextValid(newValue))
 		{
+			string oldValue = actualValue;
 			actualValue = newValue;
 			fLabels[0].color = new Color(0.1f, 0.4f, 0.2f);
-			this.SendSignal(StringEdit, this, "");
+			foreach (FSprite sprite in outlineSprites)
+			{
+				sprite.color = Color.white;
+			}
+			if (sendSignal)
+				this.SendSignal(StringEdit, this, "");
+			OnValueChanged?.Invoke(newValue, oldValue);
 		}
 		else
 		{
 			fLabels[0].color = Color.red;
+			foreach (FSprite sprite in outlineSprites)
+			{
+				sprite.color = Color.red;
+			}
 		}
 		if (endTransaction)
 		{
 			Text = actualValue;
 			fLabels[0].color = Color.black;
 			Refresh();
-			this.SendSignal(StringFinish, this, "");
+			if (sendSignal)
+				this.SendSignal(StringFinish, this, "");
 		}
 	}
 
@@ -147,6 +164,11 @@ public class StringControl : DevUILabel
 	public static bool TextIsInt(string value)
 	{
 		return (int.TryParse(value, out int i) && i.ToString() == value);
+	}
+
+	public static bool TextIsIntNonNegative(string value)
+	{
+		return (int.TryParse(value, out int i) && i >= 0 && i.ToString() == value);
 	}
 	public static bool TextIsColor(string value)
 	{
@@ -167,4 +189,5 @@ public class StringControl : DevUILabel
 
 	public static readonly DevUISignalType StringEdit = new DevUISignalType("StringEdit", true);
 	public static readonly DevUISignalType StringFinish = new DevUISignalType("StringFinish", true);
+	public delegate void OnValueChangedHandler(string value, string oldValue);
 }

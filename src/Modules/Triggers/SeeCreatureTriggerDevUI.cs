@@ -12,14 +12,14 @@ namespace RegionKit.Modules.Triggers
 			triggerPanel.size.y += 20f;
 			foreach (DevUINode node in triggerPanel.subNodes)
 			{
-				if (node is PositionedDevUINode positionedNode)
+				if (node is PositionedDevUINode positionedNode && node.IDstring != "Event_Button")
 				{
 					positionedNode.pos.y += 20f;
 				}
 			}
 
 			// Add custom control
-			triggerPanel.subNodes.Add(new SeeCreatureSelectButton(triggerPanel.owner, "SeeCreatureSelectButton", triggerPanel, new Vector2(5f, 5f), triggerPanel.size.x - 10f, trigger));
+			triggerPanel.subNodes.Add(new SeeCreatureSelectButton(triggerPanel.owner, "SeeCreatureSelectButton", triggerPanel, new Vector2(5f, 25f), triggerPanel.size.x - 10f, trigger));
 		}
 
 		private class SeeCreatureSelectButton : ButtonWithSelectPanel
@@ -39,15 +39,15 @@ namespace RegionKit.Modules.Triggers
 
 			public override void Signal(DevUISignalType type, DevUINode sender, string message)
 			{
-				if (sender.IDstring == "BackPageSeeCreature")
+				if (sender.IDstring == "BackPage99289..?/~")
 				{
 					selectPanel.PrevPage();
 				}
-				else if (sender.IDstring == "NextPageSeeCreature")
+				else if (sender.IDstring == "NextPage99289..?/~")
 				{
 					selectPanel.NextPage();
 				}
-				else if (sender.parentNode == selectPanel && sender.IDstring != "SearchSeeCreature")
+				else if (sender.parentNode == selectPanel && sender.IDstring != "Search99289..?/~")
 				{
 					if (selectPanel != null)
 					{
@@ -61,113 +61,7 @@ namespace RegionKit.Modules.Triggers
 
 			private static SelectPanel SelectPanelMaker(ButtonWithSelectPanel maker)
 			{
-				return new SeeCreatureSelectPanel(maker.owner, "SeeCreatureSelectPanel", maker, new Vector2(250f, 15f) - maker.absPos, "Select Creature Type", [.. CreatureTemplate.Type.values.entries], (maker as SeeCreatureSelectButton)?.trigger.creatureType.value);
-			}
-		}
-
-		private class SeeCreatureSelectPanel : SelectPanel
-		{
-			private const float BUTTON_WIDTH = 145f;
-			private const string SEARCH_LABEL = "Search: ";
-
-			private static readonly float widthOfSearchText = LabelTest.GetWidth(SEARCH_LABEL);
-
-			private readonly string? selectedItem;
-			private StringControl? searchBar;
-			public string filterBy = "";
-
-			private string[] FilteredItems
-			{
-				get
-				{
-					if (filterBy.Length == 0)
-					{
-						return items;
-					}
-					return [.. items.Where(x => x.IndexOf(filterBy, StringComparison.InvariantCultureIgnoreCase) > -1)];
-				}
-			}
-
-			public SeeCreatureSelectPanel(DevUI owner, string id, DevUINode parentNode, Vector2 pos, string name, string[] items, string? selectedItem) : base(owner, id, parentNode, pos, new Vector2(15f + 2 * BUTTON_WIDTH, 415f), name, items)
-			{
-				this.selectedItem = selectedItem;
-				if (selectedItem != null)
-				{
-					int index = Array.IndexOf(items, selectedItem);
-					currentOffset = (index / perpage) * perpage;
-					if (index >= 0)
-					{
-						PopulateItems(currentOffset);
-					}
-				}
-				else
-				{
-					PopulateItems(currentOffset);
-				}
-			}
-
-			public override void Update()
-			{
-				base.Update();
-				if (searchBar != null && searchBar.actualValue != filterBy)
-				{
-					filterBy = searchBar.actualValue;
-					currentOffset = 0;
-					PopulateItems(0);
-				}
-			}
-
-			public override void PopulateItems(int offset)
-			{
-				// Clear out previous sprites
-				foreach (DevUINode node in subNodes)
-				{
-					if (node != searchBar)
-					{
-						node.ClearSprites();
-					}
-				}
-				subNodes.Clear();
-				if (searchBar != null)
-				{
-					subNodes.Add(searchBar);
-				}
-
-				// Get filtered items
-				string[] filteredItems = FilteredItems;
-
-				// Add page switch buttons
-				if (filteredItems.Length > perpage)
-				{
-					subNodes.Add(new Button(owner, "BackPageSeeCreature", this, new Vector2(5f, 5f), BUTTON_WIDTH, "Previous"));
-					subNodes.Add(new Button(owner, "NextPageSeeCreature", this, new Vector2(10f + BUTTON_WIDTH, 5f), BUTTON_WIDTH, "Next"));
-				}
-
-				// Add search thingy
-				subNodes.Add(new DevUILabel(owner, "SearchLabelSeeCreature", this, new Vector2(5f, size.y - 25f), widthOfSearchText, SEARCH_LABEL));
-				if (searchBar == null)
-				{
-					searchBar = new StringControlNoSignal(owner, "SearchSeeCreature", this, new Vector2(10f + widthOfSearchText, size.y - 25f), size.x - 15f - widthOfSearchText, filterBy, StringControl.TextIsAny);
-					subNodes.Add(searchBar);
-				}
-
-				// Add buttons
-				IntVector2 intVector = new IntVector2(0, 0);
-				int num = currentOffset;
-				while (num < filteredItems.Length && num < currentOffset + perpage)
-				{
-					subNodes.Add(new Button(owner, filteredItems[num], this, new Vector2(5f + intVector.x * (BUTTON_WIDTH + 5f), size.y - 50f - 20f * intVector.y), BUTTON_WIDTH, filteredItems[num])
-					{
-						overrideTextColor = (filteredItems[num] == selectedItem) ? new Color(0f, 0f, 1f) : null
-					});
-					intVector.y++;
-					if (intVector.y >= (int)Mathf.Floor((float)perpage / columns))
-					{
-						intVector.x++;
-						intVector.y = 0;
-					}
-					num++;
-				}
+				return new SearchableSelectPanel(maker.owner, "SeeCreatureSelectPanel", maker, new Vector2(250f, 15f) - maker.absPos, "Select Creature Type", [.. CreatureTemplate.Type.values.entries.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)], (maker as SeeCreatureSelectButton)?.trigger.creatureType.value);
 			}
 		}
 	}

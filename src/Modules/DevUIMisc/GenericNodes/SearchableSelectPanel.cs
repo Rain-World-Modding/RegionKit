@@ -1,19 +1,18 @@
 ﻿using DevInterface;
 using Menu.Remix.MixedUI;
-using RegionKit.Modules.DevUIMisc.GenericNodes;
 
-namespace RegionKit.Modules.Objects.AdvancedShaderController
+namespace RegionKit.Modules.DevUIMisc.GenericNodes
 {
-	internal class AdvancedShaderSelectPanel : SelectPanel
+	public class SearchableSelectPanel : SelectPanel
 	{
-		private const float BUTTON_WIDTH = 165f;
 		private const string SEARCH_LABEL = "Search: ";
 
 		private static readonly float widthOfSearchText = LabelTest.GetWidth(SEARCH_LABEL);
 
-		private string? selectedItem;
+		private readonly string? selectedItem;
 		private StringControl? searchBar;
 		public string filterBy = "";
+		private readonly float buttonWidth;
 
 		private string[] FilteredItems
 		{
@@ -27,22 +26,19 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 			}
 		}
 
-		public AdvancedShaderSelectPanel(DevUI owner, string id, DevUINode parentNode, Vector2 pos, string name, string[] items, string? selectedItem) : base(owner, id, parentNode, pos, new Vector2(15f + 2 * BUTTON_WIDTH, 415f), name, items)
+		public SearchableSelectPanel(DevUI owner, string id, DevUINode parentNode, Vector2 pos, string name, string[] items, string? selectedItem = null, float buttonWidth = 145f) : base(owner, id, parentNode, pos, new Vector2(15f + 2 * buttonWidth, 420f), name, items)
 		{
 			this.selectedItem = selectedItem;
+			this.buttonWidth = buttonWidth;
 			if (selectedItem != null)
 			{
 				int index = Array.IndexOf(items, selectedItem);
-				currentOffset = (index / perpage) * perpage;
-				if (index >= 0)
+				if (index > -1)
 				{
-					PopulateItems(currentOffset);
+					currentOffset = (index / perpage) * perpage;
 				}
 			}
-			else
-			{
-				PopulateItems(currentOffset);
-			}
+			PopulateItems(currentOffset);
 		}
 
 		public override void Update()
@@ -78,8 +74,8 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 			// Add page switch buttons
 			if (filteredItems.Length > perpage)
 			{
-				subNodes.Add(new Button(owner, "BackPage99289..?/~", this, new Vector2(5f, 5f), BUTTON_WIDTH, "Previous"));
-				subNodes.Add(new Button(owner, "NextPage99289..?/~", this, new Vector2(10f + BUTTON_WIDTH, 5f), BUTTON_WIDTH, "Next"));
+				subNodes.Add(new Button(owner, "BackPage99289..?/~", this, new Vector2(5f, 5f), buttonWidth, "Previous"));
+				subNodes.Add(new Button(owner, "NextPage99289..?/~", this, new Vector2(10f + buttonWidth, 5f), buttonWidth, "Next"));
 			}
 
 			// Add search thingy
@@ -95,7 +91,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 			int num = currentOffset;
 			while (num < filteredItems.Length && num < currentOffset + perpage)
 			{
-				subNodes.Add(new Button(owner, filteredItems[num], this, new Vector2(5f + intVector.x * (BUTTON_WIDTH + 5f), size.y - 50f - 20f * intVector.y), BUTTON_WIDTH, filteredItems[num])
+				subNodes.Add(new Button(owner, filteredItems[num], this, new Vector2(5f + intVector.x * (buttonWidth + 5f), size.y - 50f - 20f * intVector.y), buttonWidth, filteredItems[num])
 				{
 					overrideTextColor = (filteredItems[num] == selectedItem) ? new Color(0f, 0f, 1f) : null
 				});

@@ -59,17 +59,17 @@ namespace RegionKit.Modules.Triggers
 		public void InitDevUI(TriggerPanel triggerPanel)
 		{
 			// Resize panel
-			triggerPanel.size.y += 20f;
+			triggerPanel.size.y += 30f;
 			foreach (DevUINode node in triggerPanel.subNodes)
 			{
 				if (node is PositionedDevUINode positionedNode && node.IDstring != "Event_Button")
 				{
-					positionedNode.pos.y += 20f;
+					positionedNode.pos.y += 30f;
 				}
 			}
 
 			// Add custom control
-			triggerPanel.subNodes.Add(new PickItemSelectButton(triggerPanel.owner, "PickItemSelectButton", triggerPanel, new Vector2(5f, 25f), triggerPanel.size.x - 10f, this));
+			triggerPanel.subNodes.Add(new PickItemSelectButton(triggerPanel.owner, "PickItemSelectButton", triggerPanel, new Vector2(5f, 30f), triggerPanel.size.x - 10f, this));
 		}
 
 		private class PickItemSelectButton : ButtonWithSelectPanel

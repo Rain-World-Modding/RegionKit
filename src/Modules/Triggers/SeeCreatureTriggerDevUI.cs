@@ -9,17 +9,17 @@ namespace RegionKit.Modules.Triggers
 		internal static void Init(TriggerPanel triggerPanel, SeeCreatureTrigger trigger)
 		{
 			// Resize panel
-			triggerPanel.size.y += 20f;
+			triggerPanel.size.y += 30f;
 			foreach (DevUINode node in triggerPanel.subNodes)
 			{
 				if (node is PositionedDevUINode positionedNode && node.IDstring != "Event_Button")
 				{
-					positionedNode.pos.y += 20f;
+					positionedNode.pos.y += 30f;
 				}
 			}
 
 			// Add custom control
-			triggerPanel.subNodes.Add(new SeeCreatureSelectButton(triggerPanel.owner, "SeeCreatureSelectButton", triggerPanel, new Vector2(5f, 25f), triggerPanel.size.x - 10f, trigger));
+			triggerPanel.subNodes.Add(new SeeCreatureSelectButton(triggerPanel.owner, "SeeCreatureSelectButton", triggerPanel, new Vector2(5f, 30f), triggerPanel.size.x - 10f, trigger));
 		}
 
 		private class SeeCreatureSelectButton : ButtonWithSelectPanel

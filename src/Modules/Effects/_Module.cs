@@ -1,5 +1,8 @@
-﻿using DevInterface;
+﻿using System.Text.RegularExpressions;
+using DevInterface;
 using EffExt;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using RegionKit.Modules.RoomSlideShow;
 
 namespace RegionKit.Modules.Effects;
@@ -58,15 +61,18 @@ public static class _Module
 		PolePlantColor.Apply();
 		FlatFog.Apply();
 
+		// Effect types
+		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
+
+		// Refresh palettes
 		On.DevInterface.AddEffectButton.Clicked += AddEffectButton_Clicked;
 		On.DevInterface.EffectPanel.EffectPanelSlider.NubDragged += EffectPanelSlider_NubDragged;
 
+		// Slider counts/defaults
 		On.RoomSettings.RoomEffect.GetSliderCount += RoomEffect_GetSliderCount;
 		On.RoomSettings.RoomEffect.GetSliderName += RoomEffect_GetSliderName;
 		On.RoomSettings.RoomEffect.GetSliderDefault += RoomEffect_GetSliderDefault;
 		On.DevInterface.EffectPanel.EffectPanelSlider.Refresh += EffectPanelSlider_Refresh;
-
-		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
 
 		LoadShaders();
 	}
@@ -89,6 +95,8 @@ public static class _Module
 		PolePlantColor.Undo();
 		FlatFog.Undo();
 
+		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
+
 		On.DevInterface.AddEffectButton.Clicked -= AddEffectButton_Clicked;
 		On.DevInterface.EffectPanel.EffectPanelSlider.NubDragged -= EffectPanelSlider_NubDragged;
 
@@ -96,9 +104,49 @@ public static class _Module
 		On.RoomSettings.RoomEffect.GetSliderName -= RoomEffect_GetSliderName;
 		On.RoomSettings.RoomEffect.GetSliderDefault -= RoomEffect_GetSliderDefault;
 		On.DevInterface.EffectPanel.EffectPanelSlider.Refresh -= EffectPanelSlider_Refresh;
-
-		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 	}
+
+	private static RoomSettingsPage.DevEffectsCategories RoomSettingsPageDevEffectGetCategoryFromEffectType(On.DevInterface.RoomSettingsPage.orig_DevEffectGetCategoryFromEffectType orig, RoomSettingsPage self, RoomSettings.RoomEffect.Type type)
+	{
+		// Gameplay
+		if (type == _Enums.FogOfWarSolid
+			|| type == _Enums.FogOfWarDarkened
+			|| type == _Enums.PWMalfunction
+			|| type == _Enums.DenseFog
+			|| type == _Enums.DenseFogSoundVolume
+			|| type == _Enums.RainSiren
+			|| type == _Enums.Suffocation
+			|| type == AridBarrens._Enums.SandStorm)
+		{
+			return _Enums.RegionKit_Gameplay;
+		}
+
+		// Decoration
+		if (type == _Enums.ReplaceCorruptionColor
+			|| type == _Enums.ReplaceEffectColorA
+			|| type == _Enums.ReplaceEffectColorB
+			|| type == _Enums.PolePlantColor
+			|| type == _Enums.HiveColorAlpha
+			|| type == _Enums.MossWater
+			|| type == _Enums.MurkyWater
+			|| type == _Enums.ReflectiveWater
+			|| type == EchoExtender._Enums.EchoPresenceOverride
+			|| type == _Enums.GreenSparksDir
+			|| type == _Enums.FlatFog)
+		{
+			return _Enums.RegionKit_Decoration;
+		}
+
+		return orig(self, type);
+	}
+
+	private static void LoadShaders()
+	{
+		AssetBundle bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rkeffects"));
+		Custom.rainWorld.Shaders["RKFlatFog"] = FShader.CreateShader("RKFlatFog", bundle.LoadAsset<Shader>("Assets/Shaders/RKFlatFog.shader"));
+	}
+
+	#region Refresh palette
 
 	private static readonly HashSet<RoomSettings.RoomEffect.Type> TypesToRefreshPalette = new HashSet<RoomSettings.RoomEffect.Type>()
 	{
@@ -134,6 +182,10 @@ public static class _Module
 			self.owner.room.game.cameras[0].ApplyPalette();
 		}
 	}
+
+	#endregion
+
+	#region Sliders
 
 	private static int RoomEffect_GetSliderCount(On.RoomSettings.RoomEffect.orig_GetSliderCount orig, RoomSettings.RoomEffect.Type type)
 	{
@@ -182,42 +234,5 @@ public static class _Module
 		// can customize effect slider text here
 	}
 
-	private static RoomSettingsPage.DevEffectsCategories RoomSettingsPageDevEffectGetCategoryFromEffectType(On.DevInterface.RoomSettingsPage.orig_DevEffectGetCategoryFromEffectType orig, RoomSettingsPage self, RoomSettings.RoomEffect.Type type)
-	{
-		// Gameplay
-		if (type == _Enums.FogOfWarSolid
-			|| type == _Enums.FogOfWarDarkened
-			|| type == _Enums.PWMalfunction
-			|| type == _Enums.DenseFog
-			|| type == _Enums.DenseFogSoundVolume
-			|| type == _Enums.RainSiren
-			|| type == _Enums.Suffocation
-			|| type == AridBarrens._Enums.SandStorm)
-		{
-			return _Enums.RegionKit_Gameplay;
-		}
-
-		// Decoration
-		if (type == _Enums.ReplaceCorruptionColor
-			|| type == _Enums.ReplaceEffectColorA
-			|| type == _Enums.ReplaceEffectColorB
-			|| type == _Enums.PolePlantColor
-			|| type == _Enums.HiveColorAlpha
-			|| type == _Enums.MossWater
-			|| type == _Enums.MurkyWater
-			|| type == _Enums.ReflectiveWater
-			|| type == EchoExtender._Enums.EchoPresenceOverride
-			|| type == _Enums.FlatFog)
-		{
-			return _Enums.RegionKit_Decoration;
-		}
-
-		return orig(self, type);
-	}
-
-	private static void LoadShaders()
-	{
-		AssetBundle bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rkeffects"));
-		Custom.rainWorld.Shaders["RKFlatFog"] = FShader.CreateShader("RKFlatFog", bundle.LoadAsset<Shader>("Assets/Shaders/RKFlatFog.shader"));
-	}
+	#endregion
 }

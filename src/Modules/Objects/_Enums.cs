@@ -92,4 +92,8 @@ public class _Enums
 	/// Customizable mud pit
 	/// </summary>
 	public static PlacedObject.Type ColoredMudPit = new(nameof(ColoredMudPit), true);
+	/// <summary>
+	/// Green sparks direction object
+	/// </summary>
+	public static PlacedObject.Type GreenSparksDir = new(nameof(GreenSparksDir), true);
 }

@@ -130,6 +130,7 @@ public static class _Module
 			EvilDangleFruit.Apply();
 			ColoredSSFuses.Apply();
 			ColoredMudPit.Apply();
+			GreenSparksDir.Implementation.Apply();
 
 			_CompatHooks.Enable();
 
@@ -171,6 +172,7 @@ public static class _Module
 		EvilDangleFruit.Undo();
 		ColoredSSFuses.Undo();
 		ColoredMudPit.Undo();
+		GreenSparksDir.Implementation.Undo();
 
 		_CompatHooks.Disable();
 	}
@@ -189,7 +191,8 @@ public static class _Module
 			|| type == _Enums.WaterFallDepth
 			|| type == _Enums.BGFlatLight
 			|| type == _Enums.AdvancedShader
-			|| type == _Enums.BigWaterWheel)
+			|| type == _Enums.BigWaterWheel
+			|| type == _Enums.GreenSparksDir)
 			res = new ObjectsPage.DevObjectCategories(DECORATIONS_POM_CATEGORY);
 		else if (type == _Enums.NoWallSlideZone
 			|| type == _Enums.ClimbablePole
@@ -282,6 +285,9 @@ public static class _Module
 				case nameof(_Enums.ColoredMudPit):
 					self.AddObject(new MudPit(pObj));
 					break;
+				case nameof(_Enums.GreenSparksDir):
+					GreenSparksDir.AddOrRefresh(self);
+					break;
 			}
 			if (pObj.data is WormgrassRectData && !wormgrassDataFound)
 			{
@@ -367,6 +373,11 @@ public static class _Module
 		{
 			CreateObjectIfNeeded();
 			rep = new ColoredMudPit.ColoredMudPitRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
+		}
+		else if (tp == _Enums.GreenSparksDir)
+		{
+			CreateObjectIfNeeded();
+			rep = new GreenSparksDir.Representation(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
 		}
 
 		// Create object or call orig
@@ -467,6 +478,11 @@ public static class _Module
 		{
 			self.data = new ColoredMudPit.ColoredMudPitData(self);
 		}
+		else if (self.type == _Enums.GreenSparksDir)
+		{
+			self.data = new GreenSparksDir.Data(self);
+		}
+
 		orig(self);
 	}
 

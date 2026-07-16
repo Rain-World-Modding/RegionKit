@@ -131,7 +131,6 @@ public static class _Module
 			|| type == _Enums.MurkyWater
 			|| type == _Enums.ReflectiveWater
 			|| type == EchoExtender._Enums.EchoPresenceOverride
-			|| type == _Enums.GreenSparksDir
 			|| type == _Enums.FlatFog)
 		{
 			return _Enums.RegionKit_Decoration;

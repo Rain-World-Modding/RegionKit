@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DevInterface;
+﻿using DevInterface;
+using RegionKit.Modules.Iggy;
 
 namespace RegionKit.Modules.DevUIMisc.GenericNodes
 {
@@ -12,23 +8,26 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes
 		private float Radius => size.x / 2f;
 		private readonly PositionedHolder holder;
 		private readonly DirectionHandle handle;
-		private readonly FSprite bgCircle;
+		private readonly FSprite? bgCircle;
 
 		public Vector2 Dir => handle.Dir;
 
-		public DirectionPicker(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float size, Vector2 defaultDir) : base(owner, IDstring, parentNode, pos, new Vector2(size, size))
+		public DirectionPicker(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float radius, Vector2 defaultDir, bool bg = true) : base(owner, IDstring, parentNode, pos, new Vector2(radius * 2f, radius * 2f))
 		{
-			bgCircle = new FSprite("Futile_White")
+			if (bg)
 			{
-				anchorX = 0f,
-				anchorY = 0f,
-				shader = owner.game.rainWorld.Shaders["VectorCircleFadable"],
-				color = new Color(0f, 0f, 0.5f), // white with 0.5 alpha because idk why this shader is set up like this
-			};
-			fSprites.Add(bgCircle);
-			owner.placedObjectsContainer.AddChild(bgCircle);
+				bgCircle = new FSprite("Futile_White")
+				{
+					anchorX = 0f,
+					anchorY = 0f,
+					shader = owner.game.rainWorld.Shaders["VectorCircleFadable"],
+					color = new Color(0f, 0f, 0.5f), // white with 0.5 alpha because idk why this shader is set up like this
+				};
+				fSprites.Add(bgCircle);
+				owner.placedObjectsContainer.AddChild(bgCircle);
+			}
 
-			holder = new PositionedHolder(owner, "Holder", this, Vector2.one * Radius);
+			holder = new PositionedHolder(owner, "Holder", this, new Vector2(radius, radius));
 			subNodes.Add(holder);
 
 			handle = new DirectionHandle(owner, "Handle", this, defaultDir.normalized);
@@ -39,17 +38,21 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes
 		{
 			base.Update();
 			size.y = size.x;
+			holder.pos = size / 2f;
 		}
 
 		public override void Refresh()
 		{
 			base.Refresh();
-			bgCircle.scale = size.x;
-			bgCircle.SetPosition(absPos);
-			bgCircle.alpha = 2f / Radius;
+			if (bgCircle != null)
+			{
+				bgCircle.scale = size.x;
+				bgCircle.SetPosition(absPos);
+				bgCircle.alpha = 2f / Radius;
+			}
 		}
 
-		private class DirectionHandle : Handle
+		private class DirectionHandle : Handle, IGiveAToolTip
 		{
 			private readonly DirectionPicker dirOwner;
 			private readonly FSprite dirLine;
@@ -57,14 +60,18 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes
 			public Vector2 Dir
 			{
 				get => pos.sqrMagnitude > 0f ? pos.normalized : Vector2.up;
-				set => pos = value.normalized;
+				set => pos = value.normalized * dirOwner.Radius;
 			}
+
+			public ToolTip? ToolTip => new ToolTip("Drag to pick a direction.", 5, this);
+
+			public bool MouseOverMe => MouseOver;
 
 			public DirectionHandle(DevUI owner, string IDstring, DirectionPicker parentNode, Vector2 defaultDir) : base(owner, IDstring, parentNode, defaultDir * parentNode.Radius)
 			{
 				dirOwner = parentNode;
 
-				dirLine = new FSprite("pixel") { anchorY = 0f };
+				dirLine = new FSprite("pixel") { anchorY = 1f };
 				fSprites.Add(dirLine);
 				owner.placedObjectsContainer.AddChild(dirLine);
 

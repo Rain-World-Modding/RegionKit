@@ -22,6 +22,7 @@ internal static class _Module
 		DecalPreview.Enable();
 		CustomSSSong.Enable();
 		LightningFix.Apply();
+		DecalSelectSearch.Apply();
 
 		On.RoomPalette.GetColor += RoomPalette_GetColor;
 	}
@@ -40,6 +41,7 @@ internal static class _Module
 		DecalPreview.Disable();
 		CustomSSSong.Disable();
 		LightningFix.Undo();
+		DecalSelectSearch.Undo();
 	}
 
 	private static Color RoomPalette_GetColor(On.RoomPalette.orig_GetColor orig, ref RoomPalette self, RoomPalette.ColorName colorName)

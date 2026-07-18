@@ -44,14 +44,14 @@ public class StringControl : DevUILabel
 		base.Refresh();
 
 		// Update outline sprites
-		outlineSprites[0].SetPosition(absPos + Vector2.one * 0.01f);
-		outlineSprites[0].scaleX = size.x;
-		outlineSprites[1].SetPosition(absPos + Vector2.one * 0.01f);
-		outlineSprites[1].scaleY = size.y;
-		outlineSprites[2].SetPosition(absPos + new Vector2(0f, size.y - 1f) + Vector2.one * 0.01f);
-		outlineSprites[2].scaleX = size.x;
-		outlineSprites[3].SetPosition(absPos + new Vector2(size.x - 1f, 0f) + Vector2.one * 0.01f);
-		outlineSprites[3].scaleY = size.y;
+		outlineSprites[0].SetPosition(absPos - Vector2.one * 0.99f);
+		outlineSprites[0].scaleX = size.x + 2;
+		outlineSprites[1].SetPosition(absPos - Vector2.one * 0.99f);
+		outlineSprites[1].scaleY = size.y + 2;
+		outlineSprites[2].SetPosition(absPos + new Vector2(0f, size.y) + Vector2.one * 0.01f);
+		outlineSprites[2].scaleX = size.x + 1;
+		outlineSprites[3].SetPosition(absPos + new Vector2(size.x, 0f) + Vector2.one * 0.01f);
+		outlineSprites[3].scaleY = size.y + 1;
 	}
 
 	public override void Update()

@@ -8,6 +8,8 @@ internal static class DecalPreview
 {
 	private static Dictionary<string, string> decalSources = new Dictionary<string, string>();
 
+	public static string GetDecalSource(string decal) => decalSources.TryGetValue(decal, out string source) ? source : "UNKNOWN";
+
 	public static void Enable()
 	{
 		On.DevInterface.Panel.Update += Panel_Update;
@@ -30,7 +32,7 @@ internal static class DecalPreview
 		orig(self);
 
 		if (self is not CustomDecalRepresentation.SelectDecalPanel) return;
-		if ((self as CustomDecalRepresentation.SelectDecalPanel).parentNode is not CustomDecalRepresentation.CustomDecalControlPanel) return;
+		if ((self as CustomDecalRepresentation.SelectDecalPanel)!.parentNode is not CustomDecalRepresentation.CustomDecalControlPanel) return;
 
 		foreach (var subNode in self.subNodes)
 		{
@@ -69,7 +71,7 @@ internal static class DecalPreview
 
 			if (!File.Exists(decalPath))
 			{
-				(self.placedObject.data as PlacedObject.CustomDecalData).imageName = "ph";
+				(self.placedObject.data as PlacedObject.CustomDecalData)!.imageName = "ph";
 				fileName = "ph";
 			}
 		}
@@ -120,7 +122,7 @@ internal static class DecalPreview
 
 	public class DecalPreviewOverlay : DevUINode
 	{
-		private string decalName;
+		private string? decalName;
 
 		private FSprite overlaySprite;
 		private FSprite decalSizeSprite;
@@ -201,7 +203,7 @@ internal static class DecalPreview
 		{
 			base.Update();
 
-			if (isVisible && Futile.atlasManager.GetAtlasWithName(decalName) != null)
+			if (decalName != null && isVisible && Futile.atlasManager.GetAtlasWithName(decalName) != null)
 			{
 				decalSprite.SetElementByName(decalName);
 

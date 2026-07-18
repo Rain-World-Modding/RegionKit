@@ -8,6 +8,7 @@ namespace RegionKit.Modules.ShaderTools {
 		/// </summary>
 		public static void Enable() {
 			ShaderBuffers.Initialize();
+			ShaderPatch.Apply();
 		}
 
 		/// <summary>
@@ -15,6 +16,7 @@ namespace RegionKit.Modules.ShaderTools {
 		/// </summary>
 		public static void Disable() {
 			ShaderBuffers.Uninitialize();
+			ShaderPatch.Undo();
 		}
 	}
 }

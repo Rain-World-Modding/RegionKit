@@ -1,18 +1,15 @@
-﻿namespace RegionKit.Modules.LevelLayerFour;
-
-using System.Reflection;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using static Pom.Pom.ManagedFieldWithPanel;
+﻿using static Pom.Pom.ManagedFieldWithPanel;
 using static RegionKit.Modules.Objects._Module;
+
+namespace RegionKit.Modules.LevelLayerFour;
 
 [RegionKitModule(nameof(onEnable), nameof(onDisable), moduleName: "Level Layer Four")]
 public class _Module
 {
 	static bool loaded = false;
 
-	static AssetBundle llfShadersBundle;
-	static Shader llfShader;
+	static AssetBundle? llfShadersBundle;
+	static Shader? llfShader;
 
 	internal static void onEnable()
 	{
@@ -121,7 +118,7 @@ public class _Module
                 anchorY = 0f
             };
 
-            this.AddToContainer(sLeaser, rCam, null);
+            this.AddToContainer(sLeaser, rCam, null!);
 
             this.dirty = true;
         }

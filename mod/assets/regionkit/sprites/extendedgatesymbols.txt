@@ -264,7 +264,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
 	"sourceSize": {"w":62,"h":149}
 },
-"gateSymbol10reinforced.png":
+"gateSymbol10-10Reinforced.png":
 {
 	"frame": {"x":348,"y":298,"w":62,"h":149},
 	"rotated": false,
@@ -296,7 +296,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
 	"sourceSize": {"w":62,"h":149}
 },
-"smallKarma10reinforced.png":
+"smallKarma9-9Reinforced.png":
 {
 	"frame": {"x":596,"y":298,"w":45,"h":45},
 	"rotated": false,

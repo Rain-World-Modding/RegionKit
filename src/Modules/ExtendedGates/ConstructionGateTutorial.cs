@@ -1,4 +1,4 @@
-﻿namespace RegionKit.Modules.Misc
+﻿namespace RegionKit.Modules.ExtendedGates
 {
 	public class ConstructionGateTutorial : UpdatableAndDeletable
 	{

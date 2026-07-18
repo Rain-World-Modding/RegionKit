@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EffExt;
-using RegionKit.Modules.RoomSlideShow;
+﻿using EffExt;
 using SharpVoronoiLib;
 
 namespace RegionKit.Modules.Effects
@@ -28,7 +20,7 @@ namespace RegionKit.Modules.Effects
 					.AddFloatField("CellCount", 0f, 1000f, 1f, 400f)
 					.AddIntField("GenType", 1, 2, 1)
 					.SetUADFactory((room, data, firstTimeRealized) => new IceWaterUAD(data))
-					.SetCategory("RegionKit")
+					.SetCategory(_Enums.RegionKit_Decoration.value)
 					.Register();
 			}
 			catch (Exception ex)

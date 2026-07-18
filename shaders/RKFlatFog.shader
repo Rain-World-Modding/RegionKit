@@ -1,4 +1,4 @@
-Shader "Alduris/BGCloudLight"
+Shader "RegionKit/RKFlatFog"
 {
     Properties 
     {
@@ -23,13 +23,16 @@ Shader "Alduris/BGCloudLight"
                 #include "UnityCG.cginc"
                 #include "_ShaderFix.cginc"
                 #include "_Functions.cginc"
+                #include "_TerrainMask.cginc"
+                #include "_BrainMoldClip.cginc"
+                #include "_Snow.cginc"
 
                 float4 _MainTex_ST;
                 sampler2D _MainTex;
                 sampler2D _LevelTex;
-                sampler2D _CloudsTex;
-                uniform float _fogAmount;
-                uniform float _RAIN;
+                sampler2D _PalTex;
+                sampler2D _PreLevelColorGrab;
+                //uniform float _waterPosition;
                 
                 uniform float4 _spriteRect;
                 uniform float2 _screenSize;
@@ -39,6 +42,7 @@ Shader "Alduris/BGCloudLight"
                     float4 pos : SV_POSITION;
                     float2 uv : TEXCOORD0;
                     float2 scrPos : TEXCOORD1;
+                    float2 textCoord : TEXCOORD2;
                     float4 clr : COLOR;
                 };
 
@@ -48,27 +52,33 @@ Shader "Alduris/BGCloudLight"
                     o.pos = UnityObjectToClipPos(v.vertex);
                     o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
                     o.scrPos = ComputeScreenPos(o.pos);
+                    o.textCoord = iLerp(_spriteRect.xy,_spriteRect.zw,o.scrPos);
                     o.clr = v.color;
                     return o;
                 }
 
                 half4 frag (v2f i) : SV_Target
                 {
-                    float2 textCoord = float2(floor(i.scrPos.x*_screenSize.x)/_screenSize.x, floor(i.scrPos.y*_screenSize.y)/_screenSize.y);
-                    textCoord.x -= _spriteRect.x;
-                    textCoord.y -= _spriteRect.y;
-                    textCoord.x /= _spriteRect.z - _spriteRect.x;
-                    textCoord.y /= _spriteRect.w - _spriteRect.y;
+                    half3 fogColor = tex2D(_PalTex, float2(1.5/32.0, 7.5/8.0)).xyz;
+                    bool creatures = tex2D(_PreLevelColorGrab, i.scrPos.xy) != (fixed4)0;
+                    half4 levelTex = tex2D(_LevelTex, i.textCoord);
+                    levelTex = AddTerrain(levelTex, i.textCoord, _spriteRect);
+                    levelTex = AddSnow(levelTex, i.textCoord, _spriteRect);
+                    
+                    half grad = fmod(round(levelTex.x * 255)-1, 30.0)/30.0;
+                    
+                    #if RoomHasBrainMold
+                    grad = lerp(grad,.0,_BrainMoldMask(i.scrPos));
+                    #endif
 
-                    float dist = clamp(1 - 2*distance(i.uv.xy, half2(0.5, 0.5)), 0, 1);
-                    half4 lvlcol = tex2D(_LevelTex, textCoord);
-                    if(dist <= 0 || lvlcol.r < 1) return half4(0,0,0,0);
+                    if (levelTex.x == 1.0 && levelTex.y == 1.0 && levelTex.z == 1.0) {
+                        grad = 1.0;
+                    }
+                    if (grad > 6.0/30.0 && creatures) {
+                        grad = 6.0/30.0;
+                    }
 
-                    float clouds = tex2D(_CloudsTex,textCoord*fixed2(1,1)*.7+float2(_RAIN*.01,0)).x;
-                    float len = length(i.uv*2-1);
-                    float l2 = smoothstep(1,0.1,len);
-                    clouds = l2*clouds;
-                    return half4(i.clr.xyz, i.clr.w * clouds);
+                    return half4(fogColor, lerp(i.clr.b, i.clr.a, saturate(iLerp(i.clr.r, i.clr.g, grad))));
                 }
                 ENDCG
             }

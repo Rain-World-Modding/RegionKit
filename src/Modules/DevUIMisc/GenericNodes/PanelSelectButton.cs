@@ -74,7 +74,7 @@ public class PanelSelectButton : Button, IDevUISignals, Modules.Iggy.IGiveAToolT
 		subButtonID = "";
 		if (itemSelectPanel != null && IDstring.StartsWith(itemSelectPanel.idstring + "Button99289_"))
 		{
-			subButtonID = IDstring.Remove(0, (itemSelectPanel.idstring + "Button99289_").Length);
+			subButtonID = IDstring[(itemSelectPanel.idstring + "Button99289_").Length..];
 			return true;
 		}
 

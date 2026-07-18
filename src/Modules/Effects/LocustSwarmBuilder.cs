@@ -15,7 +15,7 @@ namespace RegionKit.Modules.Effects
 			{
 				new EffectDefinitionBuilder("LocustSwarm")
 					.SetUADFactory((_, data, _) => new LocustSwarm.UAD(data))
-					.SetCategory("RegionKit")
+					.SetCategory(_Enums.RegionKit_Gameplay.value)
 					.Register();
 				LocustSwarm.Setup();
 			}

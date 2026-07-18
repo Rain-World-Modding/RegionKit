@@ -7,7 +7,7 @@ public sealed class ModOptions : OptionsTemplate
 {
     public static ModOptions Instance { get; } = new();
 
-    public static void RegisterOI(string remixModId)
+    internal static void RegisterOI(string remixModId)
     {
 		if (MachineConnector.GetRegisteredOI(remixModId) != Instance)
 		{
@@ -27,11 +27,15 @@ public sealed class ModOptions : OptionsTemplate
 
 	public static Configurable<bool> EnableRant { get; } = Instance.config.Bind(nameof(EnableRant), false, new ConfigurableInfo(
 		"When checked, enables the rant that has a chance to be logged to the console on startup.", null, "",
-		"Disable Rant?"));
+		"Enable Rant?"));
 
 	public static Configurable<bool> AltGateArt { get; } = Instance.config.Bind(nameof(AltGateArt), false, new ConfigurableInfo(
 		"When checked, uses an alternative set of art for region gate glyphs.", null, "",
 		"Alt Gate Art?"));
+
+	public static Configurable<bool> PagedFadePalettes { get; } = Instance.config.Bind(nameof(PagedFadePalettes), true, new ConfigurableInfo(
+		"When checked, makes the fade palette panel paged. Turn off if it is causing issues with other mods.", null, "",
+		"Paged Fade Palettes?"));
 
 
 
@@ -69,6 +73,7 @@ public sealed class ModOptions : OptionsTemplate
 		DrawCheckBoxes(ref Tabs[tabIndex]);
 
 		AddCheckBox(EnableRant);
+		AddCheckBox(PagedFadePalettes);
 		DrawCheckBoxes(ref Tabs[tabIndex]);
 
 
@@ -89,7 +94,7 @@ public sealed class ModOptions : OptionsTemplate
 		("Slime_Cubed", hexToColor("25c059")),
 		("LeeMoriya", hexToColor("ffc900")),
 		("NV", hexToColor("84c86b")), // also bebe; Inevitabilis on GitHub
-		("Doggo", hexToColor("c73633")), // snoodle
+		("snoodle", hexToColor("c73633")), // also Doggo
 		("Kaeporo", hexToColor("8de7f3")),
 		("Dracentis", hexToColor("ad1457")),
 		("Isbjorn52", hexToColor("d97d3d")),
@@ -100,10 +105,13 @@ public sealed class ModOptions : OptionsTemplate
 		("forthfora", hexToColor("8b41ff")),
 		("Alduris", hexToColor("f21035")),
 		("LudoCrypt", hexToColor("c6a3be")),
-		("Ved_S", hexToColor("ee6225")),
+		("Ved-s", hexToColor("ee6225")),
+		("Seroen", hexToColor("2ecc71")),
 		("MagicaJaphet", hexToColor("c00a20")),
 		("k0rii", hexToColor("ea4970")),
 		("tpd1864blake", hexToColor("ff0000")),
+		("glebi574", hexToColor("c7b3d1")),
+		("inspectnerd", hexToColor("38a336")),
 	];
 
 	private void InitCredits(ref int tabIndex)
@@ -118,7 +126,7 @@ public sealed class ModOptions : OptionsTemplate
 
 		AddNewLine(1);
 
-		const int COLS = 3;
+		const int COLS = 4;
 
 		for (int i = 0; i < Credits.Count; i++)
 		{

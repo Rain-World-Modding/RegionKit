@@ -1,15 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using EffExt;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using On.CoralBrain;
+﻿using EffExt;
 using On.MoreSlugcats;
-using RegionKit.Modules.Objects;
 
 namespace RegionKit.Modules.Effects
 {
@@ -33,7 +23,7 @@ namespace RegionKit.Modules.Effects
 					.AddFloatField("Hue", 0, 360, 1, 180)
 					.AddBoolField("AffectSnowfall", true)
 					.SetUADFactory((room, data, firstTimeRealized) => new HSLDisplaySnowUAD(data))
-					.SetCategory("RegionKit")
+					.SetCategory(_Enums.RegionKit_Decoration.value)
 					.Register();
 			}
 			catch (Exception ex)

@@ -2,6 +2,8 @@
 using DevInterface;
 using RegionKit.Modules.BackgroundBuilder;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 
 namespace RegionKit.Modules.DevUIMisc;
 
@@ -15,6 +17,7 @@ public static class _Module
 		ListFixes.Apply();
 		FadePaletteTemplate.Apply();
 		InsectPicker.Apply();
+		PagedFadePalettes.Apply();
 
 		//currently used for settings saving options stuffs, but will probably later be used for much more
 		On.DevInterface.Page.ctor += Page_ctor;
@@ -24,13 +27,18 @@ public static class _Module
 		On.DevInterface.RoomSettingsPage.Signal += SubPage_Signal<On.DevInterface.RoomSettingsPage.orig_Signal, RoomSettingsPage>;
 		On.DevInterface.SoundPage.Signal += SubPage_Signal<On.DevInterface.SoundPage.orig_Signal, SoundPage>;
 		On.DevInterface.TriggersPage.Signal += SubPage_Signal<On.DevInterface.TriggersPage.orig_Signal, TriggersPage>;
+
+		// bugfix
+		IL.DevInterface.DevUINode.Update += DevUINode_Update;
 	}
+
 	internal static void Disable()
 	{
 		PaletteTextInput.Undo();
 		ListFixes.Undo();
 		FadePaletteTemplate.Undo();
 		InsectPicker.Undo();
+		PagedFadePalettes.Undo();
 
 		On.DevInterface.Page.ctor -= Page_ctor;
 		On.DevInterface.Page.Refresh -= Page_Refresh;
@@ -39,6 +47,8 @@ public static class _Module
 		On.DevInterface.RoomSettingsPage.Signal -= SubPage_Signal<On.DevInterface.RoomSettingsPage.orig_Signal, RoomSettingsPage>;
 		On.DevInterface.SoundPage.Signal -= SubPage_Signal<On.DevInterface.SoundPage.orig_Signal, SoundPage>;
 		On.DevInterface.TriggersPage.Signal -= SubPage_Signal<On.DevInterface.TriggersPage.orig_Signal, TriggersPage>;
+
+		IL.DevInterface.DevUINode.Update -= DevUINode_Update;
 	}
 
 
@@ -75,5 +85,23 @@ public static class _Module
 
 		settingsSaveOptionsMenu = new SettingsSaveOptionsMenu(owner, "SettingsSaveOptions", self);
 		self.subNodes.Add(settingsSaveOptionsMenu);
+	}
+
+	private static void DevUINode_Update(ILContext il)
+	{
+		// Prevent index out of bounds exception if a subnode decides to kill its whole family (changes the length of the subnodes of its parent) mid-update
+		var c = new ILCursor(il);
+
+		c.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt<DevUINode>(nameof(DevUINode.Update)));
+		Instruction brTo = c.Next;
+
+		c.Goto(0);
+		c.GotoNext(MoveType.After, x => x.MatchBr(out _));
+		c.MoveAfterLabels();
+
+		c.Emit(OpCodes.Ldarg_0);
+		c.Emit(OpCodes.Ldloc_0); // I'm expecting this local variable index not to change in future updates
+		c.EmitDelegate((DevUINode self, int i) => i >= self.subNodes.Count);
+		c.Emit(OpCodes.Brtrue, brTo);
 	}
 }

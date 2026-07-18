@@ -16,7 +16,7 @@ namespace RegionKit.Modules.Effects
 					.AddStringField("fadein", "1000", "Fade-In Time")
 					.AddBoolField("looping", true, "Loop")
 					.SetUADFactory((Room room, EffectExtraData data, bool firstTimeRealized) => new RainSirenUAD(data))
-					.SetCategory("RegionKit")
+					.SetCategory(_Enums.RegionKit_Gameplay.value)
 					.Register();
 				RainSiren.Setup();
 			}

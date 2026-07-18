@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using EffExt;
+﻿using EffExt;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using On.CoralBrain;
-using On.MoreSlugcats;
-using RegionKit.Modules.Objects;
 
 namespace RegionKit.Modules.Effects
 {
@@ -30,7 +21,7 @@ namespace RegionKit.Modules.Effects
 					.AddBoolField("AffectGreenSparks", true)
 					.AddBoolField("AffectElectricDeath", true)
 					.SetUADFactory((room, data, firstTimeRealized) => new RGBElectricDeathUAD(data))
-					.SetCategory("RegionKit")
+					.SetCategory(_Enums.RegionKit_Decoration.value)
 					.Register();
 			}
 			catch (Exception ex)
@@ -160,7 +151,12 @@ namespace RegionKit.Modules.Effects
 			if (cursor.TryGotoNext(MoveType.After, i => i.MatchNewobj<Color>())) 
 			{
 				cursor.Emit(OpCodes.Ldarg_0);
-				cursor.EmitDelegate<Func<Color, ElectricDeath.SparkFlash, Color>>((Color origColor, ElectricDeath.SparkFlash self) => (Color)((self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null && self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.affectElectricDeath == true) ? self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.color : origColor)); 
+				cursor.EmitDelegate((Color origColor, ElectricDeath.SparkFlash self) =>
+				{
+					return (self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null && self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.affectElectricDeath == true) 
+						? self.room.updateList.OfType<RGBElectricDeathUAD>().FirstOrDefault()?.color ?? origColor
+						: origColor;
+				}); 
 			}
 		}
 		

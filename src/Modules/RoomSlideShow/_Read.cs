@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.RoomSlideShow;
+﻿namespace RegionKit.Modules.RoomSlideShow;
 
 internal static class _Read
 {
@@ -98,7 +98,7 @@ internal static class _Read
 				LogError($"{ex}");
 			}
 		}
-		LogDebug(steps.Select(x => x.ToString()).Stitch());
+		// LogDebug(steps.Select(x => x.ToString()).Stitch());
 
 		return new(steps, start, end, id);
 	}

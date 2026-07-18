@@ -25,6 +25,7 @@ Shader "RegionKit/RKFlatFog"
                 #include "_Functions.cginc"
                 #include "_TerrainMask.cginc"
                 #include "_BrainMoldClip.cginc"
+                #include "_Snow.cginc"
 
                 float4 _MainTex_ST;
                 sampler2D _MainTex;
@@ -62,6 +63,7 @@ Shader "RegionKit/RKFlatFog"
                     bool creatures = tex2D(_PreLevelColorGrab, i.scrPos.xy) != (fixed4)0;
                     half4 levelTex = tex2D(_LevelTex, i.textCoord);
                     levelTex = AddTerrain(levelTex, i.textCoord, _spriteRect);
+                    levelTex = AddSnow(levelTex, i.textCoord, _spriteRect);
                     
                     half grad = fmod(round(levelTex.x * 255)-1, 30.0)/30.0;
                     

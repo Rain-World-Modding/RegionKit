@@ -25,6 +25,7 @@ Shader "RegionKit/BGFlatLight"
                 #include "_ShaderFix.cginc"
                 #include "_Functions.cginc"
                 #include "_TerrainMask.cginc"
+                #include "_Snow.cginc"
 
                 float4 _MainTex_ST;
                 sampler2D _MainTex;
@@ -61,11 +62,12 @@ Shader "RegionKit/BGFlatLight"
                     float dist = clamp(1 - 2*distance(i.uv.xy, half2(0.5, 0.5)), 0, 1);
                     half4 lvlcol = tex2D(_LevelTex, i.textCoord);
                     lvlcol = AddTerrain(lvlcol, i.textCoord, _spriteRect);
+                    lvlcol = AddSnow(lvlcol,i.textCoord,i.scrPos);
                     if(dist <= 0 || lvlcol.r < 1) return half4(0,0,0,0);
 
                     #if cloudlight
 
-                    float clouds = tex2D(_CloudsTex,i.textCoord*fixed2(1,1)*.7+float2(_RAIN*.025,0)).x;
+                    float clouds = tex2D(_CloudsTex,i.textCoord*fixed2(1,1)*.7+float2(_RAIN*.04,0)).x;
                     float len = length(i.uv*2-1);
                     float l2 = smoothstep(1,0.1,len);
                     clouds = l2*clouds;

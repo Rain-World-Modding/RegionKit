@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace RegionKit.Extras.FutileExtras
 {
-	/// <summary>
-	/// Variant of FSprite with some settable UV channels
-	/// </summary>
-	public class FSpriteUVs : FSprite
+	public class TriangleMeshUVs : TriangleMesh
 	{
 		protected Vector2[] _uvs1;
 		protected Vector2[] _uvs2;
@@ -14,33 +15,30 @@ namespace RegionKit.Extras.FutileExtras
 		protected Vector2[] _uvs5;
 		protected Vector2[] _uvs6;
 		protected Vector2[] _uvs7;
-		protected FQuadUVRenderLayer SpecialRenderLayer => (_renderLayer as FQuadUVRenderLayer)!;
+		protected FTriangleUVRenderLayer SpecialRenderLayer => (_renderLayer as FTriangleUVRenderLayer)!;
 
-		public FSpriteUVs(string elementName) : this(Futile.atlasManager.GetElementWithName(elementName))
+		public TriangleMeshUVs(string imageName, Triangle[] tris, bool customColor, bool atlasedImage = false) : base(imageName, tris, customColor, atlasedImage)
 		{
-		}
-
-		public FSpriteUVs(FAtlasElement atlasElement) : base(atlasElement, true)
-		{
-			Init(FQuadUVRenderLayer.FacetType, element, 1);
-			_uvs1 = [new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f)];
-			_uvs2 = [new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f)];
-			_uvs3 = [new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f)];
-			_uvs4 = [new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f)];
-			_uvs5 = [new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f)];
-			_uvs6 = [new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f)];
-			_uvs7 = [new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(1f, 0f), new Vector2(0f, 0f)];
+			Init(FTriangleUVRenderLayer.FacetType, element, 1);
+			_uvs1 = new Vector2[vertices.Length];
+			_uvs2 = new Vector2[vertices.Length];
+			_uvs3 = new Vector2[vertices.Length];
+			_uvs4 = new Vector2[vertices.Length];
+			_uvs5 = new Vector2[vertices.Length];
+			_uvs6 = new Vector2[vertices.Length];
+			_uvs7 = new Vector2[vertices.Length];
 		}
 
 		/// <summary>
 		/// Sets the UVs of a channel
 		/// </summary>
 		/// <param name="uv">Value to set</param>
-		/// <param name="channel">Number between 1 and 7</param>
+		/// <param name="channel">Number between 0 and 7</param>
 		public void SetUVs(Vector2 uv, int channel)
 		{
 			Vector2[] array = channel switch
 			{
+				0 => UVvertices,
 				1 => _uvs1,
 				2 => _uvs2,
 				3 => _uvs3,
@@ -64,11 +62,12 @@ namespace RegionKit.Extras.FutileExtras
 		/// </summary>
 		/// <param name="uv">Value to set</param>
 		/// <param name="index">Index of array to set</param>
-		/// <param name="channel">Number between 1 and 7</param>
+		/// <param name="channel">Number between 0 and 7</param>
 		public void SetUV(Vector2 uv, int index, int channel)
 		{
 			Vector2[] array = channel switch
 			{
+				0 => UVvertices,
 				1 => _uvs1,
 				2 => _uvs2,
 				3 => _uvs3,
@@ -97,17 +96,31 @@ namespace RegionKit.Extras.FutileExtras
 				Vector2[] uvs6 = SpecialRenderLayer.uvs6;
 				Vector2[] uvs7 = SpecialRenderLayer.uvs7;
 
-				int firstIndex = _firstFacetIndex * 4;
-				for (int i = 0; i < 4; i++)
+				int firstIndex = _firstFacetIndex * 3;
+				for (int i = 0; i < this.triangles.Length; i++)
 				{
-					uvs1[firstIndex + i] = _uvs1[i];
-					uvs2[firstIndex + i] = _uvs2[i];
-					uvs3[firstIndex + i] = _uvs3[i];
-					uvs4[firstIndex + i] = _uvs4[i];
-					uvs5[firstIndex + i] = _uvs5[i];
-					uvs6[firstIndex + i] = _uvs6[i];
-					uvs7[firstIndex + i] = _uvs7[i];
+					for (int j = 0; j < 3; j++)
+					{
+						int index = j switch
+						{
+							0 => triangles[i].a,
+							1 => triangles[i].b,
+							2 => triangles[i].c,
+							_ => throw new InvalidOperationException()
+						};
+
+						int k = firstIndex + i * 3 + j;
+
+						uvs1[k] = _uvs1[index];
+						uvs2[k] = _uvs2[index];
+						uvs3[k] = _uvs3[index];
+						uvs4[k] = _uvs4[index];
+						uvs5[k] = _uvs5[index];
+						uvs6[k] = _uvs6[index];
+						uvs7[k] = _uvs7[index];
+					}
 				}
+
 				_renderLayer.HandleVertsChange();
 			}
 		}

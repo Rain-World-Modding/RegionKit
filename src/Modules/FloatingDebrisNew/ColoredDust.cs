@@ -210,10 +210,10 @@ namespace RegionKit.Modules.FloatingDebrisNew
 			sLeaser.sprites[0].scaleX = 2f * finalScale;
 			sLeaser.sprites[0].scaleY = 4f * finalScale;
 			FSpriteUVs uvsSprite = (sLeaser.sprites[0] as FSpriteUVs)!;
-			uvsSprite.SetUV(Vector2.Lerp(new Vector2(lastDustColor.r, lastDustColor.g), new Vector2(dustColor.r, dustColor.g), timeStacker), 2);
-			uvsSprite.SetUV(new Vector2(Mathf.Lerp(lastDustColor.b, dustColor.b, timeStacker), Mathf.Lerp(lastDustFade, dustFade, timeStacker)), 3);
-			uvsSprite.SetUV(Vector2.Lerp(new Vector2(lastSparklesColor.r, lastSparklesColor.g), new Vector2(sparklesColor.r, sparklesColor.g), timeStacker), 4);
-			uvsSprite.SetUV(new Vector2(Mathf.Lerp(lastSparklesColor.b, sparklesColor.b, timeStacker), 1f), 5);
+			uvsSprite.SetUVs(Vector2.Lerp(new Vector2(lastDustColor.r, lastDustColor.g), new Vector2(dustColor.r, dustColor.g), timeStacker), 2);
+			uvsSprite.SetUVs(new Vector2(Mathf.Lerp(lastDustColor.b, dustColor.b, timeStacker), Mathf.Lerp(lastDustFade, dustFade, timeStacker)), 3);
+			uvsSprite.SetUVs(Vector2.Lerp(new Vector2(lastSparklesColor.r, lastSparklesColor.g), new Vector2(sparklesColor.r, sparklesColor.g), timeStacker), 4);
+			uvsSprite.SetUVs(new Vector2(Mathf.Lerp(lastSparklesColor.b, sparklesColor.b, timeStacker), 1f), 5);
 			if (slatedForDeletetion || room != rCam.room)
 			{
 				sLeaser.CleanSpritesAndRemove();

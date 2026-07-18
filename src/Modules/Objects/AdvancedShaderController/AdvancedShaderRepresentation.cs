@@ -370,7 +370,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 						else if (selectPanel == spriteSelectPanel)
 						{
 							data.spriteName = sender.IDstring;
-							data.ResetUVs();
+							data.ResetUVs(0);
 							uvPanel?.RefreshUVs();
 							spriteSelectButton.Text = data.spriteName;
 							subNodes.Remove(spriteSelectPanel);

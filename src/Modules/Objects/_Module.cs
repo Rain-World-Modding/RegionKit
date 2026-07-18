@@ -192,7 +192,9 @@ public static class _Module
 			|| type == _Enums.BGFlatLight
 			|| type == _Enums.AdvancedShader
 			|| type == _Enums.BigWaterWheel
-			|| type == _Enums.GreenSparksDir)
+			|| type == _Enums.GreenSparksDir
+			|| type == _Enums.ColoredLocalBlizzard
+			)
 			res = new ObjectsPage.DevObjectCategories(DECORATIONS_POM_CATEGORY);
 		else if (type == _Enums.NoWallSlideZone
 			|| type == _Enums.ClimbablePole
@@ -202,7 +204,8 @@ public static class _Module
 			|| type == TheMast._Enums.PlacedPearlChain
 			|| type == _Enums.NoBatflyLurkZone
 			|| type == _Enums.NoDropwigPerchZone
-			|| type == _Enums.ColoredMudPit)
+			|| type == _Enums.ColoredMudPit
+			)
 			res = new ObjectsPage.DevObjectCategories(GAMEPLAY_POM_CATEGORY);
 		else if (type == _Enums.EvilDangleFruit)
 			res = ObjectsPage.DevObjectCategories.Consumable;
@@ -287,6 +290,9 @@ public static class _Module
 					break;
 				case nameof(_Enums.GreenSparksDir):
 					GreenSparksDir.AddOrRefresh(self);
+					break;
+				case nameof(_Enums.ColoredLocalBlizzard):
+					self.AddObject(new ColoredLocalBlizzard(pObj, (pObj.data as ColoredLocalBlizzard.Data)!));
 					break;
 			}
 			if (pObj.data is WormgrassRectData && !wormgrassDataFound)
@@ -378,6 +384,11 @@ public static class _Module
 		{
 			CreateObjectIfNeeded();
 			rep = new GreenSparksDir.Representation(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
+		}
+		else if (tp == _Enums.ColoredLocalBlizzard)
+		{
+			CreateObjectIfNeeded();
+			rep = new ColoredLocalBlizzard.Representation(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
 		}
 
 		// Create object or call orig
@@ -482,6 +493,10 @@ public static class _Module
 		{
 			self.data = new GreenSparksDir.Data(self);
 		}
+		else if (self.type == _Enums.ColoredLocalBlizzard)
+		{
+			self.data = new ColoredLocalBlizzard.Data(self);
+		}
 
 		orig(self);
 	}
@@ -512,5 +527,6 @@ public static class _Module
 		Custom.rainWorld.Shaders["BGFlatLightAdditive"] = FShader.CreateShader("BGFlatLightAdditive", bgFlatLightBundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLightAdditive.shader"));
 		Custom.rainWorld.Shaders["BGCloudLightAdditive"] = FShader.CreateShader("BGCloudLightAdditive", bgFlatLightBundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLightAdditive.shader"), ["cloudlight"]);
 		Custom.rainWorld.Shaders["ASAxisHandleLine"] = FShader.CreateShader("ASAxisHandleLine", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/ASAxisHandleLine")).LoadAsset<Shader>("Assets/Shaders/ASAxisHandleLine.shader"));
+		Custom.rainWorld.Shaders["RKColoredLocalBlizzard"] = FShader.CreateShader("RKColoredLocalBlizzard", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/RKColoredLocalBlizzard")).LoadAsset<Shader>("Assets/Shaders/RKColoredLocalBlizzard.shader"));
 	}
 }

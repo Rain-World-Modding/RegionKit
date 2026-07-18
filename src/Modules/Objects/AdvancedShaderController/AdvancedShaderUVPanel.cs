@@ -31,7 +31,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 
 			subNodes.Add(prevPageButton = new Button(owner, "AdvancedShader_UVPanel_Prev", this, new Vector2(5f, size.y - 20f), 15f, "<"));
 			subNodes.Add(nextPageButton = new Button(owner, "AdvancedShader_UVPanel_Next", this, new Vector2(size.x - 20f, size.y - 20f), 15f, ">"));
-			subNodes.Add(pageLabel = new DevUILabel(owner, "AdvancedShader_UVPanel_PageLabel", this, new Vector2(50f, size.y - 20f), size.x - 100f, ""));
+			subNodes.Add(pageLabel = new DevUILabel(owner, "AdvancedShader_UVPanel_PageLabel", this, new Vector2(25f, size.y - 20f), size.x - 50f, ""));
 
 			subNodes.Add(restrictUVsButton = new Cycler(owner, "AdvancedShader_UVPanel_Restrict", this, new Vector2(5f, size.y - 40f), 240f, "Clamp UVs: ", ["NO", "YES"]));
 			subNodes.Add(lockUVsButton = new Cycler(owner, "AdvancedShader_UVPanel_Lock", this, new Vector2(5f, size.y - 60f), 240f, "Sync UVs: ", ["NO", "YES"]));

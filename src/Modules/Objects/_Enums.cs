@@ -96,4 +96,8 @@ public class _Enums
 	/// Green sparks direction object
 	/// </summary>
 	public static PlacedObject.Type GreenSparksDir = new(nameof(GreenSparksDir), true);
+	/// <summary>
+	/// Colored local blizzard
+	/// </summary>
+	public static PlacedObject.Type ColoredLocalBlizzard = new(nameof(ColoredLocalBlizzard), true);
 }

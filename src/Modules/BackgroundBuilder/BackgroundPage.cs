@@ -4,6 +4,7 @@ using DevInterface;
 using RegionKit.Modules.DevUIMisc;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
 using Watcher;
+using static RegionKit.Modules.BackgroundBuilder.Data;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
@@ -80,25 +81,24 @@ public class BackgroundPage : Page
 
 		subNodes.Add(new GenericSlider(owner, "YOffset", this, new Vector2(120f, 640f), "YOffset", true, 60f, RoomSettings.BackgroundData().roomOffset.y, stringWidth: 32) { minValue = -5000, maxValue = 5000, defaultValue = RoomSettings.parent.BackgroundData().roomOffset.y });
 
-		backgroundSave = new PanelSelectButton(owner, "BackgroundSave", this, new Vector2(260f, 620f), 30f, "...", backgroundSaves(), "Select Background", "...") { panelPos = new Vector2(420f, 190f) };
-		backgroundSave.itemDescription = "background file to save to/load from";
-		subNodes.Add(backgroundSave);
+		backgroundFile = new BackgroundFileSelector(owner, "File", this, new Vector2(120f, 620f), RoomSettings.BackgroundData().backgroundName, new Vector2(320f, -390f), "", 96f);
+		subNodes.Add(backgroundFile);
 
-		saveName = new BackgroundFileStringControl(owner, "saveName", this, new Vector2(120f, 620f), 128f, RoomSettings.BackgroundData().backgroundName, BackgroundFileStringControl.TextIsValidBackground)
-		{
-			toolTipTextOverride = "Input the name of the background file to save/load"
-		};
-		subNodes.Add(saveName);
+		subNodes.Add(new DevUILabel(owner, "descriptionlabel", this, new Vector2(120f, 600f), 220f, "background file operations"));
 
-		Button buttonLoad = new Button(owner, "Load", this, new Vector2(120f, 600f), 60f, "Load");
+		Button buttonLoad = new Button(owner, "Load", this, new Vector2(120f, 580f), 76f, "Load");
 		API.Iggy.AddTooltip(buttonLoad, () => new("Load background scene setup from file", 10, buttonLoad));
 		subNodes.Add(buttonLoad);
 
 
-		subNodes.Add(new Button(owner, "Save", this, new Vector2(200f, 600f), 60f, "Save"));
+		subNodes.Add(new Button(owner, "Save As", this, new Vector2(215f, 580f), 76f, "Save As"));
 
+		subNodes.Add(saveButton = new Button(owner, "Save", this, new Vector2(310f, 580f), 76f, "Save"));
 
-		backgroundType = new ExtEnumCycler<BackgroundTemplateType>(owner, "BackTypeCycle", this, new Vector2(170f, 580f), 120f, RoomSettings.BackgroundData().type, "Type");
+		parentBackground = new BackgroundFileSelector(owner, "Parent", this, new Vector2(120f, 560f), RoomSettings.BackgroundData().parent?.backgroundName ?? "no parent", new Vector2(320f, -390f), "parent");
+		subNodes.Add(parentBackground);
+
+		backgroundType = new ExtEnumCycler<BackgroundTemplateType>(owner, "BackTypeCycle", this, new Vector2(170f, 540f), 120f, RoomSettings.BackgroundData().Type, "Type");
 		subNodes.Add(backgroundType);
 
 		dragMode = new ExtEnumCycler<ElementDragMode>(owner, "DragMode", this, new Vector2(326f, 692f), 60f, ElementDragMode.None, "Drag Mode", 80f);
@@ -109,13 +109,23 @@ public class BackgroundPage : Page
 
 	internal Dictionary<Handle, BackgroundElementData.CustomBgElement> handles = new();
 
-	public PanelSelectButton backgroundSave;
+	public string OriginModText
+	{
+		get => backgroundFile.TitleText!;
+		set => backgroundFile.TitleText = value;
+	}
+
+	public bool workshopMod;
+
+	public Button saveButton;
+
+	public BackgroundFileSelector backgroundFile;
+
+	public BackgroundFileSelector parentBackground;
 
 	public ExtEnumCycler<BackgroundTemplateType> backgroundType;
 
 	public ExtEnumCycler<ElementDragMode> dragMode;
-
-	public StringControl saveName;
 
 	public DevUINode? SpecificSettingsNode;
 
@@ -130,40 +140,50 @@ public class BackgroundPage : Page
 			if (sender.IDstring == backgroundType.IDstring)
 			{
 				//RoomSettings.BackgroundData().type = backgroundType.Type;
-				SwitchRoomBackground(owner.room, backgroundType.Type);
+				Init.SwitchRoomBackground(owner.room, backgroundType.Type);
 				RefreshAllNodes();
 			}
 
 			if (sender.IDstring == "Save_Settings")
 			{ RoomSettings.Save(); }
 
-			else if (sender == backgroundSave && message == "")
+			else if (sender == backgroundFile)
 			{
-				backgroundSave.values = backgroundSaves();
-			}
-
-			else if (sender == backgroundSave)
-			{
-				if (Data.TryGetPathFromName(message, out _))
+				if (Data.TryGetPathFromName(message, out string path))
 				{
-					saveName.Text = message;
-					saveName.actualValue = message;
-					saveName.Refresh();
+					OriginModText = DevUIUtils.UPath.GetModNameFromPath(path);
+					if (OriginModText == "vanilla" || OriginModText == "mergedmods")
+						workshopMod = true;
+					else
+						workshopMod = DevUIUtils.UPath.GetModFromPath(path)!.workshopMod;
+
+					if (File.Exists(path))
+					{
+						foreach (string line in File.ReadAllLines(path))
+						{
+							if (line == "PROTECTED")
+							{
+								workshopMod = true;
+								break;
+							}
+						}
+					}
+
+					saveButton.Move(workshopMod ? new Vector2(-200f, 580f) : new Vector2(310f, 580f));
 				}
 				else if (message == "<Default>")
 				{
-					saveName.Text = message;
-					saveName.actualValue = "";
-					saveName.Refresh();
+					OriginModText = "";
+					workshopMod = true;
 				}
-				backgroundSave.Text = "...";
 			}
 
 			else if (sender.IDstring == "Load")
 			{
-				RoomSettings.BackgroundData().FromTimeline(saveName.actualValue, owner.game.TimelinePoint);
-				SwitchRoomBackground(owner.room, RoomSettings.BackgroundData().type, true);
-				backgroundType.Type = RoomSettings.BackgroundData().type;
+				RoomSettings.BackgroundData().FromTimeline(backgroundFile.ActualValue, owner.game.TimelinePoint);
+				Init.SwitchRoomBackground(owner.room, RoomSettings.BackgroundData().Type, true);
+				parentBackground.ActualValue = RoomSettings.BackgroundData().parent?.backgroundName ?? "none";
+				backgroundType.Type = RoomSettings.BackgroundData().Type;
 				backgroundType.Refresh();
 
 				RefreshAllNodes();
@@ -171,7 +191,40 @@ public class BackgroundPage : Page
 
 			else if (sender.IDstring == "Save")
 			{
-				Debug.Log($"\n\nBACKGROUND OUTPUT\n\n{string.Join("\n", RoomSettings.BackgroundData().Serialize())}\n\n");
+				string path = SavePath(OriginModText, backgroundFile.ActualValue);
+				File.WriteAllText(path, string.Join("\n", RoomSettings.BackgroundData().Serialize()));
+				//Custom.LogImportant($"\n\nBACKGROUND OUTPUT\n\n{string.Join("\n", RoomSettings.BackgroundData().Serialize())}\n\n");
+			}
+
+			else if (sender.IDstring == "Save As")
+			{
+				string? parent = this.backgroundFile.ActualValue;
+				if (backgroundFile.ActualValue == "" || !File.Exists(SavePath(OriginModText, backgroundFile.ActualValue)))
+					parent = null;
+				this.subNodes.Add(new SaveAsNode(owner, "saveasnode", this, RoomSettings.BackgroundData().backgroundName, OriginModText, parent));
+			}
+
+			else if (sender is SaveAsNode saveAsNode && message == "done!")
+			{
+				if (saveAsNode.inherit)
+				{
+					if (TryGetPathFromName(backgroundFile.ActualValue, out string parentPath))
+					{
+						RoomSettings.BackgroundData().parent = new RoomBGData(RoomSettings);
+						RoomSettings.BackgroundData().parent!.FromTimeline(backgroundFile.ActualValue, RoomSettings.game.TimelinePoint);
+						RoomSettings.BackgroundData().parent!.LoadSceneData(RoomSettings.BackgroundData().sceneData._Scene!);
+						RoomSettings.BackgroundData().sceneData.parent = RoomSettings.BackgroundData().parent!.sceneData;
+					}
+				}
+
+				this.OriginModText = saveAsNode.modName;
+				RoomSettings.BackgroundData().backgroundName = saveAsNode.fileName;
+				backgroundFile.ActualValue = saveAsNode.fileName;
+				string path = SavePath(saveAsNode.modName, saveAsNode.fileName);
+				Directory.CreateDirectory(Path.Combine(SaveAsNode.ModSelect.AllowedMods()[saveAsNode.modName], "assets", "regionkit", "backgrounds"));
+				workshopMod = false;
+				File.WriteAllText(path, string.Join("\n", RoomSettings.BackgroundData().Serialize()));
+				saveButton.Move(new Vector2(310f, 580f));
 			}
 
 			else if (sender == dragMode)
@@ -223,6 +276,14 @@ public class BackgroundPage : Page
 				//RefreshSpecificNode();
 				ElementListNode?.RefreshElements();
 				ReloadHandles();
+			}
+
+			else if (sender.IDstring == "Parent")
+			{
+				RoomSettings.BackgroundData().SetParent(parentBackground.ActualValue, owner.room);
+				backgroundType.Refresh();
+
+				RefreshAllNodes();
 			}
 		}
 
@@ -276,37 +337,6 @@ public class BackgroundPage : Page
 		}
 
 		return result.ToArray();
-	}
-
-	public static void SwitchRoomBackground(Room self, BackgroundTemplateType type, bool refresh = false)
-	{
-		BackgroundScene? newBackground = null;
-		if (Registry.SceneMakerRegistry.TryGetValue(type, out Registry.SceneMaker sceneMaker))
-		{
-			newBackground = sceneMaker(self);
-		}
-		List<BackgroundScene> foundScenes = new();
-		BackgroundScene? lookingForScene = null;
-		foreach (UpdatableAndDeletable uad in self.updateList)
-		{
-			if (uad is BackgroundScene bgs)
-			{
-				if (newBackground != null && bgs.GetType() == newBackground.GetType() && !refresh)
-					lookingForScene = bgs;
-				else
-					foundScenes.Add(bgs);
-			}
-		}
-		foreach (var s in foundScenes)
-		{
-			s.Destroy();
-			self.RemoveObject(s);
-		}
-
-		if (lookingForScene == null)
-		{
-			self.AddObject(newBackground);
-		}
 	}
 
 	internal void AddOrRemoveElementDataPanel(BackgroundElementData.CustomBgElement element)
@@ -531,6 +561,92 @@ public class BackgroundPage : Page
 		}
 	}
 	#endregion
+
+	public class BackgroundFileSelector : PositionedDevUINode, IDevUISignals
+	{
+		public string ActualValue
+		{
+			get
+			{
+				return saveName.actualValue;
+			}
+
+			set
+			{
+				saveName.Text = saveName.actualValue = value;
+			}
+		}
+
+		public string? TitleText
+		{
+			get => title?.Text ?? null;
+			set
+			{
+				if(title != null)
+					title.Text = value;
+			}
+		}
+
+		public BackgroundFileSelector(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string defaultValue, Vector2 panelPos, string? titleText = null, float titleWidth = 40f) : base(owner, IDstring, parentNode, pos)
+		{
+			if (titleText != null)
+			{
+				subNodes.Add(title = new DevUILabel(owner, "label", this, Vector2.zero, titleWidth, titleText));
+			}
+			else
+			{
+				titleWidth = -4;
+			}
+
+			saveName = new BackgroundFileStringControl(owner, "saveName", this, new Vector2(titleWidth + 4f, 0f), 128f, defaultValue, BackgroundFileStringControl.TextIsValidBackground)
+			{
+				toolTipTextOverride = "Input the name of the background file to save/load"
+			};
+			subNodes.Add(saveName);
+
+			backgroundSave = new PanelSelectButton(owner, "BackgroundSave", this, saveName.pos + new Vector2(saveName.size.x + 4f, 0f), 30f, "...", backgroundSaves(), "Select Background", "...") { panelPos = panelPos };
+			backgroundSave.itemDescription = "background file to save to/load from";
+			subNodes.Add(backgroundSave);
+		}
+		BackgroundFileStringControl saveName;
+		PanelSelectButton backgroundSave;
+		DevUILabel? title;
+
+		public void Signal(DevUISignalType type, DevUINode sender, string message)
+		{
+			bool changed = false;
+			if (sender == backgroundSave && message == "")
+			{
+				backgroundSave.values = backgroundSaves();
+			}
+
+			else if (sender == backgroundSave)
+			{
+				if (Data.TryGetPathFromName(message, out string path))
+				{
+					saveName.Text = message;
+					saveName.actualValue = message;
+					saveName.Refresh();
+				}
+				else if (message == "<Default>")
+				{
+					saveName.Text = message;
+					saveName.actualValue = "";
+					saveName.Refresh();
+				}
+				backgroundSave.Text = "...";
+				changed = true;
+			}
+			else if (type == StringControl.StringFinish && sender == saveName)
+			{
+				changed = true;
+			}
+
+			if (changed)
+				this.SendSignal(DevUISignalType.ButtonClick, this, ActualValue);
+
+		}
+	}
 
 	public class BackgroundFileStringControl : StringControl, Modules.Iggy.IGiveAToolTip
 	{
@@ -920,4 +1036,6 @@ public class BackgroundPage : Page
 	}
 
 	public static string[] backgroundSaves() => AssetManager.ListDirectory(_Module.BGPath).Where(x => File.ReadAllLines(x)[0] != "UNLISTED").Select(i => Path.GetFileNameWithoutExtension(i)).Prepend("<Default>").ToArray();
+
+	public static string SavePath(string modName, string fileName) => Path.Combine(SaveAsNode.ModSelect.AllowedMods()[modName], "assets", "regionkit", "backgrounds", fileName + ".txt");
 }

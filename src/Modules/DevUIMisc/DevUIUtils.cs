@@ -65,6 +65,36 @@ internal static class DevUIUtils
 		{
 			return Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path)) + append;
 		}
+
+		public static IEnumerable<string> BreakFoldersIntoPaths(string path)
+		{
+			DirectoryInfo directory = new FileInfo(path).Directory;
+			while (directory != null)
+			{
+				yield return directory.Name;
+				directory = directory.Parent;
+			}
+		}
+
+		public static ModManager.Mod? GetModFromPath(string path)
+		{
+			foreach (ModManager.Mod mod in ModManager.ActiveMods)
+			{
+				if (path.StartsWith(mod.path))
+					return mod;
+			}
+			return null;
+		}
+
+		public static string GetModNameFromPath(string path)
+		{
+			ModManager.Mod? mod = GetModFromPath(path);
+			if(mod != null)
+				return mod.name;
+			if (path.Contains("mergedmods"))
+				return "mergedmods";
+			return "vanilla";
+		}
 	}
 
 	public static class URoomSettings

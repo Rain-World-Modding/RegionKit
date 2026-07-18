@@ -358,7 +358,7 @@ internal static class BackgroundElementData
 		//public abstract string DevUIName();
 	}
 
-	public class BG_ElementGroup : CustomBgElement
+	public class BG_ElementGroup : CustomBgElement, Data.IListBackgroundElements
 	{
 		public BG_ElementGroup()
 		{
@@ -368,12 +368,12 @@ internal static class BackgroundElementData
 		public override void DataFromArgs(string[] args)
 		{
 			name = args[0];
-			if (args.Length > 3)
+			if (args.Length >= 3)
 				pos = new Vector2(float.Parse(args[1]), float.Parse(args[2]));
 			else
 				pos = Vector2.zero;
 
-			if (args.Length > 4)
+			if (args.Length >= 4)
 				depth = float.Parse(args[3]);
 			else
 				depth = 0;
@@ -416,6 +416,7 @@ internal static class BackgroundElementData
 
 		public List<CustomBgElement> elements = new();
 		public string name;
+		IEnumerable<CustomBgElement> Data.IListBackgroundElements.customBgElements => elements;
 
 		public void AddElement(CustomBgElement element)
 		{
@@ -456,17 +457,39 @@ internal static class BackgroundElementData
 
 		public override string Serialize()
 		{
+			return SerializeHeader() + GROUP_NEWLINE + string.Join(GROUP_NEWLINE, SerializeElements()) + GROUP_NEWLINE;
+		}
+
+		public string SerializeHeader()
+		{
 			string groupString = "GROUP: " + name;
 			if (Pos != Vector2.zero || Depth != 0)
 			{
 				groupString += $", {Pos.x}, {Pos.y}";
 
-				if(Depth != 0)
+				if (Depth != 0)
 					groupString += $", {Depth}";
 			}
-
-			return groupString + "\n" + string.Join("\n", GROUP_EMBED_STRING + elements.Select(e => e.Serialize())) + "\n";
+			return groupString;
 		}
+
+		public IEnumerable<string> SerializeElements()
+		{
+			foreach (var e in elements)
+			{
+				string s = e.Serialize();
+				if (!s.Contains(GROUP_NEWLINE))
+					yield return GROUP_EMBED_STRING + s;
+				else
+				{
+					string[] array = Regex.Split(s, GROUP_NEWLINE);
+					foreach(string s2 in array)
+						yield return GROUP_EMBED_STRING + s2;
+				}
+			}
+		}
+
+		public const string GROUP_NEWLINE = "\r\n";
 
 		public const string GROUP_EMBED_STRING = "- ";
 

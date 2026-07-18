@@ -53,7 +53,7 @@ public class GenericSlider : Slider, IDevUISignals
 		base.Update();
 		if (owner != null && sliderNub.held)
 		{
-			NubDragged(Mathf.InverseLerp(absPos.x + SliderStartCoord, absPos.x + SliderStartCoord + 92f, owner.mousePos.x + sliderNub.mousePosOffset));
+			NubDragged2(Mathf.InverseLerp(absPos.x + SliderStartCoord, absPos.x + SliderStartCoord + 92f, owner.mousePos.x + sliderNub.mousePosOffset));
 		}
 	}
 
@@ -84,12 +84,18 @@ public class GenericSlider : Slider, IDevUISignals
 		MoveSprite(1, absPos + new Vector2(SliderStartCoord, 7f));
 	}
 
-	public override void NubDragged(float nubPos)
+
+	public void NubDragged2(float nubPos)
 	{
 		actualValue = Mathf.Lerp(minValue, maxValue, nubPos);
 		Refresh();
 
 		this.SendSignal(SliderUpdate, this, "");
+	}
+
+	public override void NubDragged(float nubPos)
+	{
+		//do nothing so evil vanilla NubDragged with bad math doesn't give the wrong value
 	}
 
 	public override void ClickedResetToInherent()

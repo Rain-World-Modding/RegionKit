@@ -248,7 +248,7 @@ public class AboveCloudsUINode : Panel, IDevUISignals
 
 public class RoofTopUINode : Panel, IDevUISignals
 {
-	public const int shortRows = 9;
+	public const int shortRows = 13;
 	public RoofTopUINode(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new Vector2(316f, shortRows * 20 + 10), "Rooftop View Settings")
 	{
 		MakeSubnodes();

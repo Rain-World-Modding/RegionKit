@@ -110,8 +110,9 @@ namespace RegionKit.Modules.Misc
 					{
 						return _originalDecals;
 					}
-					return [.. _originalDecals.Where(x => x.IndexOf(actualValue, StringComparison.InvariantCultureIgnoreCase) > -1 
-								|| DecalPreview.GetDecalSource(x).IndexOf(actualValue, StringComparison.InvariantCultureIgnoreCase) > -1)];
+					return [.. _originalDecals.Where(
+						x => x.IndexOf(actualValue, StringComparison.InvariantCultureIgnoreCase) > -1 
+							|| (parentNode?.parentNode?.parentNode is CustomDecalRepresentation && DecalPreview.GetDecalSource(x).IndexOf(actualValue, StringComparison.InvariantCultureIgnoreCase) > -1))];
 				}
 			}
 

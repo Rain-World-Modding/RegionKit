@@ -72,6 +72,8 @@ namespace RegionKit.Modules.Insects
 				return _Enums.RippleFly;
 			else if (type == _Enums.RippleGlowworms)
 				return _Enums.RippleGlowworm;
+			else if (type == _Enums.SI_Dragonflies)
+				return _Enums.SI_Dragonfly;
 			else
 				return orig(type);
 		}
@@ -138,6 +140,13 @@ namespace RegionKit.Modules.Insects
 				{
 					insect = new RippleGlowworm(self.room, pos);
 				}
+				else if (type == _Enums.SI_Dragonfly)
+				{
+					insect = new TinyDragonfly(self.room, pos)
+					{
+						SIColors = true,
+					};
+				}
 
 				// Add insect to room
 				if (insect != null)
@@ -183,6 +192,11 @@ namespace RegionKit.Modules.Insects
 			{
 				return room.GetTile(testPos).DeepWater && room.CameraViewingPoint(testPos) > -1;
 			}
+			// Vanilla variants
+			if (type == _Enums.SI_Dragonfly)
+			{
+				return orig(CosmeticInsect.Type.TinyDragonFly, room, testPos);
+			}
 
 			return orig(type, room, testPos);
 		}
@@ -200,6 +214,10 @@ namespace RegionKit.Modules.Insects
 			if (type == _Enums.GlowingSwimmerInsect || type == _Enums.MosquitoInsect || type == _Enums.Seedling)
 			{
 				return true;
+			}
+			if (type == _Enums.SI_Dragonfly)
+			{
+				return orig(CosmeticInsect.Type.TinyDragonFly, room, testPos, effectAmount);
 			}
 			return orig(type, room, testPos, effectAmount);
 		}
@@ -221,6 +239,10 @@ namespace RegionKit.Modules.Insects
 			if (type == _Enums.RippleGlowworm)
 			{
 				return 0.5f;
+			}
+			if (type == _Enums.SI_Dragonfly)
+			{
+				return orig(CosmeticInsect.Type.TinyDragonFly);
 			}
 			return orig(type);
 		}

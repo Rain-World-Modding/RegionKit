@@ -24,7 +24,7 @@ public class GenericSlider : Slider, IDevUISignals
 
     public event OnValueChangedHandler? OnValueChanged;
 
-	public GenericSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title, bool inheritButton, float titleWidth, float? initialValue = null, float? minValue = null, float? maxValue = null, bool stringControl = true, float stringWidth = 16) 
+	public GenericSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title, bool inheritButton, float titleWidth, float? initialValue, float? minValue, float? maxValue, bool stringControl = true, float stringWidth = 16) 
 		: base(owner, IDstring, parentNode, pos, title, inheritButton, titleWidth)
 	{
 		if (minValue != null) this.minValue = minValue.Value;

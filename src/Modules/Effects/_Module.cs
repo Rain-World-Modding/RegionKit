@@ -60,6 +60,7 @@ public static class _Module
 		SuffocationHooks.Apply();
 		PolePlantColor.Apply();
 		FlatFog.Apply();
+		RainPaletteFade.Apply();
 
 		// Effect types
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
@@ -94,6 +95,7 @@ public static class _Module
 		SuffocationHooks.Undo();
 		PolePlantColor.Undo();
 		FlatFog.Undo();
+		RainPaletteFade.Undo();
 
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 
@@ -116,7 +118,8 @@ public static class _Module
 			|| type == _Enums.DenseFogSoundVolume
 			|| type == _Enums.RainSiren
 			|| type == _Enums.Suffocation
-			|| type == AridBarrens._Enums.SandStorm)
+			|| type == AridBarrens._Enums.SandStorm
+			)
 		{
 			return _Enums.RegionKit_Gameplay;
 		}
@@ -131,7 +134,9 @@ public static class _Module
 			|| type == _Enums.MurkyWater
 			|| type == _Enums.ReflectiveWater
 			|| type == EchoExtender._Enums.EchoPresenceOverride
-			|| type == _Enums.FlatFog)
+			|| type == _Enums.FlatFog
+			|| type == _Enums.RainPaletteFade
+			)
 		{
 			return _Enums.RegionKit_Decoration;
 		}

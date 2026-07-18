@@ -84,6 +84,10 @@ public static class _Enums
 	/// Fadable fog by Alduris
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type FlatFog = new(nameof(FlatFog), true);
+	/// <summary>
+	/// Rain palette fade
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type RainPaletteFade = new(nameof(RainPaletteFade), true);
 
 
 

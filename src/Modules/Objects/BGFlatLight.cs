@@ -8,13 +8,13 @@ namespace RegionKit.Modules.Objects
 		public readonly PlacedObject pObj;
 		public Data data => (pObj.data as Data)!;
 
-		private bool lastCloudMode;
+		private DisplayMode lastDisplayMode;
 
 		public BGFlatLight(PlacedObject pObj)
 		{
 			this.pObj = pObj;
 			pos = pObj.pos;
-			lastCloudMode = data.cloudMode;
+			lastDisplayMode = data.displayMode;
 		}
 
 		public override void Update(bool eu)
@@ -27,17 +27,17 @@ namespace RegionKit.Modules.Objects
 		{
 			sLeaser.sprites = [
 				new FSprite("Futile_White") {
-					shader = rCam.game.rainWorld.Shaders[data.cloudMode ? "BGCloudLight" : "BGFlatLight"]
+					shader = rCam.game.rainWorld.Shaders[data.displayMode.Shader]
 				}];
 			AddToContainer(sLeaser, rCam, null!);
 		}
 
 		public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
-			if (lastCloudMode != data.cloudMode)
+			if (lastDisplayMode != data.displayMode)
 			{
-				sLeaser.sprites[0].shader = rCam.game.rainWorld.Shaders[data.cloudMode ? "BGCloudLight" : "BGFlatLight"];
-				lastCloudMode = data.cloudMode;
+				sLeaser.sprites[0].shader = rCam.game.rainWorld.Shaders[data.displayMode.Shader];
+				lastDisplayMode = data.displayMode;
 			}
 			sLeaser.sprites[0].SetPosition(pos - camPos);
 			sLeaser.sprites[0].color = GetColor(rCam);
@@ -54,27 +54,27 @@ namespace RegionKit.Modules.Objects
 		public Color GetColor(RoomCamera rCam)
 		{
 			// GetPixel operates from bottom left
-			if (data.mode == Mode.EffectColor1)
+			if (data.colorMode == ColorMode.EffectColor1)
 			{
 				return rCam.paletteTexture.GetPixel(30, 5);
 			}
-			if (data.mode == Mode.EffectColor1Far)
+			if (data.colorMode == ColorMode.EffectColor1Far)
 			{
 				return rCam.paletteTexture.GetPixel(30, 4);
 			}
-			if (data.mode == Mode.EffectColor2)
+			if (data.colorMode == ColorMode.EffectColor2)
 			{
 				return rCam.paletteTexture.GetPixel(30, 3);
 			}
-			if (data.mode == Mode.EffectColor2Far)
+			if (data.colorMode == ColorMode.EffectColor2Far)
 			{
 				return rCam.paletteTexture.GetPixel(30, 2);
 			}
-			if (data.mode == Mode.White)
+			if (data.colorMode == ColorMode.White)
 			{
 				return rCam.paletteTexture.GetPixel(30, 1);
 			}
-			if (data.mode == Mode.FogColor)
+			if (data.colorMode == ColorMode.FogColor)
 			{
 				return rCam.paletteTexture.GetPixel(1, 7);
 			}
@@ -84,10 +84,10 @@ namespace RegionKit.Modules.Objects
 		public class Data : PlacedObject.ResizableObjectData
 		{
 			public Vector2 panelPos = new(100f, 100f);
-			public Mode mode = Mode.CustomColor;
+			public ColorMode colorMode = ColorMode.CustomColor;
 			public float r = 1f, g = 1f, b = 1f;
 			public float strength = 1f;
-			public bool cloudMode = false;
+			public DisplayMode displayMode = DisplayMode.Flat;
 
 			public Color CustomColor => new(r, g, b, strength);
 
@@ -103,10 +103,10 @@ namespace RegionKit.Modules.Objects
 					handlePos.y,
 					panelPos.x,
 					panelPos.y,
-					mode,
+					colorMode,
 					r, g, b,
 					strength,
-					cloudMode);
+					displayMode);
 				text = SaveState.SetCustomData(this, text);
 				return SaveUtils.AppendUnrecognizedStringAttrs(text, "~", unrecognizedAttributes);
 			}
@@ -120,12 +120,14 @@ namespace RegionKit.Modules.Objects
 					if (array.Length > 1) handlePos.y = float.Parse(array[1], NumberStyles.Any, CultureInfo.InvariantCulture);
 					if (array.Length > 2) panelPos.x = float.Parse(array[2], NumberStyles.Any, CultureInfo.InvariantCulture);
 					if (array.Length > 3) panelPos.y = float.Parse(array[3], NumberStyles.Any, CultureInfo.InvariantCulture);
-					if (array.Length > 4) mode = new Mode(array[4], false);
+					if (array.Length > 4) colorMode = new ColorMode(array[4], false);
 					if (array.Length > 5) r = float.Parse(array[5], NumberStyles.Any, CultureInfo.InvariantCulture);
 					if (array.Length > 6) g = float.Parse(array[6], NumberStyles.Any, CultureInfo.InvariantCulture);
 					if (array.Length > 7) b = float.Parse(array[7], NumberStyles.Any, CultureInfo.InvariantCulture);
 					if (array.Length > 8) strength = float.Parse(array[8], NumberStyles.Any, CultureInfo.InvariantCulture);
-					if (array.Length > 9) cloudMode = bool.Parse(array[9]);
+					if (array.Length > 9) displayMode = bool.TryParse(array[9], out bool legacyCloudMode) // this used to be a bool so we have to check for that
+							? (legacyCloudMode ? DisplayMode.Cloud : DisplayMode.Flat) 
+							: new DisplayMode(array[9], false);
 					unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(array, 10);
 				}
 				catch (Exception ex)
@@ -136,15 +138,36 @@ namespace RegionKit.Modules.Objects
 			}
 		}
 
-		public class Mode(string value, bool register = false) : ExtEnum<Mode>(value, register)
+		public class ColorMode(string value, bool register = false) : ExtEnum<ColorMode>(value, register)
 		{
-			public static readonly Mode CustomColor = new("Custom", true);
-			public static readonly Mode EffectColor1 = new("EffectColor1", true);
-			public static readonly Mode EffectColor1Far = new("EffectColor1Far", true);
-			public static readonly Mode EffectColor2 = new("EffectColor2", true);
-			public static readonly Mode EffectColor2Far = new("EffectColor2Far", true);
-			public static readonly Mode White = new("White", true);
-			public static readonly Mode FogColor = new("FogColor", true);
+			public static readonly ColorMode CustomColor = new("Custom", true);
+			public static readonly ColorMode EffectColor1 = new("EffectColor1", true);
+			public static readonly ColorMode EffectColor1Far = new("EffectColor1Far", true);
+			public static readonly ColorMode EffectColor2 = new("EffectColor2", true);
+			public static readonly ColorMode EffectColor2Far = new("EffectColor2Far", true);
+			public static readonly ColorMode White = new("White", true);
+			public static readonly ColorMode FogColor = new("FogColor", true);
+		}
+
+		public class DisplayMode : ExtEnum<DisplayMode>
+		{
+			public static readonly Dictionary<DisplayMode, string> ShaderMap = [];
+
+			public static readonly DisplayMode Flat = new("Flat", "BGFlatLight");
+			public static readonly DisplayMode Cloud = new("Cloud", "BGCloudLight");
+			public static readonly DisplayMode FlatAdditive = new("FlatAdditive", "BGFlatLightAdditive");
+			public static readonly DisplayMode CloudAdditive = new("CloudAdditive", "BGCloudLightAdditive");
+
+			public string Shader => ShaderMap[this];
+
+			public DisplayMode(string value, bool register = false) : base(value, register)
+			{
+			}
+
+			public DisplayMode(string value, string shader) : this(value, true)
+			{
+				ShaderMap.Add(this, shader);
+			}
 		}
 	}
 }

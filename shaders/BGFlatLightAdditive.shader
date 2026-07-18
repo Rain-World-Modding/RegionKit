@@ -1,4 +1,4 @@
-Shader "RegionKit/BGFlatLight"
+Shader "RegionKit/BGFlatLightAdditive"
 {
     Properties 
     {
@@ -9,7 +9,7 @@ Shader "RegionKit/BGFlatLight"
     {
         Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
         ZWrite Off
-        Blend SrcAlpha OneMinusSrcAlpha
+        Blend SrcAlpha One // the part that makes it additive
         Cull Off  // we can turn backface culling off because we know nothing will be facing backwards
 
         SubShader

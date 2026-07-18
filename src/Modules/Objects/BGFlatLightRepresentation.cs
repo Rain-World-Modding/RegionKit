@@ -39,22 +39,22 @@ namespace RegionKit.Modules.Objects
 			public BGFlatLightRepresentation Rep => (parentNode as BGFlatLightRepresentation)!;
 			public BGFlatLight.Data Data => (Rep.pObj.data as BGFlatLight.Data)!;
 
-			private readonly Cycler modeCycler, cloudCycler;
+			private readonly Cycler modeCycler, displayCycler;
 			private readonly BGFlatLightSlider strengthSlider;
 			private BGFlatLightSlider redSlider, greenSlider, blueSlider;
 
-			private BGFlatLight.Mode lastMode;
+			private BGFlatLight.ColorMode lastMode;
 
 			public BGFlatLightPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new Vector2(250f, 65f), "BG Flat Light")
 			{
-				subNodes.Add(modeCycler = new Cycler(owner, "BGFlatLight_Mode_Cycler", this, new Vector2(5f, 45f), 240f, "Color mode: ", BGFlatLight.Mode.values.entries));
-				subNodes.Add(cloudCycler = new Cycler(owner, "BGFlatLight_Cloud_Cycler", this, new Vector2(5f, 25f), 240f, "Cloud mode: ", ["NO", "YES"]));
+				subNodes.Add(modeCycler = new Cycler(owner, "BGFlatLight_Mode_Cycler", this, new Vector2(5f, 45f), 240f, "Color mode: ", BGFlatLight.ColorMode.values.entries));
+				subNodes.Add(displayCycler = new Cycler(owner, "BGFlatLight_Display_Cycler", this, new Vector2(5f, 25f), 240f, "Display mode: ", BGFlatLight.DisplayMode.values.entries));
 				subNodes.Add(strengthSlider = new BGFlatLightSlider(SliderType.Strength, owner, "BGFlatLight_Slider_Strength", this, new Vector2(5f, 5f), "Strength:"));
 
-				modeCycler.currentAlternative = Math.Max(Data.mode.index, 0);
+				modeCycler.currentAlternative = Math.Max(Data.colorMode.index, 0);
                 modeCycler.Text = modeCycler.baseName + modeCycler.alternatives[modeCycler.currentAlternative];
-                cloudCycler.currentAlternative = Data.cloudMode ? 1 : 0;
-                cloudCycler.Text = cloudCycler.baseName + cloudCycler.alternatives[cloudCycler.currentAlternative];
+                displayCycler.currentAlternative = Math.Max(Data.displayMode.index, 0);
+                displayCycler.Text = displayCycler.baseName + displayCycler.alternatives[displayCycler.currentAlternative];
 
 				// These get added in Refresh
 				redSlider = null!;
@@ -68,11 +68,11 @@ namespace RegionKit.Modules.Objects
 			public override void Refresh()
 			{
 				// Update data
-				Data.mode = new BGFlatLight.Mode(BGFlatLight.Mode.values.entries[Mathf.Clamp(modeCycler.currentAlternative, 0, BGFlatLight.Mode.values.Count)], false);
-				Data.cloudMode = cloudCycler.currentAlternative == 1;
+				Data.colorMode = new BGFlatLight.ColorMode(BGFlatLight.ColorMode.values.entries[Mathf.Clamp(modeCycler.currentAlternative, 0, BGFlatLight.ColorMode.values.Count)], false);
+				Data.displayMode = new BGFlatLight.DisplayMode(BGFlatLight.DisplayMode.values.entries[Mathf.Clamp(displayCycler.currentAlternative, 0, BGFlatLight.DisplayMode.values.Count)], false);
 
 				// Update sliders
-				if (lastMode != BGFlatLight.Mode.CustomColor && Data.mode == BGFlatLight.Mode.CustomColor)
+				if (lastMode != BGFlatLight.ColorMode.CustomColor && Data.colorMode == BGFlatLight.ColorMode.CustomColor)
 				{
 					redSlider = new BGFlatLightSlider(SliderType.Red, owner, "BGFlatLight_Slider_R", this, new Vector2(5f, 105f), "Red:");
 					greenSlider = new BGFlatLightSlider(SliderType.Green, owner, "BGFlatLight_Slider_G", this, new Vector2(5f, 85f), "Green:");
@@ -82,7 +82,7 @@ namespace RegionKit.Modules.Objects
 					subNodes.Add(blueSlider);
 					size = new Vector2(250f, 125f);
 				}
-				else if (lastMode == BGFlatLight.Mode.CustomColor && Data.mode != BGFlatLight.Mode.CustomColor)
+				else if (lastMode == BGFlatLight.ColorMode.CustomColor && Data.colorMode != BGFlatLight.ColorMode.CustomColor)
 				{
 					redSlider.ClearSprites();
 					greenSlider.ClearSprites();
@@ -95,7 +95,7 @@ namespace RegionKit.Modules.Objects
 					blueSlider = null!;
 					size = new Vector2(250f, 65f);
 				}
-				lastMode = Data.mode;
+				lastMode = Data.colorMode;
 
 				// Need to refresh after in case of update
 				base.Refresh();

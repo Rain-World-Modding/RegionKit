@@ -1,8 +1,6 @@
 ﻿using DevInterface;
-using RegionKit.Modules.BackgroundBuilder;
-using RegionKit.Modules.DevUIMisc.GenericNodes;
-using MonoMod.Cil;
 using Mono.Cecil.Cil;
+using MonoMod.Cil;
 
 namespace RegionKit.Modules.DevUIMisc;
 
@@ -22,6 +20,7 @@ public static class _Module
 		DecalSelectSearch.Apply();
 		SoundPageSearch.Apply();
 		AntiPanelCollapse.Apply();
+		SelectSongPanelOverhaul.Apply();
 
 		// bugfix
 		IL.DevInterface.DevUINode.Update += DevUINode_Update;
@@ -39,6 +38,7 @@ public static class _Module
 		DecalSelectSearch.Undo();
 		SoundPageSearch.Undo();
 		AntiPanelCollapse.Undo();
+		SelectSongPanelOverhaul.Undo();
 
 		IL.DevInterface.DevUINode.Update -= DevUINode_Update;
 	}

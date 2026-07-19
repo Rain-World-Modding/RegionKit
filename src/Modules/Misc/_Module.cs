@@ -9,8 +9,6 @@ internal static class _Module
 	}
 	public static void Enable()
 	{
-
-		//PaletteTextInput.Apply();
 		SunBlockerFix.Apply();
 		GhostEffectColorsFix.Apply();
 		//CloudAdjustment.Apply();
@@ -19,19 +17,14 @@ internal static class _Module
 		SlugcatRoomTemplates.Apply();
 		RainSong.Enable();
 		FadePaletteCombiner.Enable();
-		DecalPreview.Enable();
 		CustomSSSong.Enable();
 		LightningFix.Apply();
-		DecalSelectSearch.Apply();
-		SoundPageSearch.Apply();
-		AntiPanelCollapse.Apply();
 
 		On.RoomPalette.GetColor += RoomPalette_GetColor;
 	}
 
 	public static void Disable()
 	{
-		//PaletteTextInput.Undo();
 		SunBlockerFix.Undo();
 		GhostEffectColorsFix.Undo();
 		//CloudAdjustment.Undo();
@@ -40,12 +33,10 @@ internal static class _Module
 		SlugcatRoomTemplates.Undo();
 		RainSong.Disable();
 		FadePaletteCombiner.Disable();
-		DecalPreview.Disable();
 		CustomSSSong.Disable();
 		LightningFix.Undo();
-		DecalSelectSearch.Undo();
-		SoundPageSearch.Undo();
-		AntiPanelCollapse.Undo();
+
+		On.RoomPalette.GetColor -= RoomPalette_GetColor;
 	}
 
 	private static Color RoomPalette_GetColor(On.RoomPalette.orig_GetColor orig, ref RoomPalette self, RoomPalette.ColorName colorName)

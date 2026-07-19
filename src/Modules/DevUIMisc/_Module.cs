@@ -17,15 +17,11 @@ public static class _Module
 		FadePaletteTemplate.Apply();
 		InsectPicker.Apply();
 		PagedFadePalettes.Apply();
-
-		//currently used for settings saving options stuffs, but will probably later be used for much more
-		On.DevInterface.Page.ctor += Page_ctor;
-		On.DevInterface.Page.Refresh += Page_Refresh;
-
-		On.DevInterface.ObjectsPage.Signal += SubPage_Signal<On.DevInterface.ObjectsPage.orig_Signal, ObjectsPage>;
-		On.DevInterface.RoomSettingsPage.Signal += SubPage_Signal<On.DevInterface.RoomSettingsPage.orig_Signal, RoomSettingsPage>;
-		On.DevInterface.SoundPage.Signal += SubPage_Signal<On.DevInterface.SoundPage.orig_Signal, SoundPage>;
-		On.DevInterface.TriggersPage.Signal += SubPage_Signal<On.DevInterface.TriggersPage.orig_Signal, TriggersPage>;
+		SettingsSaveOptions.Apply();
+		DecalPreview.Enable();
+		DecalSelectSearch.Apply();
+		SoundPageSearch.Apply();
+		AntiPanelCollapse.Apply();
 
 		// bugfix
 		IL.DevInterface.DevUINode.Update += DevUINode_Update;
@@ -38,57 +34,13 @@ public static class _Module
 		FadePaletteTemplate.Undo();
 		InsectPicker.Undo();
 		PagedFadePalettes.Undo();
-
-		On.DevInterface.Page.ctor -= Page_ctor;
-		On.DevInterface.Page.Refresh -= Page_Refresh;
-
-		On.DevInterface.ObjectsPage.Signal -= SubPage_Signal<On.DevInterface.ObjectsPage.orig_Signal, ObjectsPage>;
-		On.DevInterface.RoomSettingsPage.Signal -= SubPage_Signal<On.DevInterface.RoomSettingsPage.orig_Signal, RoomSettingsPage>;
-		On.DevInterface.SoundPage.Signal -= SubPage_Signal<On.DevInterface.SoundPage.orig_Signal, SoundPage>;
-		On.DevInterface.TriggersPage.Signal -= SubPage_Signal<On.DevInterface.TriggersPage.orig_Signal, TriggersPage>;
+		SettingsSaveOptions.Undo();
+		DecalPreview.Disable();
+		DecalSelectSearch.Undo();
+		SoundPageSearch.Undo();
+		AntiPanelCollapse.Undo();
 
 		IL.DevInterface.DevUINode.Update -= DevUINode_Update;
-	}
-
-
-	private static void Page_Refresh(On.DevInterface.Page.orig_Refresh orig, Page self)
-	{
-		//modSelectPanel = null;
-		orig(self);
-	}
-
-	private static void SubPage_Signal<T, U>(T orig, U self, DevUISignalType type, DevUINode sender, string message)
-		where T : Delegate
-	{
-		orig.DynamicInvoke(self, type, sender, message);
-		if (self is Page page)
-		{ 
-			SettingsSaveOptions.SaveSignal(page, type, sender, message); 
-		}
-	}
-
-	private static void Page_ctor(On.DevInterface.Page.orig_ctor orig, Page self, DevUI owner, string IDstring, DevUINode parentNode, string name)
-	{
-		orig(self, owner, IDstring, parentNode, name);
-
-		//move pages over to avoid collision with save buttons
-		//for BackgroundBuilder, currently unused
-		foreach (DevUINode node in self.subNodes)
-		{
-			if (node is SwitchPageButton switchPageButton)
-			{
-				switchPageButton.pos.x -= 20f;
-				switchPageButton.Refresh();
-			}
-		}
-		if (self is MapPage or BackgroundPage)
-		{ 
-			SettingsSaveOptions.settingsSaveOptionsMenu = null; 
-			return;
-		}
-
-		SettingsSaveOptions.settingsSaveOptionsMenu = new SettingsSaveOptions.SettingsSaveOptionsMenu(owner, "SettingsSaveOptions", self);
-		self.subNodes.Add(SettingsSaveOptions.settingsSaveOptionsMenu);
 	}
 
 	private static void DevUINode_Update(ILContext il)

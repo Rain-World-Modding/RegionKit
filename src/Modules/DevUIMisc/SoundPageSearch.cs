@@ -4,9 +4,9 @@ using Menu.Remix.MixedUI;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
-using static RegionKit.Modules.Misc.DecalSelectSearch;
+using static RegionKit.Modules.DevUIMisc.DecalSelectSearch;
 
-namespace RegionKit.Modules.Misc
+namespace RegionKit.Modules.DevUIMisc
 {
 	internal static class SoundPageSearch
 	{

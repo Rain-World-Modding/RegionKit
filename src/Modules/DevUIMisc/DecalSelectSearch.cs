@@ -4,10 +4,9 @@ using Menu.Remix.MixedUI;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
-
 using SelectDecalPanel = DevInterface.CustomDecalRepresentation.SelectDecalPanel;
 
-namespace RegionKit.Modules.Misc
+namespace RegionKit.Modules.DevUIMisc
 {
 	public static class DecalSelectSearch
 	{
@@ -111,7 +110,7 @@ namespace RegionKit.Modules.Misc
 					}
 					return [.. _originalDecals.Where(
 						x => x.IndexOf(actualValue, StringComparison.InvariantCultureIgnoreCase) > -1 
-							|| (parentNode?.parentNode?.parentNode is CustomDecalRepresentation && DecalPreview.GetDecalSource(x).IndexOf(actualValue, StringComparison.InvariantCultureIgnoreCase) > -1))];
+							|| parentNode?.parentNode?.parentNode is CustomDecalRepresentation && DecalPreview.GetDecalSource(x).IndexOf(actualValue, StringComparison.InvariantCultureIgnoreCase) > -1)];
 				}
 			}
 

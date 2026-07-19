@@ -1,6 +1,6 @@
 ﻿using DevInterface;
 
-namespace RegionKit.Modules.Misc
+namespace RegionKit.Modules.DevUIMisc
 {
 	internal static class AntiPanelCollapse
 	{

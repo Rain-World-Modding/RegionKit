@@ -2,7 +2,7 @@
 using DevInterface;
 using Newtonsoft.Json.Linq;
 
-namespace RegionKit.Modules.Misc;
+namespace RegionKit.Modules.DevUIMisc;
 
 internal static class DecalPreview
 {
@@ -43,7 +43,7 @@ internal static class DecalPreview
 				if (decalName == "BackPage99289..?/~") continue;
 				if (decalName == "NextPage99289..?/~") continue;
 
-				DecalPreviewOverlay? decalPreviewOverlay = self.Page.subNodes.Find(x => x is DecalPreviewOverlay) as DecalPreviewOverlay;
+				var decalPreviewOverlay = self.Page.subNodes.Find(x => x is DecalPreviewOverlay) as DecalPreviewOverlay;
 				if (decalPreviewOverlay == null) return;
 
 				decalPreviewOverlay.SetDecal(decalName);
@@ -85,7 +85,7 @@ internal static class DecalPreview
 
 		string[] allDecalPaths = AssetManager.ListDirectory("decals", false, false);
 
-		HashSet<string> decalDirectories = new HashSet<string>();
+		var decalDirectories = new HashSet<string>();
 
 		for (int i = 0; i < allDecalPaths.Length; i++)
 		{
@@ -98,7 +98,7 @@ internal static class DecalPreview
 			decalDirectories.Add(Directory.GetParent(allDecalPaths[i]).Parent.FullName);
 		}
 
-		Dictionary<string, string> pathToModName = new Dictionary<string, string>();
+		var pathToModName = new Dictionary<string, string>();
 		foreach (var directory in decalDirectories)
 		{
 			if (decalSources.ContainsKey(directory)) continue;
@@ -152,7 +152,7 @@ internal static class DecalPreview
 				alpha = 0.5f
 			};
 
-			this.fSprites.Add(overlaySprite);
+			fSprites.Add(overlaySprite);
 			Futile.stage.AddChild(overlaySprite);
 
 
@@ -169,7 +169,7 @@ internal static class DecalPreview
 				alpha = 0.2f
 			};
 
-			this.fSprites.Add(decalSizeSprite);
+			fSprites.Add(decalSizeSprite);
 			Futile.stage.AddChild(decalSizeSprite);
 
 
@@ -182,7 +182,7 @@ internal static class DecalPreview
 				y = 200
 			};
 
-			this.fSprites.Add(decalSprite);
+			fSprites.Add(decalSprite);
 			Futile.stage.AddChild(decalSprite);
 
 
@@ -195,7 +195,7 @@ internal static class DecalPreview
 				y = 10.01f
 			};
 
-			this.fLabels.Add(infoLabel);
+			fLabels.Add(infoLabel);
 			Futile.stage.AddChild(infoLabel);
 		}
 
@@ -252,7 +252,7 @@ internal static class DecalPreview
 			}
 			string str = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
 			if (!File.Exists(str)) return;
-			Texture2D texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+			var texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
 			AssetManager.SafeWWWLoadTexture(ref texture, "file:///" + str, true, true);
 			HeavyTexturesCache.LoadAndCacheAtlasFromTexture(fileName, texture, false);
 		}

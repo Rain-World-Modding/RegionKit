@@ -31,7 +31,7 @@ internal static class BackgroundUpdates
 
 	public static void Undo()
 	{
-		On.BackgroundScene.Update += BackgroundScene_Update;
+		On.BackgroundScene.Update -= BackgroundScene_Update;
 		On.BackgroundScene.BackgroundSceneElement.DrawSprites -= BackgroundSceneElement_DrawSprites;
 		On.BackgroundScene.BackgroundSceneElement.InitiateSprites -= BackgroundSceneElement_InitiateSprites;
 		On.BackgroundScene.BackgroundSceneElement.AddToContainer -= BackgroundSceneElement_AddToContainer;
@@ -215,17 +215,4 @@ internal static class BackgroundUpdates
 			}
 		}
 	}
-
-	private static readonly ConditionalWeakTable<BackgroundScene.BackgroundSceneElement, InstanceData> table = new();
-
-	public static InstanceData CData(this BackgroundScene.BackgroundSceneElement p) => table.GetValue(p, _ => new InstanceData());
-
-	public class InstanceData
-	{
-		public bool DepthUpdate = false;
-		public bool needsAddToRoom = false;
-		public bool ReInitiateSprites = false;
-		public BackgroundElementData.CustomBgElement? dataElement = null;
-	}
-
 }

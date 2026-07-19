@@ -30,7 +30,7 @@ public class BackgroundTemplateType : ExtEnum<BackgroundTemplateType>
 	public static readonly BackgroundTemplateType VoidSeaScene = new("VoidSeaScene", true);
 }
 
-internal static class Data
+public static class Data
 {
 	#region reflection
 	class BackgroundDataAttribute : Attribute
@@ -1059,8 +1059,6 @@ internal static class Data
 			set
 			{
 				redoClouds |= value != cloudsEndDepth;
-				if (value != cloudsEndDepth)
-					Custom.LogWarning($"new value: [{value}], old value: [{cloudsEndDepth}]");
 				_cloudsEndDepth = value; 
 				if (Scene != null) Scene.cloudsEndDepth = value; 
 			}

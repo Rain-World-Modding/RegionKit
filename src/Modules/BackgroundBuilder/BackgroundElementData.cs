@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using DevInterface;
@@ -9,8 +10,21 @@ using Watcher;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
-internal static class BackgroundElementData
+public static class BackgroundElementData
 {
+
+	private static readonly ConditionalWeakTable<BackgroundScene.BackgroundSceneElement, InstanceData> table = new();
+
+	public static InstanceData CData(this BackgroundScene.BackgroundSceneElement p) => table.GetValue(p, _ => new InstanceData());
+
+	public class InstanceData
+	{
+		public bool DepthUpdate = false;
+		public bool needsAddToRoom = false;
+		public bool ReInitiateSprites = false;
+		public BackgroundElementData.CustomBgElement? dataElement = null;
+	}
+
 	public static CustomBgElement MakeBlank(string line, Data.BGSceneData data)
 	{
 		line = data.PrependAlias(line) + line;
@@ -566,9 +580,9 @@ internal static class BackgroundElementData
 		}
 	}
 
-	public abstract class GraphicBgElement : CustomBgElement
+	public abstract class Bg_GraphicElement : CustomBgElement
 	{
-		public GraphicBgElement(string assetName)
+		public Bg_GraphicElement(string assetName)
 		{
 			this.assetName = assetName;
 		}
@@ -647,8 +661,7 @@ internal static class BackgroundElementData
 		public virtual FSprite? GetAssetSprite => new FSprite(AssetName, true);
 	}
 
-
-	public class BG_SimpleElement : GraphicBgElement
+	public class BG_SimpleElement : Bg_GraphicElement
 	{
 		public BG_SimpleElement() : base("Futile_White") { }
 
@@ -689,7 +702,7 @@ internal static class BackgroundElementData
 
 	}
 
-	public class BG_Illustration : GraphicBgElement
+	public class BG_Illustration : Bg_GraphicElement
 	{
 		public BG_Illustration() : base("AtC_Sky") { }
 
@@ -747,7 +760,7 @@ internal static class BackgroundElementData
 		}
 	}
 	#region AboveCloudsView
-	public class ACV_DistantBuilding : GraphicBgElement
+	public class ACV_DistantBuilding : Bg_GraphicElement
 	{
 		public ACV_DistantBuilding() : base("AtC_Structure1")
 		{
@@ -831,7 +844,7 @@ internal static class BackgroundElementData
 
 	}
 
-	public class ACV_DistantLightning : GraphicBgElement
+	public class ACV_DistantLightning : Bg_GraphicElement
 	{
 		public ACV_DistantLightning() : base("AtC_Light1")
 		{
@@ -1029,7 +1042,7 @@ internal static class BackgroundElementData
 		}
 	}
 
-	public class ACV_HorizonFog : GraphicBgElement
+	public class ACV_HorizonFog : Bg_GraphicElement
 	{
 		//int index; is always zero
 
@@ -1073,7 +1086,7 @@ internal static class BackgroundElementData
 	#endregion AboveCloudsView
 
 	#region RoofTopView
-	public class RTV_Floor : GraphicBgElement
+	public class RTV_Floor : Bg_GraphicElement
 	{
 		public RTV_Floor() : base("floor")
 		{
@@ -1184,7 +1197,8 @@ internal static class BackgroundElementData
 			base.SingalFromDevUI(type, sender, message);
 		}
 	}
-	public class RTV_DistantBuilding : GraphicBgElement
+
+	public class RTV_DistantBuilding : Bg_GraphicElement
 	{
 		public RTV_DistantBuilding() : base("RF_CityA")
 		{
@@ -1267,7 +1281,7 @@ internal static class BackgroundElementData
 		}
 
 	}
-	public class RTV_Building : GraphicBgElement
+	public class RTV_Building : Bg_GraphicElement
 	{
 		public RTV_Building() : base("city1")
 		{
@@ -1393,7 +1407,7 @@ internal static class BackgroundElementData
 			return panel;
 		}
 	}
-	public class RTV_DustWave : GraphicBgElement
+	public class RTV_DustWave : Bg_GraphicElement
 	{
 		public RTV_DustWave() : base("RF_CityA") { }
 
@@ -1583,7 +1597,7 @@ internal static class BackgroundElementData
 
 	#endregion RoofTopView
 
-	public class AUV_Building : GraphicBgElement
+	public class AUV_Building : Bg_GraphicElement
 	{
 		public AUV_Building() : base("au_buildingp_1")
 		{

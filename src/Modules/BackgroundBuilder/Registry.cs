@@ -4,17 +4,17 @@ using Watcher;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
-internal static class Registry
+public static class Registry
 {
 
-	public static Dictionary<Type, string> BackgroundTypeNames = new();
+	internal static Dictionary<Type, string> BackgroundTypeNames = new();
 
-	public delegate BackgroundElementData.CustomBgElement ElementMaker();
-	public static Dictionary<string, ElementMaker> ElementMakerRegistry = new();
+	internal delegate BackgroundElementData.CustomBgElement ElementMaker();
+	internal static Dictionary<string, ElementMaker> ElementMakerRegistry = new();
 
-	public static Dictionary<Type, string> SceneElementString = new();
+	internal static Dictionary<Type, string> SceneElementString = new();
 
-	public static void RegisterElementType<T>(string name, params Type[] types) where T : BackgroundElementData.CustomBgElement, new()
+	internal static void RegisterElementType<T>(string name, params Type[] types) where T : BackgroundElementData.CustomBgElement, new()
 	{
 		ElementMakerRegistry[name] = () => new T();
 		BackgroundTypeNames[typeof(T)] = name;
@@ -23,7 +23,8 @@ internal static class Registry
 			SceneElementString[t] = name;
 		}
 	}
-	public static void RegisterElementType<T>(string alias, string name, params Type[] types) where T : BackgroundElementData.CustomBgElement, new()
+
+	internal static void RegisterElementType<T>(string alias, string name, params Type[] types) where T : BackgroundElementData.CustomBgElement, new()
 	{
 		ElementMakerRegistry[alias + name] = () => new T();
 		BackgroundTypeNames[typeof(T)] = name;
@@ -33,17 +34,18 @@ internal static class Registry
 		}
 	}
 
+	internal static void RegisterSceneType<T>(BackgroundTemplateType name, SceneMaker makeScene) where T : Data.BGSceneData, new()
+	{
+		SceneDataMakerRegistry[name] = () => new T();
+		SceneMakerRegistry[name] = makeScene;
+	}
+
 
 	public delegate Data.BGSceneData MakeSceneData();
 	public static Dictionary<BackgroundTemplateType, MakeSceneData> SceneDataMakerRegistry = new();
 	public delegate BackgroundScene SceneMaker(Room room);
 	public static Dictionary<BackgroundTemplateType, SceneMaker> SceneMakerRegistry = new();
 
-	public static void RegisterSceneType<T>(BackgroundTemplateType name, SceneMaker makeScene) where T : Data.BGSceneData, new()
-	{
-		SceneDataMakerRegistry[name] = () => new T();
-		SceneMakerRegistry[name] = makeScene;
-	}
 
 
 

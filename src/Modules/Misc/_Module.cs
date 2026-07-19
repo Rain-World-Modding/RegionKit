@@ -23,6 +23,7 @@ internal static class _Module
 		CustomSSSong.Enable();
 		LightningFix.Apply();
 		DecalSelectSearch.Apply();
+		SoundPageSearch.Apply();
 		AntiPanelCollapse.Apply();
 
 		On.RoomPalette.GetColor += RoomPalette_GetColor;
@@ -43,6 +44,7 @@ internal static class _Module
 		CustomSSSong.Disable();
 		LightningFix.Undo();
 		DecalSelectSearch.Undo();
+		SoundPageSearch.Undo();
 		AntiPanelCollapse.Undo();
 	}
 

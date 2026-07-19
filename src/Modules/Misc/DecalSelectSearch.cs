@@ -59,9 +59,9 @@ namespace RegionKit.Modules.Misc
 		{
 			orig(self, offset);
 
+			// Add search bar if necessary
 			if (!_searchCWT.TryGetValue(self, out DecalSelectSearchBar searchBar))
 			{
-				// Add search bar if necessary
 				self.size.y += 20f;
 
 				foreach (DevUINode node in self.subNodes)
@@ -76,19 +76,18 @@ namespace RegionKit.Modules.Misc
 				searchBar = new DecalSelectSearchBar(self.owner, "DecalSearch99289..?/~", self, new Vector2(10f + widthOfSearchText, self.size.y - 25f), self.size.x - 15f - widthOfSearchText);
 				self.subNodes.Add(searchBar);
 				_searchCWT.Add(self, searchBar);
+				orig(self, offset); // refresh to reposition in list
 			}
-			else
+
+			// Reposition other nodes
+			foreach (DevUINode node in self.subNodes)
 			{
-				// Reposition other nodes
-				foreach (DevUINode node in self.subNodes)
+				if (node is PositionedDevUINode posNode and not DecalSelectSearchBar)
 				{
-					if (node is PositionedDevUINode posNode and not DecalSelectSearchBar)
+					posNode.pos.y -= 20f;
+					if (!self.IDstring.EndsWith("99289..?/~"))
 					{
-						posNode.pos.y -= 20f;
-						if (!self.IDstring.EndsWith("99289..?/~"))
-						{
-							posNode.pos.y -= 10f;
-						}
+						posNode.pos.y -= 10f;
 					}
 				}
 			}

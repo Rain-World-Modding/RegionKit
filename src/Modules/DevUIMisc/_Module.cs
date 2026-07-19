@@ -1,5 +1,4 @@
-﻿using static RegionKit.Modules.DevUIMisc.SettingsSaveOptions;
-using DevInterface;
+﻿using DevInterface;
 using RegionKit.Modules.BackgroundBuilder;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
 using MonoMod.Cil;
@@ -62,8 +61,10 @@ public static class _Module
 		where T : Delegate
 	{
 		orig.DynamicInvoke(self, type, sender, message);
-		if (self as Page is Page page)
-		{ SaveSignal(page, type, sender, message); }
+		if (self is Page page)
+		{ 
+			SettingsSaveOptions.SaveSignal(page, type, sender, message); 
+		}
 	}
 
 	private static void Page_ctor(On.DevInterface.Page.orig_ctor orig, Page self, DevUI owner, string IDstring, DevUINode parentNode, string name)
@@ -81,10 +82,13 @@ public static class _Module
 			}
 		}
 		if (self is MapPage or BackgroundPage)
-		{ settingsSaveOptionsMenu = null; return; }
+		{ 
+			SettingsSaveOptions.settingsSaveOptionsMenu = null; 
+			return;
+		}
 
-		settingsSaveOptionsMenu = new SettingsSaveOptionsMenu(owner, "SettingsSaveOptions", self);
-		self.subNodes.Add(settingsSaveOptionsMenu);
+		SettingsSaveOptions.settingsSaveOptionsMenu = new SettingsSaveOptions.SettingsSaveOptionsMenu(owner, "SettingsSaveOptions", self);
+		self.subNodes.Add(SettingsSaveOptions.settingsSaveOptionsMenu);
 	}
 
 	private static void DevUINode_Update(ILContext il)

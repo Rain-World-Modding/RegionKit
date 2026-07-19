@@ -377,6 +377,7 @@ public static class BackgroundElementData
 		public BG_ElementGroup()
 		{
 			name = "new group";
+			depth = 0;
 		}
 
 		public override void DataFromArgs(string[] args)

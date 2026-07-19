@@ -1,12 +1,22 @@
 Parent: AtC_GeneralDefault
 PROTECTED
 ---------------
-DistantBuilding: AtC_Structure1, -520, -85, 160, -20
-DistantLightning: AtC_Light1, -520, -119, 105, 55
-DistantBuilding: AtC_Structure2, 88, -37, 350, 0
-DistantLightning: AtC_Light2, 88, -53, 100, 250
-DistantBuilding: AtC_Structure3, -316, -24, 600, -100
-DistantLightning: AtC_Light3, -316, -32, 520, 80
+GROUP: AtC_Structure1, 0, 0, 0
+- DistantBuilding: AtC_Structure1, -520, -85, 160, -20
+- DistantLightning: AtC_Light1, -520, -119, 105, 55
+
+GROUP: AtC_Structure2, 0, 0, 0
+- DistantBuilding: AtC_Structure2, 88, -37, 350, 0
+- DistantLightning: AtC_Light2, 88, -53, 100, 250
+
+GROUP: AtC_Structure3, 0, 0, 0
+- DistantBuilding: AtC_Structure3, -316, -24, 600, -100
+- DistantLightning: AtC_Light3, -316, -32, 520, 80
+
+GROUP: AtC_2ndStructure1, 0, 0, 0
+- DistantBuilding: AtC_Structure1, 670, -85, 120, -20
+- DistantLightning: AtC_Light1, 670, -119, 65, 55
+
 DistantBuilding: AtC_Structure4, -648, -21, 700, -200
 DistantBuilding: AtC_Structure5, 156, -22, 800, -350
 DistantBuilding: AtC_Structure6, -242, -20, 850, -350
@@ -19,9 +29,6 @@ DistantBuilding: AtC_Spire6, -39, -33, 280, 0
 DistantBuilding: AtC_Spire7, 155, -7, 370, -85
 DistantBuilding: AtC_Spire8, -380, 3, 380, -50
 DistantBuilding: AtC_Spire9, -207, -1, 395, -50
-
-DistantBuilding: AtC_Structure1, 670, -85, 120, -20
-DistantLightning: AtC_Light1, 670, -119, 65, 55
 DistantBuilding: AtC_Spire2, 470, -57, 160, 10
 DistantBuilding: AtC_Spire5, 220, -24, 365, -100
 DistantBuilding: AtC_Spire6, 520, -33, 285, 0

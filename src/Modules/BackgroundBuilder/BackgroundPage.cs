@@ -15,6 +15,7 @@ internal static class BuilderPageHooks
 		On.DevInterface.DevUI.SwitchPage += DevUI_SwitchPage;
 		On.DevInterface.DevUI.ctor += DevUI_ctor;
 		On.DevInterface.Slider.SliderNub.Update += SliderNub_Update;
+		On.DevInterface.Page.SwitchPageButtonPos += Page_SwitchPageButtonPos;
 	}
 
 	public static void Undo()
@@ -22,6 +23,7 @@ internal static class BuilderPageHooks
 		On.DevInterface.DevUI.ctor -= DevUI_ctor;
 		On.DevInterface.DevUI.SwitchPage -= DevUI_SwitchPage;
 		On.DevInterface.Slider.SliderNub.Update -= SliderNub_Update;
+		On.DevInterface.Page.SwitchPageButtonPos -= Page_SwitchPageButtonPos;
 	}
 
 	private static void SliderNub_Update(On.DevInterface.Slider.SliderNub.orig_Update orig, Slider.SliderNub self)
@@ -57,17 +59,18 @@ internal static class BuilderPageHooks
 		else { orig(self, newPage); }
 	}
 
+	private static Vector2 Page_SwitchPageButtonPos(On.DevInterface.Page.orig_SwitchPageButtonPos orig, Page self, int i, string name)
+	{
+		if (name == "Background")
+			return new Vector2(100f + 100f * (i - 1), 730f);
+		return orig(self, i, name);
+	}
+
 	private static void AddBackgroundToPagesList(DevUI self)
 	{
-
 		if (!self.pages.Contains("Background"))
 		{
-			var list = self.pages.ToList();
-			int ind = list.IndexOf("Relationships");
-			if (ind == -1)
-				ind = list.Count();
-			list.Insert(ind, "Background");
-			self.pages = list.ToArray();
+			self.pages = self.pages.Concat(["Background"]).ToArray();
 		}
 	}
 }

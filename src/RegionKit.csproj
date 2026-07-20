@@ -11,8 +11,8 @@
 		<Authors>RegionKit team</Authors>
 		<Description>All-in-one custom region dependency library.</Description>
 		<Copyright>GPL v3</Copyright>
-		<FileVersion>3.18.0</FileVersion>
-		<AssemblyVersion>3.18.0</AssemblyVersion>
+		<FileVersion>3.19.0</FileVersion>
+		<AssemblyVersion>3.19.0</AssemblyVersion>
 		<PackageReadmeFile>../README.md</PackageReadmeFile>
 		<PackageLicenseFile>../LICENSE</PackageLicenseFile>
 		<DebugType>Portable</DebugType>
@@ -20,7 +20,7 @@
     	<PathMap>$(AppOutputBase)=RegionKit\</PathMap>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<OutputPath>../mod/newest/plugins</OutputPath>
-		<Nowarn>CS1591,CS0649,CS0169</Nowarn>
+		<Nowarn>CS1591,CS0649,CS0169,IDE0028</Nowarn>
 	</PropertyGroup>
 	<!-- Debug configuration. Build for release. -->
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -176,7 +176,7 @@
 		</Reference>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="PolySharp" Version="1.8.3">
+		<PackageReference Include="PolySharp" Version="1.16.0">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>

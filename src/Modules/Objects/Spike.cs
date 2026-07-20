@@ -1,6 +1,7 @@
 ﻿using RegionKit.Modules.TheMast;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using Watcher;
 
 namespace RegionKit.Modules.Objects;
 
@@ -82,6 +83,11 @@ public class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosi
 		startAngle = Custom.AimFromOneVectorToAnother(po.pos, po.pos + (po.data as PlacedObject.ResizableObjectData)!.handlePos);
 	}
 
+	public static bool SpikeImmune(PhysicalObject obj)
+	{
+		return obj is SeedCob or Pomegranate or Barnacle { hasShell: true } or TentaclePlant or PoleMimic or GarbageWorm or Leech or Spider or SkyWhale or BoxWorm or FireSprite or VoidSpawn;
+	}
+
 	public override void Update(bool eu)
 	{
 		base.Update(eu);
@@ -98,6 +104,7 @@ public class Spike : UpdatableAndDeletable, IDrawable, Explosion.IReactToExplosi
 			{
 				foreach (var obj in objList)
 				{
+					if (SpikeImmune(obj)) continue;
 					for (int k = 0; k < obj.bodyChunks.Length; k++)
 					{
 						var chunk = obj.bodyChunks[k];

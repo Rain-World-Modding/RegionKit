@@ -192,7 +192,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":62,"h":149},
 	"sourceSize": {"w":62,"h":149}
 },
-"gateSymbol10reinforcedalt.png":
+"gateSymbol10-10Reinforcedalt.png":
 {
 	"frame": {"x":0,"y":298,"w":62,"h":155},
 	"rotated": false,

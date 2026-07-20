@@ -4,6 +4,7 @@ using DevInterface;
 using RegionKit.Modules.DevUIMisc;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
 using Watcher;
+using static RegionKit.Modules.BackgroundBuilder.Data;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
@@ -40,22 +41,12 @@ internal static class BuilderPageHooks
 	{
 		orig(self, game);
 
-		if (!self.pages.Contains("Background"))
-		{
-			var list = self.pages.ToList();
-			list.Add("Background");
-			self.pages = list.ToArray();
-		}
+		AddBackgroundToPagesList(self);
 	}
 
 	private static void DevUI_SwitchPage(On.DevInterface.DevUI.orig_SwitchPage orig, DevUI self, int newPage)
 	{
-		if (!self.pages.Contains("Background"))
-		{
-			var list = self.pages.ToList();
-			list.Add("Background");
-			self.pages = list.ToArray();
-		}
+		AddBackgroundToPagesList(self);
 
 		if (newPage == self.pages.IndexOf("Background"))
 		{
@@ -65,6 +56,20 @@ internal static class BuilderPageHooks
 
 		else { orig(self, newPage); }
 	}
+
+	private static void AddBackgroundToPagesList(DevUI self)
+	{
+
+		if (!self.pages.Contains("Background"))
+		{
+			var list = self.pages.ToList();
+			int ind = list.IndexOf("Relationships");
+			if (ind == -1)
+				ind = list.Count();
+			list.Insert(ind, "Background");
+			self.pages = list.ToArray();
+		}
+	}
 }
 
 public class BackgroundPage : Page
@@ -72,91 +77,213 @@ public class BackgroundPage : Page
 	// Token: 0x060028F3 RID: 10483 RVA: 0x0031DEDC File Offset: 0x0031C0DC
 	public BackgroundPage(DevUI owner, string IDstring, DevUINode parentNode, string name) : base(owner, IDstring, parentNode, name)
 	{
-		subNodes.Add(new GenericSlider(owner, "XOffset", this, new Vector2(120f, 660f), "XOffset", true, 60f, RoomSettings.BackgroundData().roomOffset.x, stringWidth: 32) { minValue = -5000, maxValue = 5000, defaultValue = RoomSettings.parent.BackgroundData().roomOffset.x });
+		subNodes.Add(new GenericSlider(owner, "XOffset", this, new Vector2(120f, 660f), "XOffset", true, 60f, RoomSettings.BackgroundData().roomOffset.x, minValue: -5000, maxValue: 5000, stringWidth: 32) { defaultValue = RoomSettings.parent.BackgroundData().roomOffset.x });
 
-		subNodes.Add(new GenericSlider(owner, "YOffset", this, new Vector2(120f, 640f), "YOffset", true, 60f, RoomSettings.BackgroundData().roomOffset.y, stringWidth: 32) { minValue = -5000, maxValue = 5000, defaultValue = RoomSettings.parent.BackgroundData().roomOffset.y });
+		subNodes.Add(new GenericSlider(owner, "YOffset", this, new Vector2(120f, 640f), "YOffset", true, 60f, RoomSettings.BackgroundData().roomOffset.y, minValue: -5000, maxValue: 5000, stringWidth: 32) { defaultValue = RoomSettings.parent.BackgroundData().roomOffset.y });
 
-		backgroundSave = new PanelSelectButton(owner, "BackgroundSave", this, new Vector2(260f, 620f), 30f, "...", backgroundSaves(), "Select Background") { panelPos = new Vector2(420f, 190f) };
-		backgroundSave.itemDescription = "background file to save to/load from";
-		subNodes.Add(backgroundSave);
+		backgroundFile = new BackgroundFileSelector(owner, "File", this, new Vector2(120f, 620f), RoomSettings.BackgroundData().backgroundName, new Vector2(320f, -390f), "", 96f);
+		subNodes.Add(backgroundFile);
 
-		saveName = new BackgroundFileStringControl(owner, "saveName", this, new Vector2(120f, 620f), 128f, RoomSettings.BackgroundData().backgroundName, BackgroundFileStringControl.TextIsValidBackground)
-		{
-			toolTipTextOverride = "Input the name of the background file to save/load"
-		};
-		subNodes.Add(saveName);
-		//subNodes.Add(new Button(owner, "refresh", this, new Vector2(300f, 620f), 60f, "refresh"));
+		subNodes.Add(new DevUILabel(owner, "descriptionlabel", this, new Vector2(120f, 600f), 220f, "background file operations"));
 
-		Button buttonLoad = new Button(owner, "Load", this, new Vector2(120f, 600f), 60f, "Load");
+		Button buttonLoad = new Button(owner, "Load", this, new Vector2(120f, 580f), 76f, "Load");
 		API.Iggy.AddTooltip(buttonLoad, () => new("Load background scene setup from file", 10, buttonLoad));
 		subNodes.Add(buttonLoad);
 
 
-		subNodes.Add(new Button(owner, "Save", this, new Vector2(200f, 600f), 60f, "Save"));
+		subNodes.Add(new Button(owner, "Save As", this, new Vector2(215f, 580f), 76f, "Save As"));
 
+		subNodes.Add(saveButton = new Button(owner, "Save", this, new Vector2(310f, 580f), 76f, "Save"));
 
-		//backgroundType = new ExtEnumCycler<BackgroundTemplateType>(owner, "BackTypeCycle", this, new Vector2(170f, 580f), 120f, RoomSettings.BackgroundData().type, "Type");
-		//subNodes.Add(backgroundType);
+		parentBackground = new BackgroundFileSelector(owner, "Parent", this, new Vector2(120f, 560f), RoomSettings.BackgroundData().parent?.backgroundName ?? "no parent", new Vector2(320f, -390f), "parent");
+		subNodes.Add(parentBackground);
+
+		backgroundType = new ExtEnumCycler<BackgroundTemplateType>(owner, "BackTypeCycle", this, new Vector2(170f, 540f), 120f, RoomSettings.BackgroundData().Type, "Type");
+		subNodes.Add(backgroundType);
+
+		dragMode = new ExtEnumCycler<ElementDragMode>(owner, "DragMode", this, new Vector2(326f, 692f), 60f, ElementDragMode.None, "Drag Mode", 80f);
+		subNodes.Add(dragMode);
+
+		RefreshAllNodes();
 	}
 
-	public PanelSelectButton backgroundSave;
+	internal Dictionary<Handle, BackgroundElementData.CustomBgElement> handles = new();
 
-	//public ExtEnumCycler<BackgroundTemplateType> backgroundType;
+	public string OriginModText
+	{
+		get => backgroundFile.TitleText!;
+		set => backgroundFile.TitleText = value;
+	}
 
-	public StringControl saveName;
+	public bool workshopMod;
+
+	public Button saveButton;
+
+	public BackgroundFileSelector backgroundFile;
+
+	public BackgroundFileSelector parentBackground;
+
+	public ExtEnumCycler<BackgroundTemplateType> backgroundType;
+
+	public ExtEnumCycler<ElementDragMode> dragMode;
 
 	public DevUINode? SpecificSettingsNode;
+
+	public ElementListPanel? ElementListNode;
+
+	public List<ElementDataPanel> elementDataPanels = new();
 
 	public override void Signal(DevUISignalType type, DevUINode sender, string message)
 	{
 		if (type == DevUISignalType.ButtonClick)
 		{
-			/*if (sender.IDstring == backgroundType.IDstring)
+			if (sender.IDstring == backgroundType.IDstring)
 			{
 				//RoomSettings.BackgroundData().type = backgroundType.Type;
-				//SwitchRoomBackground(owner.room, backgroundType.Type);
-				//RefreshSpecificNode();
-			}*/
+				Init.SwitchRoomBackground(owner.room, backgroundType.Type);
+				RefreshAllNodes();
+			}
 
 			if (sender.IDstring == "Save_Settings")
 			{ RoomSettings.Save(); }
 
-			else if (sender.IDstring == backgroundSave.IDstring)
+			else if (sender == backgroundFile)
 			{
-				backgroundSave.values = backgroundSaves();
-			}
-
-			else if (backgroundSave.IsSubButtonID(sender.IDstring, out string subButtonID))
-			{
-				if (Data.TryGetPathFromName(subButtonID, out _))
+				if (Data.TryGetPathFromName(message, out string path))
 				{
-					saveName.Text = subButtonID;
-					saveName.actualValue = subButtonID;
-					saveName.Refresh();
-				}
-				else if (subButtonID == "<Default>")
-				{
-					saveName.Text = subButtonID;
-					saveName.actualValue = "";
-					saveName.Refresh();
-				}
-			}
+					OriginModText = DevUIUtils.UPath.GetModNameFromPath(path);
+					if (OriginModText == "vanilla" || OriginModText == "mergedmods")
+						workshopMod = true;
+					else
+						workshopMod = DevUIUtils.UPath.GetModFromPath(path)!.workshopMod;
 
-			else if (sender.IDstring == "refresh")
-			{
-				SwitchRoomBackground(owner.room, RoomSettings.BackgroundData().type, true);
-				//RefreshSpecificNode();
+					if (File.Exists(path))
+					{
+						foreach (string line in File.ReadAllLines(path))
+						{
+							if (line == "PROTECTED")
+							{
+								workshopMod = true;
+								break;
+							}
+						}
+					}
+
+					saveButton.Move(workshopMod ? new Vector2(-200f, 580f) : new Vector2(310f, 580f));
+				}
+				else if (message == "<Default>")
+				{
+					OriginModText = "";
+					workshopMod = true;
+				}
 			}
 
 			else if (sender.IDstring == "Load")
 			{
-				RoomSettings.BackgroundData().FromTimeline(saveName.actualValue, owner.game.TimelinePoint);
-				SwitchRoomBackground(owner.room, RoomSettings.BackgroundData().type, true);
+				RoomSettings.BackgroundData().FromTimeline(backgroundFile.ActualValue, owner.game.TimelinePoint);
+				Init.SwitchRoomBackground(owner.room, RoomSettings.BackgroundData().Type, true);
+				parentBackground.ActualValue = RoomSettings.BackgroundData().parent?.backgroundName ?? "none";
+				backgroundType.Type = RoomSettings.BackgroundData().Type;
+				backgroundType.Refresh();
+
+				RefreshAllNodes();
 			}
 
 			else if (sender.IDstring == "Save")
 			{
-				Debug.Log($"\n\nBACKGROUND OUTPUT\n\n{string.Join("\n", RoomSettings.BackgroundData().Serialize())}\n\n");
+				string path = SavePath(OriginModText, backgroundFile.ActualValue);
+				File.WriteAllText(path, string.Join("\n", RoomSettings.BackgroundData().Serialize()));
+				//Custom.LogImportant($"\n\nBACKGROUND OUTPUT\n\n{string.Join("\n", RoomSettings.BackgroundData().Serialize())}\n\n");
+			}
+
+			else if (sender.IDstring == "Save As")
+			{
+				string? parent = this.backgroundFile.ActualValue;
+				if (backgroundFile.ActualValue == "" || !File.Exists(SavePath(OriginModText, backgroundFile.ActualValue)))
+					parent = null;
+				this.subNodes.Add(new SaveAsNode(owner, "saveasnode", this, RoomSettings.BackgroundData().backgroundName, OriginModText, parent));
+			}
+
+			else if (sender is SaveAsNode saveAsNode && message == "done!")
+			{
+				if (saveAsNode.inherit)
+				{
+					if (TryGetPathFromName(backgroundFile.ActualValue, out string parentPath))
+					{
+						RoomSettings.BackgroundData().parent = new RoomBGData(RoomSettings);
+						RoomSettings.BackgroundData().parent!.FromTimeline(backgroundFile.ActualValue, RoomSettings.game.TimelinePoint);
+						RoomSettings.BackgroundData().parent!.LoadSceneData(RoomSettings.BackgroundData().sceneData._Scene!);
+						RoomSettings.BackgroundData().sceneData.parent = RoomSettings.BackgroundData().parent!.sceneData;
+					}
+				}
+
+				this.OriginModText = saveAsNode.modName;
+				RoomSettings.BackgroundData().backgroundName = saveAsNode.fileName;
+				backgroundFile.ActualValue = saveAsNode.fileName;
+				string path = SavePath(saveAsNode.modName, saveAsNode.fileName);
+				Directory.CreateDirectory(Path.Combine(SaveAsNode.ModSelect.AllowedMods()[saveAsNode.modName], "assets", "regionkit", "backgrounds"));
+				workshopMod = false;
+				File.WriteAllText(path, string.Join("\n", RoomSettings.BackgroundData().Serialize()));
+				saveButton.Move(new Vector2(310f, 580f));
+			}
+
+			else if (sender == dragMode)
+			{
+				ReloadHandles();
+			}
+
+			else if (sender is ElementListPanel.GroupButton.DropdownButton)
+			{
+				ReloadHandles();
+			}
+
+			else if (sender is ElementListPanel.ElementDataButton elementDataButton)
+			{
+				if (sender is ElementListPanel.AddButton s)
+				{
+					Vector2 newPos = ElementListNode?.pos ?? new Vector2(1000f, 100f);
+					newPos += new Vector2(-200f, 100f);
+					var names = GetAvailableElementNames();
+					Vector2 size = new Vector2(155f, Mathf.Min(names.Length, 20) * 20f + 60f);
+					subNodes.Add(new AddNewPanel(owner, this, newPos, size, names, "addPanel", "Add New Element", s.element as BackgroundElementData.BG_ElementGroup));
+				}
+				else
+				{
+					AddOrRemoveElementDataPanel(elementDataButton.element);
+				}
+
+			}
+
+			else if (sender.parentNode is AddNewPanel addNew && sender is Button button)
+			{
+				addNew.ClearSprites();
+				subNodes.Remove(addNew);
+				if (button.Text != "Cancel")
+				{
+
+					var a = BackgroundElementData.MakeBlank(button.Text, RoomSettings.BackgroundData().sceneData);
+					RoomSettings.BackgroundData().sceneData.AddNewBackgroundElement(a, addNew.group);
+					AddOrRemoveElementDataPanel(a);
+					//RefreshSpecificNode();
+					ElementListNode?.RefreshElements();
+					ReloadHandles();
+				}
+			}
+
+			else if (sender is ElementListPanel.ElementDataButton.DeleteButton && sender.parentNode is ElementListPanel.ElementDataButton elementButton)
+			{
+				RoomSettings.BackgroundData().sceneData.RemoveBackgroundElement(elementButton.element);
+				//RefreshSpecificNode();
+				ElementListNode?.RefreshElements();
+				ReloadHandles();
+			}
+
+			else if (sender.IDstring == "Parent")
+			{
+				RoomSettings.BackgroundData().SetParent(parentBackground.ActualValue, owner.room);
+				backgroundType.Refresh();
+
+				RefreshAllNodes();
 			}
 		}
 
@@ -184,95 +311,342 @@ public class BackgroundPage : Page
 			}
 		}
 	}
-	public static void SwitchRoomBackground(Room self, BackgroundTemplateType type, bool refresh = false)
+
+	public class AddNewPanel : ItemSelectPanel
 	{
-		AboveCloudsView? aboveCloudsView = null;
-		RoofTopView? roofTopView = null;
-		AncientUrbanView? ancientUrbanView = null;
-		RotWormScene? rotWormScene = null;
-		VoidSea.VoidSeaScene? voidSeaScene = null;
-		foreach (UpdatableAndDeletable uad in self.updateList)
+		internal BackgroundElementData.BG_ElementGroup? group;
+		internal AddNewPanel(DevUI owner, DevUINode parentNode, Vector2 pos, Vector2 size, string[] items, string idstring, string title, BackgroundElementData.BG_ElementGroup? group)
+			: base(owner, parentNode, pos, items, idstring, title, size: size, columns: 1)
 		{
-			if (uad is BackgroundScene)
-			{
-				if (uad is AboveCloudsView acv)
-				{ aboveCloudsView = acv; }
-
-				else if (uad is RoofTopView rtv)
-				{ roofTopView = rtv; }
-
-				else if (uad is AncientUrbanView auv)
-				{ ancientUrbanView = auv; }
-
-				else if (uad is RotWormScene rws)
-				{ rotWormScene = rws; }
-
-				else if (uad is VoidSea.VoidSeaScene vss)
-				{ voidSeaScene = vss; }
-			}
-		}
-		if (aboveCloudsView != null && (type != BackgroundTemplateType.AboveCloudsView || refresh))
-		{
-			aboveCloudsView.Destroy();
-			self.RemoveObject(aboveCloudsView);
-			aboveCloudsView = null;
-		}
-
-		if (roofTopView != null && (type != BackgroundTemplateType.RoofTopView || refresh))
-		{
-			roofTopView.Destroy();
-			self.RemoveObject(roofTopView);
-			roofTopView = null;
-		}
-
-		if (ancientUrbanView != null && (type != BackgroundTemplateType.AncientUrbanView || refresh))
-		{
-			ancientUrbanView.Destroy();
-			self.RemoveObject(ancientUrbanView);
-			ancientUrbanView = null;
-		}
-
-		if (rotWormScene != null && (type != BackgroundTemplateType.RotWormScene || refresh))
-		{
-			rotWormScene.Destroy();
-			self.RemoveObject(rotWormScene);
-			rotWormScene = null;
-		}
-
-		if (voidSeaScene != null && (type != BackgroundTemplateType.VoidSeaScene || refresh))
-		{
-			voidSeaScene.Destroy();
-			voidSeaScene.RemoveFromRoom();
-			voidSeaScene = null;
-		}
-
-		if (aboveCloudsView == null && type == BackgroundTemplateType.AboveCloudsView)
-		{
-			self.AddObject(new AboveCloudsView(self, new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.AboveCloudsView, 0f, false)));
-		}
-
-		if (roofTopView == null && type == BackgroundTemplateType.RoofTopView)
-		{
-			self.AddObject(new RoofTopView(self, new RoomSettings.RoomEffect(RoomSettings.RoomEffect.Type.RoofTopView, 0f, false)));
-		}
-
-		if (ancientUrbanView == null && type == BackgroundTemplateType.AncientUrbanView)
-		{
-			self.AddObject(new AncientUrbanView(self, new RoomSettings.RoomEffect(WatcherEnums.RoomEffectType.AncientUrbanView, 0f, false)));
-		}
-
-		if (rotWormScene == null && type == BackgroundTemplateType.RotWormScene)
-		{
-			self.AddObject(new RotWormScene(self));
-		}
-
-		if (voidSeaScene == null && type == BackgroundTemplateType.VoidSeaScene)
-		{
-			//owner.room.AddObject(new VoidSea.VoidSeaScene(owner.room));
+			this.group = group;
 		}
 	}
 
 
+	public string[] GetAvailableElementNames()
+	{
+		List<string> result = new();
+		result.Add("Cancel");
+
+		foreach ((var key, var val) in Registry.BackgroundTypeNames)
+		{
+			if (RoomSettings.BackgroundData().sceneData.ElementAllowedInScene(key))
+			{
+				result.Add(val);
+			}
+		}
+
+		return result.ToArray();
+	}
+
+	internal void AddOrRemoveElementDataPanel(BackgroundElementData.CustomBgElement element)
+	{
+		for (int i = 0; i < elementDataPanels.Count; i++)
+		{
+			if (elementDataPanels[i].element == element)
+			{
+				elementDataPanels[i].ClearSprites();
+				subNodes.Remove(elementDataPanels[i]);
+				elementDataPanels.RemoveAt(i);
+				return;
+			}
+		}
+		var newPanel = element.MakeDevUI(owner, this, new Vector2(100f, 100f), BackgroundElementData.CustomBgElement.DefaultPanelSize);
+
+		elementDataPanels.Add(newPanel);
+		subNodes.Add(newPanel);
+	}
+
+	public override void Update()
+	{
+		base.Update();
+
+		UpdateDrag();
+	}
+
+	public void RefreshAllNodes()
+	{
+		ReloadHandles();
+		RefreshElementListNode();
+		RefreshSpecificNode();
+
+		foreach (var s in elementDataPanels)
+		{
+			s.ClearSprites();
+			subNodes.Remove(s);
+		}
+		elementDataPanels.Clear();
+	}
+
+	public void RefreshSpecificNode()
+	{
+		if (SpecificSettingsNode != null)
+		{
+			SpecificSettingsNode.ClearSprites();
+			this.subNodes.Remove(SpecificSettingsNode);
+			SpecificSettingsNode = null;
+		}
+		//BackgroundTemplateType type = RoomSettings.BackgroundData().type;
+		//backgroundType.Type = type;
+		//backgroundType.Refresh();
+		//RefreshElementNode();
+
+		SpecificSettingsNode = RoomSettings.BackgroundData().sceneData.MakeDevUI(owner, this);
+
+		if (SpecificSettingsNode != null)
+		{ subNodes.Add(SpecificSettingsNode); }
+	}
+
+	public void RefreshElementListNode()
+	{
+		if (ElementListNode != null)
+		{
+			ElementListNode.ClearSprites();
+			this.subNodes.Remove(ElementListNode);
+			ElementListNode = null;
+		}
+		ElementListNode = new ElementListPanel(owner, "element list", this, new Vector2(1000f, 100f), new Vector2(300f, 500f), "Element List", false);
+
+		if (ElementListNode != null)
+		{ subNodes.Add(ElementListNode); }
+	}
+
+
+
+
+	#region DragFunctionality
+	public void ReloadHandles()
+	{
+		foreach (var m in handles.Keys)
+		{
+			m.ClearSprites();
+			subNodes.Remove(m);
+		}
+		handles.Clear();
+
+		if (dragMode.Type != ElementDragMode.Handles || ElementListNode == null)
+			return;
+
+		foreach (var m in (ElementListNode as ElementListPanel.ICollectElementButtons).GetRevealedElements)
+		{
+			var h = new BackgroundHandle(owner, "handle", this, m);
+			subNodes.Add(h);
+			handles.Add(h, m);
+		}
+	}
+
+	BackgroundElementData.CustomBgElement? bgElement;
+	Vector2 oldMousePos;
+	bool lastClicked = false;
+	public class ElementDragMode : ExtEnum<ElementDragMode>
+	{
+		public static readonly ElementDragMode Handles = new ElementDragMode(nameof(Handles), true);
+		public static readonly ElementDragMode Sprites = new ElementDragMode(nameof(Sprites), true);
+		public static readonly ElementDragMode None = new ElementDragMode(nameof(None), true);
+
+		public ElementDragMode(string value, bool register = false) : base(value, register)
+		{
+		}
+	}
+
+	public void UpdateDrag()
+	{
+
+		if (dragMode.Type == ElementDragMode.Handles)
+		{
+			if (owner.draggedNode is Handle handle && handle.dragged && handles.TryGetValue(handle, out var val))
+			{
+				if (bgElement == null)
+				{
+					bgElement = val;
+					oldMousePos = new Vector2(Futile.mousePosition.x, Futile.mousePosition.y);
+				}
+			}
+			else
+			{
+				bgElement = null;
+			}
+		}
+		else if (dragMode.Type == ElementDragMode.Sprites)
+		{
+			if (Input.GetMouseButton(0))
+			{
+				if (!lastClicked && bgElement == null && ElementListNode != null)
+				{
+					lastClicked = true;
+					foreach (var element in (ElementListNode as ElementListPanel.ICollectElementButtons).GetRevealedElements)
+					{
+						if (element.ElementClicked(owner.game.cameras[0]))
+						{
+							bgElement = element;
+							oldMousePos = new Vector2(Futile.mousePosition.x, Futile.mousePosition.y);
+							break;
+						}
+					}
+				}
+			}
+			else
+			{
+				bgElement = null;
+				lastClicked = false;
+			}
+		}
+		else
+		{
+			bgElement = null;
+			lastClicked = false;
+		}
+
+		if (bgElement != null)
+		{
+			bool controlPressed = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+
+			var vector = new Vector2(Futile.mousePosition.x, Futile.mousePosition.y);
+			Vector2 movement = vector - oldMousePos;
+			bgElement.Dragged(movement, controlPressed);
+			//if (controlPressed)
+			//{
+			//	bgElement.Depth += Futile.mousePosition.y - oldMousePos.y;
+			//	if (bgElement.sceneElement is AboveCloudsView.DistantBuilding dbuilding)
+			//	{
+
+			//		dbuilding.atmosphericalDepthAdd += Futile.mousePosition.x - oldMousePos.x;
+			//	}
+
+			//	else if (bgElement.sceneElement is RoofTopView.DistantBuilding rfdbuilding)
+			//	{
+			//		rfdbuilding.atmosphericalDepthAdd += Futile.mousePosition.x - oldMousePos.x;
+			//	}
+
+			//}
+			//else
+			//{
+			//	bgElement.Pos += movement;
+			//}
+
+			oldMousePos = Futile.mousePosition;
+		}
+	}
+
+	internal class BackgroundHandle : Handle
+	{
+		BackgroundElementData.CustomBgElement bgElement;
+
+		internal BackgroundHandle(DevUI owner, string IDstring, DevUINode parentNode, BackgroundElementData.CustomBgElement bgElement) : base(owner, IDstring, parentNode, Vector2.zero)
+		{
+			this.bgElement = bgElement;
+			Refresh();
+		}
+
+		public override void Update()
+		{
+			bool lastDragged = this.dragged;
+			base.Update();
+			if (!this.dragged)
+			{
+				var cam = owner.game.cameras[0];
+				var shouldPos = bgElement.DevUIHandlePos(cam);
+				if (absPos != shouldPos)
+					Refresh();
+			}
+		}
+		public override void Refresh()
+		{
+			if (!this.dragged)
+			{
+				var cam = owner.game.cameras[0];
+				this.absPos = bgElement.DevUIHandlePos(cam);
+			}
+			base.Refresh();
+		}
+	}
+	#endregion
+
+	public class BackgroundFileSelector : PositionedDevUINode, IDevUISignals
+	{
+		public string ActualValue
+		{
+			get
+			{
+				return saveName.actualValue;
+			}
+
+			set
+			{
+				saveName.Text = saveName.actualValue = value;
+			}
+		}
+
+		public string? TitleText
+		{
+			get => title?.Text ?? null;
+			set
+			{
+				if(title != null)
+					title.Text = value;
+			}
+		}
+
+		public BackgroundFileSelector(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string defaultValue, Vector2 panelPos, string? titleText = null, float titleWidth = 40f) : base(owner, IDstring, parentNode, pos)
+		{
+			if (titleText != null)
+			{
+				subNodes.Add(title = new DevUILabel(owner, "label", this, Vector2.zero, titleWidth, titleText));
+			}
+			else
+			{
+				titleWidth = -4;
+			}
+
+			saveName = new BackgroundFileStringControl(owner, "saveName", this, new Vector2(titleWidth + 4f, 0f), 128f, defaultValue, BackgroundFileStringControl.TextIsValidBackground)
+			{
+				toolTipTextOverride = "Input the name of the background file to save/load"
+			};
+			subNodes.Add(saveName);
+
+			backgroundSave = new PanelSelectButton(owner, "BackgroundSave", this, saveName.pos + new Vector2(saveName.size.x + 4f, 0f), 30f, "...", backgroundSaves(), "Select Background", "...") { panelPos = panelPos };
+			backgroundSave.itemDescription = "background file to save to/load from";
+			subNodes.Add(backgroundSave);
+		}
+		BackgroundFileStringControl saveName;
+		PanelSelectButton backgroundSave;
+		DevUILabel? title;
+
+		public void Signal(DevUISignalType type, DevUINode sender, string message)
+		{
+			bool changed = false;
+			if (sender == backgroundSave && message == "")
+			{
+				backgroundSave.values = backgroundSaves();
+			}
+
+			else if (sender == backgroundSave)
+			{
+				if (Data.TryGetPathFromName(message, out string path))
+				{
+					saveName.Text = message;
+					saveName.actualValue = message;
+					saveName.Refresh();
+				}
+				else if (message == "<Default>")
+				{
+					saveName.Text = message;
+					saveName.actualValue = "";
+					saveName.Refresh();
+				}
+				backgroundSave.Text = "...";
+				changed = true;
+			}
+			else if (type == StringControl.StringFinish && sender == saveName)
+			{
+				changed = true;
+			}
+
+			if (changed)
+				this.SendSignal(DevUISignalType.ButtonClick, this, ActualValue);
+
+		}
+	}
 
 	public class BackgroundFileStringControl : StringControl, Modules.Iggy.IGiveAToolTip
 	{
@@ -338,53 +712,330 @@ public class BackgroundPage : Page
 		{ return Data.TryGetPathFromName(value, out _) || value == ""; }
 	}
 
-	public class ElementAssetSelect : PositionedDevUINode, IDevUISignals
+	public class ElementDataPanel : Panel, IDevUISignals
 	{
-		public ElementAssetSelect(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos)
+		internal BackgroundElementData.CustomBgElement element;
+		FSprite lineSprite;
+
+		readonly Dictionary<string, (DevUILabel?, PositionedDevUINode)> LabelledNodes = new();
+		internal ElementDataPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, Vector2 size, BackgroundElementData.CustomBgElement element) : base(owner, IDstring, parentNode, pos, size, element.DevUIName())
 		{
-			Vector2 ppos = Vector2.zero;
-
-			label = new DevUILabel(owner, "Asset_Label", this, ppos, 120f, "");
-			subNodes.Add(label);
-			ppos.x += 140f;
-
-			select = new PanelSelectButton(owner, "Asset_Select", this, ppos, 30f, "...", ElementNames().ToArray(), "Select Element")
-			{ panelPos = new Vector2(420f, -200f), panelSize = new Vector2(280f, 420f), panelButtonWidth = 240f, panelColumns = 1 };
-			subNodes.Add(select);
+			buildPos = new Vector2(5f, size.y - 20f);
+			this.element = element;
+			this.fSprites.Add(lineSprite = new FSprite("pixel", true) { anchorY = 0f });
+			owner.placedObjectsContainer.AddChild(lineSprite);
 		}
+
+		Vector2 buildPos;
+		public void AddLabelledStringControl(string displayName, string defaultValue, string id, float labelWidth, float controlWidth, StringControl.IsTextValid? del = null)
+		{
+			if (buildPos.x > 5f && labelWidth + controlWidth + buildPos.x + 4f > this.size.x)
+				NewRow();
+
+			del ??= StringControl.TextIsAny;
+			var l = new DevUILabel(owner, "label_" + id, this, buildPos, labelWidth, displayName);
+			subNodes.Add(l);
+			buildPos.x += labelWidth + 4f;
+			var s = new StringControl(owner, id, this, buildPos, controlWidth, defaultValue, del);
+			subNodes.Add(s);
+			buildPos.x += controlWidth + 6f;
+
+			LabelledNodes[id] = (l, s);
+		}
+
+		public void AddLabelledUINode(string displayName, float labelWidth, RectangularDevUINode node, bool noAutoPos = false)
+		{
+
+			if (!noAutoPos && buildPos.x > 5f && labelWidth + node.size.x + buildPos.x + 4f > this.size.x)
+				NewRow();
+
+			Vector2 labelPos = noAutoPos ? node.pos - new Vector2(labelWidth + 4f, 0f) : buildPos;
+			var s = new DevUILabel(owner, "label_" + node.IDstring, this, labelPos, labelWidth, displayName);
+			subNodes.Add(s);
+			if (!noAutoPos)
+			{
+				buildPos.x += labelWidth + 4f;
+				node.Move(buildPos);
+			}
+			subNodes.Add(node);
+			if(!noAutoPos)
+				buildPos.x += node.size.x + 4f;
+
+			LabelledNodes[node.IDstring] = (s, node);
+		}
+
+		public bool TryGetExistingNode<T>(string id, out DevUILabel? label, out T node) where T : DevUINode
+		{
+			label = null;
+			node = null!;
+
+			if (LabelledNodes.TryGetValue(id, out (DevUILabel?, PositionedDevUINode) val) && val.Item2 is T t)
+			{
+				label = val.Item1;
+				node = t;
+				return true;
+			}
+			return false;
+		}
+
+		public void RemoveAndCollapse(string id)
+		{
+			if (TryGetExistingNode(id, out var label, out PositionedDevUINode node))
+			{
+				if (label != null)
+				{
+					label.ClearSprites();
+					subNodes.Remove(label);
+				}
+				node.ClearSprites();
+				subNodes.Remove(node);
+
+				float height = node.pos.y;
+
+				LabelledNodes.Remove(id);
+
+				foreach ((DevUILabel? label2, PositionedDevUINode? node2) in LabelledNodes.Values)
+				{
+					if (label2 != null && label2.pos.y < height)
+						label2.Move(label2.pos + new Vector2(0f, 20f));
+					
+					if (node2 != null && node2.pos.y < height)
+						node2.Move(node2.pos + new Vector2(0f, 20f));
+				}
+			}
+		}
+
+		public void NewRow()
+		{
+			buildPos.x = 5f;
+			buildPos.y -= 20f;
+		}
+
+		public Vector2 GetLastBuildPos() => buildPos;
+
+		public void SetBuildPos(Vector2 newPos) => buildPos = newPos;
+
+		public override void Update()
+		{
+			base.Update();
+
+			if (element.deleted)
+			{
+				this.ClearSprites();
+				(parentNode as BackgroundPage)?.elementDataPanels.Remove(this);
+				parentNode.subNodes.Remove(this);
+				return;
+			}
+
+
+				string s = element.DevUIName();
+				if (this.Title != s)
+					this.Title = s;
+				Refresh();
+			
+
+			if (element.DevUIHandlePos(owner.game.cameras[0]) != assetPos)
+				Refresh();
+
+			if (TryGetExistingNode<DevUILabel>("group", out _, out var node) && node.Text != (element.group?.name ?? "None"))
+			{
+				node.Text = (element.group?.name ?? "None");
+				node.Refresh();
+			}
+		}
+
+		Vector2 assetPos;
 
 		public void Signal(DevUISignalType type, DevUINode sender, string message)
 		{
-			if (sender.IDstring == select.IDstring)
-			{ select.values = ElementNames().ToArray(); }
-
-			if (select.IsSubButtonID(sender.IDstring, out string subButtonID))
-			{
-				label.Text = subButtonID;
-				this.SendSignal(type, this, message);
-			}
+			element.SingalFromDevUI(type, sender, message);
 		}
 
-		public DevUILabel label;
-
-		public PanelSelectButton select;
-
-		public static List<string> ElementNames()
+		public override void Refresh()
 		{
-			List<string> result = new();
-			foreach (string str in AssetManager.ListDirectory("Illustrations"))
+			base.Refresh();
+			if (collapsed)
 			{
-				string str2 = Path.GetFileNameWithoutExtension(str);
-				if (str2.ToLower().StartsWith("atc_")
-					|| str2.ToLower().StartsWith("rf_")
-					|| str2.ToLower().StartsWith("pnk_")
-					|| str2.ToLower().StartsWith("otr_")
-					|| str2.ToLower().StartsWith("au_"))
-					result.Add(str2);
+				lineSprite.scaleY = 1f;
+				base.MoveSprite(fSprites.IndexOf(lineSprite), new Vector2(-1000f, -1000f));
+				return;
 			}
+			Vector2 from = base.absPos;
+			Vector2 to = element.DevUIHandlePos(owner.game.cameras[0]);
+			assetPos = to;
+			base.MoveSprite(fSprites.IndexOf(lineSprite), from);
+			lineSprite.scaleY = Vector2.Distance(from, to);
+			lineSprite.rotation = Custom.AimFromOneVectorToAnother(from, to);
 
-			return result;
+			element.RefreshDevUI(this);
 		}
 	}
+
+	public class ElementAssetSelectButton : PanelSelectButton
+	{
+		public ElementAssetSelectPanel.SelectGroup defaultSelectGroup;
+		public ElementAssetSelectButton(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width, string text, string panelName, ElementAssetSelectPanel.SelectGroup defaultSelectGroup) : base(owner, IDstring, parentNode, pos, width, text, new string[0], panelName, text)
+		{
+			this.panelPos = new Vector2(200f, -20f);
+			this.defaultSelectGroup = defaultSelectGroup;
+		}
+
+		public override void Clicked()
+		{
+			//sending signal first in case values wanna be changed
+			//base.Clicked();
+
+			if (itemSelectPanel != null)
+			{
+				subNodes.Remove(itemSelectPanel);
+				itemSelectPanel.ClearSprites();
+				itemSelectPanel = null;
+			}
+			else
+			{
+				itemSelectPanel = new ElementAssetSelectPanel(owner, this, panelPos - pos, IDstring + "_Panel", panelName, defaultSelectGroup);
+				subNodes.Add(itemSelectPanel);
+			}
+		}
+	}
+
+	public class ElementAssetSelectPanel : ItemSelectPanel
+	{
+		SelectGroup selectGroup;
+		bool updateGroup = false;
+		public ElementAssetSelectPanel(DevUI owner, DevUINode parentNode, Vector2 pos, string idstring, string title, SelectGroup selectGroup) : base(owner, parentNode, pos, new string[0], idstring, title, new Vector2(180f, 400f), 170, 1)
+		{
+			this.perpage -= 3;
+			this.selectGroup = selectGroup;
+			SwitchGroup(selectGroup);
+		}
+
+		public override void Update()
+		{
+			if (updateGroup)
+			{
+				SwitchGroup(selectGroup);
+				updateGroup = false;
+			}
+
+			base.Update();
+		}
+
+		public override void Signal(DevUISignalType type, DevUINode sender, string message)
+		{
+			var newSelectGroup = new SelectGroup(sender.IDstring, false);
+			if (newSelectGroup.index != -1)
+			{
+				if (selectGroup != newSelectGroup)
+				{
+					selectGroup = newSelectGroup;
+					updateGroup = true;
+				}
+			}
+			else
+				base.Signal(type, sender, message);
+		}
+
+		public void SwitchGroup(SelectGroup selectGroup)
+		{
+			this.items = GetGroupItems(selectGroup);
+			this.PopulateItems(0);
+		}
+
+		static int count = 0;
+		public override void PopulateItems(int offset)
+		{
+			base.PopulateItems(offset);
+
+			count++;
+
+			foreach (var s in subNodes)
+			{
+				if (s.IDstring == "BackPage99289..?/~" || s.IDstring == "NextPage99289..?/~")
+					continue;
+				if (s is Button button)
+					button.Move(button.pos + new Vector2(0f, -60f));
+			}
+
+			SelectGroup[] firstRow = [SelectGroup.ATC, SelectGroup.RFV, SelectGroup.PNK, SelectGroup.AUV, SelectGroup.OTR];
+			SelectGroup[] secondRow = [SelectGroup.Illustrations, SelectGroup.Sprites];
+
+			Vector2 ppos = new Vector2(5f, size.y - 25f);
+			float buttonInterval = (size.x - 10f) / firstRow.Length;
+			float buttonSpace = 5f;
+			foreach (var g in firstRow)
+			{
+				subNodes.Add(new Button(owner, g.value, this, ppos, buttonInterval - buttonSpace, g.value));
+				ppos.x += buttonInterval;
+			}
+			ppos.x = 5f;
+			ppos.y -= 20f;
+			buttonInterval = (size.x - 10f) / secondRow.Length;
+			buttonSpace = 5f;
+			foreach (var g in secondRow)
+			{
+				subNodes.Add(new Button(owner, g.value, this, ppos, buttonInterval - buttonSpace, g.value));
+				ppos.x += buttonInterval;
+			}
+		}
+
+		public class SelectGroup : ExtEnum<SelectGroup>
+		{
+			public static readonly SelectGroup ATC = new(nameof(ATC), true);
+			public static readonly SelectGroup RFV = new(nameof(RFV), true);
+			public static readonly SelectGroup PNK = new(nameof(PNK), true);
+			public static readonly SelectGroup OTR = new(nameof(OTR), true);
+			public static readonly SelectGroup AUV = new(nameof(AUV), true);
+			public static readonly SelectGroup Illustrations = new(nameof(Illustrations), true);
+			public static readonly SelectGroup Sprites = new(nameof(Sprites), true);
+
+			public SelectGroup(string value, bool register = false) : base(value, register)
+			{
+			}
+		}
+
+		public static string[] GetGroupItems(SelectGroup selectGroup)
+		{
+			List<string> result = new();
+
+			string? startWithString = null;
+
+			if (selectGroup == SelectGroup.ATC)
+				startWithString = "atc_";
+			if (selectGroup == SelectGroup.RFV)
+				startWithString = "rf_";
+			if (selectGroup == SelectGroup.PNK)
+				startWithString = "pnk_";
+			if (selectGroup == SelectGroup.OTR)
+				startWithString = "otr_";
+			if (selectGroup == SelectGroup.AUV)
+				startWithString = "au_";
+
+			if (selectGroup != SelectGroup.Sprites)
+			{
+				foreach (string str in AssetManager.ListDirectory("Illustrations"))
+				{
+					string str2 = Path.GetFileNameWithoutExtension(str);
+					if(startWithString == null || str2.ToLower().StartsWith(startWithString))
+						result.Add(str2);
+				}
+			}
+
+			if (selectGroup != SelectGroup.Illustrations)
+			{
+				foreach ((string str, FAtlasElement _) in Futile.atlasManager._allElementsByName)
+				{
+					string str2 = Path.GetFileNameWithoutExtension(str);
+					if (startWithString == null || str2.ToLower().StartsWith(startWithString))
+						result.Add(str2);
+				}
+			}
+
+			return result.ToArray();
+		}
+	}
+
 	public static string[] backgroundSaves() => AssetManager.ListDirectory(_Module.BGPath).Where(x => File.ReadAllLines(x)[0] != "UNLISTED").Select(i => Path.GetFileNameWithoutExtension(i)).Prepend("<Default>").ToArray();
+
+	public static string SavePath(string modName, string fileName) => Path.Combine(SaveAsNode.ModSelect.AllowedMods()[modName], "assets", "regionkit", "backgrounds", fileName + ".txt");
 }

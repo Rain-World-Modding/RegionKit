@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EffExt;
-using RegionKit.Modules.RoomSlideShow;
+﻿using EffExt;
 using SharpVoronoiLib;
 
 namespace RegionKit.Modules.Effects
@@ -28,7 +20,7 @@ namespace RegionKit.Modules.Effects
 					.AddFloatField("CellCount", 0f, 1000f, 1f, 400f)
 					.AddIntField("GenType", 1, 2, 1)
 					.SetUADFactory((room, data, firstTimeRealized) => new IceWaterUAD(data))
-					.SetCategory("RegionKit")
+					.SetCategory(_Enums.RegionKit_Decoration.value)
 					.Register();
 			}
 			catch (Exception ex)
@@ -82,9 +74,9 @@ namespace RegionKit.Modules.Effects
 	{
 		public static readonly object iceWaterSprite = new();
 		static List<VoronoiSite> poisPoints = new List<VoronoiSite>();
-		private static VoronoiPlane plane;
+		private static VoronoiPlane? plane;
 		private static List<VoronoiEdge> voronoiEdges = new List<VoronoiEdge>();
-		private static float height = 0f;
+		//private static float height = 0f;
 		private static float cellAmount = 0f;
 		private static int genType = 1;
 		private static UnityEngine.Color color;
@@ -183,20 +175,21 @@ namespace RegionKit.Modules.Effects
 					sLeaser.sprites[i] = new TriangleMesh("Futile_White", tris, true);
 				}
 			}
-			AddToContainer(sLeaser, rCam, null);
+			AddToContainer(sLeaser, rCam, null!);
 			return false;
 		}
 
 		// Draws sprites on screen
 		public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
-			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null)
+			if (rCam.room.roomSettings.GetEffect(_Enums.IceWater) != null && plane != null)
 			{
 				if (plane.Sites != null)
 				{
 					for (int i = 0; i < sLeaser.sprites.Length; i++)
 					{
-						for (int j = 0; j < (sLeaser.sprites[i] as TriangleMesh).vertices.Length; j++)
+						var mesh = (sLeaser.sprites[i] as TriangleMesh)!;
+						for (int j = 0; j < mesh.vertices.Length; j++)
 						{
 
 							Vector2 centroid = new Vector2((float)plane.Sites[i].X, (float)plane.Sites[i].Y);
@@ -204,7 +197,7 @@ namespace RegionKit.Modules.Effects
 							Vector2 vertice = VoronoiPointToVector(vPoints[j]);
 							Vector2 final = (vertice - centroid) * rCam.room.roomSettings.GetEffectAmount(_Enums.IceWater) + centroid;
 
-							(sLeaser.sprites[i] as TriangleMesh).MoveVertice(j, final);
+							mesh.MoveVertice(j, final);
 							sLeaser.sprites[i].color = color;
 						}
 					}

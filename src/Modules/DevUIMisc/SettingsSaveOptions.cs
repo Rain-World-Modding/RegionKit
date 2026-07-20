@@ -1,15 +1,74 @@
-﻿using DevInterface;
-using System.IO;
+﻿using System.IO;
+using DevInterface;
+using RegionKit.Modules.BackgroundBuilder;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
 
 namespace RegionKit.Modules.DevUIMisc;
 
-internal class SettingsSaveOptions
+internal static class SettingsSaveOptions
 {
+	internal static void Apply()
+	{
+		//currently used for settings saving options stuffs, but will probably later be used for much more
+		On.DevInterface.Page.ctor += Page_ctor;
+
+		On.DevInterface.ObjectsPage.Signal += SubPage_Signal;
+		On.DevInterface.RoomSettingsPage.Signal += SubPage_Signal;
+		On.DevInterface.SoundPage.Signal += SubPage_Signal;
+		On.DevInterface.TriggersPage.Signal += SubPage_Signal;
+	}
+
+	internal static void Undo()
+	{
+		On.DevInterface.Page.ctor -= Page_ctor;
+
+		On.DevInterface.ObjectsPage.Signal -= SubPage_Signal;
+		On.DevInterface.RoomSettingsPage.Signal -= SubPage_Signal;
+		On.DevInterface.SoundPage.Signal -= SubPage_Signal;
+		On.DevInterface.TriggersPage.Signal -= SubPage_Signal;
+	}
+
+
+	private static void SubPage_Signal<T, U>(T orig, U self, DevUISignalType type, DevUINode sender, string message)
+		where T : Delegate
+	{
+		orig.DynamicInvoke(self, type, sender, message);
+		if (self is Page page)
+		{
+			SaveSignal(page, type, sender, message);
+		}
+	}
+
+	private static void Page_ctor(On.DevInterface.Page.orig_ctor orig, Page self, DevUI owner, string IDstring, DevUINode parentNode, string name)
+	{
+		orig(self, owner, IDstring, parentNode, name);
+
+		//move pages over to avoid collision with save buttons
+		//for BackgroundBuilder, currently unused
+		foreach (DevUINode node in self.subNodes)
+		{
+			if (node is SwitchPageButton switchPageButton)
+			{
+				switchPageButton.pos.x -= 20f;
+				switchPageButton.Refresh();
+			}
+		}
+		if (self is MapPage or BackgroundPage)
+		{
+			settingsSaveOptionsMenu = null;
+			return;
+		}
+
+		settingsSaveOptionsMenu = new SettingsSaveOptionsMenu(owner, "SettingsSaveOptions", self);
+		self.subNodes.Add(settingsSaveOptionsMenu);
+	}
+
 	public static void SaveSignal(Page self, DevUISignalType type, DevUINode sender, string message)
 	{
 		if (settingsSaveOptionsMenu is null)
-		{ return; }
+		{ 
+			return; 
+		}
 
 		if (sender.IDstring == "Change_Path")
 		{
@@ -43,7 +102,9 @@ internal class SettingsSaveOptions
 			string subbuttonid = sender.IDstring.Remove(0, (settingsSaveOptionsMenu.modSelectPanel.idstring + "Button99289_").Length);
 
 			if (settingsSaveOptionsMenu.ChangePath != null)
-			{ settingsSaveOptionsMenu.ChangePath.Text = subbuttonid; }
+			{ 
+				settingsSaveOptionsMenu.ChangePath.Text = subbuttonid;
+			}
 
 			if (DevUIUtils.URoomSettings.PathToSpecificSettings(settingsSaveOptionsMenu.modNames[subbuttonid], self.RoomSettings.name, out string filePath, slugName: DevUIUtils.URoomSettings.UsingSpecificSlugcatName(self.owner)))
 			{

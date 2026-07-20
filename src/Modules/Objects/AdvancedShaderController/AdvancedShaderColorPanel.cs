@@ -23,12 +23,12 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 				owner.placedObjectsContainer.AddChild(sprite);
 			}
 
-			size = new Vector2(250f, 5f + 100f * data.vertices.Length + 60f);
+			size = new Vector2(250f, 10f + 100f * data.vertices.Length + 60f);
 
 			subNodes.Add(preview = new ColorPreview(owner, "AdvancedShader_ColorPanel_Preview", this, new Vector2(5f, size.y - 60f), new Vector2(70f, 56f)));
-			subNodes.Add(restrictColorsButton = new Cycler(owner, "AdvancedShader_ColorPanel_Restrict", this, new Vector2(80f, size.y - 20f), 160f, "Clamp colors: ", ["NO", "YES"]));
-			subNodes.Add(lockColorsButton = new Cycler(owner, "AdvancedShader_ColorPanel_Lock", this, new Vector2(80f, size.y - 40f), 160f, "Sync colors: ", ["NO", "YES"]));
-			subNodes.Add(resetButton = new Button(owner, "AdvancedShader_ColorPanel_Reset", this, new Vector2(80f, size.y - 60f), 160f, "Reset colors"));
+			subNodes.Add(restrictColorsButton = new Cycler(owner, "AdvancedShader_ColorPanel_Restrict", this, new Vector2(80f, size.y - 20f), 165f, "Clamp colors: ", ["NO", "YES"]));
+			subNodes.Add(lockColorsButton = new Cycler(owner, "AdvancedShader_ColorPanel_Lock", this, new Vector2(80f, size.y - 40f), 165f, "Sync colors: ", ["NO", "YES"]));
+			subNodes.Add(resetButton = new Button(owner, "AdvancedShader_ColorPanel_Reset", this, new Vector2(80f, size.y - 60f), 165f, "Reset colors"));
 
 			restrictColorsButton.currentAlternative = data.restrictColors ? 1 : 0;
 			restrictColorsButton.Text = restrictColorsButton.baseName + restrictColorsButton.alternatives[restrictColorsButton.currentAlternative];
@@ -39,7 +39,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 			lastColors = new Color[data.vertices.Length];
 			for (int i = 0; i < data.vertices.Length; i++)
 			{
-				colorControls[i] = new UnboundRGBAControl(owner, $"AdvancedShader_ColorPanel_Vertex{i}", this, new Vector2(5f, 5f + 100f * (data.vertices.Length - i - 1)), 240f, data.colors[i], data.restrictColors, $"Vertex {i}");
+				colorControls[i] = new UnboundRGBAControl(owner, $"AdvancedShader_ColorPanel_Vertex{i}", this, new Vector2(5f, size.y - 85f - 100f * (i + 1)), 240f, data.colors[i], data.restrictColors, $"Vertex {i}");
 				subNodes.Add(colorControls[i]);
 				lastColors[i] = data.colors[i];
 			}

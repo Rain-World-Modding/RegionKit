@@ -18,7 +18,7 @@ internal static class _Module
 				wind._placedObj.data = new WindSystem.WindData(data, wind._placedObj);
 				return wind;
 				})
-			.SetCategory("RegionKit")
+			.SetCategory(Effects._Enums.RegionKit_Gameplay.value)
 			.Register();
 	}
 	public static void Enable()

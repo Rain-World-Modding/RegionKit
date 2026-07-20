@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.AridBarrens;
+﻿namespace RegionKit.Modules.AridBarrens;
 
 public static class _Enums
 {
@@ -7,10 +7,5 @@ public static class _Enums
 	/// </summary>
 	/// <returns></returns>
 	public static RoomSettings.RoomEffect.Type SandStorm = new(nameof(SandStorm), true);
-	/// <summary>
-	/// SandPuffs effect from AridBarrens
-	/// </summary>
-	/// <returns></returns>
-	public static RoomSettings.RoomEffect.Type SandPuffs = new(nameof(SandPuffs), true);
 
 }

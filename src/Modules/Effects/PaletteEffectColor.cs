@@ -1,4 +1,4 @@
-using EffExt;
+﻿using EffExt;
 
 namespace RegionKit.Modules.Effects
 {
@@ -11,7 +11,7 @@ namespace RegionKit.Modules.Effects
 			{
 				EffectDefinitionBuilder builder = new EffectDefinitionBuilder("PaletteEffectColorA");
 				builder
-					.SetCategory("RegionKit")
+					.SetCategory(_Enums.RegionKit_Decoration.value)
 					.Register();
 			}
 			catch (Exception ex)
@@ -23,7 +23,7 @@ namespace RegionKit.Modules.Effects
 			{
 				EffectDefinitionBuilder builder = new EffectDefinitionBuilder("PaletteEffectColorB");
 				builder
-					.SetCategory("RegionKit")
+					.SetCategory(_Enums.RegionKit_Decoration.value)
 					.Register();
 			}
 			catch (Exception ex)

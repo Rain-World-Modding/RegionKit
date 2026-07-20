@@ -5,8 +5,7 @@ public static class RainWorldTools
 	/// <summary>
 	/// Current RainWorld instance. Uses Unity lookup, may be slow.
 	/// </summary>
-	public static RainWorld CRW
-		=> UnityEngine.Object.FindObjectOfType<RainWorld>();
+	public static RainWorld CRW => Custom.rainWorld;
 	/// <summary>
 	/// Gets a <see cref="StaticWorld"/> template object by type.
 	/// </summary>
@@ -178,5 +177,11 @@ public static class RainWorldTools
 	{
 		if (incl) return pos.x >= rect.left && pos.x <= rect.right && pos.y >= rect.bottom && pos.y <= rect.top;
 		return pos.x > rect.left && pos.x < rect.right && pos.y > rect.bottom && pos.y < rect.top;
+	}
+
+	public static HSLColor HSL(this Color color)
+	{
+		Vector3 v = Custom.RGB2HSL(color);
+		return new HSLColor(v.x, v.y, v.z);
 	}
 }

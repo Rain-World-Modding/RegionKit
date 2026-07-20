@@ -18,9 +18,18 @@ public class GenericSlider : Slider, IDevUISignals
 
 	bool stringControl;
 
-	float stringWidth;
-	public GenericSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title, bool inheritButton, float titleWidth, float? initialValue = null, bool stringControl = true, float stringWidth = 16) : base(owner, IDstring, parentNode, pos, title, inheritButton, titleWidth)
+	float stringWidth; 
+
+	public float Width => 92f + SliderStartCoord;
+
+    public event OnValueChangedHandler? OnValueChanged;
+
+	public GenericSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title, bool inheritButton, float titleWidth, float? initialValue, float? minValue, float? maxValue, bool stringControl = true, float stringWidth = 16) 
+		: base(owner, IDstring, parentNode, pos, title, inheritButton, titleWidth)
 	{
+		if (minValue != null) this.minValue = minValue.Value;
+		if (maxValue != null) this.maxValue = maxValue.Value;
+		defaultValue = this.minValue;
 		actualValue = (float)((initialValue != null) ? initialValue : defaultValue);
 		this.stringControl = stringControl;
 		this.stringWidth = stringWidth;
@@ -32,7 +41,18 @@ public class GenericSlider : Slider, IDevUISignals
 			if (inheritButton && subNodes[2] is PositionedDevUINode node)
 			{ node.Move(new Vector2(node.pos.x + (stringWidth - 16f), node.pos.y)); }
 		}
+		else
+		{
+			var oldLabel = (subNodes[1] as DevUILabel)!;
+			oldLabel.size.x = stringWidth;
+			oldLabel.fSprites[0].scaleX = stringWidth;
+		}
 	}
+	public GenericSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title, bool inheritButton, float titleWidth, float? initialValue = null, bool stringControl = true, float stringWidth = 16) 
+		: this(owner, IDstring, parentNode, pos, title, inheritButton, titleWidth, initialValue, null, null, stringControl, stringWidth)
+	{
+	}
+
 	private new float SliderStartCoord
 	{
 		get
@@ -51,7 +71,7 @@ public class GenericSlider : Slider, IDevUISignals
 		base.Update();
 		if (owner != null && sliderNub.held)
 		{
-			NubDragged(Mathf.InverseLerp(absPos.x + SliderStartCoord, absPos.x + SliderStartCoord + 92f, owner.mousePos.x + sliderNub.mousePosOffset));
+			NubDragged2(Mathf.InverseLerp(absPos.x + SliderStartCoord, absPos.x + SliderStartCoord + 92f, owner.mousePos.x + sliderNub.mousePosOffset));
 		}
 	}
 
@@ -64,8 +84,10 @@ public class GenericSlider : Slider, IDevUISignals
 	{
 		base.Refresh();
 
-		if(valueRounding >= 0)
-		{ actualValue = (float)Math.Round(actualValue, 2); }
+		if (valueRounding >= 0)
+		{ 
+			actualValue = (float)Math.Round(actualValue, 2); 
+		}
 
 		string str = "";
 		if (actualValue == defaultValue && inheritButton) str = "<D>";
@@ -77,23 +99,33 @@ public class GenericSlider : Slider, IDevUISignals
 		if (stringControl)
 		{ (subNodes[1] as StringControl)!.actualValue = actualValue.ToString(); }
 
-		RefreshNubPos(Mathf.Clamp(Mathf.InverseLerp(minValue, maxValue, actualValue), 0f, 1f));
+		RefreshNubPos(Mathf.InverseLerp(minValue, maxValue, actualValue));
 		MoveSprite(0, absPos + new Vector2(SliderStartCoord, 0f));
 		MoveSprite(1, absPos + new Vector2(SliderStartCoord, 7f));
 	}
 
-	public override void NubDragged(float nubPos)
+
+	public void NubDragged2(float nubPos)
 	{
+		float oldValue = actualValue;
 		actualValue = Mathf.Lerp(minValue, maxValue, nubPos);
 		Refresh();
 
 		this.SendSignal(SliderUpdate, this, "");
+		OnValueChanged?.Invoke(actualValue, oldValue);
+	}
+
+	public override void NubDragged(float nubPos)
+	{
+		//do nothing so evil vanilla NubDragged with bad math doesn't give the wrong value
 	}
 
 	public override void ClickedResetToInherent()
 	{
+		float oldValue = actualValue;
 		actualValue = defaultValue;
 		Refresh();
+		OnValueChanged?.Invoke(actualValue, oldValue);
 	}
 
 	public new void Signal(DevUISignalType type, DevUINode sender, string message)
@@ -105,12 +137,15 @@ public class GenericSlider : Slider, IDevUISignals
 
 		else if (stringControl && sender.IDstring == IDstring && type == StringControl.StringFinish)
 		{
+			float oldValue = actualValue;
 			actualValue = float.Parse((subNodes[1] as StringControl)!.actualValue);
 			Refresh();
+			OnValueChanged?.Invoke(actualValue, oldValue);
 		}
 
 		this.SendSignal(SliderUpdate, this, "");
 	}
 
 	public static readonly DevUISignalType SliderUpdate = new DevUISignalType("SliderUpdate", true);
+	public delegate void OnValueChangedHandler(float value, float oldValue);
 }

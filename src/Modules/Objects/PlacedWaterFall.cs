@@ -8,7 +8,6 @@ namespace RegionKit.Modules.Objects;
 /// <summary>
 /// a slightly better waterfall
 /// </summary>
-[Obsolete("Use in-game FluxWaterfall set to static.")]
 public class PlacedWaterFall : WaterFall
 {
 	///<inheritdoc/>

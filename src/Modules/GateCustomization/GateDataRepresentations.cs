@@ -15,7 +15,7 @@ internal static class GateDataRepresentations
 
 	internal abstract class GateDataRepresentation : ManagedRepresentation // This is a mess but I wanted dividers between the fields and this works I guess
 	{
-		protected int[] dividers = null;
+		protected int[]? dividers = null;
 		public GateDataRepresentation(PlacedObject.Type type, ObjectsPage objPage, PlacedObject pObj) : base(type, objPage, pObj)
 		{
 		}
@@ -183,7 +183,7 @@ internal static class GateDataRepresentations
 				fSprites[waterTankSprite].x = owner.room.MiddleOfTile(pObj.pos).x - owner.room.game.cameras[0].pos.x + 10f;
 				fSprites[waterTankSprite].y = owner.room.MiddleOfTile(pObj.pos).y - owner.room.game.cameras[0].pos.y + 100f;
 
-				ManagedData data = pObj.data as ManagedData;
+				ManagedData data = (pObj.data as ManagedData)!;
 
 				if (data.GetValue<bool>("water"))
 				{
@@ -226,11 +226,11 @@ internal static class GateDataRepresentations
 		{
 			base.Refresh();
 
-			ManagedData data = pObj.data as ManagedData;
+			ManagedData data = (pObj.data as ManagedData)!;
 
 			if (owner.room.regionGate != null)
 			{
-				ManagedData commonGateData = RegionGateCWT.GetData(owner.room.regionGate).commonGateData;
+				ManagedData? commonGateData = RegionGateCWT.GetData(owner.room.regionGate).commonGateData;
 				if (commonGateData != null)
 				{
 					fSprites[lampNumbersSprite].x = owner.room.MiddleOfTile(commonGateData.GetPosition(owner.room)).x - owner.room.game.cameras[0].pos.x - 10f;
@@ -243,7 +243,7 @@ internal static class GateDataRepresentations
 					fSprites[lampNumbersSprite].alpha = 0.0f;
 				}
 
-				if (owner.room.regionGate is ElectricGate)
+				if (owner.room.regionGate is ElectricGate elecGate)
 				{
 					if (data.GetValue<bool>("lampColorOverride"))
 					{
@@ -251,7 +251,7 @@ internal static class GateDataRepresentations
 						{
 							for (int j = 0; j < 2; j++)
 							{
-								(owner.room.regionGate as ElectricGate).lamps[i, j].color = Color.HSVToRGB(
+								elecGate.lamps[i, j].color = Color.HSVToRGB(
 									data.GetValue<float>("lampHue"),
 									data.GetValue<float>("lampSaturation"),
 									1f
@@ -266,7 +266,7 @@ internal static class GateDataRepresentations
 						{
 							for (int j = 0; j < 2; j++)
 							{
-								(owner.room.regionGate as ElectricGate).lamps[i, j].color = new Color(1f, (j == 0) ? 0.4f : 0.6f, 0f);
+								elecGate.lamps[i, j].color = new Color(1f, (j == 0) ? 0.4f : 0.6f, 0f);
 							}
 						}
 					}

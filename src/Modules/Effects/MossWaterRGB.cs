@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using EffExt;
-using RegionKit.Modules.Objects;
+﻿using EffExt;
 
 namespace RegionKit.Modules.Effects
 {
@@ -24,7 +17,7 @@ namespace RegionKit.Modules.Effects
 					.AddFloatField("Red", 0, 255, 1, 25)
 					.AddFloatField("Height", 0, 1, 0.01f, 1)
 					.SetUADFactory((room, data, firstTimeRealized) => new MossWaterUAD(data))
-					.SetCategory("RegionKit")
+					.SetCategory(_Enums.RegionKit_Decoration.value)
 					.Register();
 			}
 			catch (Exception ex)

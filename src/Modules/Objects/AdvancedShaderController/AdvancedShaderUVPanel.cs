@@ -10,11 +10,15 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 		private readonly UnboundVectorControl[] uvControls;
 		private readonly Vector2[] lastUVs;
 
+		private readonly Button prevPageButton;
+		private readonly Button nextPageButton;
+		private readonly DevUILabel pageLabel;
 		private readonly Cycler restrictUVsButton;
 		private readonly Cycler lockUVsButton;
 		private readonly Button resetButton;
+		private int page;
 
-		public AdvancedShaderUVPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new Vector2(250f, 265f), "Vertex UVs")
+		public AdvancedShaderUVPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new Vector2(250f, 290f), "Vertex UVs")
 		{
 			foreach (FSprite sprite in fSprites)
 			{
@@ -23,23 +27,27 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 				owner.placedObjectsContainer.AddChild(sprite);
 			}
 
-			size = new Vector2(250f, 5f + 60f * data.vertices.Length + 60f);
+			size = new Vector2(250f, 10f + 60f * data.vertices.Length + 80f);
 
-			subNodes.Add(restrictUVsButton = new Cycler(owner, "AdvancedShader_UVPanel_Restrict", this, new Vector2(5f, size.y - 20f), 240f, "Clamp UVs: ", ["NO", "YES"]));
-			subNodes.Add(lockUVsButton = new Cycler(owner, "AdvancedShader_UVPanel_Lock", this, new Vector2(5f, size.y - 40f), 240f, "Sync UVs: ", ["NO", "YES"]));
-			subNodes.Add(resetButton = new Button(owner, "AdvancedShader_UVPanel_Reset", this, new Vector2(5f, size.y - 60f), 240f, "Reset UVs"));
+			subNodes.Add(prevPageButton = new Button(owner, "AdvancedShader_UVPanel_Prev", this, new Vector2(5f, size.y - 20f), 15f, "<"));
+			subNodes.Add(nextPageButton = new Button(owner, "AdvancedShader_UVPanel_Next", this, new Vector2(size.x - 20f, size.y - 20f), 15f, ">"));
+			subNodes.Add(pageLabel = new DevUILabel(owner, "AdvancedShader_UVPanel_PageLabel", this, new Vector2(25f, size.y - 20f), size.x - 50f, ""));
+
+			subNodes.Add(restrictUVsButton = new Cycler(owner, "AdvancedShader_UVPanel_Restrict", this, new Vector2(5f, size.y - 40f), 240f, "Clamp UVs: ", ["NO", "YES"]));
+			subNodes.Add(lockUVsButton = new Cycler(owner, "AdvancedShader_UVPanel_Lock", this, new Vector2(5f, size.y - 60f), 240f, "Sync UVs: ", ["NO", "YES"]));
+			subNodes.Add(resetButton = new Button(owner, "AdvancedShader_UVPanel_Reset", this, new Vector2(5f, size.y - 80f), 240f, "Reset UVs"));
 			restrictUVsButton.currentAlternative = data.restrictUVs ? 1 : 0;
 			restrictUVsButton.Text = restrictUVsButton.baseName + restrictUVsButton.alternatives[restrictUVsButton.currentAlternative];
 			lockUVsButton.currentAlternative = data.lockUVs ? 1 : 0;
 			lockUVsButton.Text = lockUVsButton.baseName + lockUVsButton.alternatives[lockUVsButton.currentAlternative];
 
-			uvControls = new UnboundVectorControl[data.uvs.Length];
-			lastUVs = new Vector2[data.uvs.Length];
-			for (int i = 0; i < data.uvs.Length; i++)
+			uvControls = new UnboundVectorControl[data.uvs[0].Length];
+			lastUVs = new Vector2[data.uvs[0].Length];
+			for (int i = 0; i < uvControls.Length; i++)
 			{
-				uvControls[i] = new UnboundVectorControl(owner, $"AdvancedShader_UVPanel_Vertex{i}", this, new Vector2(5f, 5f + 60f * (data.vertices.Length - i - 1)), 240f, data.uvs[i], data.restrictColors, $"Vertex {i}");
+				uvControls[i] = new UnboundVectorControl(owner, $"AdvancedShader_UVPanel_Vertex{i}", this, new Vector2(5f, size.y - 85f - 60f * (i + 1)), 240f, data.uvs[page][i], data.restrictColors, $"Vertex {i}");
 				subNodes.Add(uvControls[i]);
-				lastUVs[i] = data.uvs[i];
+				lastUVs[i] = data.uvs[page][i];
 			}
 
 			Refresh();
@@ -48,6 +56,8 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 		public override void Refresh()
 		{
 			base.Refresh();
+
+			pageLabel.Text = $"Current channel: {page}";
 			
 			bool restrictUVs = restrictUVsButton.currentAlternative == 1;
 			if (restrictUVs != data.restrictUVs)
@@ -82,7 +92,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 
 			for (int i = 0; i < uvControls.Length; i++)
 			{
-				data.uvs[i] = uvControls[i].Value;
+				data.uvs[page][i] = uvControls[i].Value;
 				lastUVs[i] = uvControls[i].Value;
 			}
 		}
@@ -91,8 +101,20 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 		{
 			if (sender == resetButton)
 			{
-				data.ResetUVs();
+				data.ResetUVs(page);
 				RefreshUVs();
+			}
+			else if (sender == prevPageButton)
+			{
+				page = Mathf.Clamp(page - 1, 0, 7);
+				RefreshUVs();
+				Refresh();
+			}
+			else if (sender == nextPageButton)
+			{
+				page = Mathf.Clamp(page + 1, 0, 7);
+				RefreshUVs();
+				Refresh();
 			}
 		}
 
@@ -100,7 +122,8 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 		{
 			for (int i = 0; i < uvControls.Length; i++)
 			{
-				uvControls[i].Value = data.uvs[i];
+				uvControls[i].Value = data.uvs[page][i];
+				lastUVs[i] = data.uvs[page][i];
 			}
 		}
 	}

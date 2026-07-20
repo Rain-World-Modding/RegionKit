@@ -4,8 +4,27 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 
 public class StringControl : DevUILabel
 {
+	protected FSprite[] outlineSprites;
+	public event OnValueChangedHandler? OnValueChanged;
+
 	public StringControl(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, float width, string text, IsTextValid del) : base(owner, IDstring, parentNode, pos, width, text)
 	{
+		outlineSprites = new FSprite[4];
+		for (int i = 0; i < outlineSprites.Length; i++)
+		{
+			outlineSprites[i] = new FSprite("pixel")
+			{
+				anchorX = 0f,
+				anchorY = 0f,
+				color = Color.white,
+				isVisible = false,
+			};
+			fSprites.Add(outlineSprites[i]);
+			if (owner != null)
+			{
+				Futile.stage.AddChild(outlineSprites[i]);
+			}
+		}
 		isTextValid = del;
 		actualValue = text;
 		Text = text;
@@ -15,6 +34,7 @@ public class StringControl : DevUILabel
 	protected bool clickedLastUpdate = false;
 
 
+	public bool sendSignal = true;
 	public string actualValue;
 
 	public override void Refresh()
@@ -22,6 +42,16 @@ public class StringControl : DevUILabel
 		// No data refresh until the transaction is complete :/
 		// TrySet happens on input and focus loss
 		base.Refresh();
+
+		// Update outline sprites
+		outlineSprites[0].SetPosition(absPos - Vector2.one * 0.99f);
+		outlineSprites[0].scaleX = size.x + 2;
+		outlineSprites[1].SetPosition(absPos - Vector2.one * 0.99f);
+		outlineSprites[1].scaleY = size.y + 2;
+		outlineSprites[2].SetPosition(absPos + new Vector2(0f, size.y) + Vector2.one * 0.01f);
+		outlineSprites[2].scaleX = size.x + 1;
+		outlineSprites[3].SetPosition(absPos + new Vector2(size.x, 0f) + Vector2.one * 0.01f);
+		outlineSprites[3].scaleY = size.y + 1;
 	}
 
 	public override void Update()
@@ -58,7 +88,7 @@ public class StringControl : DevUILabel
 				{
 					if (Text.Length != 0)
 					{
-						Text = Text.Substring(0, Text.Length - 1);
+						Text = Text[..^1];
 						TrySetValue(Text, false);
 					}
 				}
@@ -76,6 +106,13 @@ public class StringControl : DevUILabel
 				}
 			}
 		}
+
+		// Update outline sprite visibility
+		bool focused = ManagedStringControl.activeStringControl == this;
+		foreach (FSprite sprite in outlineSprites)
+		{
+			sprite.isVisible = focused;
+		}
 	}
 
 	public delegate bool IsTextValid(string value);
@@ -85,22 +122,37 @@ public class StringControl : DevUILabel
 
 	protected virtual void TrySetValue(string newValue, bool endTransaction)
 	{
+		if (fLabels.Count == 0) return;
+		Color outlineColor = Color.white;
 		if (isTextValid(newValue))
 		{
+			string oldValue = actualValue;
 			actualValue = newValue;
 			fLabels[0].color = new Color(0.1f, 0.4f, 0.2f);
-			this.SendSignal(StringEdit, this, "");
+			foreach (FSprite sprite in outlineSprites)
+			{
+				sprite.color = Color.white;
+			}
+			if (sendSignal)
+				this.SendSignal(StringEdit, this, "");
+			OnValueChanged?.Invoke(newValue, oldValue);
 		}
 		else
 		{
 			fLabels[0].color = Color.red;
+			outlineColor = Color.red;
+		}
+		foreach (FSprite sprite in outlineSprites)
+		{
+			sprite.color = outlineColor;
 		}
 		if (endTransaction)
 		{
 			Text = actualValue;
 			fLabels[0].color = Color.black;
 			Refresh();
-			this.SendSignal(StringFinish, this, "");
+			if (sendSignal)
+				this.SendSignal(StringFinish, this, "");
 		}
 	}
 
@@ -108,10 +160,19 @@ public class StringControl : DevUILabel
 	{
 		return float.TryParse(value, out _);
 	}
+	public static bool TextIsPositiveFloat(string value)
+	{
+		return float.TryParse(value, out var f) && f >= 0;
+	}
 
 	public static bool TextIsInt(string value)
 	{
 		return (int.TryParse(value, out int i) && i.ToString() == value);
+	}
+
+	public static bool TextIsIntNonNegative(string value)
+	{
+		return (int.TryParse(value, out int i) && i >= 0 && i.ToString() == value);
 	}
 	public static bool TextIsColor(string value)
 	{
@@ -132,4 +193,5 @@ public class StringControl : DevUILabel
 
 	public static readonly DevUISignalType StringEdit = new DevUISignalType("StringEdit", true);
 	public static readonly DevUISignalType StringFinish = new DevUISignalType("StringFinish", true);
+	public delegate void OnValueChangedHandler(string value, string oldValue);
 }

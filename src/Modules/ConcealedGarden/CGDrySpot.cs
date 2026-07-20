@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 using System.Text.RegularExpressions;
 using MonoMod.RuntimeDetour;
-using RWCustom;
-using UnityEngine;
 
 namespace RegionKit.Modules.ConcealedGarden;
 
-[Obsolete("DrySpot is in-game now.")]
 internal class CGDrySpot : UpdatableAndDeletable, IDrawable
 {
 	internal static class Hooks

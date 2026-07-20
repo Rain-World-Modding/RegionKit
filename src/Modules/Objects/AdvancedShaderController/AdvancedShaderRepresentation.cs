@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
+using System.Text.RegularExpressions;
 using DevInterface;
-using Steamworks;
+using RegionKit.Modules.DevUIMisc.GenericNodes;
 using Watcher;
 
 namespace RegionKit.Modules.Objects.AdvancedShaderController
@@ -189,9 +186,12 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 			public AdvancedShader.Data data => rep.data;
 
 			private readonly Button shaderSelectButton, spriteSelectButton, lockNone, lockShape, lockSquare, lockRect, colorsButton, uvsButton;
+			private readonly Cycler spriteFileCycler;
 			private readonly ArrowButton containerLeft, containerRight;
 			private readonly DevUILabel containerLabel;
-			private CustomDecalRepresentation.SelectDecalPanel? shaderSelectPanel, spriteSelectPanel;
+
+			private SelectPanel? shaderSelectPanel, spriteSelectPanel;
+			private FilePicker? filePicker;
 
 			private AdvancedShaderColorPanel? colorPanel;
 			private AdvancedShaderUVPanel? uvPanel;
@@ -201,8 +201,11 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 				subNodes.Add(new DevUILabel(owner, "AdvancedShader_Label_Shader", this, new Vector2(5f, 85f), 50f, "Shader: "));
 				subNodes.Add(shaderSelectButton = new Button(owner, "AdvancedShader_Button_Shader", this, new Vector2(60f, 85f), 180f, data.shader));
 
-				subNodes.Add(new DevUILabel(owner, "AdvancedShader_Label_Sprite", this, new Vector2(5f, 65f), 50f, "Sprite: "));
-				subNodes.Add(spriteSelectButton = new Button(owner, "AdvancedShader_Button_Sprite", this, new Vector2(60f, 65f), 180f, data.spriteName));
+				subNodes.Add(spriteFileCycler = new Cycler(owner, "AdvancedShader_Label_Sprite", this, new Vector2(5f, 65f), 50f, "", ["Sprite: ", "File: "]));
+				subNodes.Add(spriteSelectButton = new Button(owner, "AdvancedShader_Button_Sprite", this, new Vector2(60f, 65f), 180f, data.useFile ? data.filePath : data.spriteName));
+
+				spriteFileCycler.currentAlternative = data.useFile ? 1 : 0;
+				spriteFileCycler.Text = spriteFileCycler.baseName + spriteFileCycler.alternatives[spriteFileCycler.currentAlternative];
 
 				subNodes.Add(new DevUILabel(owner, "AdvancedShader_Label_Shape", this, new Vector2(5f, 45f), 44f, "Shape: "));
 				subNodes.Add(lockNone = new Button(owner, "AdvancedShader_Button_LockNone", this, new Vector2(54f, 45f), 44f, "None"));
@@ -244,6 +247,33 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 				}
 			}
 
+			public override void Update()
+			{
+				base.Update();
+
+				bool currSpriteFileCycle = spriteFileCycler.currentAlternative == 1;
+				if (data.useFile != currSpriteFileCycle)
+				{
+					if (spriteSelectPanel != null)
+					{
+						subNodes.Remove(spriteSelectPanel);
+						spriteSelectPanel.ClearSprites();
+						spriteSelectPanel = null;
+					}
+					if (filePicker != null)
+					{
+						subNodes.Remove(filePicker);
+						filePicker.ClearSprites();
+						filePicker = null;
+					}
+
+					data.useFile = currSpriteFileCycle;
+
+					spriteSelectButton.Text = data.useFile ? data.filePath : data.spriteName;
+					rep.shaderInstance.CompletelyRefreshSprite();
+				}
+			}
+
 			public void Signal(DevUISignalType type, DevUINode sender, string message)
 			{
 				if (sender == shaderSelectButton)
@@ -256,31 +286,68 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 					}
 					else
 					{
-						shaderSelectPanel = new CustomDecalRepresentation.SelectDecalPanel(owner, this, new Vector2(250f, 15f) - absPos, [.. Custom.rainWorld.Shaders.Keys.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)])
+						string[] shaders = [.. Custom.rainWorld.Shaders.Keys.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+						shaderSelectPanel = new AdvancedShaderSelectPanel(owner, "AdvancedShader_ShaderSelect", this, new Vector2(250f, 15f) - absPos, "Select Shader", shaders, data.shader);
+						int index = shaders.IndexOfComparable(data.shader, StringComparer.Ordinal);
+						if (index >= 0)
 						{
-							Title = "Select Shader"
-						};
+							shaderSelectPanel.PopulateItems((index / shaderSelectPanel.perpage) * shaderSelectPanel.perpage);
+						}
 						subNodes.Add(shaderSelectPanel);
 					}
 				}
 				else if (sender == spriteSelectButton)
 				{
-					if (spriteSelectPanel != null)
+					if (!data.useFile)
 					{
-						subNodes.Remove(spriteSelectPanel);
-						spriteSelectPanel.ClearSprites();
-						spriteSelectPanel = null;
+						if (spriteSelectPanel != null)
+						{
+							subNodes.Remove(spriteSelectPanel);
+							spriteSelectPanel.ClearSprites();
+							spriteSelectPanel = null;
+						}
+						else
+						{
+							string[] sprites = [.. Futile.atlasManager._allElementsByName.Keys.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)];
+							spriteSelectPanel = new AdvancedShaderSelectPanel(owner, "AdvancedShader_SpriteSelect", this, new Vector2(250f, 15f) - absPos, "Select Sprite", sprites, data.spriteName);
+							int index = sprites.IndexOfComparable(data.spriteName, StringComparer.Ordinal);
+							if (index >= 0)
+							{
+								spriteSelectPanel.PopulateItems((index / spriteSelectPanel.perpage) * spriteSelectPanel.perpage);
+							}
+							subNodes.Add(spriteSelectPanel);
+						}
 					}
 					else
 					{
-						spriteSelectPanel = new CustomDecalRepresentation.SelectDecalPanel(owner, this, new Vector2(250f, 15f) - absPos, [.. Futile.atlasManager._allElementsByName.Keys.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)])
+						if (filePicker != null)
 						{
-							Title = "Select Sprite"
-						};
-						subNodes.Add(spriteSelectPanel);
+							subNodes.Remove(filePicker);
+							filePicker.ClearSprites();
+							filePicker = null;
+						}
+						else
+						{
+							filePicker = new FilePicker(owner, "AdvancedShader_FilePicker", this, new Vector2(250f, 15f) - absPos, Path.GetDirectoryName(data.filePath), FilePicker.PNGRegex);
+							filePicker.SetPageToItem(Path.GetFileName(data.filePath));
+							subNodes.Add(filePicker);
+						}
 					}
 				}
-				else if (sender.parentNode is CustomDecalRepresentation.SelectDecalPanel selectPanel)
+				else if (sender is FilePicker)
+				{
+					if (filePicker != null)
+					{
+						data.filePath = message;
+						spriteSelectButton.Text = data.filePath;
+						rep.shaderInstance.CompletelyRefreshSprite();
+
+						subNodes.Remove(filePicker);
+						filePicker.ClearSprites();
+						filePicker = null;
+					}
+				}
+				else if (sender.parentNode is SelectPanel selectPanel)
 				{
 					if (sender.IDstring == "BackPage99289..?/~")
 					{
@@ -290,7 +357,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 					{
 						selectPanel.NextPage();
 					}
-					else
+					else if (sender.IDstring != "Search99289..?/~")
 					{
 						if (selectPanel == shaderSelectPanel)
 						{
@@ -303,7 +370,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 						else if (selectPanel == spriteSelectPanel)
 						{
 							data.spriteName = sender.IDstring;
-							data.ResetUVs();
+							data.ResetUVs(0);
 							uvPanel?.RefreshUVs();
 							spriteSelectButton.Text = data.spriteName;
 							subNodes.Remove(spriteSelectPanel);

@@ -12,7 +12,7 @@ namespace RegionKit.Modules.Effects
             try
             {
                 new EffectDefinitionBuilder("Suffocation")
-                    .SetCategory("RegionKit")
+                    .SetCategory(_Enums.RegionKit_Gameplay.value)
                     .Register();
             }
             catch (Exception ex)

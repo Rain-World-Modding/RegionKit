@@ -88,4 +88,16 @@ public class _Enums
 	/// Customizable SSFuses
 	/// </summary>
 	public static PlacedObject.Type ColoredSSFuses = new(nameof(ColoredSSFuses), true);
+	/// <summary>
+	/// Customizable mud pit
+	/// </summary>
+	public static PlacedObject.Type ColoredMudPit = new(nameof(ColoredMudPit), true);
+	/// <summary>
+	/// Green sparks direction object
+	/// </summary>
+	public static PlacedObject.Type GreenSparksDir = new(nameof(GreenSparksDir), true);
+	/// <summary>
+	/// Colored local blizzard
+	/// </summary>
+	public static PlacedObject.Type ColoredLocalBlizzard = new(nameof(ColoredLocalBlizzard), true);
 }

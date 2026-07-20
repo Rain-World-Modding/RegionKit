@@ -25,19 +25,15 @@ namespace RegionKit.OptionsMenu
 		public DateTime ActualBakeStartTime;
 		public bool Baking = false;
 
-		public readonly Configurable<int> Threads;
-		public readonly Configurable<bool> ForceBake;
-		public readonly Configurable<bool> HiddenSlugcats;
+		public OpDragger? ThreadsInput = null;
+		public OpCheckBox? ForceBakeInput = null;
+		public OpCheckBox? HiddenSlugcatsInput = null;
 		public readonly Dictionary<string, OpCheckBox> Regions = new();
 
 		private int _updateTimer;
 
 		public TurboBakerTab(OptionInterface owner) : base(owner, "Bakery")
 		{
-			Threads ??= owner.config.Bind(nameof(Threads), Mathf.CeilToInt(Environment.ProcessorCount * 0.5f), new ConfigAcceptableRange<int>(1, Environment.ProcessorCount));
-			ForceBake ??= owner.config.Bind(nameof(ForceBake), false);
-			HiddenSlugcats ??= owner.config.Bind(nameof(HiddenSlugcats), false);
-
 			var regions = Region.GetFullRegionOrder();
 
 			foreach (var region in regions)
@@ -51,12 +47,15 @@ namespace RegionKit.OptionsMenu
 			OpScrollBox scrollBox = null!;
 			UIelement[] elements = new UIelement[]
 			{
-				new OpCheckBox(ForceBake, 10, 560),
+				ForceBakeInput = new OpCheckBox(OIUtil.CosmeticBind(false), 10, 560),
 				new OpLabel(45f, 560f, "Rebake All Rooms"),
-				new OpCheckBox(HiddenSlugcats, 10, 520),
+
+				HiddenSlugcatsInput = new OpCheckBox(OIUtil.CosmeticBind(false), 10, 520),
 				new OpLabel(45f, 520f, "Include Hidden Slugcats"),
-				new OpDragger(Threads, 10, 480),
+
+				ThreadsInput = new OpDragger(OIUtil.CosmeticRange(Mathf.CeilToInt(Environment.ProcessorCount * 0.5f), 1, Environment.ProcessorCount), 10, 480),
 				new OpLabel(45f, 480f, "Baking Threads"),
+
 				scrollBox = new OpScrollBox(Vector2.zero, new Vector2(120f, 440f), Regions.Count * RegionCheckboxHeight, false, false),
 				new OpLabel(10f, 450, "Regions:"),
 				BakeButton = new OpSimpleButton(new Vector2(130, 0), new Vector2(80, 30), "Bake!"),
@@ -94,24 +93,38 @@ namespace RegionKit.OptionsMenu
 			if (!Baking) return;
 
 			_updateTimer++;
-			if (_updateTimer < 40) return;
+			if (_updateTimer < 5) return; // 8 times a second
 
 			_updateTimer = 0;
 
 			var activeTasks = Tasks.Where(x => x.Started && !x.Finished).ToList();
 
-			for (int i = 0; i < activeTasks.Count && i < ThreadLabels.Count; i++)
+			if (Tasks.Count > 0)
 			{
-				TaskData task = activeTasks[i];
-				OpLabel label = ThreadLabels[i];
-
-				TimeSpan duration;
-				lock (task)
+				for (int i = 0; i < ThreadLabels.Count; i++)
 				{
-					duration = task.Duration;
-				}
+					OpLabel label = ThreadLabels[i];
+					if (i < activeTasks.Count)
+					{
+						TaskData task = activeTasks[i];
 
-				label.text = $"{task.Room}: {duration.Minutes:D2}:{duration.Seconds:D2}";
+						TimeSpan duration;
+						lock (task)
+						{
+							duration = task.Duration;
+						}
+
+						label.text = $"{task.Room}: {duration.Minutes:D2}:{duration.Seconds:D2}";
+					}
+					else
+					{
+						label.text = "";
+					}
+				}
+			}
+			else
+			{
+				ThreadLabels[0].text = "Loading regions...";
 			}
 
 			int finished = Tasks.Count(x => x.Finished);
@@ -123,7 +136,7 @@ namespace RegionKit.OptionsMenu
 
 			StatusLabel!.text = statusText;
 
-			if (finished == Tasks.Count)
+			if (Tasks.Count > 0 && finished == Tasks.Count)
 			{
 				Baking = false;
 				Tasks.Clear();
@@ -141,18 +154,23 @@ namespace RegionKit.OptionsMenu
 				return;
 			}
 
+			foreach (var label in ThreadLabels)
+			{
+				label.text = "";
+			}
+
 			Baking = true;
 			trigger.greyedOut = true;
 			BakeStartTime = DateTime.Now;
-			TurboBake();
+			Task.Run(() => TurboBake()); // offload it to another thread so it doesn't cause a huge lagspike loading all the regions
 		}
 
 		public void TurboBake()
 		{
 			try
 			{
-				bool includeHiddenSlugcats = HiddenSlugcats.Value;
-				bool forceRebake = ForceBake.Value;
+				bool includeHiddenSlugcats = HiddenSlugcatsInput!.GetValueBool();
+				bool forceRebake = ForceBakeInput!.GetValueBool();
 
 				var regionsToBake = Regions.Where(x => x.Value.GetValueBool()).Select(x => x.Key).ToList();
 				if (DEBUG) LogInfo("REGIONS TO BAKE: " + string.Join(", ", regionsToBake));
@@ -255,7 +273,7 @@ namespace RegionKit.OptionsMenu
 				Tasks = Tasks.OrderByDescending(x => x.Size).ToList();
 
 				ActualBakeStartTime = DateTime.Now;
-				new Thread(() => Parallel.Invoke(new ParallelOptions { MaxDegreeOfParallelism = Threads.Value }, Tasks.Select(x => x.BakingTask).ToArray())).Start();
+				new Thread(() => Parallel.Invoke(new ParallelOptions { MaxDegreeOfParallelism = ThreadsInput!.GetValueInt() }, Tasks.Select(x => x.BakingTask).ToArray())).Start();
 
 				if (DEBUG) LogInfo("Created thread");
 			}

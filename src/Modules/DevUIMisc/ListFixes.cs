@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 
@@ -33,7 +28,9 @@ internal static class ListFixes
 		{
 			string noExtension = Path.GetFileNameWithoutExtension(file);
 			if (!songs.Contains(noExtension) && Path.GetExtension(file).ToLower() != ".meta")
-			{ songs.Add(noExtension); }
+			{ 
+				songs.Add(noExtension); 
+			}
 		}
 
 		self.songNames = songs.ToArray();
@@ -42,11 +39,10 @@ internal static class ListFixes
 	private static void SoundPage_ctor(ILContext il)
 	{
 		var c = new ILCursor(il);
-		if (c.TryGotoNext(MoveType.Before, x => x.MatchLdstr("soundeffects/ambient")))
+		if (c.TryGotoNext(MoveType.After, x => x.MatchLdstr("soundeffects/ambient")))
 		{
-			c.MoveAfterLabels();
+			c.Emit(OpCodes.Pop);
 			c.Emit(OpCodes.Ldstr, "loadedsoundeffects/ambient");
-			c.Remove();
 		}
 	}
 }

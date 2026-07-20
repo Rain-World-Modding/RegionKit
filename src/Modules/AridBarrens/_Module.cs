@@ -32,10 +32,10 @@ public static class _Module
 			{
 				self.AddObject(new SandStorm(self.roomSettings.effects[k], self));
 			}
-			else if (self.roomSettings.effects[k].type == _Enums.SandPuffs)
+			/*else if (self.roomSettings.effects[k].type == _Enums.SandPuffs)
 			{
 				self.AddObject(new SandPuffsScene(self.roomSettings.effects[k], self));
-			}
+			}*/
 		}
 	}
 }

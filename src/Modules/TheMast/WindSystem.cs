@@ -4,7 +4,7 @@ using Random = UnityEngine.Random;
 //Made by Slime_Cubed and Doggo
 namespace RegionKit.Modules.TheMast
 {
-	internal static class WindSystem
+	public static class WindSystem
 	{
 		public static void Apply()
 		{
@@ -86,7 +86,7 @@ namespace RegionKit.Modules.TheMast
 				_placedObj = pObj;
 			}
 
-			private WindData Data => (WindData)_placedObj.data;
+			public WindData Data => (WindData)_placedObj.data;
 
 			public override void Update(bool eu)
 			{
@@ -212,7 +212,7 @@ namespace RegionKit.Modules.TheMast
 				if (Data._effectExtraData != null) Data.EffectsUpdate();
 			}
 
-			private float ApplyWind(float vel, float target, float force)
+			public float ApplyWind(float vel, float target, float force)
 			{
 				if (Mathf.Sign(vel) == Mathf.Sign(target) && (Mathf.Abs(vel) > Mathf.Abs(target))) return vel;
 				return Mathf.Lerp(vel, target, force);
@@ -230,7 +230,8 @@ namespace RegionKit.Modules.TheMast
 				new Vector2(-_sqrt2, -_sqrt2) * 0.5f,
 				new Vector2(-_sqrt2,  _sqrt2) * 0.5f
 			};
-			private float EstimateOverlap(BodyChunk c)
+
+			public float EstimateOverlap(BodyChunk c)
 			{
 				WindData wd = (WindData)_placedObj.data;
 				float o = 0f;
@@ -244,7 +245,7 @@ namespace RegionKit.Modules.TheMast
 				return o;
 			}
 
-			private bool WindAffectsPoint(Vector2 p)
+			public bool WindAffectsPoint(Vector2 p)
 			{
 				if (Data._effectExtraData != null) return true;
 				p -= _placedObj.pos;
@@ -252,7 +253,7 @@ namespace RegionKit.Modules.TheMast
 			}
 
 			// From https://blackpawn.com/texts/pointinpoly/
-			private static bool TriContainsPoint(Vector2 p, Vector2 a, Vector2 b, Vector2 c)
+			public static bool TriContainsPoint(Vector2 p, Vector2 a, Vector2 b, Vector2 c)
 			{
 				// Compute vectors        
 				Vector2 v0 = c - a;

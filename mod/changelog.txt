@@ -1,0 +1,265 @@
+3.19.0
+---
+* General additions:
+  * New objects: ColoredMudPit, GreenSparksDir, & ColoredLocalBlizzard
+  * New effects: FlatFog & RainPaletteFade
+  * New insects: Seedlings, RippleFlies, RippleGlowworms, and SITinyDragonflies
+  * New floating debris: Colored Dust, Ripple Ring, & Ripple Smooth
+  * BGFlatLight has 2 new modes
+* Dev tools changes:
+  * Fade palette sliders are now paged after 20 screens
+  * A lot of selection panels now have search bars
+    * Includes select panels for decals, sounds, & songs
+  * The select song panel in the triggers menu was revamped
+    * Paged, smaller, and can preview songs in-editor
+  * Most panels no longer uncollapse when an object is added/removed
+* Triggers tab:
+  * New event triggers: Rect, Quad, ScavengerOutpost, & PickUpObject
+  * New triggered events: SpawnCreature, AddFadePalette, PlaySound, RegionBump, & Explode
+  * SeeCreature event is now implemented
+* ExtendedGates changes:
+  * Ripple requirements (art by @inspectnerd)
+  * Reinforced karma requirements (art by @user23848)
+  * Extra gate requirements system (partly by @ko5i). See documentation on the GitHub
+* BackgroundBuilder changes:
+  * Added groups
+    * Denoted by a `GROUP` element
+    * Lines after that begin with `- ` are considered part of the group
+    * Can be nested
+  * You can now edit background scenes within the game
+  * Thanks @bro748
+* AdvancedShader changes:
+  * Can now use files
+  * Can now edit all 8 UV channels
+* Bugfixes/other:
+  * RegionKit objects will now clamp to the screen correctly
+  * Some objects/creatures have been made immune to Spikes to prevent game crashes
+  * Palette effect color now works again
+  * TurboBaker inputs work now
+  * Lightning effect bugfix when no fade palette
+  * Fixed terrain shader incompatibility
+  * RegionKit effects recategorization
+
+3.18.1
+---
+* Fixed incompatibility with Sharpener (caused the black screen issue)
+* Temporarily disabled LocustSwarm effect as it was causing crashes
+
+3.18.0
+---
+* Completely overhauled the shelter behaviors system into separate objects
+* Modder decal collection, with over 160 decals free to use in any region (with RegionKit)
+* Added BGFlatLight
+* Added AdvancedShader
+* Added BigWaterWheel
+* Added ColoredSSFuses (and equivalent region properties, SSFuseActiveColor and SSFuseBrokenColor)
+* Added extra containers to FreeformDecalOrSprite
+* Added effect colors to some color selection items in-game
+* Added a tutorial for construction gates
+* Added two floating debris types: "RK Dust" and "RK White Dust"
+* DenseFog now works with precycles (thanks @tpd1864blake)
+* Added LocustSwarm (thanks @tpd1864blake)
+* Fixed a shader incompatibility with terrain, dynamic level elements, and some other stuff
+
+3.17.7 Quick Bugfix for RW 1.11 Compatibility
+---
+* Fixes a small bug from the previous version which prevented DangleFruit from being eaten
+
+3.17.6: RW 1.11 & Watcher 1.5 Compatibility
+---
+* Update to be compatible with the new version of the game, but also includes some other bugfixes and performance improvements
+
+3.17.5
+---
+* Insect Picker by Isbjorn
+* Pole Plant Color effect and echo white plants fix by M4rbleL1ne
+* Palette Effect Colors by Seroen
+
+3.17.3
+---
+* Several bugfixes since 3.17.0
+* Several undocumented BackgroundBuilder features to support Watcher backgrounds
+
+3.17.0
+---
+* RainSiren effect
+* Suffocation effect
+* Spike object
+* WaterFallDepth object
+* NoDropwigPerchZone object
+* Fix Echo Extender
+* Fix Turbo Baker crash
+* Fix flickering with ReplaceEffectColor when pausing
+* New effects category for insect effects
+* Updated credits for the first time in forever
+
+3.16.2
+---
+* Updated to game version 1.10.2 and added PCPlayerSensitiveLightSource
+
+3.16.1.1: Game update compatibility
+---
+* Now compatible with game version 1.10.1 and backwards compatible with previous game versions
+* Slight performance improvements for mosquito insect by M4rblel1ne
+
+3.16.1
+---
+[NEW FEATURES]
+* Echo Extender support for localizations
+* more Tat txt arts
+[BUGFIXES]
+* Fixes Openalt art
+* Fixes slugcat not being visible in the void sea
+
+3.16
+---
+[NEW FEATURES]
+* Multi-color Snow Sources by LudoCrypt
+* Zipper insects by Alduris
+* No Batfly Lurk Zone by Alduris
+* Turbo Baker by Vigaro, integrated by Alduris
+* WaterWarble shader by Cactus
+* FanLight by M4rbleL1ne (ported from Howling Rift Code Stuff)
+* DenseFog by M4rbleL1ne (ported from Foresaken Station Code Stuff)
+* BackgroundBuilder rubble config & sprite container config by Bro
+* Inspector Recolor Property by Bro
+* Additional ExtendedGates alt artwork by Tat011
+[BUGFIXES]
+* SpinningFans don't break other sprites (fixed by DryCryCrystal)
+* SteamHazard not FPS dependent (fixed by Alduris)
+
+3.15.2
+---
+* Colored snow now changes colors for dusk and night
+* New FullRoomWind effect
+
+3.15.1
+---
+* RGB snow now works without MSC
+* BackgroundBuilder atmosphereColor and multiplyColor now work with day\night cycle
+  See the release notes for RegionKit 3.15 for the changes in the major update
+
+3.15
+---
+[NEW FEATURES]
+* HSLSnow and RGBElectricDeath effects by Cactus
+* EffectColorButterfly insect by Alduris
+* Remix menu by Forthbridge, which lets you enable or disable some controversial features
+* SlipperyZone object by Bro
+* Some new BackgroundBuilder features by Bro, finally supporting the Metropolis background
+
+3.14
+---
+[CHANGES]
+* Add MurkyWater and ReflectiveWater effects by ASlightlyOvergrownCactus
+* Improved Shortcut Cannons that now work underwater with 7 levels by Bro
+* BackgroundBuilder RoofTopView fix by Bro
+* FadePalettes in room templates by Bro
+* AlphaColor shader by Henpemaz and ColorEffect shader by Vigaro
+* DecalPreviewer by IsBjorn
+* Many bugfixes; WindRect no longer deletes all objects, BackgroundBuilder RoofTopView sprites appear in the right positions, Fog & Backgrounds can appear in gates and shelters, Machinery shaders load properly now
+
+This update does not yet include ways to disable undesired features
+
+Enjoy your coal
+---
+[CHANGES]
+* Fixes exception caused by shaders being loaded twice. by @Isbjorn52
+* Change default thickness of CGCosmeticLeaves by @henpemaz
+* Misc Fixes by @Bro748
+* Add MossWaterRGB by @ASlightlyOvergrownCactus
+* Fixed issue where not all gate graphics were positioned correctly by @Isbjorn52
+* CustomProjections, GuardProtectNode, & MiscObjects category population by @Bro748
+* Add devtools iggy by @thalber
+* Unfuck machinery by @thalber
+
+This poorly-holiday-timed update contains exactly one unnecessary, unrequested and annoying Clippy clone with animation loop by MerFaruk. The two people out there using RegionKit.Machinery can now benefit from V2 which has the exact same feature set, no documentation (yet) and the benefit of not being completely unmaintainable on the inside this time (V1 doesn't work at all anymore, have fun redevtooling).
+
+[NEW CONTRIBUTORS]
+* @henpemaz made their first contribution in #54
+
+3.12
+---
+[CHANGES]
+* Fix RainSong crashes by @SortaUnknown in #44
+* Minor Bugfixes by @Bro748 in #43
+* mergeback rainsong fixes by @thalber in #46
+* Add logfix by @thalber in #45
+* Gate Customization by @Isbjorn52 in #48
+* Individual Placed Object Viewer by @Isbjorn52 in #49
+
+3.11.1
+---
+* Fixed excessive logging
+
+3.11
+---
+[CHANGES]
+* Add customizable wall mycelia by @MatheusVigaro
+* Add Rain song by @SortaUnknown
+* Add slideshowobject by @thalber
+* Fade palette combiner by @Isbjorn52
+[NEW CONTRIBUTORS]
+* @SortaUnknown made their first contribution in #38
+* @Isbjorn52 made their first contribution in #39
+
+3.10.1
+---
+* Fix climbablearc regression by @thalber
+
+3.10
+---
+[CHANGES]
+* Add support for animated decals by @SlimeCubed
+* Added MossWater Shader by @ASlightlyOvergrownCactus
+* Natively merge the Superstructure Fuse Fix mod by @EtiTheSpirit
+* Large fixes and cleaner code for large systems by @Bro748
+* Add the SlugcatEyeSelector object and set the AssetBundleModule reference as private by @MatheusVigaro
+* More Fade Palettes & Slug-Specific Room Setting Templates by @Bro748
+* BigKarmaShrine Object, Categories, & Bugfixes by @Bro748
+[NEW CONTRIBUTORS]
+* @SlimeCubed made their first contribution in #27
+* @ASlightlyOvergrownCactus made their first contribution in #29
+* @EtiTheSpirit made their first contribution in #30
+* @MatheusVigaro made their first contribution in #32
+
+3.9
+---
+* Rainbow related bugfixes by Bro
+
+3.8
+---
+* Rain sensitive lightsources by Suid/NV and Bro
+* BackgroundBuilder by Bro
+* ShortcutCannons by Bro
+* Bugfixes by Bro and Marble
+
+3.7
+---
+* Fix Particle system regressions by @thalber
+
+3.6
+---
+* Settings Panel Fix by @Bro748
+* Improved OSHA compat by @thalber
+
+3.5
+---
+* Settings save fix by @Bro748
+* Popups & Cimbables & object fixes by @Bro748
+* CG Objects by @Bro748
+* ClimbableArc is jumpable by @M4rbleL1ne
+* Mosquito cosmetic insect + Climbable Pole and Climbable Wire by @M4rbleL1ne
+
+3.4
+---
+* Fixes some remaining broken items
+* Adds ShortcutColor
+
+3.3
+---
+* Fix a pwmalf related bug
+
+3.2
+---
+* Contains a bunch of fixes to everything Thalber broke during the porting binge

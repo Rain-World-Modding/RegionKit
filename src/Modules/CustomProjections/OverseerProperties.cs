@@ -14,84 +14,66 @@ internal class OverseerProperties
 
 	public static void Apply()
 	{
-		//IL.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor;
-		On.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor_string_int_int_RainWorldGame_Timeline;
+		_CommonHooks.GeneralUnrecognizedRegionParamProcessor += Region_Ctor;
 	}
 
 	public static void Undo()
 	{
-		IL.Region.ctor_string_int_int_RainWorldGame_Timeline -= Region_ctor;
+		_CommonHooks.GeneralUnrecognizedRegionParamProcessor -= Region_Ctor;
 	}
 
-	private static void Region_ctor_string_int_int_RainWorldGame_Timeline(On.Region.orig_ctor_string_int_int_RainWorldGame_Timeline orig, Region self, string name, int firstRoomIndex, int regionNumber, RainWorldGame game, SlugcatStats.Timeline timelineIndex)
+	public static void Region_Ctor(Region region, string key, string value)
 	{
-		orig(self, name, firstRoomIndex, regionNumber, game, timelineIndex);
-
-		foreach (var pair in self.regionParams.unrecognizedParams)
-			GetOverseerProperties(self).SetProperties([pair.Key, pair.Value]);
+		GetOverseerProperties(region).SetProperties(key, value);
 	}
 
-	private static void Region_ctor(ILContext il)
+	public void SetProperties(string key, string value)
 	{
-		var c = new ILCursor(il);
-		if (c.TryGotoNext(MoveType.AfterLabel,
-			x => x.MatchCall("<PrivateImplementationDetails>", "ComputeStringHash")
-			))
-		{
-			c.Emit(OpCodes.Ldarg_0);
-			c.Emit(OpCodes.Ldloc, 7);
-			c.EmitDelegate((Region self, string[] line) => GetOverseerProperties(self).SetProperties(line));
-		}
-		else { LogMessage("failed to il hook Region.ctor"); }
-	}
-
-	public void SetProperties(string[] line)
-	{
-		switch (line[0])
+		switch (key)
 		{
 		case "guideDestinationRoom":
-			CustomDestinationRoom = line[1];
+			CustomDestinationRoom = value;
 			break;
 
 		case "guideProgressionSymbol":
-			ProgressionSymbol = line[1];
+			ProgressionSymbol = value;
 			break;
 
 		case "guideShelterWeight":
-			float.TryParse(line[1], out ShelterShowWeight);
+			float.TryParse(value, out ShelterShowWeight);
 			break;
 
 		case "guideBatWeight":
-			float.TryParse(line[1], out BatShowWeight);
+			float.TryParse(value, out BatShowWeight);
 			break;
 
 		case "guideProgressionWeight":
-			float.TryParse(line[1], out ProgressionShowWeight);
+			float.TryParse(value, out ProgressionShowWeight);
 			break;
 
 		case "guideDangerousCreatureWeight":
-			float.TryParse(line[1], out DangerousCreatureWeight);
+			float.TryParse(value, out DangerousCreatureWeight);
 			break;
 
 		case "guideDeliciousFoodWeight":
-			float.TryParse(line[1], out DeliciousFoodWeight);
+			float.TryParse(value, out DeliciousFoodWeight);
 			break;
 
 		case "guideColor":
-			if (TryParseOverseerColor(line[1], out var result))
+			if (TryParseOverseerColor(value, out var result))
 			{ guideColor = result; }
 			break;
 
 		case "inspectorColor":
-			if (TryParseOverseerColor(line[1], out var result2))
+			if (TryParseOverseerColor(value, out var result2))
 			{ inspectorColor = result2; }
 			break;
 
 		default:
-			if (line[0].StartsWith("overseersColorOverride"))
+			if (key.StartsWith("overseersColorOverride"))
 			{
-				int start = line[0].IndexOf('(') + 1, end = line[0].IndexOf(')');
-				if (start != -1 && start < end && TryParseOverseerColor(line[0].Substring(start, end - start), out var result3) && float.TryParse(line[1], out var num))
+				int start = key.IndexOf('(') + 1, end = key.IndexOf(')');
+				if (start != -1 && start < end && TryParseOverseerColor(key.Substring(start, end - start), out var result3) && float.TryParse(value, out var num))
 				{ overseerColorChances[result3] = num; }
 			}
 			break;

@@ -5,6 +5,7 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 
 public class PanelSelectButton : Button, IDevUISignals, Modules.Iggy.IGiveAToolTip
 {
+	public string actualValue;
 	public PanelSelectButton(
 		DevUI owner,
 		string IDstring,
@@ -13,7 +14,8 @@ public class PanelSelectButton : Button, IDevUISignals, Modules.Iggy.IGiveAToolT
 		float width,
 		string text,
 		string[] values,
-		string panelName)
+		string panelName,
+		string defaultValue)
 		: base(
 			owner,
 			IDstring,
@@ -25,6 +27,8 @@ public class PanelSelectButton : Button, IDevUISignals, Modules.Iggy.IGiveAToolT
 		this.values = values;
 		itemSelectPanel = null;
 		this.panelName = panelName;
+		this.actualValue = defaultValue;
+		Text = actualValue;
 	}
 
 	public override void Clicked()
@@ -49,17 +53,19 @@ public class PanelSelectButton : Button, IDevUISignals, Modules.Iggy.IGiveAToolT
 		catch (Exception e) { throw e; }
 	}
 
-	public void Signal(DevUISignalType type, DevUINode sender, string message)
+	public virtual void Signal(DevUISignalType type, DevUINode sender, string message)
 	{
-		//send signal up
-		this.SendSignal(DevUISignalType.ButtonClick, sender, "");
-
 		//remove panel after signal
-		if (itemSelectPanel != null && sender.IDstring.StartsWith(itemSelectPanel.idstring + "Button99289_"))
+		if (itemSelectPanel != null && IsSubButtonID(sender.IDstring, out var result))
 		{
-			parentNode.subNodes.Remove(itemSelectPanel);
+			subNodes.Remove(itemSelectPanel);
 			itemSelectPanel.ClearSprites();
 			itemSelectPanel = null;
+			actualValue = result;
+			Text = result;
+
+			//send signal up
+			this.SendSignal(DevUISignalType.ButtonClick, this, result);
 		}
 	}
 
@@ -68,7 +74,7 @@ public class PanelSelectButton : Button, IDevUISignals, Modules.Iggy.IGiveAToolT
 		subButtonID = "";
 		if (itemSelectPanel != null && IDstring.StartsWith(itemSelectPanel.idstring + "Button99289_"))
 		{
-			subButtonID = IDstring.Remove(0, (itemSelectPanel.idstring + "Button99289_").Length);
+			subButtonID = IDstring[(itemSelectPanel.idstring + "Button99289_").Length..];
 			return true;
 		}
 

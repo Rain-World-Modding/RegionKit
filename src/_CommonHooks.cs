@@ -9,14 +9,47 @@ internal static class _CommonHooks
 	{
 		On.Room.Loaded += RoomLoadedPatch;
 		On.RoomSettings.Save_string_bool += RoomSettings_Save_string_bool;
+		On.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor_string_int_int_RainWorldGame_Timeline;
 	}
 
 	internal static void Disable()
 	{
 		On.Room.Loaded -= RoomLoadedPatch;
 		On.RoomSettings.Save_string_bool -= RoomSettings_Save_string_bool;
+		On.Region.ctor_string_int_int_RainWorldGame_Timeline -= Region_ctor_string_int_int_RainWorldGame_Timeline;
 	}
 
+	private static void Region_ctor_string_int_int_RainWorldGame_Timeline(On.Region.orig_ctor_string_int_int_RainWorldGame_Timeline orig, Region self, string name, int firstRoomIndex, int regionNumber, RainWorldGame game, SlugcatStats.Timeline timelineIndex)
+	{
+		orig(self, name, firstRoomIndex, regionNumber, game, timelineIndex);
+
+		foreach ((string key, string value) in self.regionParams.unrecognizedParams)
+		{
+			if (SpecificUnrecognizedRegionParamProcessor.TryGetValue(key, out var action))
+			{
+				try
+				{
+					action(self, key, value);
+				}
+				catch (Exception ex)
+				{
+					LogError(ex);
+				}
+			}
+
+			try
+			{
+				GeneralUnrecognizedRegionParamProcessor?.Invoke(self, key, value);
+			}
+			catch (Exception ex)
+			{
+				LogError(ex);
+			}
+		}
+	}
+
+	internal static readonly Dictionary<string, Action<Region, string, string>> SpecificUnrecognizedRegionParamProcessor = new();
+	internal static event Action<Region, string, string>? GeneralUnrecognizedRegionParamProcessor;
 
 	internal static void RoomLoadedPatch(On.Room.orig_Loaded orig, Room self)
 	{

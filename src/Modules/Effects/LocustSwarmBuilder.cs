@@ -15,7 +15,7 @@ namespace RegionKit.Modules.Effects
 			{
 				new EffectDefinitionBuilder("LocustSwarm")
 					.SetUADFactory((_, data, _) => new LocustSwarm.UAD(data))
-					.SetCategory("RegionKit")
+					.SetCategory(_Enums.RegionKit_Gameplay.value)
 					.Register();
 				LocustSwarm.Setup();
 			}
@@ -52,11 +52,13 @@ namespace RegionKit.Modules.Effects
 		static void Update(On.Player.orig_Update orig, Player self, bool firstUpdate)
 		{
 			orig(self, firstUpdate);
-			foreach (Room room in self.room.world.activeRooms)
-				RoomUpdate(room);
+
+			if (self.room?.world?.activeRooms != null)
+				foreach (Room room in self.room.world.activeRooms)
+					RoomUpdate(room);
 
 			return;
-			void RoomUpdate(Room room)
+			static void RoomUpdate(Room room)
 			{
 				if (!HasLocustEffect(room, out UAD? uad, out RoomSettings.RoomEffect? effect) ||
 					uad!.Amount < effect!.amount) return;

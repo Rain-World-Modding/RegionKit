@@ -174,9 +174,9 @@ public class DoorPointerData : ManagedData
 
 	[FloatField("concernweight", 0f, 1f, 0.98f, 0.1f, ManagedFieldWithPanel.ControlType.slider, "ConcernWeight")]
 	public float ConcernWeight;
-#pragma warning restore
 
 	public DoorPointerData(PlacedObject owner) : base(owner, null) { }
+#pragma warning restore
 }
 
 

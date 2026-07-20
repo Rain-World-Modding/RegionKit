@@ -1,21 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BepInEx;
-
-
-
-
-namespace RegionKit.Modules.Effects
+﻿namespace RegionKit.Modules.Effects
 {
 	internal class MossWaterUnlit
 	{
 		// By ASlightlyOvergrownCactus
 		public static readonly object mossSprite = new();
 		static bool loaded = false;
-		public static AssetBundle mossBundle;
+		public static AssetBundle? mossBundle;
 		const int vertsPerColumn = 64;
 		internal static void Apply()
 		{

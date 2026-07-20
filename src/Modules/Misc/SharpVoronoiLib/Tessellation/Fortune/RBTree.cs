@@ -1,5 +1,7 @@
 ﻿// credit https://github.com/mdally/Voronoi/blob/master/src/RBTree.h MIT LICENSE
 
+#nullable disable
+
 namespace SharpVoronoiLib
 {
     public class RBTreeNode<T>

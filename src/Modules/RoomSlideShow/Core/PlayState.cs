@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.RoomSlideShow;
+﻿namespace RegionKit.Modules.RoomSlideShow;
 
 internal sealed class PlayState
 {
@@ -128,12 +128,12 @@ internal sealed class PlayState
 
 	public void UpdateKeyFrames()
 	{
-		(string, string) getDebugStuff()
-		{
-			var prev = this.lastKeyFrames.Select(x => x.ToString()).Stitch();
-			var next = this.nextKeyFrames.Select(x => x.ToString()).Stitch();
-			return (prev, next);
-		}
+		// (string, string) getDebugStuff()
+		// {
+		// 	var prev = this.lastKeyFrames.Select(x => x.ToString()).Stitch();
+		// 	var next = this.nextKeyFrames.Select(x => x.ToString()).Stitch();
+		// 	return (prev, next);
+		// }
 		// LogDebug($"update keyframes on index {this.CurrentIndex}");
 		// {
 		// 	(var prev, var next) = getDebugStuff();

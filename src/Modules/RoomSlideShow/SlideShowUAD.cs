@@ -1,11 +1,11 @@
-namespace RegionKit.Modules.RoomSlideShow;
+﻿namespace RegionKit.Modules.RoomSlideShow;
 
 public class SlideShowUAD : UpdatableAndDeletable, IDrawable
 {
 	//private readonly Room room;
 	private readonly PlacedObject _owner;
-	private readonly Playback _playback;
-	private PlayState _playState;
+	private readonly Playback _playback = null!;
+	private PlayState _playState = null!;
 	private SlideShowInstant _prevInstant;
 	private SlideShowInstant _thisInstant;
 	private ManagedData _Data => (ManagedData)_owner.data;

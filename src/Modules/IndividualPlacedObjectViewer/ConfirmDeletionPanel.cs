@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DevInterface;
+﻿using DevInterface;
 
 namespace RegionKit.Modules.IndividualPlacedObjectViewer
 {
@@ -19,7 +14,7 @@ namespace RegionKit.Modules.IndividualPlacedObjectViewer
 
 		public void Signal(DevUISignalType type, DevUINode sender, string message)
 		{
-			(parentNode as ObjectsPage).Signal(DevUISignalType.ButtonClick, sender, "");
+			(parentNode as ObjectsPage)!.Signal(DevUISignalType.ButtonClick, sender, "");
 		}
 	}
 }

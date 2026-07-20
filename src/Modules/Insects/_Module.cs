@@ -7,7 +7,6 @@ namespace RegionKit.Modules.Insects
 	[RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Insects")]
 	public static class _Module
 	{
-		private const bool DEBUG = false;
 		private static readonly CosmeticInsect.Type? debugType = _Enums.RippleGlowworm;
 
 		internal static void Setup()
@@ -33,10 +32,9 @@ namespace RegionKit.Modules.Insects
 			Custom.rainWorld.Shaders["FlatLightRippleSideAlt"] = FShader.CreateShader("FlatLight", Shader.Find("Futile/FlatLight"), ["ripple_other_side_alt"]);
 
 			// Debug
-			if (DEBUG)
-			{
-				On.Player.Update += DebugSpawnHook;
-			}
+#if false
+			On.Player.Update += DebugSpawnHook;
+#endif
 		}
 
 		internal static void Disable()

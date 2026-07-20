@@ -1,9 +1,9 @@
 {
   "WorkshopID": 2920439476,
-  "LatestGameVersion": "v1.11.6",
+  "LatestGameVersion": "v1.11.8",
   "UpdateTitle": false,
   "UpdateDescription": false,
-  "Visibility": 1,
+  "Visibility": 0,
   "Tags": [
     "Dependency",
     "Tools",

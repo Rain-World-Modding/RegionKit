@@ -112,6 +112,7 @@ public sealed class ModOptions : OptionsTemplate
 		("tpd1864blake", hexToColor("ff0000")),
 		("glebi574", hexToColor("c7b3d1")),
 		("inspectnerd", hexToColor("38a336")),
+		("coder23848", hexToColor("38a336")),
 	];
 
 	private void InitCredits(ref int tabIndex)

@@ -1,3 +1,45 @@
+3.19.0
+---
+* General additions:
+  * New objects: ColoredMudPit, GreenSparksDir, & ColoredLocalBlizzard
+  * New effects: FlatFog & RainPaletteFade
+  * New insects: Seedlings, RippleFlies, RippleGlowworms, and SITinyDragonflies
+  * New floating debris: Colored Dust, Ripple Ring, & Ripple Smooth
+  * BGFlatLight has 2 new modes
+* Dev tools changes:
+  * Fade palette sliders are now paged after 20 screens
+  * A lot of selection panels now have search bars
+    * Includes select panels for decals, sounds, & songs
+  * The select song panel in the triggers menu was revamped
+    * Paged, smaller, and can preview songs in-editor
+  * Most panels no longer uncollapse when an object is added/removed
+* Triggers tab:
+  * New event triggers: Rect, Quad, ScavengerOutpost, & PickUpObject
+  * New triggered events: SpawnCreature, AddFadePalette, PlaySound, RegionBump, & Explode
+  * SeeCreature event is now implemented
+* ExtendedGates changes:
+  * Ripple requirements (art by @inspectnerd)
+  * Reinforced karma requirements (art by @user23848)
+  * Extra gate requirements system (partly by @ko5i). See documentation on the GitHub
+* BackgroundBuilder changes:
+  * Added groups
+    * Denoted by a `GROUP` element
+    * Lines after that begin with `- ` are considered part of the group
+    * Can be nested
+  * You can now edit background scenes within the game
+  * Thanks @bro748
+* AdvancedShader changes:
+  * Can now use files
+  * Can now edit all 8 UV channels
+* Bugfixes/other:
+  * RegionKit objects will now clamp to the screen correctly
+  * Some objects/creatures have been made immune to Spikes to prevent game crashes
+  * Palette effect color now works again
+  * TurboBaker inputs work now
+  * Lightning effect bugfix when no fade palette
+  * Fixed terrain shader incompatibility
+  * RegionKit effects recategorization
+
 3.18.1
 ---
 * Fixed incompatibility with Sharpener (caused the black screen issue)

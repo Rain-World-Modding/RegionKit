@@ -12,7 +12,7 @@
 		public static RoomSettings.RoomEffect.Type Seedlings = new(nameof(Seedlings), true);
 		public static RoomSettings.RoomEffect.Type RippleFlies = new(nameof(RippleFlies), true);
 		public static RoomSettings.RoomEffect.Type RippleGlowworms = new(nameof(RippleGlowworms), true);
-		public static RoomSettings.RoomEffect.Type SI_Dragonflies = new(nameof(SI_Dragonflies), true);
+		public static RoomSettings.RoomEffect.Type SITinyDragonflies = new(nameof(SITinyDragonflies), true);
 
 		// Cosmetic insect types
 		public static CosmeticInsect.Type GlowingSwimmerInsect = new(nameof(GlowingSwimmerInsect), true);
@@ -24,7 +24,7 @@
 		public static CosmeticInsect.Type Seedling = new(nameof(Seedling), true);
 		public static CosmeticInsect.Type RippleFly = new(nameof(RippleFly), true);
 		public static CosmeticInsect.Type RippleGlowworm = new(nameof(RippleGlowworm), true);
-		public static CosmeticInsect.Type SI_Dragonfly = new(nameof(SI_Dragonfly), true);
+		public static CosmeticInsect.Type SITinyDragonfly = new(nameof(SITinyDragonfly), true);
 
 		// Insect category
 		public static DevInterface.RoomSettingsPage.DevEffectsCategories RegionKitInsects = new("RegionKit-Insects", true);
@@ -47,7 +47,7 @@
 				|| type == Seedling
 				|| type == RippleFly
 				|| type == RippleGlowworm
-				|| type == SI_Dragonfly;
+				|| type == SITinyDragonfly;
 		}
 
 		/// <summary>
@@ -66,7 +66,7 @@
 				|| type == Seedlings
 				|| type == RippleFlies
 				|| type == RippleGlowworms
-				|| type == SI_Dragonflies;
+				|| type == SITinyDragonflies;
 		}
 	}
 }

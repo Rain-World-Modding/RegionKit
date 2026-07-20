@@ -109,11 +109,9 @@ public class StringControl : DevUILabel
 
 		// Update outline sprite visibility
 		bool focused = ManagedStringControl.activeStringControl == this;
-		Color outlineColor = isTextValid(actualValue) ? Color.white : Color.red;
 		foreach (FSprite sprite in outlineSprites)
 		{
 			sprite.isVisible = focused;
-			sprite.color = outlineColor;
 		}
 	}
 
@@ -125,6 +123,7 @@ public class StringControl : DevUILabel
 	protected virtual void TrySetValue(string newValue, bool endTransaction)
 	{
 		if (fLabels.Count == 0) return;
+		Color outlineColor = Color.white;
 		if (isTextValid(newValue))
 		{
 			string oldValue = actualValue;
@@ -141,10 +140,11 @@ public class StringControl : DevUILabel
 		else
 		{
 			fLabels[0].color = Color.red;
-			foreach (FSprite sprite in outlineSprites)
-			{
-				sprite.color = Color.red;
-			}
+			outlineColor = Color.red;
+		}
+		foreach (FSprite sprite in outlineSprites)
+		{
+			sprite.color = outlineColor;
 		}
 		if (endTransaction)
 		{

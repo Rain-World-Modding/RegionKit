@@ -27,7 +27,11 @@ namespace RegionKit.Modules.DevUIMisc
 			{
 				if (node is PlacedObjectRepresentation rep)
 				{
-					panelCollapseDict.Add(rep.pObj, [.. rep.subNodes.OfType<Panel>().Select(x => x.collapsed)]);
+					IEnumerable<Panel> panels = rep.subNodes.OfType<Panel>();
+					if (panels.Count() > 0 && !panelCollapseDict.ContainsKey(rep.pObj))
+					{
+						panelCollapseDict.Add(rep.pObj, [.. panels.Select(x => x.collapsed)]);
+					}
 				}
 			}
 			orig(self);

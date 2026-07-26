@@ -234,7 +234,7 @@ fixed4 frag(v2f i) : SV_Target
 		float input2 = -snowLayers[i].y + 1;
 		
 		float thicOffset = 2 + trunc(8 * clamp(input * 1.05 * depthNoise, 0, 1));
-		for(uint b = 0; b < 10; b++) {
+		for(int b = 0; b < 10; b++) {
 
 			if (b < thicOffset){
 				depth = max(depth, GetDepth(tex2D(_LevelTex, float2(textCoord.x, textCoord.y + _LevelTex_TexelSize.y * b)).x));
@@ -255,9 +255,9 @@ fixed4 frag(v2f i) : SV_Target
 		uint o2 = (i % 2) * 2;
 		fixed4 snow4 = tex2D(_RKColoredSnowSources2, float2(offset2X + source2Size.x * h2, offset2Y + source2Size.y * v2));
 
-		for (uint c = 0; c < 20; c++) {
+		for (int c = 0; c < 20; c++) {
 			if (c < height) {
-				if (!(minDepth < (uint) (snow4[o2] * 30))) {
+				if (!(minDepth < (int) max(0, snow4[o2] * 30))) {
 					float tex = loopInfos[c].x;
 					float topDepth = loopInfos[c].y;
 					float botDepth = loopInfos[c].z;
@@ -275,7 +275,7 @@ fixed4 frag(v2f i) : SV_Target
 		half shadowGradient = clamp(trunc((sg / height) * 3) * 0.11763333333, 0, 1);
 		
 		if(trunc(depth) != trunc(minDepth)) {
-			if (!(tsg > (uint) (snow4[o2 + 1] * 30))) {
+			if (!(tsg > (int) max(0, snow4[o2 + 1] * 30))) {
 				heightLayers[i] = float3(clamp((trunc(minDepth) + 1) / 255 + loopInfos[clamp(h, 0, 19)].w * 0.352941176471 + shadowGradient, 0, 1), 1.0, tsg);
 				if (tsg > heightLayers[mid].z) {
 					mid = i;

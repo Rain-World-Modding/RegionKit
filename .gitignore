@@ -8,3 +8,7 @@ src/RegionKit.sln
 # plugins copied into mod folder
 mod/newest/plugins/**
 !mod/newest/plugins/Newtonsoft.Json.dll
+
+# unity assetbundle build stuff
+mod/**/*.manifest
+mod/assets/regionkit/regionkit

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace RegionKit.Extras.FutileExtras
+﻿namespace RegionKit.Extras.FutileExtras
 {
 	/// <summary>
 	/// Variant of FSprite with some settable UV channels

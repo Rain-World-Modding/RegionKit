@@ -35,6 +35,8 @@
 					#pragma multi_compile __ HR
 					#pragma exclude_renderers OpenGL
 					#include "UnityCG.cginc"
+					#include "_RippleClip.cginc"
+					#include "_Snow.cginc"
 
 struct appdata
 {
@@ -113,6 +115,11 @@ float4 frag(v2f i) : SV_Target {
 	textCoord.x /= _spriteRect.z - _spriteRect.x;
 	textCoord.y /= _spriteRect.w - _spriteRect.y;
 
+#if RIPPLE
+    fixed rippleMask = tex2D(_GameplayRippleMask,i.scrPos).x;
+    textCoord += rippleDistortion(rippleMask, i.scrPos)*1;
+#endif
+
 	float4 texCol = tex2D(_RKColoredSnowTex, textCoord);
 
 	float depth = GetDepth(texCol.x);
@@ -169,7 +176,9 @@ float4 frag(v2f i) : SV_Target {
 		snow = 0.02 + snow - shadowGradient * 0.01;
 		snow.xyz *= paletteCol.xyz;
 		snow = lerp(snow, snow + fog * 0.2, _fogAmount * smalPal * blend);
-		return float4(snow.xyz, texCol.y * 40.0 < 9.0 ? 0.0 : 1.0);
+		float4 result = float4(snow.xyz, texCol.y * 40.0 < 9.0 ? 0.0 : 1.0);
+        smoothRippleClip(result, i.scrPos);
+		return result;
 	#else
 		float4 snow = tex2D(_PalTex, float2(smalPal * 0.9375, 0.125 + (shadowGradient * 0.0625)));
 		float4 snowPal = tex2D(_PalTex, float2(smalPal * 0.9375, 0.57 + (shadowGradient * 0.0625)));
@@ -180,7 +189,9 @@ float4 frag(v2f i) : SV_Target {
 		snow += 0.2 + shadowGradient * 0.1;
 		snow.xyz *= paletteCol.xyz;
 		snow = lerp(snow, fog, _fogAmount * smalPal * blend);
-		return float4(snow.xyz, texCol.y * 40.0 < 9.0 ? 0.0 : 1.0);
+		float4 result = float4(snow.xyz, texCol.y * 40.0 < 9.0 ? 0.0 : 1.0);
+        smoothRippleClip(result, i.scrPos);
+		return result;
 	#endif
 }
 				ENDCG

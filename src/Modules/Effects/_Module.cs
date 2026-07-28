@@ -31,15 +31,9 @@ public static class _Module
 		SuffocationBuilder.__RegisterBuilder();
 		HSLDisplaySnowBuilder.__RegisterBuilder();
 		PaletteEffectColorBuilder.__RegisterBuilder();
-		MossWaterUnlit.MossLoadResources(rainworld);
-		MossWaterRGB.MossLoadResources(rainworld);
-		MurkyWater.MurkyWaterLoadResources(rainworld);
-		ReflectiveWater.ReflectiveLoadResources(rainworld);
-		RGBElectricDeath.REDLoadResources(rainworld);
-		HSLDisplaySnow.RDSLoadResources(rainworld);
-		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
-		LegacyColoredSprite2.LegacyColoredSprite2Load(rainworld);
 		//LocustSwarmBuilder.__RegisterBuilder();
+
+		LoadShaders();
 	}
 
 	internal static void Enable()
@@ -74,8 +68,6 @@ public static class _Module
 		On.RoomSettings.RoomEffect.GetSliderName += RoomEffect_GetSliderName;
 		On.RoomSettings.RoomEffect.GetSliderDefault += RoomEffect_GetSliderDefault;
 		On.DevInterface.EffectPanel.EffectPanelSlider.Refresh += EffectPanelSlider_Refresh;
-
-		LoadShaders();
 	}
 
 	internal static void Disable()
@@ -146,8 +138,25 @@ public static class _Module
 
 	private static void LoadShaders()
 	{
-		AssetBundle bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rkeffects"));
+		AssetBundle bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_effects"));
+
+		Custom.rainWorld.Shaders["RGBBlizzard"] = FShader.CreateShader("RGBBlizzard", bundle.LoadAsset<Shader>("Assets/Shaders/RGBBlizzard.shader"));
+		Custom.rainWorld.Shaders["RGBDisplaySnow"] = FShader.CreateShader("RGBDisplaySnow", bundle.LoadAsset<Shader>("Assets/Shaders/RGBDisplaySnowShader.shader"));
+		Custom.rainWorld.Shaders["RGBElectricDeath"] = FShader.CreateShader("RGBElectricDeath", bundle.LoadAsset<Shader>("Assets/Shaders/RGBElectricDeath.shader"));
+		Custom.rainWorld.Shaders["RGBSnowfall"] = FShader.CreateShader("RGBSnowfall", bundle.LoadAsset<Shader>("Assets/Shaders/RGBSnowFall.shader"));
+
 		Custom.rainWorld.Shaders["RKFlatFog"] = FShader.CreateShader("RKFlatFog", bundle.LoadAsset<Shader>("Assets/Shaders/RKFlatFog.shader"));
+
+		// Todo: the water shaders need to be recreated as their source code was lost and they need to be modified
+		AssetBundle waterBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/liquidshaderpack"));
+
+		Custom.rainWorld.Shaders["DarkWater"] = FShader.CreateShader(("DarkWater"), waterBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/DarkWater.shader"));
+		Custom.rainWorld.Shaders["MossWater"] = FShader.CreateShader("MossWater", waterBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/MossWater.shader"));
+		Custom.rainWorld.Shaders["MossWaterRGB"] = FShader.CreateShader("MossWaterRGB", waterBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/MossWaterRGB.shader"));
+		Custom.rainWorld.Shaders["NoLitWater"] = FShader.CreateShader("NoLitWater", waterBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/NoLitWater.shader"));
+		Custom.rainWorld.Shaders["ReflectiveWater"] = FShader.CreateShader("ReflectiveWater", waterBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/ReflectiveWater.shader"));
+
+		Shader.SetGlobalColor("_InputColorMoss", Color.green);
 	}
 
 	#region Refresh palette

@@ -106,6 +106,7 @@ public static class _Module
 
 	public static void LoadShaders()
 	{
-		rainWorld.Shaders["HKHoloGrid"] = FShader.CreateShader("HKHoloGrid", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/hkhologrid")).LoadAsset<Shader>("Assets/HKHoloGrid.shader"));
+		var bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_customprojections"));
+		rainWorld.Shaders["HKHoloGrid"] = FShader.CreateShader("HKHoloGrid", bundle.LoadAsset<Shader>("Assets/Shaders/HKHoloGrid.shader"));
 	}
 }

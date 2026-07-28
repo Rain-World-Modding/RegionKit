@@ -54,7 +54,6 @@ namespace RegionKit.Modules.Effects
 	internal class ReflectiveWater
 	{
 		public static readonly object reflectiveSprite = new();
-		static bool loaded = false;
 		const int vertsPerColumn = 64;
 		private static float angleLerp = 0.5f;
 		internal static void Apply()
@@ -77,22 +76,6 @@ namespace RegionKit.Modules.Effects
 			Shader.SetGlobalFloat("_ReflectionLerp", width);
 			Shader.SetGlobalFloat("_AlphaReflective", alpha);
 			angleLerp = angle;
-		}
-
-		public static void ReflectiveLoadResources(RainWorld rw)
-		{
-			if (!loaded)
-			{
-				loaded = true;
-				if (MossWaterUnlit.mossBundle != null)
-				{
-					rw.Shaders["ReflectiveWater"] = FShader.CreateShader("ReflectiveWater", MossWaterUnlit.mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/ReflectiveWater.shader"));
-				}
-				else
-				{
-					LogWarning("ReflectiveWater must be loaded after MossWaterUnlit!");
-				}
-			}
 		}
 
 		private static void Water_AddToContainer(On.Water.orig_AddToContainer orig, Water self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)

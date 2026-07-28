@@ -4,8 +4,6 @@
 	{
 		// By ASlightlyOvergrownCactus
 		public static readonly object mossSprite = new();
-		static bool loaded = false;
-		public static AssetBundle? mossBundle;
 		const int vertsPerColumn = 64;
 		internal static void Apply()
 		{
@@ -21,19 +19,6 @@
 			On.Water.AddToContainer -= Water_AddToContainer;
 		}
 
-
-
-		public static void MossLoadResources(RainWorld rw)
-		{
-			if (!loaded)
-			{
-				loaded = true;
-
-				mossBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/liquidshaderpack"));
-
-				rw.Shaders["MossWater"] = FShader.CreateShader("MossWater", mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/MossWater.shader"));
-			}
-		}
 
 		private static void Water_AddToContainer(On.Water.orig_AddToContainer orig, Water self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
 		{

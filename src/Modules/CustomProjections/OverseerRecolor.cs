@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using MonoMod.RuntimeDetour;
+using RegionKit.Extras.FutileExtras;
 using Random = UnityEngine.Random;
 
 namespace RegionKit.Modules.CustomProjections;
@@ -41,9 +42,14 @@ internal static class OverseerRecolor
 
 		Color color = (self.overseer.graphicsModule as OverseerGraphics)!.MainColor;
 
-		sLeaser.sprites[0].color = color;
-		sLeaser.sprites[0].shader = rCam.game.rainWorld.Shaders["HKHoloGrid"];
-		Shader.SetGlobalVector("_HKHoloGridColor", color);
+		var newSprite = new FSpriteUVs("Futile_White")
+		{
+			color = color,
+			shader = rCam.game.rainWorld.Shaders["HKHoloGrid"],
+		};
+		sLeaser.sprites[0] = newSprite;
+		newSprite.SetUVs(new Vector2(color.r, color.g), 1);
+		newSprite.SetUVs(new Vector2(color.b, 1), 2);
 
 		for (int i = 1; i < sLeaser.sprites.Length; i++)
 		{ sLeaser.sprites[i].color = color; }

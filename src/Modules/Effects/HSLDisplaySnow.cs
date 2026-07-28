@@ -107,26 +107,6 @@ namespace RegionKit.Modules.Effects
 
 	public class HSLDisplaySnow
 	{
-		static bool loaded = false;
-		
-		public static void RDSLoadResources(RainWorld rw)
-		{
-			if (!loaded)
-			{
-				loaded = true;
-				if (MossWaterUnlit.mossBundle != null)
-				{
-					rw.Shaders["RGBDisplaySnow"] = FShader.CreateShader("RGBDisplaySnow", MossWaterUnlit.mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/RGBSnow.shader"));
-					rw.Shaders["RGBSnowfall"] = FShader.CreateShader("RGBSnowfall", MossWaterUnlit.mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/RGBSnowfall.shader"));
-					rw.Shaders["RGBBlizzard"] = FShader.CreateShader("RGBBlizzard", MossWaterUnlit.mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/RGBBlizzard.shader"));
-				}
-				else
-				{
-					LogMessage("HSLDisplaySnow must be loaded after MossWaterUnlit!");
-				}
-			}
-		}
-
 		internal static void Apply()
 		{
 			On.MoreSlugcats.Snow.InitiateSprites += SnowOnInitiateSprites;

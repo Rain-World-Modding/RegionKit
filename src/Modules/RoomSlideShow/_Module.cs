@@ -43,11 +43,25 @@ public static class _Module
 		{
 			RegisterManagedObject<SlideShowUAD, SlideShowMeshData, ManagedRepresentation>("SlideShow", Objects._Module.OBJECTS_POM_CATEGORY);
 			RegisterManagedObject<SlideShowUAD, SlideShowRectData, ManagedRepresentation>("SlideShowRect", Objects._Module.OBJECTS_POM_CATEGORY);
+			LoadShaders();
 		}
 		catch (Exception ex)
 		{
 			LogError(ex);
 		}
+	}
+
+	private static void LoadShaders()
+	{
+		// Todo: swap this out with the recreated source code once that has been verified functional
+		var bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/alphalevelcolorbundle"));
+		Custom.rainWorld.Shaders["AlphaLevelColor"] = FShader.CreateShader("AlphaLevelColor", bundle.LoadAsset<Shader>("Assets/shaders 1.9.03/RM_LeveIltem_3.shader"));
+		Custom.rainWorld.Shaders["WaterWarble"] = FShader.CreateShader("WaterWarble", bundle.LoadAsset<Shader>("Assets/shaders 1.9.03/WaterWarble.shader"));
+
+		// temp source recreated versions
+		bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_roomslideshow"));
+		Custom.rainWorld.Shaders["AlphaLevelColorNew"] = FShader.CreateShader("AlphaLevelColorNew", bundle.LoadAsset<Shader>("Assets/Shaders/AlphaLevelColor.shader"));
+		Custom.rainWorld.Shaders["WaterWarbleNew"] = FShader.CreateShader("WaterWarbleNew", bundle.LoadAsset<Shader>("Assets/Shaders/WaterWarble.shader"));
 	}
 
 	private static IO.FileSystemWatcher __CreateWatcher(

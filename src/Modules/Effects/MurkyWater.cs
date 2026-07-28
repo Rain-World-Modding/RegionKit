@@ -8,8 +8,6 @@ namespace RegionKit.Modules.Effects
 {
 	internal class MurkyWater
 	{
-		static bool loaded = false;
-
 		// By ASlightlyOvergrownCactus, big thx to Xan for help with replacement shaders
 		internal static void Apply()
 		{
@@ -66,25 +64,6 @@ namespace RegionKit.Modules.Effects
 			orig(self, sLeaser, rCam);
 			if (rCam.room.roomSettings.GetEffect(_Enums.MurkyWater) != null)
 				sLeaser.sprites[3].shader = self.room.game.rainWorld.Shaders["NoLitWater"];
-		}
-
-		public static void MurkyWaterLoadResources(RainWorld rw)
-		{
-			if (!loaded)
-			{
-				LogMessage("entered loading / loading status: " + loaded);
-				loaded = true;
-				if (MossWaterUnlit.mossBundle != null)
-				{
-					rw.Shaders["NoLitWater"] = FShader.CreateShader("NoLitWater", MossWaterUnlit.mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/NoLitWater.shader"));
-					rw.Shaders["DarkWater"] = FShader.CreateShader(("DarkWater"), MossWaterUnlit.mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/DarkWater.shader"));
-
-				}
-				else
-				{
-					LogMessage("MurkyWater must be loaded after MossWaterUnlit!");
-				}
-			}
 		}
 	}
 }

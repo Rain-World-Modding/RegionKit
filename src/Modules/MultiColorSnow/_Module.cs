@@ -113,10 +113,10 @@ public class _Module
 	{
 		RainWorld rw = CRW;
 
-		ColoredSnowShadersBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rkcoloredsnow"));
-		RKLevelSnowShader = ColoredSnowShadersBundle.LoadAsset<Shader>("Assets/RKLevelSnowShader.shader");
+		ColoredSnowShadersBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_multicolorsnow"));
+		RKLevelSnowShader = ColoredSnowShadersBundle.LoadAsset<Shader>("Assets/Shaders/RKLevelSnowShader.shader");
 		rw.Shaders["RKLevelSnowShader"] = FShader.CreateShader("RKLevelSnowShader", RKLevelSnowShader);
-		RKDisplaySnowShader = ColoredSnowShadersBundle.LoadAsset<Shader>("Assets/RKDisplaySnowShader.shader");
+		RKDisplaySnowShader = ColoredSnowShadersBundle.LoadAsset<Shader>("Assets/Shaders/RKDisplaySnowShader.shader");
 		rw.Shaders["RKDisplaySnowShader"] = FShader.CreateShader("RKDisplaySnowShader", RKDisplaySnowShader);
 
 		RKLevelSnowMaterial = new Material(RKLevelSnowShader);

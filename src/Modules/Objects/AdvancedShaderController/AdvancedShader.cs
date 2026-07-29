@@ -15,6 +15,9 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 		public AdvancedShader(PlacedObject pObj)
 		{
 			this.pObj = pObj;
+
+			// Load internal textures that might not already be present
+			Futile.atlasManager.LoadAtlasFromTexture("rainbow", Resources.Load("Atlases/Rainbow") as Texture2D, true);
 		}
 
 		public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)

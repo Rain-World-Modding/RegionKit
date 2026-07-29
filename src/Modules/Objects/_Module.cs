@@ -522,6 +522,7 @@ public static class _Module
 		AssetBundle bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_objects"));
 
 		Custom.rainWorld.Shaders["LegacyColoredSprite2"] = FShader.CreateShader("LegacyColoredSprite2", bundle.LoadAsset<Shader>("Assets/Shaders/LegacyColoredSprite2.shader"));
+		Custom.rainWorld.Shaders["ColorEffects"] = FShader.CreateShader("ColorEffects", bundle.LoadAsset<Shader>("Assets/Shaders/ColorEffects.shader"));
 
 		Custom.rainWorld.Shaders["BGFlatLight"] = FShader.CreateShader("BGFlatLight", bundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLight.shader"));
 		Custom.rainWorld.Shaders["BGCloudLight"] = FShader.CreateShader("BGCloudLight", bundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLight.shader"), ["cloudlight"]);
@@ -532,8 +533,5 @@ public static class _Module
 
 		Custom.rainWorld.Shaders["WaterFallDepth"] = FShader.CreateShader("WaterFallDepth", bundle.LoadAsset<Shader>("Assets/Shaders/WaterFallDepth.shader"));
 		Custom.rainWorld.Shaders["RKColoredLocalBlizzard"] = FShader.CreateShader("RKColoredLocalBlizzard", bundle.LoadAsset<Shader>("Assets/Shaders/RKColoredLocalBlizzard.shader"));
-
-		// Todo: the following shaders/asset bundles need to be decompiled
-		Custom.rainWorld.Shaders["ColorEffects"] = FShader.CreateShader("ColorEffects", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/coloreffects")).LoadAsset<Shader>("Assets/ColorEffects.shader"));
 	}
 }

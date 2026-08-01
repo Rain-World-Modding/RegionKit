@@ -98,16 +98,4 @@ InitTestScene*.unity*
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
-# Ignore asset bundles
-/[Aa]ssets/AssetBundles
 
-# Also ignore game copyrighted cginc files while still allowing our own
-# (note: this is not a comprehensive list, just the likely ones)
-/[Aa]ssets/Shaders/_CreatureMask.cginc
-/[Aa]ssets/Shaders/_DynamicLevelClip.cginc
-/[Aa]ssets/Shaders/_DynamicLevelElementFunctions.cginc
-/[Aa]ssets/Shaders/_Functions.cginc
-/[Aa]ssets/Shaders/_RippleClip.cginc
-/[Aa]ssets/Shaders/_ShaderFix.cginc
-/[Aa]ssets/Shaders/_Snow.cginc
-/[Aa]ssets/Shaders/_TerrainMask.cginc

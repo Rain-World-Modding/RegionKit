@@ -27,6 +27,7 @@ Shader "RegionKit/Template"
                 float4 _MainTex_ST;
                 sampler2D _MainTex;
                 sampler2D _LevelTex;
+                sampler2D _PreLevelColorGrab;
 
                 //sampler2D _GrabTexture;
                 

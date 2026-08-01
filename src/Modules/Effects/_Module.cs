@@ -1,9 +1,5 @@
-﻿using System.Text.RegularExpressions;
-using DevInterface;
+﻿using DevInterface;
 using EffExt;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using RegionKit.Modules.RoomSlideShow;
 
 namespace RegionKit.Modules.Effects;
 
@@ -147,16 +143,17 @@ public static class _Module
 
 		Custom.rainWorld.Shaders["RKFlatFog"] = FShader.CreateShader("RKFlatFog", bundle.LoadAsset<Shader>("Assets/Shaders/RKFlatFog.shader"));
 
+		Custom.rainWorld.Shaders["MossWater"] = FShader.CreateShader("MossWater", bundle.LoadAsset<Shader>("Assets/Shaders/MossWater.shader"));
+		Custom.rainWorld.Shaders["MossWaterRGB"] = FShader.CreateShader("MossWaterRGB", bundle.LoadAsset<Shader>("Assets/Shaders/MossWaterRGB.shader"));
+		Custom.rainWorld.Shaders["ReflectiveWater"] = FShader.CreateShader("ReflectiveWater", bundle.LoadAsset<Shader>("Assets/Shaders/ReflectiveWater.shader"));
+
 		// Todo: the water shaders need to be recreated as their source code was lost and they need to be modified
 		AssetBundle waterBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/liquidshaderpack"));
 
 		Custom.rainWorld.Shaders["DarkWater"] = FShader.CreateShader(("DarkWater"), waterBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/DarkWater.shader"));
-		Custom.rainWorld.Shaders["MossWater"] = FShader.CreateShader("MossWater", waterBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/MossWater.shader"));
-		Custom.rainWorld.Shaders["MossWaterRGB"] = FShader.CreateShader("MossWaterRGB", waterBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/MossWaterRGB.shader"));
 		Custom.rainWorld.Shaders["NoLitWater"] = FShader.CreateShader("NoLitWater", waterBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/NoLitWater.shader"));
-		Custom.rainWorld.Shaders["ReflectiveWater"] = FShader.CreateShader("ReflectiveWater", waterBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/ReflectiveWater.shader"));
 
-		Shader.SetGlobalColor("_InputColorMoss", Color.green);
+		Shader.SetGlobalColor("_InputColorMoss", Color.green); // maybe todo: replace implementation with TriangleMeshUVs
 	}
 
 	#region Refresh palette

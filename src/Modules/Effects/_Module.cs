@@ -146,6 +146,8 @@ public static class _Module
 		Custom.rainWorld.Shaders["MossWater"] = FShader.CreateShader("MossWater", bundle.LoadAsset<Shader>("Assets/Shaders/MossWater.shader"));
 		Custom.rainWorld.Shaders["MossWaterRGB"] = FShader.CreateShader("MossWaterRGB", bundle.LoadAsset<Shader>("Assets/Shaders/MossWaterRGB.shader"));
 		Custom.rainWorld.Shaders["ReflectiveWater"] = FShader.CreateShader("ReflectiveWater", bundle.LoadAsset<Shader>("Assets/Shaders/ReflectiveWater.shader"));
+		Custom.rainWorld.Shaders["MurkyWaterLightSource"] = FShader.CreateShader("MurkyWaterLightSource", bundle.LoadAsset<Shader>("Assets/Shaders/MurkyWaterLightSource.shader"));
+		Custom.rainWorld.Shaders["MurkyWaterSaveMask"] = FShader.CreateShader("MurkyWaterSaveMask", bundle.LoadAsset<Shader>("Assets/Shaders/MurkyWaterSaveMask.shader"));
 
 		// Todo: the water shaders need to be recreated as their source code was lost and they need to be modified
 		AssetBundle waterBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/liquidshaderpack"));

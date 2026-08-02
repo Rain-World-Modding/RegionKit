@@ -149,12 +149,6 @@ public static class _Module
 		Custom.rainWorld.Shaders["MurkyWaterLightSource"] = FShader.CreateShader("MurkyWaterLightSource", bundle.LoadAsset<Shader>("Assets/Shaders/MurkyWaterLightSource.shader"));
 		Custom.rainWorld.Shaders["MurkyWaterSaveMask"] = FShader.CreateShader("MurkyWaterSaveMask", bundle.LoadAsset<Shader>("Assets/Shaders/MurkyWaterSaveMask.shader"));
 
-		// Todo: the water shaders need to be recreated as their source code was lost and they need to be modified
-		AssetBundle waterBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/liquidshaderpack"));
-
-		Custom.rainWorld.Shaders["DarkWater"] = FShader.CreateShader(("DarkWater"), waterBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/DarkWater.shader"));
-		Custom.rainWorld.Shaders["NoLitWater"] = FShader.CreateShader("NoLitWater", waterBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/NoLitWater.shader"));
-
 		Shader.SetGlobalColor("_InputColorMoss", Color.green); // maybe todo: replace implementation with TriangleMeshUVs
 	}
 

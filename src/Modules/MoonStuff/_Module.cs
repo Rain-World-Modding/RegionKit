@@ -80,7 +80,6 @@ namespace RegionKit.Modules.MoonStuff
 			Custom.rainWorld.Shaders.Add("ColoredOESphereBase", FShader.CreateShader("ColoredOESphereBase", assetBundle.LoadAsset<Shader>("assets/shaders/ColoredOESphereBase.shader")));
 			Custom.rainWorld.Shaders.Add("ColoredOESphereLight", FShader.CreateShader("ColoredOESphereLight", assetBundle.LoadAsset<Shader>("assets/shaders/ColoredOESphereLight.shader")));
 			Custom.rainWorld.Shaders.Add("SandFall", FShader.CreateShader("SandFall", assetBundle.LoadAsset<Shader>("assets/shaders/SandFall.shader")));
-			Custom.rainWorld.Shaders.Add("Lavaskin", FShader.CreateShader("Lavaskin", assetBundle.LoadAsset<Shader>("assets/shaders/Lavaskin.shader")));
 		}
 	}
 }

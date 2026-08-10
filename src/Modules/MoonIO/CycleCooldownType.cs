@@ -5,7 +5,7 @@ namespace RegionKit.Modules.MoonIO
 {
 	public class CycleCooldownType : ManagedObjectType
 	{
-		public CycleCooldownType() : base("Cycle Cooldown", _Enums.DevObjectCategories.MoonsStuffIO.value, null, typeof(CycleCooldownData), typeof(CycleCooldownRepresentation))
+		public CycleCooldownType() : base(_Enums.PlacedObjectType.CycleCooldown.value, _Enums.DevObjectCategories.MoonsStuffIO.value, null, typeof(CycleCooldownData), typeof(CycleCooldownRepresentation))
 		{
 		}
 

@@ -7,7 +7,7 @@ namespace RegionKit.Modules.MoonIO
 {
 	public class TriggerType : ManagedObjectType
 	{
-		public TriggerType() : base("Trigger", _Enums.DevObjectCategories.MoonsStuffIO.value, null, typeof(TriggerData), typeof(TriggerRepresentation))
+		public TriggerType() : base(_Enums.PlacedObjectType.Trigger.value, _Enums.DevObjectCategories.MoonsStuffIO.value, null, typeof(TriggerData), typeof(TriggerRepresentation))
 		{
 		}
 

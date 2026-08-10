@@ -4,13 +4,13 @@
 	{
 		public static class PlacedObjectType
 		{
-			public static readonly PlacedObject.Type IOLightSource = new PlacedObject.Type("IO LightSource", true);
+			public static readonly PlacedObject.Type IOLightSource = new PlacedObject.Type("IO Light Source", true);
 
 			public static PlacedObject.Type Trigger = new PlacedObject.Type("IO Trigger", true);
 
 			public static PlacedObject.Type Counter = new PlacedObject.Type("IO Counter", true);
 
-			public static PlacedObject.Type CycleCooldown = new PlacedObject.Type("IO CycleCooldown", true);
+			public static PlacedObject.Type CycleCooldown = new PlacedObject.Type("IO Cycle Cooldown", true);
 		}
 
 		public static class DevObjectCategories

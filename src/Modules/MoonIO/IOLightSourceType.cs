@@ -7,7 +7,7 @@ namespace RegionKit.Modules.MoonIO
 {
 	public class IOLightSourceType : ManagedObjectType
 	{
-		public IOLightSourceType() : base("IO LightSource", _Enums.DevObjectCategories.MoonsStuffIO.value, null, typeof(IOLightSourceData), typeof(IOLightSourceRepresentation))
+		public IOLightSourceType() : base(_Enums.PlacedObjectType.IOLightSource.value, _Enums.DevObjectCategories.MoonsStuffIO.value, null, typeof(IOLightSourceData), typeof(IOLightSourceRepresentation))
 		{
 		}
 

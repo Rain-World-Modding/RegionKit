@@ -6,7 +6,7 @@ namespace RegionKit.Modules.MoonIO
 {
 	public class CounterType : ManagedObjectType
 	{
-		public CounterType() : base("Counter", _Enums.DevObjectCategories.MoonsStuffIO.value, null, typeof(CounterData), typeof(CounterRepresentation))
+		public CounterType() : base(_Enums.PlacedObjectType.Counter.value, _Enums.DevObjectCategories.MoonsStuffIO.value, null, typeof(CounterData), typeof(CounterRepresentation))
 		{
 		}
 

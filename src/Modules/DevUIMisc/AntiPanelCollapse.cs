@@ -47,8 +47,8 @@ namespace RegionKit.Modules.DevUIMisc
 							break;
 						}
 						panel.collapsed = collapsed[index++];
-						panel.Refresh();
 					}
+					rep.Refresh();
 				}
 			}
 		}

@@ -1,17 +1,10 @@
-﻿//extended gates by Henpemaz
-
-using System;
-using System.Globalization;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using HUD;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using MoreSlugcats;
-using static MonoMod.InlineRT.MonoModRule;
-using ExtendedLocks = RegionKit.Modules.ExtendedGates.ExtendedLocks;
 using Gate = RegionGate;
 using Req = RegionGate.GateRequirement;
 

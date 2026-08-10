@@ -193,9 +193,13 @@ namespace RegionKit.Modules.MoonStuff
 				(panel.subNodes[1] as PositionedDevUINode).pos = new Vector2(5f, 25f);
 			}
 
-			public override void Move(Vector2 newPos)
+			public override void Update()
 			{
-				base.Move(owner.room.MiddleOfTile(pObj.pos) - owner.room.game.cameras[0].pos - new Vector2(10f, 10f));
+				// yes doing it twice
+				pObj.pos = owner.room.MiddleOfTile(pObj.pos) - new Vector2(10f, 10f);
+				base.Update();
+				pObj.pos = owner.room.MiddleOfTile(pObj.pos) - new Vector2(10f, 10f);
+				AbsMove(pObj.pos - owner.game.cameras[0].pos);
 			}
 		}
 	}

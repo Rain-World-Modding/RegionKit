@@ -1,4 +1,5 @@
-﻿using Unity.Mathematics;
+﻿using RegionKit.Extras;
+using Unity.Mathematics;
 
 using static RegionKit.Modules.MoonStuff.ConveyorBeltType;
 
@@ -6,48 +7,48 @@ using static RegionKit.Modules.MoonStuff.ConveyorBeltType;
 
 namespace RegionKit.Modules.MoonStuff
 {
-	public class ConveyorBelt : UpdatableAndDeletable, IDrawable
+	public class ConveyorBelt : UpdatableAndDeletable
 	{
-		public PlacedObject PlacedObject;
+		private const float BaseSpeed = 1f / 400f;
 
-		public int leftbelt;
+		public PlacedObject placedObject;
+		public ConveyorBeltData Data => placedObject.data as ConveyorBeltData;
 
-		public int beltstart;
+		private int TotalTrackPieces => Math.Max(0, Data.Size.x - 6);
+		private int TotalGears => Math.Max(0, Data.Covers);
+		private int TotalPips => TotalTrackPieces * 4 + 32;
 
-		public int beltend;
-
-		public int rightbelt;
-
-		public int gearstart;
-
-		public int gearend;
-
-		public int pipstart;
-
-		public int pipend;
 
 		public float time;
 
-		private bool GeoInit;
+		private bool hasInitGeo = false;
+		private bool firstInitGeo = true;
+		private Dictionary<IntVector2, Room.Tile.TerrainType> overriddenGeo = [];
 
-		public bool Reversed => (PlacedObject.data as ConveyorBeltData).reversed;
+		private Vector2 lastPObjPos;
+		private IntVector2 lastPObjSize;
 
-		public float speed => (PlacedObject.data as ConveyorBeltData).speed;
+		public bool Reversed => Data.reversed;
+		public float speed => Data.speed;
+
+		private bool hasInitDynamicLevelElements;
+		private DynamicLevelAtlasElement leftSide;
+		private DynamicLevelAtlasElement rightSide;
+		private List<DynamicLevelAtlasElement> trackPieces;
+		private List<DynamicLevelAtlasElement> gears;
+		private List<DynamicLevelAtlasElement> pips;
 
 		public ConveyorBelt(PlacedObject placedObject, Room room) : base()
 		{
-			this.PlacedObject = placedObject;
+			this.placedObject = placedObject;
 			this.room = room;
-			GeoInit = false;
+			lastPObjPos = placedObject.pos;
+			lastPObjSize = Data.Size;
 
-			leftbelt = 0;
-			beltstart = leftbelt + 1;
-			beltend = beltstart + (PlacedObject.data as ConveyorBeltData).Size.x - 6;
-			rightbelt = beltend + 1;
-			gearstart = rightbelt + 1;
-			gearend = gearstart + ((PlacedObject.data as ConveyorBeltData).Covers + 1);
-			pipstart = gearend + 1;
-			pipend = pipstart + (((PlacedObject.data as ConveyorBeltData).Size.x - 6) * 4) + 32;
+			trackPieces = [];
+			gears = [];
+			pips = [];
+			InitDynamicLevelElements();
 		}
 
 		public override void Update(bool eu)
@@ -56,30 +57,43 @@ namespace RegionKit.Modules.MoonStuff
 
 			if (!Reversed)
 			{
-				time -= 0.0025f * speed;
+				time -= BaseSpeed * speed;
 				if (time < 0f)
 				{
-					time = 4f;
+					time += 1f;
 				}
 			}
 			else
 			{
-				time += 0.0025f * speed;
-				if (time > 4f)
+				time += BaseSpeed * speed;
+				if (time >= 1f)
 				{
-					time = 0f;
+					time -= 1f;
 				}
 			}
 
-			IntVector2 pos = room.GetTilePosition(PlacedObject.pos);
-			IntRect top = new IntRect(pos.x - 1, pos.y + 2, pos.x + (PlacedObject.data as ConveyorBeltData).Size.x + 1, pos.y + 3);
-			IntRect bottom = new IntRect(pos.x - 1, pos.y - 1, pos.x + (PlacedObject.data as ConveyorBeltData).Size.x + 1, pos.y);
+			if (placedObject.pos != lastPObjPos)
+			{
+				hasInitGeo = false;
+				lastPObjPos = placedObject.pos;
+			}
+			if (Data.Size != lastPObjSize)
+			{
+				hasInitGeo = false;
+				lastPObjSize = Data.Size;
+				InitDynamicLevelElements();
+			}
 
-			float R = 30f;
-			float W = ((PlacedObject.data as ConveyorBeltData).Size.x * 20f) - 60f;
-			float num = (2f * W) + (2f * Mathf.PI * R);
+			IntVector2 pos = room.GetTilePosition(placedObject.pos);
+			IntRect top = new IntRect(pos.x, pos.y + 2, pos.x + Data.Size.x, pos.y + 3);
+			IntRect bottom = new IntRect(pos.x, pos.y - 1, pos.x + Data.Size.x, pos.y);
 
-			float M = Mathf.Lerp(0f, num, ((float)(1) / (float)(pipend - pipstart)));
+			float radius = 30f;
+			float flatWidth = (Data.Size.x * 20f) - 60f;
+			float perimeter = (2f * flatWidth) + (2f * Mathf.PI * radius);
+
+			//float M = Mathf.Lerp(0f, perimeter, 1f / TotalPips);
+			float M = perimeter / 20f / TotalPips;
 
 			float S = Reversed ? speed : -speed;
 
@@ -89,7 +103,7 @@ namespace RegionKit.Modules.MoonStuff
 				{
 					PhysicalObject obj = room.physicalObjects[i][o];
 
-					float V = (M / 20f) * (S / obj.surfaceFriction);
+					float V = M * (S / obj.surfaceFriction / obj.airFriction);
 
 					for (int b = 0; b < obj.bodyChunks.Length; b++)
 					{
@@ -97,37 +111,66 @@ namespace RegionKit.Modules.MoonStuff
 
 						if (Custom.InsideRect(room.GetTilePosition(chunk.pos), top)) // top side
 						{
+							//Push(chunk, new Vector2(V, 0f));
 							Push(obj, new Vector2(V, 0f));
 							break;
 						}
 						else if (Custom.InsideRect(room.GetTilePosition(chunk.pos), bottom)) // bottom side
 						{
-							Push(obj, new Vector2(V, 0f));
+							//Push(chunk, new Vector2(-V, 0f));
+							Push(obj, new Vector2(-V, 0f));
 							break;
 						}
 					}
 				}
 			}
 
-			if (GeoInit) return;
-			GeoInit = true;
+			UpdateDynamicLevelElements();
 
-			for (int x = 0; x < (PlacedObject.data as ConveyorBeltData).Size.x; x++)
+			if (hasInitGeo) return;
+			hasInitGeo = true;
+			InitGeo();
+		}
+
+		private void InitGeo()
+		{
+			if (firstInitGeo)
+			{
+				firstInitGeo = false;
+			}
+			else
+			{
+				foreach ((IntVector2 pos, Room.Tile.TerrainType terrain) in overriddenGeo)
+				{
+					room.GetTile(pos).Terrain = terrain;
+				}
+				overriddenGeo.Clear();
+			}
+
+			for (int x = 0; x < Data.Size.x; x++)
 			{
 				for (int y = 0; y < 3; y++)
 				{
-					IntVector2 tile = room.GetTilePosition(PlacedObject.pos) + new IntVector2(x, y);
+					IntVector2 tilePos = room.GetTilePosition(placedObject.pos) + new IntVector2(x, y);
+					if (!room.IsPositionInsideBoundries(tilePos)) continue;
 
-					if ((x == 0 || x == (PlacedObject.data as ConveyorBeltData).Size.x - 1) && (y == 0 || y == (PlacedObject.data as ConveyorBeltData).Size.y - 1))
+					Room.Tile tile = room.GetTile(tilePos);
+					overriddenGeo.Add(tilePos, tile.Terrain);
+					if ((x == 0 || x == Data.Size.x - 1) && (y == 0 || y == Data.Size.y - 1))
 					{
-						room.GetTile(tile).Terrain = Room.Tile.TerrainType.Slope;
+						tile.Terrain = Room.Tile.TerrainType.Slope;
 					}
 					else
 					{
-						room.GetTile(tile).Terrain = Room.Tile.TerrainType.Solid;
+						tile.Terrain = Room.Tile.TerrainType.Solid;
 					}
 				}
 			}
+		}
+
+		public void Push(BodyChunk chunk, Vector2 vel)
+		{
+			chunk.vel += vel;
 		}
 
 		public void Push(PhysicalObject obj, Vector2 vel)
@@ -138,125 +181,133 @@ namespace RegionKit.Modules.MoonStuff
 			}
 		}
 
-		public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
+		public override void Destroy()
 		{
-			sLeaser.sprites = new FSprite[pipend];
-
-			sLeaser.sprites[leftbelt] = new FSprite("ConveyorBelt_TrackLeft");
-			sLeaser.sprites[leftbelt].anchorX = 0f;
-			sLeaser.sprites[leftbelt].anchorY = 0f;
-			sLeaser.sprites[leftbelt].alpha = 0.9f;
-			for (int i = beltstart; i <= beltend; i++)
-			{
-				sLeaser.sprites[i] = new FSprite("ConveyorBelt_Track");
-				sLeaser.sprites[i].anchorX = 0f;
-				sLeaser.sprites[i].anchorY = 0f;
-				sLeaser.sprites[i].alpha = 0.9f;
-			}
-
-			sLeaser.sprites[rightbelt] = new FSprite("ConveyorBelt_TrackRight");
-			sLeaser.sprites[rightbelt].anchorX = 1f;
-			sLeaser.sprites[rightbelt].anchorY = 0f;
-			sLeaser.sprites[rightbelt].alpha = 0.9f;
-
-			for (int i = gearstart; i <= gearend; i++)
-			{
-				sLeaser.sprites[i] = new FSprite("ConveyorBelt_Gear");
-			}
-
-			for (int i = pipstart; i < pipend; i++)
-			{
-				sLeaser.sprites[i] = new FSprite("ConveyorBelt_Pip");
-			}
-
-			for (int i = 0; i < sLeaser.sprites.Length; i++)
-			{
-				sLeaser.sprites[i].shader = room.game.rainWorld.Shaders["ColoredSprite2"];
-			}
-
-			AddToContainer(sLeaser, rCam, null);
+			base.Destroy();
+			UninitDynamicLevelElements();
 		}
 
-		public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
+		private void InitDynamicLevelElements()
 		{
-			Vector2 bottomleft = room.MiddleOfTile(PlacedObject.pos) - new Vector2(10f, 10f);
-			Vector2 bottomright = room.MiddleOfTile(PlacedObject.pos) + new Vector2(((PlacedObject.data as ConveyorBeltData).Size.x * 20f) - 10f, -10f);
-
-			sLeaser.sprites[leftbelt].SetPosition(bottomleft - camPos);
-			sLeaser.sprites[rightbelt].SetPosition(bottomright - camPos);
-
-			for (int i = beltstart; i <= beltend; i++)
+			if (hasInitDynamicLevelElements)
 			{
-				sLeaser.sprites[i].y = bottomleft.y - camPos.y;
-				sLeaser.sprites[i].x = bottomleft.x + (20f * (i + 1)) - camPos.x;
+				UninitDynamicLevelElements();
+			}
+			hasInitDynamicLevelElements = true;
+
+			leftSide = new DynamicLevelAtlasElement(Vector2.zero, Vector2.one, "ConveyorBelt_TrackLeft", 4);
+			rightSide = new DynamicLevelAtlasElement(Vector2.zero, Vector2.one, "ConveyorBelt_TrackRight", 4);
+
+			room.AddObject(leftSide);
+			room.AddObject(rightSide);
+
+			for (int i = 0; i < TotalTrackPieces; i++)
+			{
+				var dle = new DynamicLevelAtlasElement(Vector2.zero, Vector2.one, "ConveyorBelt_Track", 4);
+				trackPieces.Add(dle);
+				room.AddObject(dle);
 			}
 
-			float R = 30f;
-			float W = ((PlacedObject.data as ConveyorBeltData).Size.x * 20f) - 60f;
-			float num = (2f * W) + (2f * Mathf.PI * R);
-
-			for (int i = gearstart; i <= gearend; i++)
+			for (int i = 0; i < TotalGears; i++)
 			{
-				Vector2 a = bottomleft + new Vector2(30f, 30f);
-				Vector2 b = bottomright + new Vector2(-30f, 30f);
-
-				sLeaser.sprites[i].SetPosition(room.MiddleOfTile(new Vector2(a.x + ((b.x - a.x) * ((float)(i - (float)gearstart) / (float)(gearend - gearstart))), a.y)) - camPos);
-				sLeaser.sprites[i].rotation = math.fmod(time, 1f) * num * 2f;
+				var dle = new DynamicLevelAtlasElement(Vector2.zero, Vector2.one, "ConveyorBelt_Gear", 3);
+				gears.Add(dle);
+				room.AddObject(dle);
 			}
 
-			for (int i = pipstart; i < pipend; i++)
+			for (int i = 0; i < TotalPips; i++)
 			{
-				float t = math.fmod(Mathf.Lerp(0f, num, ((float)(i - pipstart) / (float)(pipend - pipstart))) + (math.fmod(time, 1f) * num), num);
-				t = Mathf.Abs(t - num);
+				var dle = new DynamicLevelAtlasElement(Vector2.zero, Vector2.one, "ConveyorBelt_Pip", 3);
+				pips.Add(dle);
+				room.AddObject(dle);
+			}
 
-				Vector2 vector = bottomleft + new Vector2(30f, 0f);
+			UpdateDynamicLevelElements();
+		}
+
+		private void UpdateDynamicLevelElements()
+		{
+			Vector2 leftTrackPos = room.MiddleOfTile(placedObject.pos) + new Vector2(20f, 20f);
+			Vector2 rightTrackPos = room.MiddleOfTile(placedObject.pos) + new Vector2((Data.Size.x * 20f) - 40f, 20f);
+
+			leftSide.pos = leftTrackPos;
+			rightSide.pos = rightTrackPos;
+
+			for (int i = 0; i < trackPieces.Count; i++)
+			{
+				DynamicLevelAtlasElement track = trackPieces[i];
+				track.pos = leftTrackPos + new Vector2(20f * (i + 2), 0);
+			}
+
+			float radius = 30f;
+			float flatWidth = (Data.Size.x * 20f) - 60f;
+			float perimeter = (2f * flatWidth) + (2f * Mathf.PI * radius);
+			for (int i = 0; i < gears.Count; i++)
+			{
+				DynamicLevelAtlasElement gear = gears[i];
+
+				gear.pos = room.MiddleOfTile(new Vector2(Custom.LerpMap(i, 0, gears.Count - 1, leftTrackPos.x, rightTrackPos.x), leftTrackPos.y));
+				gear.rotation = math.fmod(time, 1f) * perimeter * 2f;
+			}
+
+			for (int i = 0; i < pips.Count; i++)
+			{
+				float t = math.fmod(Custom.LerpMap(i, 0, pips.Count, 0f, perimeter) + (math.fmod(time, 1f) * perimeter), perimeter);
+				t = Mathf.Abs(t - perimeter);
+
+				Vector2 pipPos = leftTrackPos + new Vector2(0f, -30f);
 				float angle = 0f;
 
-				if (t < W)
+				if (t < flatWidth)
 				{
-					vector += new Vector2(t, 0);
+					pipPos += new Vector2(t, 0);
 					angle = 180f;
 				}
-				else if (t < W + (Mathf.PI * R))
+				else if (t < flatWidth + (Mathf.PI * radius))
 				{
-					vector += new Vector2(W + R * Mathf.Sin((t - W) / R), R - (R * Mathf.Cos((t - W) / R)));
-					angle = Custom.AimFromOneVectorToAnother(bottomright + new Vector2(-30f, 30f), vector);
+					pipPos += new Vector2(flatWidth + radius * Mathf.Sin((t - flatWidth) / radius), radius - (radius * Mathf.Cos((t - flatWidth) / radius)));
+					angle = Custom.AimFromOneVectorToAnother(rightTrackPos, pipPos);
 				}
-				else if (t < (2 * W) + (Mathf.PI * R))
+				else if (t < (2 * flatWidth) + (Mathf.PI * radius))
 				{
-					vector += new Vector2(((Mathf.PI * R) + (2 * W)) - t, 2 * R);
+					pipPos += new Vector2(((Mathf.PI * radius) + (2 * flatWidth)) - t, 2 * radius);
 				}
 				else
 				{
-					vector += new Vector2(-R * Mathf.Sin((t - (2 * W) - (Mathf.PI * R)) / R), R + (R * Mathf.Cos((t - (2 * W) - (Mathf.PI * R)) / R)));
-					angle = Custom.AimFromOneVectorToAnother(bottomleft + new Vector2(30f, 30f), vector);
+					pipPos += new Vector2(-radius * Mathf.Sin((t - (2 * flatWidth) - (Mathf.PI * radius)) / radius), radius + (radius * Mathf.Cos((t - (2 * flatWidth) - (Mathf.PI * radius)) / radius)));
+					angle = Custom.AimFromOneVectorToAnother(leftTrackPos, pipPos);
 				}
 
-				sLeaser.sprites[i].SetPosition(vector - camPos);
-				sLeaser.sprites[i].rotation = angle;
-			}
-
-			if (base.slatedForDeletetion || room != rCam.room)
-			{
-				sLeaser.CleanSpritesAndRemove();
+				DynamicLevelAtlasElement pip = pips[i];
+				pip.pos = pipPos;
+				pip.rotation = angle;
 			}
 		}
 
-		public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
+		private void UninitDynamicLevelElements()
 		{
-		}
-
-		public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
-		{
-			if (newContatiner == null)
+			leftSide.Destroy();
+			rightSide.Destroy();
+			foreach (var track in trackPieces)
 			{
-				newContatiner = rCam.ReturnFContainer("Items");
+				track.Destroy();
+			}
+			foreach (var gear in gears)
+			{
+				gear.Destroy();
+			}
+			foreach (var pip in pips)
+			{
+				pip.Destroy();
 			}
 
-			for (int i = 0; i < sLeaser.sprites.Length; i++)
-			{
-				newContatiner.AddChild(sLeaser.sprites[i]);
-			}
+			leftSide = null;
+			rightSide = null;
+			trackPieces.Clear();
+			gears.Clear();
+			pips.Clear();
+
+			hasInitDynamicLevelElements = false;
 		}
 	}
 }

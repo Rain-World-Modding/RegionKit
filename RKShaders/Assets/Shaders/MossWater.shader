@@ -46,6 +46,9 @@ sampler2D _NoiseTex;
 uniform float _waterDepth;
 float4 _airPockets[MAX_AIR_POCKETS];
 
+uniform float _InputWidthMoss;
+uniform float _InputHeightMoss;
+
 sampler2D _GrabTexture;
 
 uniform float4 _spriteRect;
@@ -64,11 +67,12 @@ float4 _MainTex_ST;
 v2f vert (appdata_full v)
 {
     v2f o;
-
-    o.uv = float2(0.05, 1) * TRANSFORM_TEX(v.texcoord, _MainTex);
+    
+    float2 texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+    o.uv = float2(0.05 * (_InputWidthMoss == 0.0 ? texcoord.x : _InputWidthMoss * texcoord.x), texcoord.y); // r1.xz
 
     float noise = tex2Dlod(_NoiseTex, float4(o.uv.xy, 0, 1)).x;
-    noise = 7 * saturate(noise * 10 - 5);
+    noise = _InputHeightMoss * 7 * saturate(noise * 10 - 5);
 
     float3 pos = float3(noise, noise, noise) + v.vertex;
 

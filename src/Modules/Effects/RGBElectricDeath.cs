@@ -160,13 +160,13 @@ namespace RegionKit.Modules.Effects
 			}
 		}
 		
-		private static void ElectricDeathOnInitiateSprites(On.ElectricDeath.orig_InitiateSprites orig, ElectricDeath self, RoomCamera.SpriteLeaser sleaser, RoomCamera rcam)
+		private static void ElectricDeathOnInitiateSprites(On.ElectricDeath.orig_InitiateSprites orig, ElectricDeath self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 		{
-			orig(self, sleaser, rcam);
+			orig(self, sLeaser, rCam);
 			if (self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null && RGBElectricDeathUAD.Instance(self.room) is { } uad && uad.affectElectricDeath == true)
 			{
-				var oldSprite = sleaser.sprites[0];
-				sleaser.sprites[0] = new FSpriteUVs("Futile_White")
+				FSprite oldSprite = sLeaser.sprites[0];
+				sLeaser.sprites[0] = new FSpriteUVs("Futile_White")
 				{
 					scaleX = oldSprite.scaleX,
 					scaleY = oldSprite.scaleY,
@@ -174,16 +174,28 @@ namespace RegionKit.Modules.Effects
 				};
 				for (int i = 1; i < 10; i++)
 				{
-					sleaser.sprites[i].color = uad.color;
+					sLeaser.sprites[i].color = uad.color;
 				}
 			}
+			self.AddToContainer(sLeaser, rCam, null);
 		}
 
 		private static void ElectricDeath_DrawSprites(On.ElectricDeath.orig_DrawSprites orig, ElectricDeath self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
 			orig(self, sLeaser, rCam, timeStacker, camPos);
-			if (sLeaser.sprites.Length > 0 && sLeaser.sprites[0] is FSpriteUVs sprite && RGBElectricDeathUAD.Instance(self.room) is { } uad)
+			if (sLeaser.sprites.Length > 0 && RGBElectricDeathUAD.Instance(self.room) is { } uad)
 			{
+				if (sLeaser.sprites[0] is not FSpriteUVs sprite)
+				{
+					FSprite oldSprite = sLeaser.sprites[0];
+					sLeaser.sprites[0] = sprite = new FSpriteUVs("Futile_White")
+					{
+						scaleX = oldSprite.scaleX,
+						scaleY = oldSprite.scaleY,
+						shader = self.room.game.rainWorld.Shaders["RGBElectricDeath"],
+					};
+					self.AddToContainer(sLeaser, rCam, null!);
+				}
 				Color color = uad.affectElectricDeath ? uad.color : Color.green;
 				sprite.SetUVs(new Vector2(color.r, color.g), 1);
 				sprite.SetUVs(new Vector2(color.b, 1f), 2);

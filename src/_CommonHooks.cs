@@ -48,8 +48,9 @@ internal static class _CommonHooks
 		}
 	}
 
-	internal static readonly Dictionary<string, Action<Region, string, string>> SpecificUnrecognizedRegionParamProcessor = new();
-	internal static event Action<Region, string, string>? GeneralUnrecognizedRegionParamProcessor;
+	internal static readonly Dictionary<string, RegionParamProcessorDelegate> SpecificUnrecognizedRegionParamProcessor = new();
+	internal static event RegionParamProcessorDelegate? GeneralUnrecognizedRegionParamProcessor;
+	internal delegate void RegionParamProcessorDelegate(Region region, string key, string value);
 
 	internal static void RoomLoadedPatch(On.Room.orig_Loaded orig, Room self)
 	{

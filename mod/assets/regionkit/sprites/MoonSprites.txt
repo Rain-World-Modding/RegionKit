@@ -1,0 +1,44 @@
+{
+	"frames":
+	{
+		"SemiCircle16.png":
+		{
+			"frame": {"x":0,"y":0,"w":16,"h":16},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":16,"h":16},
+			"sourceSize": {"w":16,"h":16}
+		},
+		"Symbol_Poisonberry.png":
+		{
+			"frame": {"x":16,"y":0,"w":8,"h":8},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
+			"sourceSize": {"w":8,"h":8}
+		},
+		"DiamondEye.png":
+		{
+			"frame": {"x":0,"y":16,"w":11,"h":20},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":11,"h":20},
+			"sourceSize": {"w":11,"h":20}
+		},
+		"Kill_StoneheadCrab.png":
+		{
+			"frame": {"x":11,"y":16,"w":20,"h":20},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":20,"h":20},
+			"sourceSize": {"w":20,"h":20}
+		},
+	},
+	"meta":
+	{
+		"image": "MoonSprites.png",
+		"format": "RGBA8888",
+		"size": {"w":31,"h":36},
+		"scale": "1",
+	}
+}

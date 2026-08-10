@@ -1,0 +1,20 @@
+{
+	"frames":
+	{
+		"Stonehead.png":
+		{
+			"frame": {"x":0,"y":0,"w":64,"h":60},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":64,"h":60},
+			"sourceSize": {"w":64,"h":60}
+		},
+	},
+	"meta":
+	{
+		"image": "Stonehead.png",
+		"format": "RGBA8888",
+		"size": {"w":64,"h":60},
+		"scale": "1",
+	}
+}

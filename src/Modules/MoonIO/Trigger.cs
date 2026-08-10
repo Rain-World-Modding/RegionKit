@@ -1,6 +1,6 @@
 ﻿#nullable disable
 
-namespace RegionKit.Modules.IO
+namespace RegionKit.Modules.MoonIO
 {
 	public class Trigger : IOObject
 	{
@@ -39,7 +39,7 @@ namespace RegionKit.Modules.IO
 							{
 								if (creature is Player p && p.AI == null)
 								{
-									SendOutput(IO._Enums.OutputType.Output_Trigger);
+									SendOutput(MoonIO._Enums.OutputType.Output_Trigger);
 									CreaturesInZone.Add(creature);
 								}
 							}
@@ -47,13 +47,13 @@ namespace RegionKit.Modules.IO
 							{
 								if (!(creature is Player) || (creature is Player p && p.AI != null))
 								{
-									SendOutput(IO._Enums.OutputType.Output_Trigger);
+									SendOutput(MoonIO._Enums.OutputType.Output_Trigger);
 									CreaturesInZone.Add(creature);
 								}
 							}
 							else
 							{
-								SendOutput(IO._Enums.OutputType.Output_Trigger);
+								SendOutput(MoonIO._Enums.OutputType.Output_Trigger);
 								CreaturesInZone.Add(creature);
 							}
 

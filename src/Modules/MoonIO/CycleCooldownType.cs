@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using DevInterface;
 
-namespace RegionKit.Modules.IO
+namespace RegionKit.Modules.MoonIO
 {
 	public class CycleCooldownType : ManagedObjectType
 	{

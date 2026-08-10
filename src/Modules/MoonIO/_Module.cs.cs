@@ -1,10 +1,18 @@
 ﻿using DevInterface;
 
-namespace RegionKit.Modules.IO
+namespace RegionKit.Modules.MoonIO
 {
-	[RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Moon IO")]
+	[RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Moon IO")]
 	internal static class _Module
 	{
+		public static void Setup()
+		{
+			RegisterManagedObject(new TriggerType()); // IO
+			RegisterManagedObject(new IOLightSourceType()); // IO
+			RegisterManagedObject(new CounterType());  // IO
+			RegisterManagedObject(new CycleCooldownType());  // IO
+		}
+
 		public static void Enable()
 		{
 			ConsoleVisualizerIO.Apply();
@@ -32,9 +40,9 @@ namespace RegionKit.Modules.IO
 		{
 			if (sender.IDstring == "ChangeConnections")
 			{
-				bool flag = !self.CustomData().ShowConnections;
-				self.CustomData().ShowConnections = flag;
-				self.CustomData().ConnectionsButton.Text = (flag ? "Show" : "Hide") + " I/O Connections";
+				bool flag = !self.MoonObjectsPageData().ShowConnections;
+				self.MoonObjectsPageData().ShowConnections = flag;
+				self.MoonObjectsPageData().ConnectionsButton.Text = (flag ? "Show" : "Hide") + " I/O Connections";
 			}
 			else
 			{
@@ -46,13 +54,13 @@ namespace RegionKit.Modules.IO
 		{
 			orig(self, owner, IDstring, parentNode, name);
 
-			self.subNodes.Add(self.CustomData().ConnectionsButton = new Button(owner, "ChangeConnections", self, new Vector2(125f, 20f), 125f, "Hide I/O Connections"));
+			self.subNodes.Add(self.MoonObjectsPageData().ConnectionsButton = new Button(owner, "ChangeConnections", self, new Vector2(125f, 20f), 125f, "Hide I/O Connections"));
 		}
 
 		private static void InitIOObjectList(On.Room.orig_ctor orig, Room self, RainWorldGame game, World world, AbstractRoom abstractRoom, bool devUI)
 		{
 			orig(self, game, world, abstractRoom, devUI);
-			self.CustomData().IOObjects = new List<IOObject>();
+			self.MoonRoomData().IOObjects = new List<IOObject>();
 		}
 
 		private static void CleanIOObjects(On.Room.orig_CleanOutObjectNotInThisRoom orig, Room self, UpdatableAndDeletable obj)
@@ -61,7 +69,7 @@ namespace RegionKit.Modules.IO
 
 			if (obj is IOObject)
 			{
-				self.CustomData().IOObjects.Remove(obj as IOObject);
+				self.MoonRoomData().IOObjects.Remove(obj as IOObject);
 			}
 		}
 
@@ -76,7 +84,7 @@ namespace RegionKit.Modules.IO
 
 			if (obj is IOObject)
 			{
-				self.CustomData().IOObjects.Add(obj as IOObject);
+				self.MoonRoomData().IOObjects.Add(obj as IOObject);
 			}
 		}
 	}

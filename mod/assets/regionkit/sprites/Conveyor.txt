@@ -1,0 +1,60 @@
+{
+	"frames":
+	{
+		"ConveyorBelt_Gear.png":
+		{
+			"frame": {"x":0,"y":0,"w":50,"h":50},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":50,"h":50},
+			"sourceSize": {"w":50,"h":50}
+		},
+		"ConveyorBelt_Pip.png":
+		{
+			"frame": {"x":156,"y":2,"w":8,"h":6},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":8,"h":6},
+			"sourceSize": {"w":8,"h":6}
+		},
+		"ConveyorBelt_Cover.png":
+		{
+			"frame": {"x":50,"y":0,"w":80,"h":57},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":80,"h":57},
+			"sourceSize": {"w":80,"h":57}
+		},
+		"ConveyorBelt_Track.png":
+		{
+			"frame": {"x":130,"y":0,"w":20,"h":60},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":20,"h":60},
+			"sourceSize": {"w":20,"h":60}
+		},
+		"ConveyorBelt_TrackLeft.png":
+		{
+			"frame": {"x":110,"y":60,"w":61,"h":60},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":61,"h":60},
+			"sourceSize": {"w":61,"h":60}
+		},
+		"ConveyorBelt_TrackRight.png":
+		{
+			"frame": {"x":49,"y":57,"w":61,"h":60},
+			"rotated": false,
+			"trimmed": false,
+			"spriteSourceSize": {"x":0,"y":0,"w":61,"h":60},
+			"sourceSize": {"w":61,"h":60}
+		},
+	},
+	"meta":
+	{
+		"image": "Conveyor.png",
+		"format": "RGBA8888",
+		"size": {"w":171,"h":122},
+		"scale": "1",
+	}
+}

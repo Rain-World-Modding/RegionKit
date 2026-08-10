@@ -1,6 +1,6 @@
 ﻿#nullable disable
 
-namespace RegionKit.Modules.IO
+namespace RegionKit.Modules.MoonIO
 {
 	public class IOLightSource : IOObject
 	{

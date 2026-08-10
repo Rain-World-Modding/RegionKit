@@ -2,11 +2,11 @@
 using System.Text.RegularExpressions;
 using DevInterface;
 using Pom;
-using static RegionKit.Modules.IO._Enums;
+using static RegionKit.Modules.MoonIO._Enums;
 
 #nullable disable
 
-namespace RegionKit.Modules.IO
+namespace RegionKit.Modules.MoonIO
 {
 
 	public class IOType
@@ -861,7 +861,7 @@ namespace RegionKit.Modules.IO
 
 					if (DevUI.activePage is ObjectsPage p)
 					{
-						Sprite.isVisible = p.CustomData().ShowConnections;
+						Sprite.isVisible = p.MoonObjectsPageData().ShowConnections;
 					}
 				}
 

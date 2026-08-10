@@ -4,7 +4,7 @@ using MoreSlugcats;
 
 #nullable disable
 
-namespace RegionKit.Modules.IO
+namespace RegionKit.Modules.MoonIO
 {
 	internal static class _CWTs
 	{
@@ -12,9 +12,9 @@ namespace RegionKit.Modules.IO
 		static ConditionalWeakTable<Room, RoomData> RoomCWT = new ConditionalWeakTable<Room, RoomData>();
 		static ConditionalWeakTable<ConsoleVisualizer, ConsoleVisualizerData> ConsoleVisualizerCWT = new ConditionalWeakTable<ConsoleVisualizer, ConsoleVisualizerData>();
 
-		public static ObjectsPageData CustomData(this ObjectsPage self) => ObjectsPageCWT.GetOrCreateValue(self);
-		public static RoomData CustomData(this Room self) => RoomCWT.GetOrCreateValue(self);
-		public static ConsoleVisualizerData CustomData(this ConsoleVisualizer self) => ConsoleVisualizerCWT.GetOrCreateValue(self);
+		public static ObjectsPageData MoonObjectsPageData(this ObjectsPage self) => ObjectsPageCWT.GetOrCreateValue(self);
+		public static RoomData MoonRoomData(this Room self) => RoomCWT.GetOrCreateValue(self);
+		public static ConsoleVisualizerData MoonConsoleVizData(this ConsoleVisualizer self) => ConsoleVisualizerCWT.GetOrCreateValue(self);
 
 		public class ObjectsPageData
 		{

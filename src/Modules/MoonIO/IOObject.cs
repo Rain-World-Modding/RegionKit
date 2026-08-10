@@ -1,8 +1,8 @@
-﻿using static RegionKit.Modules.IO._Enums;
+﻿using static RegionKit.Modules.MoonIO._Enums;
 
 #nullable disable
 
-namespace RegionKit.Modules.IO
+namespace RegionKit.Modules.MoonIO
 {
 	public class IOObject : UpdatableAndDeletable
 	{
@@ -31,9 +31,9 @@ namespace RegionKit.Modules.IO
 			{
 				if (delay == 0)
 				{
-					for (int i = 0; i < room.CustomData().IOObjects.Count; i++)
+					for (int i = 0; i < room.MoonRoomData().IOObjects.Count; i++)
 					{
-						IOType.IOData Data = room.CustomData().IOObjects[i].Data;
+						IOType.IOData Data = room.MoonRoomData().IOObjects[i].Data;
 						foreach (IOType.IODataHolder dataholder in Data.IOHolder)
 						{
 							if (dataholder.MessageID == ID && dataholder.InputType)
@@ -43,7 +43,7 @@ namespace RegionKit.Modules.IO
 								{
 									InputType e = (InputType)ExtEnum<InputType>.Parse(typeof(InputType), dataholder.IOType, true);
 
-									room.CustomData().IOObjects[i].ReciveInput(e);
+									room.MoonRoomData().IOObjects[i].ReciveInput(e);
 								}
 							}
 						}

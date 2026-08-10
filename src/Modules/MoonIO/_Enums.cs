@@ -1,4 +1,4 @@
-﻿namespace RegionKit.Modules.IO
+﻿namespace RegionKit.Modules.MoonIO
 {
 	public static class _Enums
 	{

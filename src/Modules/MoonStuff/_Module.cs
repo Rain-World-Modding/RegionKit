@@ -22,11 +22,17 @@ namespace RegionKit.Modules.MoonStuff
 		public static void Enable()
 		{
 			_CommonHooks.GeneralUnrecognizedRegionParamProcessor += MoonRegionParams;
+			On.MoreSlugcats.OEsphere.AddToContainer += OESphereFix;
+
+			LightSourceFlickerHooks.Apply();
 		}
 
 		public static void Disable()
 		{
 			_CommonHooks.GeneralUnrecognizedRegionParamProcessor -= MoonRegionParams;
+			On.MoreSlugcats.OEsphere.AddToContainer -= OESphereFix;
+
+			LightSourceFlickerHooks.Undo();
 		}
 
 		private static void MoonRegionParams(Region region, string key, string value)
@@ -57,6 +63,15 @@ namespace RegionKit.Modules.MoonStuff
 					break;
 				}
 			}
+		}
+
+		public static void OESphereFix(On.MoreSlugcats.OEsphere.orig_AddToContainer orig, MoreSlugcats.OEsphere self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
+		{
+			rCam.ReturnFContainer("GrabShaders").AddChild(sLeaser.sprites[0]);
+			rCam.ReturnFContainer("GrabShaders").AddChild(sLeaser.sprites[1]);
+			rCam.ReturnFContainer("Foreground").AddChild(sLeaser.sprites[2]);
+			sLeaser.sprites[1].MoveInFrontOfOtherNode(sLeaser.sprites[0]);
+			sLeaser.sprites[0].MoveToBack();
 		}
 
 		private static void LoadShaders()

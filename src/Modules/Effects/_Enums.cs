@@ -88,6 +88,10 @@ public static class _Enums
 	/// Rain palette fade
 	/// </summary>
 	public static RoomSettings.RoomEffect.Type RainPaletteFade = new(nameof(RainPaletteFade), true);
+	/// <summary>
+	/// Rumbles by Damoonlord
+	/// </summary>
+	public static RoomSettings.RoomEffect.Type Rumbles = new(nameof(Rumbles), true);
 
 
 

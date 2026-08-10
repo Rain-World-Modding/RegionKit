@@ -28,6 +28,7 @@ public static class _Module
 		HSLDisplaySnowBuilder.__RegisterBuilder();
 		PaletteEffectColorBuilder.__RegisterBuilder();
 		//LocustSwarmBuilder.__RegisterBuilder();
+		Rumbles.__RegisterBuilder();
 
 		LoadShaders();
 	}
@@ -107,6 +108,7 @@ public static class _Module
 			|| type == _Enums.RainSiren
 			|| type == _Enums.Suffocation
 			|| type == AridBarrens._Enums.SandStorm
+			|| type == _Enums.Rumbles
 			)
 		{
 			return _Enums.RegionKit_Gameplay;

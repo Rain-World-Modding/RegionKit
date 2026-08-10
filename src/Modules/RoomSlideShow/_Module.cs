@@ -43,11 +43,19 @@ public static class _Module
 		{
 			RegisterManagedObject<SlideShowUAD, SlideShowMeshData, ManagedRepresentation>("SlideShow", Objects._Module.OBJECTS_POM_CATEGORY);
 			RegisterManagedObject<SlideShowUAD, SlideShowRectData, ManagedRepresentation>("SlideShowRect", Objects._Module.OBJECTS_POM_CATEGORY);
+			LoadShaders();
 		}
 		catch (Exception ex)
 		{
 			LogError(ex);
 		}
+	}
+
+	private static void LoadShaders()
+	{
+		var bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_roomslideshow"));
+		Custom.rainWorld.Shaders["AlphaLevelColor"] = FShader.CreateShader("AlphaLevelColor", bundle.LoadAsset<Shader>("Assets/Shaders/AlphaLevelColor.shader"));
+		Custom.rainWorld.Shaders["WaterWarble"] = FShader.CreateShader("WaterWarble", bundle.LoadAsset<Shader>("Assets/Shaders/WaterWarble.shader"));
 	}
 
 	private static IO.FileSystemWatcher __CreateWatcher(

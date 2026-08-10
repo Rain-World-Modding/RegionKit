@@ -519,14 +519,19 @@ public static class _Module
 
 	public static void LoadShaders()
 	{
-		Custom.rainWorld.Shaders["ColorEffects"] = FShader.CreateShader("ColorEffects", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/coloreffects")).LoadAsset<Shader>("Assets/ColorEffects.shader"));
-		Custom.rainWorld.Shaders["WaterFallDepth"] = FShader.CreateShader("WaterFallDepth", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/waterfalldepth")).LoadAsset<Shader>("Assets/Shaders/WaterFallDepth.shader"));
-		AssetBundle bgFlatLightBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/bgflatlight"));
-		Custom.rainWorld.Shaders["BGFlatLight"] = FShader.CreateShader("BGFlatLight", bgFlatLightBundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLight.shader"));
-		Custom.rainWorld.Shaders["BGCloudLight"] = FShader.CreateShader("BGCloudLight", bgFlatLightBundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLight.shader"), ["cloudlight"]);
-		Custom.rainWorld.Shaders["BGFlatLightAdditive"] = FShader.CreateShader("BGFlatLightAdditive", bgFlatLightBundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLightAdditive.shader"));
-		Custom.rainWorld.Shaders["BGCloudLightAdditive"] = FShader.CreateShader("BGCloudLightAdditive", bgFlatLightBundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLightAdditive.shader"), ["cloudlight"]);
-		Custom.rainWorld.Shaders["ASAxisHandleLine"] = FShader.CreateShader("ASAxisHandleLine", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/ASAxisHandleLine")).LoadAsset<Shader>("Assets/Shaders/ASAxisHandleLine.shader"));
-		Custom.rainWorld.Shaders["RKColoredLocalBlizzard"] = FShader.CreateShader("RKColoredLocalBlizzard", AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/RKColoredLocalBlizzard")).LoadAsset<Shader>("Assets/Shaders/RKColoredLocalBlizzard.shader"));
+		AssetBundle bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_objects"));
+
+		Custom.rainWorld.Shaders["LegacyColoredSprite2"] = FShader.CreateShader("LegacyColoredSprite2", bundle.LoadAsset<Shader>("Assets/Shaders/LegacyColoredSprite2.shader"));
+		Custom.rainWorld.Shaders["ColorEffects"] = FShader.CreateShader("ColorEffects", bundle.LoadAsset<Shader>("Assets/Shaders/ColorEffects.shader"));
+
+		Custom.rainWorld.Shaders["BGFlatLight"] = FShader.CreateShader("BGFlatLight", bundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLight.shader"));
+		Custom.rainWorld.Shaders["BGCloudLight"] = FShader.CreateShader("BGCloudLight", bundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLight.shader"), ["cloudlight"]);
+		Custom.rainWorld.Shaders["BGFlatLightAdditive"] = FShader.CreateShader("BGFlatLightAdditive", bundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLightAdditive.shader"));
+		Custom.rainWorld.Shaders["BGCloudLightAdditive"] = FShader.CreateShader("BGCloudLightAdditive", bundle.LoadAsset<Shader>("Assets/Shaders/BGFlatLightAdditive.shader"), ["cloudlight"]);
+
+		Custom.rainWorld.Shaders["ASAxisHandleLine"] = FShader.CreateShader("ASAxisHandleLine", bundle.LoadAsset<Shader>("Assets/Shaders/ASAxisHandleLine.shader"));
+
+		Custom.rainWorld.Shaders["WaterFallDepth"] = FShader.CreateShader("WaterFallDepth", bundle.LoadAsset<Shader>("Assets/Shaders/WaterFallDepth.shader"));
+		Custom.rainWorld.Shaders["RKColoredLocalBlizzard"] = FShader.CreateShader("RKColoredLocalBlizzard", bundle.LoadAsset<Shader>("Assets/Shaders/RKColoredLocalBlizzard.shader"));
 	}
 }

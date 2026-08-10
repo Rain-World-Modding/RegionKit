@@ -49,7 +49,7 @@ internal static class _Module
 
 	private static void LoadShaders()
 	{
-		AssetBundle bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rkfloatingdebris"));
+		AssetBundle bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_floatingdebris"));
 		Custom.rainWorld.Shaders["RKDust"] = FShader.CreateShader("RKDust", bundle.LoadAsset<Shader>("Assets/Shaders/RKFloatingDust.shader"));
 		Custom.rainWorld.Shaders["RKWhiteDust"] = FShader.CreateShader("RKWhiteDust", bundle.LoadAsset<Shader>("Assets/Shaders/RKFloatingDust.shader"), ["lightdust"]);
 		Custom.rainWorld.Shaders["RKColoredDust"] = FShader.CreateShader("RKColoredDust", bundle.LoadAsset<Shader>("Assets/Shaders/RKColoredDust.shader"));

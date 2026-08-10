@@ -1,7 +1,4 @@
 ﻿using RegionKit.API;
-using RegionKit.Modules.Effects;
-using RegionKit.Modules.GateCustomization;
-using RegionKit.Modules.RoomSlideShow;
 
 namespace RegionKit;
 /// <summary>

@@ -38,7 +38,7 @@ internal static class OverseerRecolor
 	{
 		orig(self, sLeaser, rCam);
 
-		if ((self.overseer.abstractCreature.abstractAI as OverseerAbstractAI)?.ownerIterator == 1) return;
+		if (self.overseer.abstractCreature.abstractAI is OverseerAbstractAI { ownerIterator: 1 }) return;
 
 		Color color = (self.overseer.graphicsModule as OverseerGraphics)!.MainColor;
 
@@ -52,7 +52,11 @@ internal static class OverseerRecolor
 		newSprite.SetUVs(new Vector2(color.b, 1), 2);
 
 		for (int i = 1; i < sLeaser.sprites.Length; i++)
-		{ sLeaser.sprites[i].color = color; }
+		{ 
+			sLeaser.sprites[i].color = color; 
+		}
+
+		self.AddToContainer(sLeaser, rCam, null);
 	}
 
 	private static void OverseerAbstractAI_SetAsPlayerGuide(On.OverseerAbstractAI.orig_SetAsPlayerGuide orig, OverseerAbstractAI self, int ownerOverride)

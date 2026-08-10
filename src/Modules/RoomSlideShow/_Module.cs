@@ -1,11 +1,12 @@
-﻿using IO = System.IO;
+﻿using System.Collections.Concurrent;
+using System.IO;
 
 namespace RegionKit.Modules.RoomSlideShow;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Room Slideshow")]
 public static class _Module
 {
-	internal readonly static System.Collections.Concurrent.ConcurrentDictionary<string, (Playback, IO.FileSystemWatcher?)> __playbacksById = new();
+	internal readonly static ConcurrentDictionary<string, (Playback, FileSystemWatcher?)> __playbacksById = new();
 	public static void Enable()
 	{
 		__playbacksById.Clear();
@@ -18,7 +19,7 @@ public static class _Module
             ;
 		foreach (string filename in playback_files)
 		{
-			IO.FileInfo file = new(filename);
+			FileInfo file = new(filename);
             string ext = file.Extension;
             if (ext is not ".txt") continue;
 			string name = file.Name[0..^ext.Length];
@@ -58,27 +59,27 @@ public static class _Module
 		Custom.rainWorld.Shaders["WaterWarble"] = FShader.CreateShader("WaterWarble", bundle.LoadAsset<Shader>("Assets/Shaders/WaterWarble.shader"));
 	}
 
-	private static IO.FileSystemWatcher __CreateWatcher(
+	private static FileSystemWatcher __CreateWatcher(
 		// IO.DirectoryInfo directory,
 		// string watcherId
-		IO.FileInfo file,
+		FileInfo file,
 		string watcherId
 		)
 	{
         LogDebug($"Creating watcher for file {file.FullName}");
-		IO.FileSystemWatcher watcher = new(file.DirectoryName)
+		FileSystemWatcher watcher = new(file.DirectoryName)
 		{
-			NotifyFilter = IO.NotifyFilters.LastWrite,
+			NotifyFilter = NotifyFilters.LastWrite,
 			Filter = file.Name,
 			// IncludeSubdirectories = false,
 			EnableRaisingEvents = true,
 		};
-		IO.FileSystemEventHandler handlerReadPlayback = (sender, args) =>
+		FileSystemEventHandler handlerReadPlayback = (sender, args) =>
 		{
             LogDebug($"Watcher {watcherId} start read event");
 			try
 			{
-				IO.FileInfo file = new(args.FullPath);
+				FileInfo file = new(args.FullPath);
 				__ReadAndRegisterFromFile(file, watcher, file.Name[0..^file.Extension.Length]);
                 LogDebug($"Watcher {watcherId} read event success");
 			}
@@ -87,11 +88,11 @@ public static class _Module
 				LogError($"Error reading slideshow playback from watcher {watcherId} (args '{args.ChangeType}' '{args.Name}' '{args.FullPath}' ):\n{ex}");
 			}
 		};
-		IO.FileSystemEventHandler handlerRemovePlayback = (sender, args) =>
+		FileSystemEventHandler handlerRemovePlayback = (sender, args) =>
 		{
             LogDebug($"Watcher {watcherId} start clear event");
 		    //IO.FileInfo file = new(args.FullPath);
-		    __playbacksById.TryRemove(file.Name, out (Playback, IO.FileSystemWatcher?) popped);
+		    __playbacksById.TryRemove(file.Name, out (Playback, FileSystemWatcher?) popped);
             LogDebug($"Watcher {watcherId} clear event success {popped}");
 		};
 
@@ -103,12 +104,12 @@ public static class _Module
 		return watcher;
 	}
 	private static void __ReadAndRegisterFromFile(
-		IO.FileInfo file,
-		IO.FileSystemWatcher? existingWatcher,
+		FileInfo file,
+		FileSystemWatcher? existingWatcher,
 		string name)
 	{
         LogDebug($"Adding playback from file called {name}");
-		string[] lines = IO.File.ReadAllLines(file.FullName);
+		string[] lines = File.ReadAllLines(file.FullName);
 		Playback playback = _Read.FromText(name, lines);
 		__playbacksById[name] = (playback, existingWatcher ?? __CreateWatcher(file, "w_" + name));
 	}

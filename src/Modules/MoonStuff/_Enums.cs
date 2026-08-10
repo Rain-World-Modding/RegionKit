@@ -8,7 +8,7 @@
 
 		public static readonly PlacedObject.Type Crystal = new PlacedObject.Type(nameof(Crystal), true);
 
-		public static readonly PlacedObject.Type ColoredOESphere = new PlacedObject.Type(nameof(ColoredOESphere), true);
+		public static readonly PlacedObject.Type ColoredOESphere = new PlacedObject.Type(nameof(ColoredOESphere), false); // TEMPORARILY DISABLED
 
 		public static readonly PlacedObject.Type WarmSpot = new PlacedObject.Type(nameof(WarmSpot), true);
 

@@ -15,7 +15,7 @@
 
 		public static class DevObjectCategories
 		{
-			public static readonly DevInterface.ObjectsPage.DevObjectCategories MoonsStuffIO = new DevInterface.ObjectsPage.DevObjectCategories("RegionKit.IO", true);
+			public static readonly DevInterface.ObjectsPage.DevObjectCategories MoonsStuffIO = new DevInterface.ObjectsPage.DevObjectCategories("RegionKit-I/O", true);
 		}
 
 		public class InputType : ExtEnum<InputType>

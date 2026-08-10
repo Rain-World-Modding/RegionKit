@@ -27,13 +27,7 @@ namespace RegionKit.Modules.MoonStuff
 		{
 			get
 			{
-				if (room.world.region == null)
-				{
-					return new HSLColor(0.87f, 0.9f, 0.6f);
-				}
-
-				//_CommonHooks.SpecificUnrecognizedRegionParamProcessor[]
-				HSLColor col = room.world.region.MoonRegionData().CrystalColor;
+				HSLColor col = room.world.region?.MoonRegionData().CrystalColor ?? new HSLColor(0.87f, 0.9f, 0.6f);
 				float h = (placedObject.data as CrystalData).CrystalHue == -1f ? col.hue : (placedObject.data as CrystalData).CrystalHue;
 				float s = (placedObject.data as CrystalData).CrystalSat == -1f ? col.saturation : (placedObject.data as CrystalData).CrystalSat;
 				float l = (placedObject.data as CrystalData).CrystalLit == -1f ? col.lightness : (placedObject.data as CrystalData).CrystalLit;

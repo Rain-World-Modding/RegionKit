@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 using DevInterface;
 
 #nullable disable
@@ -14,17 +9,7 @@ namespace RegionKit.Modules.MoonStuff
 	{
 		public ColoredOESphereType() : base("Colored OE Sphere", Objects._Module.DECORATIONS_POM_CATEGORY, null, typeof(ColoredOESphereData), typeof(ColoredOESphereRepresentation)) { }
 
-		public override UpdatableAndDeletable MakeObject(PlacedObject placedObject, Room room) => ModManager.MSC ? new ColoredOESphere(placedObject, room) : null;
-
-		public override PlacedObjectRepresentation MakeRepresentation(PlacedObject pObj, ObjectsPage objPage)
-		{
-			if (!ModManager.MSC)
-			{
-				return null;
-			}
-
-			return base.MakeRepresentation(pObj, objPage);
-		}
+		public override UpdatableAndDeletable MakeObject(PlacedObject placedObject, Room room) => new ColoredOESphere(placedObject, room);
 
 		public class ColoredOESphereData : ManagedData
 		{

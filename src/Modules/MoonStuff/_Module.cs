@@ -10,7 +10,7 @@ namespace RegionKit.Modules.MoonStuff
 			RegisterManagedObject(new CrystalType());
 			RegisterManagedObject(new SandfallType());
 			RegisterManagedObject(new LightSourceFlickerType());
-			RegisterManagedObject(new ColoredOESphereType());
+			//RegisterManagedObject(new ColoredOESphereType());
 			RegisterManagedObject(new WarmSpotType());
 			RegisterManagedObject(new ConveyorBeltType());
 

@@ -4,7 +4,7 @@
 
 namespace RegionKit.Modules.MoonStuff
 {
-	internal class ColoredOESphere : UpdatableAndDeletable//, IDrawable
+	internal class ColoredOESphere : UpdatableAndDeletable, IDrawable
 	{
 		private readonly PlacedObject placedObject;
 		public float rad => RWCustom.Custom.Dist(placedObject.pos + (placedObject.data as ColoredOESphereData).rad, placedObject.pos);

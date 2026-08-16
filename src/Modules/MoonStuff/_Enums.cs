@@ -4,7 +4,7 @@
 	{
 		public static readonly PlacedObject.Type SandFall = new PlacedObject.Type(nameof(SandFall), true);
 
-		public static readonly PlacedObject.Type LightSourceFlicker = new PlacedObject.Type(nameof(LightSourceFlicker), true);
+		public static readonly PlacedObject.Type MoonLightSourceFlicker = new PlacedObject.Type(nameof(MoonLightSourceFlicker), true);
 
 		public static readonly PlacedObject.Type Crystal = new PlacedObject.Type(nameof(Crystal), true);
 

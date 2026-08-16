@@ -205,10 +205,12 @@ public static class _Module
 			|| type == _Enums.NoBatflyLurkZone
 			|| type == _Enums.NoDropwigPerchZone
 			|| type == _Enums.ColoredMudPit
+			|| type == MoonStuff._Enums.BarbedWire
 			)
 			res = new ObjectsPage.DevObjectCategories(GAMEPLAY_POM_CATEGORY);
 		else if (type == _Enums.EvilDangleFruit)
 			res = ObjectsPage.DevObjectCategories.Consumable;
+
 		return res;
 	}
 
@@ -293,6 +295,9 @@ public static class _Module
 					break;
 				case nameof(_Enums.ColoredLocalBlizzard):
 					self.AddObject(new ColoredLocalBlizzard(pObj, (pObj.data as ColoredLocalBlizzard.Data)!));
+					break;
+				case nameof(MoonStuff._Enums.BarbedWire):
+					self.AddObject(new MoonStuff.BarbedWire(self, pObj));
 					break;
 			}
 			if (pObj.data is WormgrassRectData && !wormgrassDataFound)
@@ -389,6 +394,11 @@ public static class _Module
 		{
 			CreateObjectIfNeeded();
 			rep = new ColoredLocalBlizzard.Representation(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
+		}
+		else if (tp == MoonStuff._Enums.BarbedWire)
+		{
+			CreateObjectIfNeeded();
+			rep = new MoonStuff.BarbedWireRep(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
 		}
 
 		// Create object or call orig
@@ -496,6 +506,10 @@ public static class _Module
 		else if (self.type == _Enums.ColoredLocalBlizzard)
 		{
 			self.data = new ColoredLocalBlizzard.Data(self);
+		}
+		else if (self.type == MoonStuff._Enums.BarbedWire)
+		{
+			self.data = new MoonStuff.BarbedWireData(self);
 		}
 
 		orig(self);

@@ -16,7 +16,7 @@
 		private static void LoadShaders()
 		{
 			bundle?.Unload(true);
-			bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rkterrainfix"));
+			bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_shaderfix"));
 			Custom.rainWorld.Shaders["SlopedTerrainSurface"].shader = bundle.LoadAsset<Shader>("Assets/Shaders/SlopedTerrainSurfaceFix.shader");
 		}
 	}

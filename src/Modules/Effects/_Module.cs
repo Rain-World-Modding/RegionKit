@@ -1,9 +1,5 @@
-﻿using System.Text.RegularExpressions;
-using DevInterface;
+﻿using DevInterface;
 using EffExt;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using RegionKit.Modules.RoomSlideShow;
 
 namespace RegionKit.Modules.Effects;
 
@@ -31,15 +27,10 @@ public static class _Module
 		SuffocationBuilder.__RegisterBuilder();
 		HSLDisplaySnowBuilder.__RegisterBuilder();
 		PaletteEffectColorBuilder.__RegisterBuilder();
-		MossWaterUnlit.MossLoadResources(rainworld);
-		MossWaterRGB.MossLoadResources(rainworld);
-		MurkyWater.MurkyWaterLoadResources(rainworld);
-		ReflectiveWater.ReflectiveLoadResources(rainworld);
-		RGBElectricDeath.REDLoadResources(rainworld);
-		HSLDisplaySnow.RDSLoadResources(rainworld);
-		AlphaLevelShaderLoader.AlphaLevelLoad(rainworld);
-		LegacyColoredSprite2.LegacyColoredSprite2Load(rainworld);
 		//LocustSwarmBuilder.__RegisterBuilder();
+		Rumbles.__RegisterBuilder();
+
+		LoadShaders();
 	}
 
 	internal static void Enable()
@@ -74,8 +65,6 @@ public static class _Module
 		On.RoomSettings.RoomEffect.GetSliderName += RoomEffect_GetSliderName;
 		On.RoomSettings.RoomEffect.GetSliderDefault += RoomEffect_GetSliderDefault;
 		On.DevInterface.EffectPanel.EffectPanelSlider.Refresh += EffectPanelSlider_Refresh;
-
-		LoadShaders();
 	}
 
 	internal static void Disable()
@@ -119,6 +108,7 @@ public static class _Module
 			|| type == _Enums.RainSiren
 			|| type == _Enums.Suffocation
 			|| type == AridBarrens._Enums.SandStorm
+			|| type == _Enums.Rumbles
 			)
 		{
 			return _Enums.RegionKit_Gameplay;
@@ -146,8 +136,22 @@ public static class _Module
 
 	private static void LoadShaders()
 	{
-		AssetBundle bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rkeffects"));
+		AssetBundle bundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_effects"));
+
+		Custom.rainWorld.Shaders["RGBBlizzard"] = FShader.CreateShader("RGBBlizzard", bundle.LoadAsset<Shader>("Assets/Shaders/RGBBlizzard.shader"));
+		Custom.rainWorld.Shaders["RGBDisplaySnow"] = FShader.CreateShader("RGBDisplaySnow", bundle.LoadAsset<Shader>("Assets/Shaders/RGBDisplaySnowShader.shader"));
+		Custom.rainWorld.Shaders["RGBElectricDeath"] = FShader.CreateShader("RGBElectricDeath", bundle.LoadAsset<Shader>("Assets/Shaders/RGBElectricDeath.shader"));
+		Custom.rainWorld.Shaders["RGBSnowfall"] = FShader.CreateShader("RGBSnowfall", bundle.LoadAsset<Shader>("Assets/Shaders/RGBSnowFall.shader"));
+
 		Custom.rainWorld.Shaders["RKFlatFog"] = FShader.CreateShader("RKFlatFog", bundle.LoadAsset<Shader>("Assets/Shaders/RKFlatFog.shader"));
+
+		Custom.rainWorld.Shaders["MossWater"] = FShader.CreateShader("MossWater", bundle.LoadAsset<Shader>("Assets/Shaders/MossWater.shader"));
+		Custom.rainWorld.Shaders["MossWaterRGB"] = FShader.CreateShader("MossWaterRGB", bundle.LoadAsset<Shader>("Assets/Shaders/MossWaterRGB.shader"));
+		Custom.rainWorld.Shaders["ReflectiveWater"] = FShader.CreateShader("ReflectiveWater", bundle.LoadAsset<Shader>("Assets/Shaders/ReflectiveWater.shader"));
+		Custom.rainWorld.Shaders["MurkyWaterLightSource"] = FShader.CreateShader("MurkyWaterLightSource", bundle.LoadAsset<Shader>("Assets/Shaders/MurkyWaterLightSource.shader"));
+		Custom.rainWorld.Shaders["MurkyWaterSaveMask"] = FShader.CreateShader("MurkyWaterSaveMask", bundle.LoadAsset<Shader>("Assets/Shaders/MurkyWaterSaveMask.shader"));
+
+		Shader.SetGlobalColor("_InputColorMoss", Color.green); // maybe todo: replace implementation with TriangleMeshUVs
 	}
 
 	#region Refresh palette

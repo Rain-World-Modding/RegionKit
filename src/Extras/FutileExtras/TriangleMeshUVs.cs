@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RegionKit.Extras.FutileExtras
+﻿namespace RegionKit.Extras.FutileExtras
 {
 	public class TriangleMeshUVs : TriangleMesh
 	{
@@ -19,7 +13,7 @@ namespace RegionKit.Extras.FutileExtras
 
 		public TriangleMeshUVs(string imageName, Triangle[] tris, bool customColor, bool atlasedImage = false) : base(imageName, tris, customColor, atlasedImage)
 		{
-			Init(FTriangleUVRenderLayer.FacetType, element, 1);
+			Init(FTriangleUVRenderLayer.FacetType, element, tris.Length);
 			_uvs1 = new Vector2[vertices.Length];
 			_uvs2 = new Vector2[vertices.Length];
 			_uvs3 = new Vector2[vertices.Length];

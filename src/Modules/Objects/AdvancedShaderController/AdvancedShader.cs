@@ -15,6 +15,9 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 		public AdvancedShader(PlacedObject pObj)
 		{
 			this.pObj = pObj;
+
+			// Load internal textures that might not already be present
+			Futile.atlasManager.LoadAtlasFromTexture("rainbow", Resources.Load("Atlases/Rainbow") as Texture2D, true);
 		}
 
 		public override void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
@@ -23,7 +26,8 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 			List<TriangleMesh.Triangle> tris = [];
 			for (int i = 0; i < data.vertices.Length - 2; i++)
 			{
-				tris.Add(new TriangleMesh.Triangle(i, i + 1, i + 2));
+				// Use front winding
+				tris.Add(i % 2 == 0 ? new TriangleMesh.Triangle(i, i + 1, i + 2) : new TriangleMesh.Triangle(i + 1, i, i + 2));
 			}
 			sLeaser.sprites[0] = new TriangleMeshUVs(data.LoadAndGetSpriteName(), [.. tris], true, false)
 			{

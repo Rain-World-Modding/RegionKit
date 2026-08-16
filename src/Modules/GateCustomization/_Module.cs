@@ -82,7 +82,8 @@ internal class _Module
 			new FloatField("batterySaturation", 0f, 1f, 1f, increment: 0.01f, displayName: "Saturation"),
 			new FloatField("batteryLightness", 0f, 1f, 0.5f, increment: 0.01f, displayName: "Lightness")
 		}, typeof(ElectricGateDataRepresentation), "ElectricGateData", GATE_CUSTOMIZATION_POM_CATEGORY);
-		GateCustomization.LoadShaders(CRW);
+
+		LoadShaders();
 	}
 
 	public static void Enable()
@@ -93,5 +94,11 @@ internal class _Module
 	public static void Disable()
 	{
 		GateCustomization.Disable();
+	}
+
+	private static void LoadShaders()
+	{
+		AssetBundle assetBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_gatecustomization"));
+		rainWorld.Shaders["ColoredSprite2Lit"] = FShader.CreateShader("ColoredSprite2Lit", assetBundle.LoadAsset<Shader>("Assets/Shaders/ColoredSprite2Lit.shader"));
 	}
 }

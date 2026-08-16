@@ -6,38 +6,26 @@ namespace RegionKit.Modules.LevelLayerFour;
 [RegionKitModule(nameof(onEnable), nameof(onDisable), moduleName: "Level Layer Four")]
 public class _Module
 {
-	static bool loaded = false;
-
 	static AssetBundle? llfShadersBundle;
 	static Shader? llfShader;
 
 	internal static void onEnable()
 	{
-		On.RainWorld.OnModsInit += RainWorld_OnModsInit;
+		// Register object
+		List<ManagedField> settingsFields = new List<ManagedField> {
+			new FloatField("fogFalloff", 1.0f, 10.0f, 1.0f, 0.1f, ControlType.slider, "Fog Falloff"),
+			new IntegerField("fogMax", 0, 30, 30, ControlType.slider, "Fog Max Depth")
+		};
+		RegisterFullyManagedObjectType(settingsFields.ToArray(), typeof(LevelLayerFourObj), "LevelLayerFour", OBJECTS_POM_CATEGORY);
+
+		// Load shaders
+		llfShadersBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_levellayerfour"));
+		llfShader = llfShadersBundle.LoadAsset<Shader>("Assets/Shaders/BackgroundLevelColor.shader");
+		Custom.rainWorld.Shaders["LLFLevelColor"] = FShader.CreateShader("LLFLevelColor", llfShader);
 	}
 
 	internal static void onDisable()
 	{
-		On.RainWorld.OnModsInit -= RainWorld_OnModsInit;
-	}
-
-	private static void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
-	{
-		orig(self);
-		if (!loaded)
-		{
-			llfShadersBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/llfshaders"));
-			llfShader = llfShadersBundle.LoadAsset<Shader>("Assets/BackgroundLevelColor.shader");
-			self.Shaders["LLFLevelColor"] = FShader.CreateShader("LLFLevelColor", llfShader);
-			loaded = true;
-
-			List<ManagedField> settingsFields = new List<ManagedField> {
-				new FloatField("fogFalloff", 1.0f, 10.0f, 1.0f, 0.1f, ControlType.slider, "Fog Falloff"),
-				new IntegerField("fogMax", 0, 30, 30, ControlType.slider, "Fog Max Depth")
-			};
-
-			RegisterFullyManagedObjectType(settingsFields.ToArray(), typeof(LevelLayerFourObj), "LevelLayerFour", OBJECTS_POM_CATEGORY);
-		}
 	}
 	
     public class LevelLayerFourObj : UpdatableAndDeletable, IDrawable {

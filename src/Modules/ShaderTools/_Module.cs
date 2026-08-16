@@ -7,16 +7,16 @@ namespace RegionKit.Modules.ShaderTools {
 		/// Applies hooks.
 		/// </summary>
 		public static void Enable() {
-			ShaderBuffers.Initialize();
-			ShaderPatch.Apply();
+			//ShaderBuffers.Initialize();
+			//ShaderPatch.Apply();
 		}
 
 		/// <summary>
 		/// Undoes hooks.
 		/// </summary>
 		public static void Disable() {
-			ShaderBuffers.Uninitialize();
-			ShaderPatch.Undo();
+			//ShaderBuffers.Uninitialize();
+			//ShaderPatch.Undo();
 		}
 	}
 }

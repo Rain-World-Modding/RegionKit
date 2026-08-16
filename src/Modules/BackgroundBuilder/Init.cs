@@ -17,6 +17,8 @@ internal static class Init
 		On.Watcher.AncientUrbanView.Update += AncientUrbanView_Update;
 		On.RotWormScene.ctor += RotWormScene_ctor;
 		_CommonHooks.PostRoomLoad += PostRoomLoad;
+		On.Room.NowViewed += Room_NowViewed;
+		On.Room.NoLongerViewed += Room_NoLongerViewed;
 	}
 
 	public static void Undo()
@@ -30,8 +32,23 @@ internal static class Init
 		On.Watcher.AncientUrbanView.Update -= AncientUrbanView_Update;
 		On.RotWormScene.ctor -= RotWormScene_ctor;
 		_CommonHooks.PostRoomLoad -= PostRoomLoad;
+		On.Room.NowViewed -= Room_NowViewed;
+		On.Room.NoLongerViewed -= Room_NoLongerViewed;
 	}
 
+	private static void Room_NowViewed(On.Room.orig_NowViewed orig, Room self)
+	{
+		orig(self);
+		if (self.roomSettings.BackgroundData().sceneData.hasWindDir)
+			Shader.SetGlobalFloat(RainWorld.ShadPropWindDir, self.roomSettings.BackgroundData().sceneData.windDir);
+	}
+
+	private static void Room_NoLongerViewed(On.Room.orig_NoLongerViewed orig, Room self)
+	{
+		orig(self);
+		if (self.roomSettings.BackgroundData().sceneData.hasWindDir)
+			Shader.SetGlobalFloat(RainWorld.ShadPropWindDir, ModManager.MSC ? -1f : 1f);
+	}
 
 	private static void PostRoomLoad(Room room)
 	{
@@ -131,7 +148,6 @@ internal static class Init
 	private static void AboveCloudsView_ctor(On.AboveCloudsView.orig_ctor orig, AboveCloudsView self, Room room, RoomSettings.RoomEffect effect)
 	{
 		orig(self, room, effect);
-		Shader.SetGlobalFloat("_windDir", ModManager.MSC ? -1f : 1f);
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
 		if (data.Type != BackgroundTemplateType.AboveCloudsView)

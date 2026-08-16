@@ -61,7 +61,6 @@ namespace RegionKit.Modules.Effects
 		internal class MossWaterRGB : UpdatableAndDeletable
 	{
 		public static readonly object mossRGBSprite = new();
-		static bool loaded = false;
 		const int vertsPerColumn = 128;
 
 		public MossWaterRGB() 
@@ -92,23 +91,6 @@ namespace RegionKit.Modules.Effects
 			}
 			Shader.SetGlobalFloat("_InputWidthMoss", width);
 			Shader.SetGlobalFloat("_InputHeightMoss", height);
-		}
-
-		public static void MossLoadResources(RainWorld rw)
-		{
-			if (!loaded)
-			{
-				loaded = true;
-				if (MossWaterUnlit.mossBundle != null)
-				{
-					rw.Shaders["MossWaterRGB"] = FShader.CreateShader("MossWaterRGB", MossWaterUnlit.mossBundle.LoadAsset<Shader>("Assets/shaders 1.9.03/MossWaterRGB.shader"));
-					Shader.SetGlobalColor("_InputColorMoss", Color.green);
-				}
-				else
-				{
-					LogWarning("MossWaterRGB must be loaded after MossWaterUnlit!");
-				}
-			}
 		}
 
 		private static void Water_AddToContainer(On.Water.orig_AddToContainer orig, Water self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)

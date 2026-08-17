@@ -180,5 +180,6 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
+		<PackageReference Include="SharpVoronoiLib" Version="1.2.0" />
 	</ItemGroup>
 </Project>

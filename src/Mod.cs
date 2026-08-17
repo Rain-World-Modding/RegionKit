@@ -4,7 +4,7 @@ namespace RegionKit;
 /// <summary>
 /// Main plugin class
 /// </summary>
-[BepInEx.BepInDependency("rwmodding.coreorg.pom", BepInEx.BepInDependency.DependencyFlags.HardDependency)]
+[BepInEx.BepInDependency("rwmodding.coreorg.pom", "3.2")]
 [BepInEx.BepInPlugin(MOD_GUID, MOD_FRIENDLYNAME, MOD_VERSION)]
 public class Mod : BepInEx.BaseUnityPlugin
 {

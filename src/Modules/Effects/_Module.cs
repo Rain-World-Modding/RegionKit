@@ -19,8 +19,7 @@ public static class _Module
 			.Register();
 
 		RainWorld rainworld = CRW;
-		MossWaterRGBBuilder.__RegisterBuilder();
-		ReflectiveWaterBuilder.__RegisterBuilder();
+		RKWaterSurfaces.__RegisterBuilders();
 		//IceWaterBuilder.__RegisterBuilder();
 		RGBElectricDeathBuilder.__RegisterBuilder();
 		RainSirenBuilder.__RegisterBuilder();
@@ -40,9 +39,7 @@ public static class _Module
 		ReplaceCorruptionColors.Apply();
 		HiveColorAlpha.Apply();
 		RoomRainWithoutDeathRain.Apply();
-		MossWaterUnlit.Apply();
-		MossWaterRGB.Apply();
-		ReflectiveWater.Apply();
+		RKWaterSurfaces.Apply();
 		//IceWater.Apply();
 		RGBElectricDeath.Apply();
 		HSLDisplaySnow.Apply();
@@ -73,9 +70,7 @@ public static class _Module
 		ReplaceEffectColor.Undo();
 		HiveColorAlpha.Undo();
 		RoomRainWithoutDeathRain.Undo();
-		MossWaterUnlit.Undo();
-		MossWaterRGB.Undo();
-		ReflectiveWater.Undo();
+		RKWaterSurfaces.Undo();
 		//IceWater.Undo();
 		RGBElectricDeath.Undo();
 		HSLDisplaySnow.Undo();

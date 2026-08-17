@@ -175,6 +175,8 @@
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
+
+	<!-- NuGet includes. -->
 	<ItemGroup>
 		<PackageReference Include="PolySharp" Version="1.16.0">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

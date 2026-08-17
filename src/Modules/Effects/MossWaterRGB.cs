@@ -58,15 +58,13 @@ namespace RegionKit.Modules.Effects
 			}
 		}
 	}
-		internal class MossWaterRGB : UpdatableAndDeletable
+	internal class MossWaterRGB : UpdatableAndDeletable
 	{
 		public static readonly object mossRGBSprite = new();
 		const int vertsPerColumn = 128;
 
-		public MossWaterRGB() 
-		{
+		public MossWaterRGB() { }
 
-		}
 		internal static void Apply()
 		{
 			On.Water.InitiateSprites += Water_InitiateSprites;

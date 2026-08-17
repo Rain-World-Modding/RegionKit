@@ -49,7 +49,7 @@ namespace RegionKit.Modules.Effects
 			On.LightSource.InitiateSprites += LightSource_InitiateSprites;
 
 			On.RoomCamera.Update += RoomCamera_Update;
-			On.RoomCamera.DrawUpdate += RoomCamera_DrawUpdate;
+			_CommonHooks.RoomCameraDrawUpdate += RoomCamera_DrawUpdate;
 			On.RoomCamera.MoveCamera_int += RoomCamera_MoveCamera_int;
 			On.RoomCamera.MoveCamera_Room_int += RoomCamera_MoveCamera_Room_int;
 			On.RoomCamera.WarpMoveCameraActual += RoomCamera_WarpMoveCameraActual;
@@ -66,7 +66,7 @@ namespace RegionKit.Modules.Effects
 			On.LightSource.InitiateSprites -= LightSource_InitiateSprites;
 
 			On.RoomCamera.Update -= RoomCamera_Update;
-			On.RoomCamera.DrawUpdate -= RoomCamera_DrawUpdate;
+			_CommonHooks.RoomCameraDrawUpdate -= RoomCamera_DrawUpdate;
 			On.RoomCamera.MoveCamera_int -= RoomCamera_MoveCamera_int;
 			On.RoomCamera.MoveCamera_Room_int -= RoomCamera_MoveCamera_Room_int;
 			On.RoomCamera.WarpMoveCameraActual -= RoomCamera_WarpMoveCameraActual;
@@ -91,9 +91,8 @@ namespace RegionKit.Modules.Effects
 			orig(self);
 		}
 
-		private static void RoomCamera_DrawUpdate(On.RoomCamera.orig_DrawUpdate orig, RoomCamera self, float timeStacker, float timeSpeed)
+		private static void RoomCamera_DrawUpdate(RoomCamera self, float timeStacker, float timeSpeed)
 		{
-			orig(self, timeStacker, timeSpeed);
 			if (self.room != null && cameraDataCWT.TryGetValue(self, out MurkyWaterCameraData? cameraData))
 			{
 				cameraData.DrawUpdate();

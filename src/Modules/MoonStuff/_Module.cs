@@ -14,7 +14,7 @@ namespace RegionKit.Modules.MoonStuff
 			RegisterManagedObject(new WarmSpotType());
 			RegisterManagedObject(new ConveyorBeltType());
 
-			RegisterFullyManagedObjectType(null!, typeof(ConveyorBeltCover), "Conveyor Belt Cover", Objects._Module.GAMEPLAY_POM_CATEGORY);
+			RegisterFullyManagedObjectType(null!, typeof(ConveyorBeltCover), _Enums.ConveyorBeltCover.value, Objects._Module.GAMEPLAY_POM_CATEGORY);
 
 			LoadShaders();
 		}

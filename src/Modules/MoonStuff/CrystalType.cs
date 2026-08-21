@@ -7,7 +7,7 @@ namespace RegionKit.Modules.MoonStuff
 {
 	public class CrystalType : ManagedObjectType
 	{
-		public CrystalType() : base("Crystal", Objects._Module.DECORATIONS_POM_CATEGORY, null, typeof(CrystalData), typeof(CrystalRepresentation)) { }
+		public CrystalType() : base(_Enums.Crystal.value, Objects._Module.DECORATIONS_POM_CATEGORY, null, typeof(CrystalData), typeof(CrystalRepresentation)) { }
 
 		public override UpdatableAndDeletable MakeObject(PlacedObject placedObject, Room room) => new Crystal(placedObject, room);
 

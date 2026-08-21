@@ -2,21 +2,21 @@
 {
 	internal static class _Enums
 	{
-		public static readonly PlacedObject.Type SandFall = new PlacedObject.Type(nameof(SandFall), true);
+		public static readonly PlacedObject.Type SandFall = new PlacedObject.Type("SandFall", true);
 
-		public static readonly PlacedObject.Type MoonLightSourceFlicker = new PlacedObject.Type(nameof(MoonLightSourceFlicker), true);
+		public static readonly PlacedObject.Type MoonLightSourceFlicker = new PlacedObject.Type("Light Source Flicker", true);
 
-		public static readonly PlacedObject.Type Crystal = new PlacedObject.Type(nameof(Crystal), true);
+		public static readonly PlacedObject.Type Crystal = new PlacedObject.Type("Crystal", true);
 
 		public static readonly PlacedObject.Type ColoredOESphere = new PlacedObject.Type(nameof(ColoredOESphere), false); // TEMPORARILY DISABLED
 
-		public static readonly PlacedObject.Type WarmSpot = new PlacedObject.Type(nameof(WarmSpot), true);
+		public static readonly PlacedObject.Type WarmSpot = new PlacedObject.Type("WarmSpot", true);
 
-		public static readonly PlacedObject.Type ConveyorBelt = new PlacedObject.Type(nameof(ConveyorBelt), true);
+		public static readonly PlacedObject.Type ConveyorBelt = new PlacedObject.Type("Conveyor Belt", true);
 
-		public static readonly PlacedObject.Type ConveyorBeltCover = new PlacedObject.Type(nameof(ConveyorBeltCover), true);
+		public static readonly PlacedObject.Type ConveyorBeltCover = new PlacedObject.Type("Conveyor Belt Cover", true);
 
-		public static readonly PlacedObject.Type BarbedWire = new PlacedObject.Type(nameof(BarbedWire), true);
+		public static readonly PlacedObject.Type BarbedWire = new PlacedObject.Type("BarbedWire", true);
 
 		// BELOW IS TEMPORARILY DISABLED
 

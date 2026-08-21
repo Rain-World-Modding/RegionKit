@@ -7,7 +7,7 @@ namespace RegionKit.Modules.MoonStuff
 {
 	public class ConveyorBeltType : ManagedObjectType
 	{
-		public ConveyorBeltType() : base("Conveyor Belt", Objects._Module.GAMEPLAY_POM_CATEGORY, null, typeof(ConveyorBeltData), typeof(ConveyorBeltRepresentation))
+		public ConveyorBeltType() : base(_Enums.ConveyorBelt.value, Objects._Module.GAMEPLAY_POM_CATEGORY, null, typeof(ConveyorBeltData), typeof(ConveyorBeltRepresentation))
 		{
 		}
 

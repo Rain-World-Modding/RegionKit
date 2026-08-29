@@ -94,6 +94,9 @@ public static class _Enums
 	public static RoomSettings.RoomEffect.Type Rumbles = new(nameof(Rumbles), true);
 
 
+	public static RoomSettings.RoomEffect.Type ReduceNeuronGlow = new(nameof(ReduceNeuronGlow), true);
+
+
 
 	/// <summary>
 	/// Effect category

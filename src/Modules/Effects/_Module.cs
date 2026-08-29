@@ -49,6 +49,7 @@ public static class _Module
 		PolePlantColor.Apply();
 		FlatFog.Apply();
 		RainPaletteFade.Apply();
+		ReduceNeuronGlow.Apply();
 
 		// Effect types
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
@@ -80,6 +81,7 @@ public static class _Module
 		PolePlantColor.Undo();
 		FlatFog.Undo();
 		RainPaletteFade.Undo();
+		ReduceNeuronGlow.Undo();
 
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 
@@ -104,6 +106,7 @@ public static class _Module
 			|| type == _Enums.Suffocation
 			|| type == AridBarrens._Enums.SandStorm
 			|| type == _Enums.Rumbles
+			|| type == _Enums.ReduceNeuronGlow
 			)
 		{
 			return _Enums.RegionKit_Gameplay;

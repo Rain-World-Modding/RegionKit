@@ -43,14 +43,7 @@ namespace RegionKit.Modules.MoonIO
 
 		public class CycleCooldownRepresentation : IOType.IORepresentation, IDevUISignals
 		{
-			public class CooldownSlider : Slider
-			{
-				public CooldownSlider(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos, string title, bool inheritButton, float titleWidth) : base(owner, IDstring, parentNode, pos, title, inheritButton, titleWidth)
-				{
-				}
-			}
-
-			public CooldownSlider cooldown;
+			public SignalSlider cooldown;
 
 			public PlacedObject PlacedObject;
 
@@ -59,7 +52,7 @@ namespace RegionKit.Modules.MoonIO
 				panel!.size = new Vector2(190f, 45f);
 				PlacedObject = pObj;
 
-				panel.subNodes.Add(cooldown = new CooldownSlider(this.owner, "cooldownSlider", this.panel, new Vector2(5f, 25f), "Cooldown", false, 180f));
+				panel.subNodes.Add(cooldown = new SignalSlider(this.owner, "cooldownSlider", this.panel, new Vector2(5f, 25f), "Cooldown", false, 50f, (PlacedObject.data as CycleCooldownData).Cooldown / 10f));
 
 				IOButton.size.x = 180;
 				IOButton.fSprites[0].scaleX = 180f;
@@ -75,6 +68,12 @@ namespace RegionKit.Modules.MoonIO
 			public override void Signal(DevUISignalType type, DevUINode sender, string message)
 			{
 				base.Signal(type, sender, message);
+
+				if (sender == cooldown)
+				{
+					(PlacedObject.data as CycleCooldownData).Cooldown = Mathf.RoundToInt(float.Parse(message) * 10f);
+					cooldown.NumberText = (PlacedObject.data as CycleCooldownData).Cooldown.ToString();
+				}
 			}
 		}
 	}

@@ -41,14 +41,21 @@
 
 		private static void LightSourceOnOff(On.LightSource.orig_DrawSprites orig, LightSource self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
-			sLeaser.sprites[0].isVisible = _CWTs.MoonLightSourceData(self).On;
+			if (self.tiedToObject == null)
+			{
+				sLeaser.sprites[0].isVisible = _CWTs.MoonLightSourceData(self).On;
+			}
+
 			orig(self, sLeaser, rCam, timeStacker, camPos);
 		}
 
 		private static void LightSourceTurnOn(On.LightSource.orig_ctor_Vector2_bool_Color_UpdatableAndDeletable orig, LightSource self, Vector2 initPos, bool environmentalLight, Color color, UpdatableAndDeletable tiedToObject)
 		{
 			orig(self, initPos, environmentalLight, color, tiedToObject);
-			_CWTs.MoonLightSourceData(self).On = true;
+			if (self.tiedToObject == null)
+			{
+				_CWTs.MoonLightSourceData(self).On = true;
+			}
 		}
 
 		private static void SpotLightOnOff(On.SpotLight.orig_DrawSprites orig, SpotLight self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)

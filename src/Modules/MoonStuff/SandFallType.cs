@@ -35,9 +35,9 @@ namespace RegionKit.Modules.MoonStuff
 			}
 		}
 
-		class SandFallData : ManagedData
+		public class SandFallData : ManagedData
 		{
-#pragma warning disable 0649
+			#pragma warning disable 0649
 			[FloatField("preDelay", -3f, 3f, 0f, displayName: "(UNUSED) Pre Delay:")]
 			public float preDelay;
 
@@ -155,7 +155,7 @@ namespace RegionKit.Modules.MoonStuff
 			public override void Move(Vector2 newPos)
 			{
 				Vector2 pos = (owner.room.MiddleOfTile(newPos + new Vector2(-1f, 3f)) - owner.room.cameraPositions[owner.room.game.cameras[0].currentCameraPosition] - new Vector2(16f, 8f)) + owner.room.cameraPositions[owner.room.game.cameras[0].currentCameraPosition] + new Vector2(9f, 0f);
-				base.Move(pos);
+				base.Move(pos + new Vector2(0f, 10f));
 			}
 		}
 	}

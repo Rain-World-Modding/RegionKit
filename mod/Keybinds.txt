@@ -1,0 +1,40 @@
+enableDevMode: O
+enableRoomSettings: H
+mouseDebug: M
+tileAccessibility: P
+addFood: Q
+restartCycle: R
+slowTime: A
+speedTime: S
+teleportToMouse: V
+flyToMouse: W
+batflyAttract: F
+blackhole: B
+byeByeVultures: G
+offsetCamera: N
+sendCreaturesToRoom: E
+reloadSounds: U
+logSounds: I
+showlog: K
+karmaFlower: Alpha4
+spearPearl: Alpha5
+NSHSwarmer: Alpha6
+pebblesCell: Alpha7
+killAll: Alpha8
+restartCycleTimer: Alpha9
+startRain: Alpha0
+startRainSoft: Alpha0, Equals
+addCycleTime: Alpha0, LeftControl
+startRainHard: Alpha0, LeftAlt
+playPearlProjection: Equals
+moveSceneLayers: N, C
+saveScene: B
+cutsceneMode: M
+moveKeyframe: Mouse0
+addKeyframe: J
+removeKeyframe: K
+keyframeDepth: O
+moveAllKeyframes: L
+testMouse: I
+moveLayer: N
+saveCutscene: B

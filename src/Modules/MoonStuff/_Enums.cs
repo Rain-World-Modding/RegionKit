@@ -2,7 +2,9 @@
 {
 	internal static class _Enums
 	{
-		public static readonly PlacedObject.Type SandFall = new PlacedObject.Type("SandFall", true);
+		public static readonly SoundID Sandfall_LOOP = new SoundID(nameof(Sandfall_LOOP), true);
+
+		public static readonly PlacedObject.Type SandFall = new PlacedObject.Type(nameof(SandFall), true);
 
 		public static readonly PlacedObject.Type MoonLightSourceFlicker = new PlacedObject.Type("Light Source Flicker", true);
 

@@ -1,12 +1,17 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
+using RegionKit.Modules.MoonStuff;
 
 namespace RegionKit.Modules.Objects
 {
-	public class BGFlatLight : CosmeticSprite
+	public class BGFlatLight : CosmeticSprite, IFlickerable
 	{
 		public readonly PlacedObject pObj;
 		public Data data => (pObj.data as Data)!;
+
+		public Vector2 CheckPosition => pObj.pos;
+		public LightSourceFlickerType.LightSourceFlickerData.SunlightType SunlightType => LightSourceFlickerType.LightSourceFlickerData.SunlightType.All;
+		public LightSourceFlickerType.LightSourceFlickerData.LightSourceType LightSourceType => LightSourceFlickerType.LightSourceFlickerData.LightSourceType.Flat;
 
 		private DisplayMode lastDisplayMode;
 
@@ -34,6 +39,12 @@ namespace RegionKit.Modules.Objects
 
 		public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
+			float alphaMult = 1f;
+			if (this.TryGetMoonFlickerableData(out var flickerableData))
+			{
+				alphaMult = flickerableData.Alpha(timeStacker);
+			}
+
 			if (lastDisplayMode != data.displayMode)
 			{
 				sLeaser.sprites[0].shader = rCam.game.rainWorld.Shaders[data.displayMode.Shader];
@@ -41,7 +52,7 @@ namespace RegionKit.Modules.Objects
 			}
 			sLeaser.sprites[0].SetPosition(pos - camPos);
 			sLeaser.sprites[0].color = GetColor(rCam);
-			sLeaser.sprites[0].alpha = data.CustomColor.a;
+			sLeaser.sprites[0].alpha = data.CustomColor.a * alphaMult;
 			sLeaser.sprites[0].scale = data.handlePos.magnitude / 8f;
 		}
 

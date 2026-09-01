@@ -7,7 +7,7 @@ namespace RegionKit.Modules.MoonStuff
 {
 	public class SandfallType : ManagedObjectType
 	{
-		public SandfallType() : base(_Enums.SandFall.value, Objects._Module.DECORATIONS_POM_CATEGORY, null, typeof(SandFallData), typeof(SandFallRepresentation))
+		public SandfallType() : base(_Enums.SandFall, Objects._Enums.DecorationsCategory, null, typeof(SandFallData), typeof(SandFallRepresentation))
 		{
 		}
 

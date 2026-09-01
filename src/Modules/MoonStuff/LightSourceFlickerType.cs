@@ -7,7 +7,7 @@ namespace RegionKit.Modules.MoonStuff
 {
 	public class LightSourceFlickerType : ManagedObjectType
 	{
-		public LightSourceFlickerType() : base(_Enums.MoonLightSourceFlicker.value, Objects._Module.DECORATIONS_POM_CATEGORY, null, typeof(LightSourceFlickerData), typeof(LightSourceFlickerRepresentation))
+		public LightSourceFlickerType() : base(_Enums.MoonLightSourceFlicker, Objects._Enums.DecorationsCategory, null, typeof(LightSourceFlickerData), typeof(LightSourceFlickerRepresentation))
 		{
 
 		}
@@ -33,9 +33,9 @@ namespace RegionKit.Modules.MoonStuff
 
 			public bool Local;
 
-			public int Type;
+			public SunlightType Type;
 
-			public int Type2;
+			public LightSourceType Type2;
 
 			public Vector2 Rad;
 
@@ -52,7 +52,7 @@ namespace RegionKit.Modules.MoonStuff
 
 			public override string ToString()
 			{
-				return base.ToString() + "~" + Local + "~" + Type + "~" + Type2 + "~" + Rad.x + "~" + Rad.y + "~" + Synced;
+				return base.ToString() + "~" + Local + "~" + (int)Type + "~" + (int)Type2 + "~" + Rad.x + "~" + Rad.y + "~" + Synced;
 			}
 
 			public override void FromString(string s)
@@ -62,13 +62,27 @@ namespace RegionKit.Modules.MoonStuff
 				try
 				{
 					Local = bool.Parse(arr[base.FieldsWhenSerialized + 0]);
-					Type = int.Parse(arr[base.FieldsWhenSerialized + 1]);
-					Type2 = int.Parse(arr[base.FieldsWhenSerialized + 2]);
+					Type = (SunlightType)int.Parse(arr[base.FieldsWhenSerialized + 1]);
+					Type2 = (LightSourceType)int.Parse(arr[base.FieldsWhenSerialized + 2]);
 					Rad.x = float.Parse(arr[base.FieldsWhenSerialized + 3]);
 					Rad.y = float.Parse(arr[base.FieldsWhenSerialized + 4]);
 					Synced = bool.Parse(arr[base.FieldsWhenSerialized + 5]);
 				}
 				catch { }
+			}
+
+			public enum SunlightType
+			{
+				Static,
+				Sun,
+				All
+			}
+
+			public enum LightSourceType
+			{
+				Normal,
+				Flat,
+				All
 			}
 		}
 		public class LightSourceFlickerRepresentation : ManagedRepresentation, IDevUISignals
@@ -146,16 +160,19 @@ namespace RegionKit.Modules.MoonStuff
 			public Button Type2;
 			public Button Synced;
 			public FlickerHandle Handle;
+
+			public LightSourceFlickerData Data => (pObj.data as LightSourceFlickerData)!;
+
 			public LightSourceFlickerRepresentation(PlacedObject.Type placedType, DevInterface.ObjectsPage objPage, PlacedObject pObj) : base(placedType, objPage, pObj)
 			{
 				panel.size = new Vector2(250f, 145f);
 
-				if ((pObj.data as LightSourceFlickerData).Rad == new Vector2(0, 0))
+				if (Data.Rad == new Vector2(0, 0))
 				{
-					(pObj.data as LightSourceFlickerData).Rad = new Vector2(0f, 90f);
+					Data.Rad = new Vector2(0f, 90f);
 				}
 
-				subNodes.Add(Handle = new FlickerHandle(this.owner, "Handle", this, (pObj.data as LightSourceFlickerData).Rad));
+				subNodes.Add(Handle = new FlickerHandle(this.owner, "Handle", this, Data.Rad));
 
 				panel.subNodes.Add(Type = new Button(this.owner, "Type", this.panel, new Vector2(5, 65), 240f, "Affects: "));
 				panel.subNodes.Add(Type2 = new Button(this.owner, "Type2", this.panel, new Vector2(5, 45), 240f, "Affects: "));
@@ -168,78 +185,47 @@ namespace RegionKit.Modules.MoonStuff
 			}
 			public override void Refresh()
 			{
-				if ((pObj.data as LightSourceFlickerData).FrequencyMin > (pObj.data as LightSourceFlickerData).FrequencyMax)
+				if (Data.FrequencyMin > Data.FrequencyMax)
 				{
-					(pObj.data as LightSourceFlickerData).FrequencyMin = (pObj.data as LightSourceFlickerData).FrequencyMax;
+					Data.FrequencyMin = Data.FrequencyMax;
 				}
-				else if ((pObj.data as LightSourceFlickerData).FrequencyMax < (pObj.data as LightSourceFlickerData).FrequencyMin)
+				else if (Data.FrequencyMax < Data.FrequencyMin)
 				{
-					(pObj.data as LightSourceFlickerData).FrequencyMax = (pObj.data as LightSourceFlickerData).FrequencyMin;
+					Data.FrequencyMax = Data.FrequencyMin;
 				}
 
 				base.Refresh();
-				Local.Text = "Type: " + ((pObj.data as LightSourceFlickerData).Local ? "Local" : "Room");
-				Synced.Text = "Synced: " + ((pObj.data as LightSourceFlickerData).Synced ? "True" : "False");
+				Local.Text = "Type: " + (Data.Local ? "Local" : "Room");
+				Synced.Text = "Synced: " + (Data.Synced ? "True" : "False");
+				Type.Text = "Affects: " + Data.Type;
+				Type2.Text = "Affects: " + Data.Type2;
 
-				if ((pObj.data as LightSourceFlickerData).Type == 0)
-				{
-					Type.Text = "Affects: Static";
-				}
-				else if ((pObj.data as LightSourceFlickerData).Type == 1)
-				{
-					Type.Text = "Affects: Sun";
-				}
-				else
-				{
-					Type.Text = "Affects: All";
-				}
-
-				if ((pObj.data as LightSourceFlickerData).Type2 == 0)
-				{
-					Type2.Text = "Affects: Normal";
-				}
-				else if ((pObj.data as LightSourceFlickerData).Type2 == 1)
-				{
-					Type2.Text = "Affects: Flat";
-				}
-				else
-				{
-					Type2.Text = "Affects: Both";
-				}
 			}
 
 			public void Signal(DevUISignalType type, DevUINode sender, string message)
 			{
 				if (sender.IDstring == "Type")
 				{
-					if ((pObj.data as LightSourceFlickerData).Type < 2)
-					{
-						(pObj.data as LightSourceFlickerData).Type += 1;
-					}
+					if (Data.Type == LightSourceFlickerData.SunlightType.All)
+						Data.Type = 0;
 					else
-					{
-						(pObj.data as LightSourceFlickerData).Type = 0;
-					}
+						Data.Type++;
 				}
 				else if (sender.IDstring == "Type2")
 				{
-					if ((pObj.data as LightSourceFlickerData).Type2 < 2)
-					{
-						(pObj.data as LightSourceFlickerData).Type2 += 1;
-					}
+					if (Data.Type2 == LightSourceFlickerData.LightSourceType.All)
+						Data.Type2 = 0;
 					else
-					{
-						(pObj.data as LightSourceFlickerData).Type2 = 0;
-					}
+						Data.Type2++;
 				}
 				else if (sender.IDstring == "Local")
 				{
-					Handle.hidden = (pObj.data as LightSourceFlickerData).Local;
-					(pObj.data as LightSourceFlickerData).Local = !(pObj.data as LightSourceFlickerData).Local;
+					Handle.hidden = Data.Local;
+					Data.Local = !Data.Local;
 				}
 				else if (sender.IDstring == "Synced")
 				{
-					(pObj.data as LightSourceFlickerData).Synced = !(pObj.data as LightSourceFlickerData).Synced;
+					Data.Synced = !Data.Synced;
 				}
 			}
 		}

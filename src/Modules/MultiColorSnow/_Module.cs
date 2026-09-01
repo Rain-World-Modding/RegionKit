@@ -69,7 +69,7 @@ public class _Module
 				new Vector2Field("range", new Vector2(100, 0), Vector2Field.VectorReprType.circle)
 			];
 
-			RegisterFullyManagedObjectType([.. snowSourceFields], typeof(ColoredSnowSourceUAD), "ColoredSnowSource", DECORATIONS_POM_CATEGORY);
+			RegisterFullyManagedObjectType([.. snowSourceFields], typeof(ColoredSnowSourceUAD), "ColoredSnowSource", Objects._Enums.DecorationsCategory.value);
 
 			List<ManagedField> snowSourceSettingsFields =
 			[
@@ -82,7 +82,7 @@ public class _Module
 				new IntegerField("es", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Rain Blend")
 			];
 
-			RegisterFullyManagedObjectType([.. snowSourceSettingsFields], typeof(ColoredSnowGroupUAD), "ColoredSnowGroup", DECORATIONS_POM_CATEGORY);
+			RegisterFullyManagedObjectType([.. snowSourceSettingsFields], typeof(ColoredSnowGroupUAD), "ColoredSnowGroup", Objects._Enums.DecorationsCategory.value);
 
 			foreach (ModManager.Mod mod in ModManager.ActiveMods)
 			{

@@ -42,8 +42,8 @@ public static class _Module
 	{
 		try
 		{
-			RegisterManagedObject<SlideShowUAD, SlideShowMeshData, ManagedRepresentation>("SlideShow", Objects._Module.OBJECTS_POM_CATEGORY);
-			RegisterManagedObject<SlideShowUAD, SlideShowRectData, ManagedRepresentation>("SlideShowRect", Objects._Module.OBJECTS_POM_CATEGORY);
+			RegisterManagedObject<SlideShowUAD, SlideShowMeshData, ManagedRepresentation>("SlideShow", Objects._Enums.MiscObjectsCategory.value);
+			RegisterManagedObject<SlideShowUAD, SlideShowRectData, ManagedRepresentation>("SlideShowRect", Objects._Enums.MiscObjectsCategory.value);
 			LoadShaders();
 		}
 		catch (Exception ex)

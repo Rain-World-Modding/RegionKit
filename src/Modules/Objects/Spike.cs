@@ -7,7 +7,7 @@ namespace RegionKit.Modules.Objects;
 
 public class SpikeObj : ManagedObjectType
 {
-	public SpikeObj() : base("Spike", _Module.GAMEPLAY_POM_CATEGORY, typeof(Spike), typeof(PlacedObject.ResizableObjectData), typeof(DevInterface.ResizeableObjectRepresentation))
+	public SpikeObj() : base(_Enums.Spike, _Enums.GameplayCategory, typeof(Spike), typeof(PlacedObject.ResizableObjectData), typeof(DevInterface.ResizeableObjectRepresentation))
 	{
 
 	}

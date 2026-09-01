@@ -16,7 +16,7 @@ public class _Module
 			new FloatField("fogFalloff", 1.0f, 10.0f, 1.0f, 0.1f, ControlType.slider, "Fog Falloff"),
 			new IntegerField("fogMax", 0, 30, 30, ControlType.slider, "Fog Max Depth")
 		};
-		RegisterFullyManagedObjectType(settingsFields.ToArray(), typeof(LevelLayerFourObj), "LevelLayerFour", OBJECTS_POM_CATEGORY);
+		RegisterFullyManagedObjectType(settingsFields.ToArray(), typeof(LevelLayerFourObj), "LevelLayerFour", Objects._Enums.MiscObjectsCategory.value);
 
 		// Load shaders
 		llfShadersBundle = AssetBundle.LoadFromFile(AssetManager.ResolveFilePath("assets/regionkit/rk_levellayerfour"));

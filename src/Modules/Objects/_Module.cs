@@ -8,22 +8,19 @@ namespace RegionKit.Modules.Objects;
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "MiscObjects")]
 public static class _Module
 {
-	public const string OBJECTS_POM_CATEGORY = RK_POM_CATEGORY + "-MiscObjects";
-	public const string GAMEPLAY_POM_CATEGORY = RK_POM_CATEGORY + "-Gameplay";
-	public const string DECORATIONS_POM_CATEGORY = RK_POM_CATEGORY + "-Decorations";
 	private static List<Hook> __objectHooks = [];
 	internal static void Setup()
 	{
 		//NewEffects/
 		//NewObjects.Hook();
 		SpikeSetup.Apply();
-		RegisterFullyManagedObjectType(ColouredLightSource.__fields, typeof(ColouredLightSource), null, DECORATIONS_POM_CATEGORY);
-		RegisterFullyManagedObjectType(Drawable.__fields, typeof(Drawable), "FreeformDecalOrSprite", DECORATIONS_POM_CATEGORY);
+		RegisterFullyManagedObjectType(ColouredLightSource.__fields, typeof(ColouredLightSource), null, _Enums.DecorationsCategory);
+		RegisterFullyManagedObjectType(Drawable.__fields, typeof(Drawable), _Enums.FreeformDecalOrSprite, _Enums.DecorationsCategory);
 		List<ManagedField> shroudFields =
 		[
 			new Vector2ArrayField("quad", 4, true, Vector2ArrayField.Vector2ArrayRepresentationType.Polygon, Vector2.zero, Vector2.right * 20f, (Vector2.right + Vector2.up) * 20f, Vector2.up * 20f)
 		];
-		RegisterFullyManagedObjectType([.. shroudFields], typeof(Shroud), nameof(Shroud), DECORATIONS_POM_CATEGORY);
+		RegisterFullyManagedObjectType([.. shroudFields], typeof(Shroud), _Enums.Shroud, _Enums.DecorationsCategory);
 
 		List<ManagedField> fanFields =
 		[
@@ -31,7 +28,7 @@ public static class _Module
 			new FloatField("scale", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Scale"),
 			new FloatField("depth", 0f, 1f, 0.3f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Depth")
 		];
-		RegisterFullyManagedObjectType([.. fanFields], typeof(SpinningFan), nameof(SpinningFan), DECORATIONS_POM_CATEGORY);
+		RegisterFullyManagedObjectType([.. fanFields], typeof(SpinningFan), _Enums.SpinningFan, _Enums.DecorationsCategory);
 
 		List<ManagedField> steamFields =
 		[
@@ -40,14 +37,14 @@ public static class _Module
 			new FloatField("f3", 0f,1f,0.5f,0.01f, ManagedFieldWithPanel.ControlType.slider, "Lifetime"),
 			new Vector2Field("v1", new Vector2(0f,45f), Vector2Field.VectorReprType.line)
 		];
-		RegisterFullyManagedObjectType([.. steamFields], typeof(SteamHazard), nameof(SteamHazard), GAMEPLAY_POM_CATEGORY);
+		RegisterFullyManagedObjectType([.. steamFields], typeof(SteamHazard), _Enums.SteamHazard, _Enums.GameplayCategory);
 
 		RegisterManagedObject(new SpikeObj());
 
-		RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>("RoomBorderTP", GAMEPLAY_POM_CATEGORY);
-		RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>("WormgrassRect", GAMEPLAY_POM_CATEGORY);
-		RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>("PlacedWaterfall", DECORATIONS_POM_CATEGORY);
-		RegisterManagedObject<ColorifierUAD, ShortcutColorifierData, ManagedRepresentation>("ShortcutColor", DECORATIONS_POM_CATEGORY);
+		RegisterManagedObject<RoomBorderTeleport, BorderTpData, ManagedRepresentation>(_Enums.RoomBorderTP, _Enums.GameplayCategory);
+		RegisterEmptyObjectType<WormgrassRectData, ManagedRepresentation>(_Enums.WormgrassRect, _Enums.GameplayCategory);
+		RegisterManagedObject<PlacedWaterFall, PlacedWaterfallData, ManagedRepresentation>(_Enums.PlacedWaterfall, _Enums.DecorationsCategory);
+		RegisterManagedObject<ColorifierUAD, ShortcutColorifierData, ManagedRepresentation>(_Enums.ShortcutColor, _Enums.DecorationsCategory);
 
 		__objectHooks = new List<Hook>
 		{
@@ -57,9 +54,9 @@ public static class _Module
 		WaterSpout.Register();
 		PopupsMod.Register();
 
-		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>("ShortcutCannon", GAMEPLAY_POM_CATEGORY);
-		RegisterManagedObject<CameraNoise, CameraNoise.CameraNoiseData, ManagedRepresentation>("CameraNoise", DECORATIONS_POM_CATEGORY);
-		RegisterManagedObject<SlugcatEyeSelector, SlugcatEyeSelectorData, ManagedRepresentation>("SlugcatEyeSelector", DECORATIONS_POM_CATEGORY);
+		RegisterManagedObject<ShortcutCannon, shortcutCannonData, ShortcutCannonRepresentation>(_Enums.ShortcutCannon, _Enums.GameplayCategory);
+		RegisterManagedObject<CameraNoise, CameraNoise.CameraNoiseData, ManagedRepresentation>(_Enums.CameraNoise, _Enums.DecorationsCategory);
+		RegisterManagedObject<SlugcatEyeSelector, SlugcatEyeSelectorData, ManagedRepresentation>(_Enums.SlugcatEyeSelector, _Enums.DecorationsCategory);
 		RegisterFullyManagedObjectType(
 			[
 				new IntegerField("reqkarma", 0, 9, 0, displayName:"Req Karma"),
@@ -70,7 +67,8 @@ public static class _Module
 				new Vector2Field("radius", Vector2.up * 134.5f, Vector2Field.VectorReprType.circle),
 				new BooleanField("superslow", false, displayName:"Super Slowdown"),
 				new BooleanField("sprite", true, displayName:"Use Sprite"),
-			], typeof(BigKarmaShrine), "BigKarmaShrine", GAMEPLAY_POM_CATEGORY);
+			], 
+			typeof(BigKarmaShrine), _Enums.BigKarmaShrine, _Enums.GameplayCategory);
 
 
 		RegisterFullyManagedObjectType(
@@ -82,10 +80,11 @@ public static class _Module
 				new IntegerField("depth", 0, 30, 0, ManagedFieldWithPanel.ControlType.slider, "depth"),
 				new IntegerField("spriteindex", 0, 9, 9, displayName: "karma display"),
 				new StringField("spritename", "", "sprite name")
-			], typeof(BigKarmaShrine.MarkSprite), "KarmaShrineSprite", GAMEPLAY_POM_CATEGORY);
-		RegisterEmptyObjectType<CustomWallMyceliaData, ManagedRepresentation>("CustomWallMycelia", DECORATIONS_POM_CATEGORY);
+			], 
+			typeof(BigKarmaShrine.MarkSprite), _Enums.KarmaShrineSprite, _Enums.GameplayCategory);
+		RegisterEmptyObjectType<CustomWallMyceliaData, ManagedRepresentation>(_Enums.CustomWallMycelia, _Enums.DecorationsCategory);
 
-		RegisterManagedObject<GuardProtectNode, GuardProtectData, GuardProtectRepresentation>("GuardProtectNode", GAMEPLAY_POM_CATEGORY);
+		RegisterManagedObject<GuardProtectNode, GuardProtectData, GuardProtectRepresentation>(_Enums.GuardProtectNode, _Enums.GameplayCategory);
 
 		RegisterFullyManagedObjectType(
 		[
@@ -93,9 +92,10 @@ public static class _Module
 			new FloatField("1traction", 0f, 1f, 1f, displayName:"Traction", increment: 0.02f),
 			new BooleanField("2slope", false, displayName:"slippery slopes"),
 			new BooleanField("3tunnel", false, displayName:"no tunnel crawl")
-		], typeof(SlipperyZone), "SlipperyZone", GAMEPLAY_POM_CATEGORY);
+		], 
+		typeof(SlipperyZone), _Enums.SlipperyZone, _Enums.GameplayCategory);
 
-		RegisterManagedObject<ColoredSSFuses, ColoredSSFusesData, ManagedRepresentation>(_Enums.ColoredSSFuses.value, DECORATIONS_POM_CATEGORY);
+		RegisterManagedObject<ColoredSSFuses, ColoredSSFusesData, ManagedRepresentation>(_Enums.ColoredSSFuses, _Enums.DecorationsCategory);
 	}
 
 	internal static void Enable()
@@ -195,7 +195,7 @@ public static class _Module
 			|| type == _Enums.GreenSparksDir
 			|| type == _Enums.ColoredLocalBlizzard
 			)
-			res = new ObjectsPage.DevObjectCategories(DECORATIONS_POM_CATEGORY);
+			res = _Enums.DecorationsCategory;
 		else if (type == _Enums.NoWallSlideZone
 			|| type == _Enums.ClimbablePole
 			|| type == _Enums.ClimbableWire
@@ -207,7 +207,7 @@ public static class _Module
 			|| type == _Enums.ColoredMudPit
 			|| type == MoonStuff._Enums.BarbedWire
 			)
-			res = new ObjectsPage.DevObjectCategories(GAMEPLAY_POM_CATEGORY);
+			res = _Enums.GameplayCategory;
 		else if (type == _Enums.EvilDangleFruit)
 			res = ObjectsPage.DevObjectCategories.Consumable;
 

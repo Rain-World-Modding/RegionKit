@@ -14,14 +14,16 @@ namespace RegionKit.Modules.MoonStuff
 		public int MaxFrequency => (int)((placedObject.data as LightSourceFlickerData).FrequencyMax * 100);
 		public float Rad => (placedObject.data as LightSourceFlickerData).Rad.magnitude;
 		public bool Local => (placedObject.data as LightSourceFlickerData).Local;
-		public int Type => (placedObject.data as LightSourceFlickerData).Type;
-		public int Type2 => (placedObject.data as LightSourceFlickerData).Type2;
+		public LightSourceFlickerData.SunlightType Type => (placedObject.data as LightSourceFlickerData).Type;
+		public LightSourceFlickerData.LightSourceType Type2 => (placedObject.data as LightSourceFlickerData).Type2;
 		public bool Synced => (placedObject.data as LightSourceFlickerData).Synced;
 		public bool LastSync;
 
 		public List<LightSource> FlickerLights = new List<LightSource>();
-		public List<SpotLight> FlickerSpotLights = new List<SpotLight>();
 		public List<LightBeam> FlickerLightBeams = new List<LightBeam>();
+		public List<IFlickerable> Flickerables = new List<IFlickerable>();
+
+		private bool hasCheckedForLights = false;
 
 		public int FlickerCountdown;
 		public LightSourceFlicker(PlacedObject placedObject, Room room) : base()
@@ -29,52 +31,99 @@ namespace RegionKit.Modules.MoonStuff
 			this.placedObject = placedObject;
 		}
 
-		public void Flicker(int t, int i)
+		public void CheckForLights()
 		{
-			if (t == 0)
+			FlickerLights.Clear();
+			FlickerLightBeams.Clear();
+			Flickerables.Clear();
+
+			List<LightSource> allLights = [];
+			foreach (UpdatableAndDeletable uad in room.updateList)
 			{
-				_CWTs.MoonLightSourceData(FlickerLights[i]).On = true;
-				FlickerLights.RemoveAt(i);
+				if (uad is LightSource lightSource)
+				{
+					allLights.Add(lightSource);
+					lightSource.InitMoonLightSourceData();
+				}
+				else if (uad is LightBeam lightBeam)
+				{
+					FlickerLightBeams.Add(lightBeam);
+					lightBeam.InitMoonLightBeamData();
+				}
+				else if (uad is IFlickerable flickerable)
+				{
+					Flickerables.Add(flickerable);
+					flickerable.InitMoonFlickerableData();
+				}
 			}
-			else if (t == 1)
+
+			foreach (PlacedObject pObj in room.roomSettings.placedObjects)
 			{
-				_CWTs.MoonSpotLightData(FlickerSpotLights[i]).On = true;
-				FlickerSpotLights.RemoveAt(i);
+				if (ValidLightSourceObject(pObj.type))
+				{
+					foreach (LightSource light in allLights)
+					{
+						if (light.pos == pObj.pos)
+						{
+							FlickerLights.Add(light);
+							break;
+						}
+					}
+				}
 			}
-			else if (t == 2)
+
+			static bool ValidLightSourceObject(PlacedObject.Type type)
 			{
-				_CWTs.MoonLightBeamData(FlickerLightBeams[i]).On = true;
-				FlickerLightBeams.RemoveAt(i);
+				return type == PlacedObject.Type.LightSource
+					|| type == PlacedObject.Type.LightFixture
+					|| type == Objects._Enums.ColouredLightSource;
 			}
 		}
 
-		public void UpdateLights()
+		public void UpdateLights(bool doFlicker)
 		{
-			for (int i = 0; i < FlickerLights.Count; i++)
+			bool syncedFlicker = Random.value < Chance;
+			foreach (LightSource lightSource in FlickerLights)
 			{
-				if (Synced != LastSync || (Local && !Custom.DistLess(placedObject.pos, FlickerLights[i].pos, Rad)))
+				if (OperateOnLightSource(lightSource) && lightSource.TryGetMoonLightSourceData(out _CWTs.FlickerData flickerData))
 				{
-					_CWTs.MoonLightSourceData(FlickerLights[i]).On = true;
-					FlickerLights.RemoveAt(i);
+					flickerData.UpdateOn(!doFlicker || (Synced ? syncedFlicker : Random.value >= Chance));
+				}
+			}
+			foreach (LightBeam lightBeam in FlickerLightBeams)
+			{
+				if (OperateOnLightBeam(lightBeam) && lightBeam.TryGetMoonLightBeamData(out _CWTs.FlickerData flickerData))
+				{
+					flickerData.UpdateOn(!doFlicker || (Synced ? syncedFlicker : Random.value >= Chance));
+				}
+			}
+			foreach (IFlickerable flickerable in Flickerables)
+			{
+				if (OperateOnFlickerable(flickerable) && flickerable.TryGetMoonFlickerableData(out _CWTs.FlickerData flickerData))
+				{
+					flickerData.UpdateOn(!doFlicker || (Synced ? syncedFlicker : Random.value >= Chance));
 				}
 			}
 
-			for (int i = 0; i < FlickerSpotLights.Count; i++)
+			bool OperateOnLightSource(LightSource lightSource)
 			{
-				if (Synced != LastSync || (Local && !Custom.DistLess(placedObject.pos, FlickerSpotLights[i].placedObject.pos, Rad)))
-				{
-					_CWTs.MoonSpotLightData(FlickerSpotLights[i]).On = true;
-					FlickerSpotLights.RemoveAt(i);
-				}
+				return (!Local || Vector2.Distance(lightSource.pos, placedObject.pos) < Rad)
+					&& (lightSource.fadeWithSun == (Type == LightSourceFlickerData.SunlightType.Sun) || Type == LightSourceFlickerData.SunlightType.All)
+					&& (lightSource.flat == (Type2 == LightSourceFlickerData.LightSourceType.Flat) || Type2 == LightSourceFlickerData.LightSourceType.All);
 			}
 
-			for (int i = 0; i < FlickerLightBeams.Count; i++)
+			bool OperateOnLightBeam(LightBeam lightBeam)
 			{
-				if (Synced != LastSync || (Local && !Custom.DistLess(placedObject.pos, FlickerLightBeams[i].placedObject.pos, Rad)))
-				{
-					_CWTs.MoonLightBeamData(FlickerLightBeams[i]).On = true;
-					FlickerLightBeams.RemoveAt(i);
-				}
+				var lightBeamData = (lightBeam.placedObject.data as LightBeam.LightBeamData)!;
+				return (!Local || Vector2.Distance(lightBeam.placedObject.pos, placedObject.pos) < Rad)
+					&& (lightBeamData.sun == (Type == LightSourceFlickerData.SunlightType.Sun) || Type == LightSourceFlickerData.SunlightType.All);
+			}
+
+			bool OperateOnFlickerable(IFlickerable flickerable)
+			{
+				return (!Local || Vector2.Distance(flickerable.CheckPosition, placedObject.pos) < Rad)
+					&& (flickerable.SunlightType == Type || Type == LightSourceFlickerData.SunlightType.All || flickerable.SunlightType == LightSourceFlickerData.SunlightType.All)
+					&& (flickerable.LightSourceType == Type2 || Type2 == LightSourceFlickerData.LightSourceType.All || flickerable.LightSourceType == LightSourceFlickerData.LightSourceType.All);
 			}
 		}
 
@@ -82,107 +131,28 @@ namespace RegionKit.Modules.MoonStuff
 		{
 			base.Update(eu);
 
-			UpdateLights();
+			// Check if needed
+			if (!hasCheckedForLights)
+			{
+				hasCheckedForLights = true;
+				CheckForLights();
+			}
 
+			// Flicker
+			bool flicker = false;
 			if (FlickerCountdown > 0)
 			{
 				FlickerCountdown--;
-				return;
 			}
-
-			FlickerCountdown = Random.Range(MinFrequency, MaxFrequency);
-
-			if (!Synced || Random.value >= Chance)
+			else
 			{
-
-				for (int l = 0; l < room.lightSources.Count; l++)
-				{
-					if (!Local || Custom.DistLess(placedObject.pos, room.lightSources[l].pos, Rad))
-					{
-						if (Type2 == 2 || (Type2 == 0 && !room.lightSources[l].flat) || (Type2 == 1 && room.lightSources[l].flat))
-						{
-							if (Type == 2 || (Type == 0 && !room.lightSources[l].fadeWithSun) || (Type == 1 && room.lightSources[l].fadeWithSun))
-							{
-								if (Synced || Random.value < Chance)
-								{
-									if (FlickerLights.Count > 0 && FlickerLights.Contains(room.lightSources[l]))
-									{
-										Flicker(0, FlickerLights.IndexOf(room.lightSources[l]));
-									}
-									else
-									{
-										_CWTs.MoonLightSourceData(room.lightSources[l]).On = false;
-										FlickerLights.Add(room.lightSources[l]);
-									}
-								}
-							}
-						}
-					}
-				}
-
-				for (int l = 0; l < room.cosmeticLightSources.Count; l++)
-				{
-					if (!Local || Custom.DistLess(placedObject.pos, room.cosmeticLightSources[l].pos, Rad))
-					{
-						if (Type2 == 2 || (Type2 == 0 && !room.cosmeticLightSources[l].flat) || (Type2 == 1 && room.cosmeticLightSources[l].flat))
-						{
-							if (Type == 2 || (Type == 0 && !room.cosmeticLightSources[l].fadeWithSun) || (Type == 1 && room.cosmeticLightSources[l].fadeWithSun))
-							{
-								if (Synced || Random.value < Chance)
-								{
-									if (FlickerLights.Count > 0 && FlickerLights.Contains(room.cosmeticLightSources[l]))
-									{
-										Flicker(0, FlickerLights.IndexOf(room.cosmeticLightSources[l]));
-									}
-									else
-									{
-										_CWTs.MoonLightSourceData(room.cosmeticLightSources[l]).On = false;
-										FlickerLights.Add(room.cosmeticLightSources[l]);
-									}
-								}
-							}
-						}
-					}
-				}
-
-				for (int l = 0; l < room.drawableObjects.Count; l++)
-				{
-					if (room.drawableObjects[l] is SpotLight light && (!Local || Custom.DistLess(placedObject.pos, light.placedObject.pos, Rad)))
-					{
-						if (Synced || Random.value < Chance)
-						{
-							if (FlickerSpotLights.Count > 0 && FlickerSpotLights.Contains(light))
-							{
-								Flicker(1, FlickerSpotLights.IndexOf(light));
-							}
-							else
-							{
-								_CWTs.MoonSpotLightData(light).On = false;
-								FlickerSpotLights.Add(light);
-							}
-						}
-					}
-					else if (room.drawableObjects[l] is LightBeam lightbeam && (!Local || Custom.DistLess(placedObject.pos, lightbeam.placedObject.pos, Rad)))
-					{
-						if (Type == 2 || (Type == 0 && !(lightbeam.placedObject.data as LightBeam.LightBeamData).sun) || (Type == 1 && (lightbeam.placedObject.data as LightBeam.LightBeamData).sun))
-						{
-							if (Synced || Random.value < Chance)
-							{
-								if (FlickerLightBeams.Count > 0 && FlickerLightBeams.Contains(lightbeam))
-								{
-									Flicker(2, FlickerLightBeams.IndexOf(lightbeam));
-								}
-								else
-								{
-									_CWTs.MoonLightBeamData(lightbeam).On = false;
-									FlickerLightBeams.Add(lightbeam);
-								}
-							}
-						}
-					}
-				}
+				flicker = true;
+				FlickerCountdown = Random.Range(MinFrequency, MaxFrequency);
 			}
 
+			UpdateLights(flicker);
+
+			// Sync
 			LastSync = Synced;
 		}
 	}

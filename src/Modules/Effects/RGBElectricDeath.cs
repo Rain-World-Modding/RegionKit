@@ -166,6 +166,7 @@ namespace RegionKit.Modules.Effects
 			if (self.room.roomSettings.GetEffect(_Enums.RGBElectricDeath) != null && RGBElectricDeathUAD.Instance(self.room) is { } uad && uad.affectElectricDeath == true)
 			{
 				FSprite oldSprite = sLeaser.sprites[0];
+				oldSprite.RemoveFromContainer();
 				sLeaser.sprites[0] = new FSpriteUVs("Futile_White")
 				{
 					scaleX = oldSprite.scaleX,

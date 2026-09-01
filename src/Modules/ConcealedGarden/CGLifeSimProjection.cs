@@ -261,8 +261,8 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		FSprite[] sprites = new FSprite[tilecount];
 		for (int i = 0; i < tilecount; i++)
 		{
-			FSprite sprite = new FSprite("pixel");
-			sprite.scale = 34;
+			FSprite sprite = new FSprite("Futile_White");
+			sprite.scale = 34 / 16f;
 			sprite.isVisible = false;
 			sprite.shader = rCam.game.rainWorld.Shaders["Projection"];
 
@@ -277,6 +277,8 @@ public class CGLifeSimProjection : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		for (int i = activeTiles.Count - 1; i >= 0; i--)
 		{
 			Tile tile = activeTiles[i];
+			if (tile.index >= sLeaser.sprites.Length) continue;
+
 			FSprite sprite = sLeaser.sprites[tile.index];
 			if (tile.alive)
 			{

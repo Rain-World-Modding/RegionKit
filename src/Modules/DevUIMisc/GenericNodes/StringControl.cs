@@ -63,14 +63,14 @@ public class StringControl : DevUILabel
 				// replace whatever instance/null that was focused
 				Text = actualValue;
 				ManagedStringControl.activeStringControl = this;
-				fLabels[0].color = new Color(0.1f, 0.4f, 0.2f);
+				if (fLabels.Count > 0) fLabels[0].color = new Color(0.1f, 0.4f, 0.2f);
 			}
 			else if (ManagedStringControl.activeStringControl == this)
 			{
 				// focus lost
 				TrySetValue(Text, true);
 				ManagedStringControl.activeStringControl = null;
-				fLabels[0].color = Color.black;
+				if (fLabels.Count > 0) fLabels[0].color = Color.black;
 			}
 
 			clickedLastUpdate = true;
@@ -97,7 +97,7 @@ public class StringControl : DevUILabel
 					// should lose focus
 					TrySetValue(Text, true);
 					ManagedStringControl.activeStringControl = null;
-					fLabels[0].color = Color.black;
+					if (fLabels.Count > 0) fLabels[0].color = Color.black;
 				}
 				else
 				{

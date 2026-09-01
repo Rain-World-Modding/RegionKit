@@ -7,7 +7,7 @@ namespace RegionKit.Modules.MoonStuff
 {
 	public class LightSourceFlickerType : ManagedObjectType
 	{
-		public LightSourceFlickerType() : base("Light Source Flicker", Objects._Module.DECORATIONS_POM_CATEGORY, null, typeof(LightSourceFlickerData), typeof(LightSourceFlickerRepresentation))
+		public LightSourceFlickerType() : base(_Enums.MoonLightSourceFlicker.value, Objects._Module.DECORATIONS_POM_CATEGORY, null, typeof(LightSourceFlickerData), typeof(LightSourceFlickerRepresentation))
 		{
 
 		}

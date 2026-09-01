@@ -405,6 +405,7 @@ namespace RegionKit.Modules.Insects
 		public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
 			base.DrawSprites(sLeaser, rCam, timeStacker, camPos);
+			if (sLeaser.deleteMeNextFrame || room == null) return;
 
 			// Head
 			FSprite headSprite = sLeaser.sprites[0];

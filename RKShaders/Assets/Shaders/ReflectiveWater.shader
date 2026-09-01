@@ -390,7 +390,7 @@ half4 frag (v2f i) : SV_Target
 		finalColor = tex2D(_PalTex, float2(0.5 / 32.0, 7.5 / 8.0)); // sky color
 	}
 
-	finalColor = float4(_AlphaReflective * finalColor.rgb, 1.0 - _ReflectionLerp);
+	finalColor = _AlphaReflective * float4(finalColor.rgb, 1.0 - _ReflectionLerp);
 
     // Return color
     return finalColor;

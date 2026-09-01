@@ -49,7 +49,7 @@ namespace RegionKit.Modules.Effects
 			On.LightSource.InitiateSprites += LightSource_InitiateSprites;
 
 			On.RoomCamera.Update += RoomCamera_Update;
-			On.RoomCamera.DrawUpdate += RoomCamera_DrawUpdate;
+			_CommonHooks.RoomCameraDrawUpdate += RoomCamera_DrawUpdate;
 			On.RoomCamera.MoveCamera_int += RoomCamera_MoveCamera_int;
 			On.RoomCamera.MoveCamera_Room_int += RoomCamera_MoveCamera_Room_int;
 			On.RoomCamera.WarpMoveCameraActual += RoomCamera_WarpMoveCameraActual;
@@ -66,7 +66,7 @@ namespace RegionKit.Modules.Effects
 			On.LightSource.InitiateSprites -= LightSource_InitiateSprites;
 
 			On.RoomCamera.Update -= RoomCamera_Update;
-			On.RoomCamera.DrawUpdate -= RoomCamera_DrawUpdate;
+			_CommonHooks.RoomCameraDrawUpdate -= RoomCamera_DrawUpdate;
 			On.RoomCamera.MoveCamera_int -= RoomCamera_MoveCamera_int;
 			On.RoomCamera.MoveCamera_Room_int -= RoomCamera_MoveCamera_Room_int;
 			On.RoomCamera.WarpMoveCameraActual -= RoomCamera_WarpMoveCameraActual;
@@ -91,9 +91,8 @@ namespace RegionKit.Modules.Effects
 			orig(self);
 		}
 
-		private static void RoomCamera_DrawUpdate(On.RoomCamera.orig_DrawUpdate orig, RoomCamera self, float timeStacker, float timeSpeed)
+		private static void RoomCamera_DrawUpdate(RoomCamera self, float timeStacker, float timeSpeed)
 		{
-			orig(self, timeStacker, timeSpeed);
 			if (self.room != null && cameraDataCWT.TryGetValue(self, out MurkyWaterCameraData? cameraData))
 			{
 				cameraData.DrawUpdate();
@@ -252,9 +251,16 @@ namespace RegionKit.Modules.Effects
 				int indicesLength = 0;
 				for (int i = 0; i < meshesToCopy; i++)
 				{
-					WaterTriangleMesh mesh = (sLeaser.sprites[i * 2 + 1] as WaterTriangleMesh)!;
-					verticesLength += mesh.vertices.Length;
-					indicesLength += mesh.triangles.Length * 3;
+					if (sLeaser.sprites[i * 2 + 1] is WaterTriangleMesh waterTriMesh)
+					{
+						verticesLength += waterTriMesh.vertices.Length;
+						indicesLength += waterTriMesh.triangles.Length * 3;
+					}
+					else if (sLeaser.sprites[i * 2 + 1] is TriangleMesh triMesh)
+					{
+						verticesLength += triMesh.vertices.Length;
+						indicesLength += triMesh.triangles.Length * 3;
+					}
 				}
 
 				// Resize arrays as necessary
@@ -266,17 +272,32 @@ namespace RegionKit.Modules.Effects
 				// Put data in the arrays
 				for (int i = 0, vert = 0, ind = 0; i < meshesToCopy; i++)
 				{
-					WaterTriangleMesh mesh = (sLeaser.sprites[i * 2 + 1] as WaterTriangleMesh)!;
 					int initialVertLength = vert;
-					for (int j = 0; j < mesh.vertices.Length; j++)
+					if (sLeaser.sprites[i * 2 + 1] is WaterTriangleMesh waterTriMesh)
 					{
-						waterVertexArray[vert++] = mesh.vertices[j];
+						for (int j = 0; j < waterTriMesh.vertices.Length; j++)
+						{
+							waterVertexArray[vert++] = waterTriMesh.vertices[j];
+						}
+						for (int j = 0; j < waterTriMesh.triangles.Length; j++)
+						{
+							waterIndexArray[ind++] = waterTriMesh.triangles[j].a + initialVertLength;
+							waterIndexArray[ind++] = waterTriMesh.triangles[j].b + initialVertLength;
+							waterIndexArray[ind++] = waterTriMesh.triangles[j].c + initialVertLength;
+						}
 					}
-					for (int j = 0; j < mesh.triangles.Length; j++)
+					else if (sLeaser.sprites[i * 2 + 1] is TriangleMesh triMesh)
 					{
-						waterIndexArray[ind++] = mesh.triangles[j].a + initialVertLength;
-						waterIndexArray[ind++] = mesh.triangles[j].b + initialVertLength;
-						waterIndexArray[ind++] = mesh.triangles[j].c + initialVertLength;
+						for (int j = 0; j < triMesh.vertices.Length; j++)
+						{
+							waterVertexArray[vert++] = triMesh.vertices[j];
+						}
+						for (int j = 0; j < triMesh.triangles.Length; j++)
+						{
+							waterIndexArray[ind++] = triMesh.triangles[j].a + initialVertLength;
+							waterIndexArray[ind++] = triMesh.triangles[j].b + initialVertLength;
+							waterIndexArray[ind++] = triMesh.triangles[j].c + initialVertLength;
+						}
 					}
 				}
 

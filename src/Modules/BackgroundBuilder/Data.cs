@@ -514,6 +514,29 @@ public static class Data
 		}
 		private ContainerCodes? _defaultContainer = null;
 
+		[BackgroundData(backingFieldName = nameof(_windDir))]
+		public float windDir
+		{
+			get => _windDir ?? parent?.windDir ?? Shader.GetGlobalFloat(RainWorld.ShadPropWindDir);
+			set
+			{
+				_windDir = value;
+				if (_Scene != null)
+				{
+					foreach (var camera in _Scene.room.game.cameras)
+					{
+						if (camera.room == _Scene.room)
+						{
+							Shader.SetGlobalFloat(RainWorld.ShadPropWindDir, value);
+							break;
+						}
+					}
+				}
+			}
+		}
+		public bool hasWindDir => _windDir != null || (parent?.hasWindDir ?? false);
+		private float? _windDir;
+
 
 		public virtual List<string> Serialize()
 		{
@@ -1131,18 +1154,6 @@ public static class Data
 			}
 		}
 
-		[BackgroundData(backingFieldName = nameof(_windDir))]
-		public float windDir
-		{
-			get => _windDir ?? ACVParent?.windDir ?? Shader.GetGlobalFloat("_windDir"); 
-			set
-			{
-				_windDir = value;
-				if (Scene != null)
-					Shader.SetGlobalFloat("_windDir", value);
-			}
-		}
-
 		static readonly float _startFogDefault = 18000f;
 		[BackgroundData(backingFieldName = nameof(_startFogAltitude), defaultFieldName = nameof(_startFogDefault))]
 		public float startFogAltitude
@@ -1211,7 +1222,6 @@ public static class Data
 		private float? _curveCloudDepth;
 		private float? _overrideYStart;
 		private float? _overrideYEnd;
-		private float? _windDir;
 		public float? _startFogAltitude;
 		public float? _endFogAltitude;
 		#endregion

@@ -5,13 +5,13 @@
 		internal static void Apply()
 		{
 			On.RoomCamera.ApplyPalette += RoomCamera_ApplyPalette;
-			On.RoomCamera.DrawUpdate += RoomCamera_DrawUpdate;
+			_CommonHooks.RoomCameraDrawUpdate += RoomCamera_DrawUpdate;
 		}
 
 		internal static void Undo()
 		{
 			On.RoomCamera.ApplyPalette -= RoomCamera_ApplyPalette;
-			On.RoomCamera.DrawUpdate -= RoomCamera_DrawUpdate;
+			_CommonHooks.RoomCameraDrawUpdate -= RoomCamera_DrawUpdate;
 		}
 
 		private static void RoomCamera_ApplyPalette(On.RoomCamera.orig_ApplyPalette orig, RoomCamera self)
@@ -30,9 +30,8 @@
 			}
 		}
 
-		private static void RoomCamera_DrawUpdate(On.RoomCamera.orig_DrawUpdate orig, RoomCamera self, float timeStacker, float timeSpeed)
+		private static void RoomCamera_DrawUpdate(RoomCamera self, float timeStacker, float timeSpeed)
 		{
-			orig(self, timeStacker, timeSpeed);
 			if (self.room != null && self.lightBloomAlphaEffect == _Enums.FlatFog)
 			{
 				RoomSettings.RoomEffect? flatFogEffect = self.room.roomSettings.GetEffect(_Enums.FlatFog);

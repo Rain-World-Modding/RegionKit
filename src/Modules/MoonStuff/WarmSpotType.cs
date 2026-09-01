@@ -6,7 +6,7 @@ namespace RegionKit.Modules.MoonStuff
 {
 	public class WarmSpotType : ManagedObjectType
 	{
-		public WarmSpotType() : base("WarmSpot", Objects._Module.GAMEPLAY_POM_CATEGORY, null, typeof(WarmSpotData), typeof(WarmSpotRepresentation)) { }
+		public WarmSpotType() : base(_Enums.WarmSpot.value, Objects._Module.GAMEPLAY_POM_CATEGORY, null, typeof(WarmSpotData), typeof(WarmSpotRepresentation)) { }
 		public override UpdatableAndDeletable MakeObject(PlacedObject placedObject, Room room) => ModManager.MSC ? new WarmSpot(placedObject, room) : null;
 
 		public override PlacedObjectRepresentation MakeRepresentation(PlacedObject pObj, ObjectsPage objPage)

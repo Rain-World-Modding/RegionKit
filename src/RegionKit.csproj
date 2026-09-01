@@ -11,8 +11,8 @@
 		<Authors>RegionKit team</Authors>
 		<Description>All-in-one custom region dependency library.</Description>
 		<Copyright>GPL v3</Copyright>
-		<FileVersion>3.19.0</FileVersion>
-		<AssemblyVersion>3.19.0</AssemblyVersion>
+		<FileVersion>3.20.1</FileVersion>
+		<AssemblyVersion>3.20.1</AssemblyVersion>
 		<PackageReadmeFile>../README.md</PackageReadmeFile>
 		<PackageLicenseFile>../LICENSE</PackageLicenseFile>
 		<DebugType>Portable</DebugType>
@@ -145,10 +145,13 @@
 		  <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\Managed\UnityEngine.VideoModule.dll</HintPath>
 		</Reference>
 	</ItemGroup>
+
+	<!-- NuGet includes. -->
 	<ItemGroup>
 		<PackageReference Include="PolySharp" Version="1.16.0">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
+		<PackageReference Include="SharpVoronoiLib" Version="1.2.0" />
 	</ItemGroup>
 </Project>

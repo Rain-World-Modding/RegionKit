@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Menu.Remix.MixedUI;
 using Menu.Remix.MixedUI.ValueTypes;
 
-#pragma warning disable CS0162 // Unreachable code detected
 namespace RegionKit.OptionsMenu
 {
 	/// <summary>
@@ -334,10 +333,9 @@ namespace RegionKit.OptionsMenu
 			}
 		}
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 		public class TaskData
 		{
-			public Action BakingTask;
+			public Action? BakingTask;
 			public bool Started;
 			public bool Finished;
 			public string Room;
@@ -360,7 +358,6 @@ namespace RegionKit.OptionsMenu
 				Room = room;
 			}
 		}
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 		// Made by Alduris
 		internal sealed class OIUtil : OptionInterface
@@ -373,4 +370,3 @@ namespace RegionKit.OptionsMenu
 		}
 	}
 }
-#pragma warning restore CS0162 // Unreachable code detected

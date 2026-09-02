@@ -144,15 +144,19 @@ namespace RegionKit.Modules.Effects
 		private static void LightSource_AddToContainer(On.LightSource.orig_AddToContainer orig, LightSource self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
 		{
 			orig(self, sLeaser, rCam, newContatiner);
-			if (rCam.room.roomSettings.GetEffect(_Enums.MurkyWater) != null && self.room == rCam.room)
-			rCam.ReturnFContainer("Water").AddChild(sLeaser.sprites[0]);
+			if (rCam.room.roomSettings.GetEffect(_Enums.MurkyWater) != null && self.room == rCam.room && !self.flat)
+			{
+				rCam.ReturnFContainer("Water").AddChild(sLeaser.sprites[0]);
+			}
 		}
 
 		private static void LightSource_InitiateSprites(On.LightSource.orig_InitiateSprites orig, LightSource self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
 		{
 			orig(self, sLeaser, rCam);
-			if (rCam.room.roomSettings.GetEffect(_Enums.MurkyWater) != null && self.room == rCam.room)
+			if (rCam.room.roomSettings.GetEffect(_Enums.MurkyWater) != null && self.room == rCam.room && !self.flat)
+			{
 				sLeaser.sprites[0].shader = self.room.game.rainWorld.Shaders["MurkyWaterLightSource"];
+			}
 		}
 
 		private static void Lantern_InitiateSprites(On.Lantern.orig_InitiateSprites orig, Lantern self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)

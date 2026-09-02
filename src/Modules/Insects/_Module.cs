@@ -28,8 +28,8 @@ namespace RegionKit.Modules.Insects
 			RippleFly.RippleLight.Apply();
 
 			// Shaders
-			Custom.rainWorld.Shaders["LightSourceRippleSideAlt"] = FShader.CreateShader("LightSource", Shader.Find("Futile/LightSource"), ["ripple_other_side_alt"]);
-			Custom.rainWorld.Shaders["FlatLightRippleSideAlt"] = FShader.CreateShader("FlatLight", Shader.Find("Futile/FlatLight"), ["ripple_other_side_alt"]);
+			Custom.rainWorld.Shaders["LightSourceRippleSideAlt"] = FShader.CreateShader("LightSourceRippleSideAlt", Shader.Find("Futile/LightSource"), ["ripple_other_side_alt"]);
+			Custom.rainWorld.Shaders["FlatLightRippleSideAlt"] = FShader.CreateShader("FlatLightRippleSideAlt", Shader.Find("Futile/FlatLight"), ["ripple_other_side_alt"]);
 
 			// Debug
 #if false

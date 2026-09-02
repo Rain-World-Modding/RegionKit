@@ -13,8 +13,7 @@ namespace RegionKit.OptionsMenu
 	/// </summary>
 	public class TurboBakerTab : OpTab
 	{
-		private const bool DEBUG = false;
-		private const float RegionCheckboxHeight = 30;
+		private const float CheckboxSpacing = 30;
 		private const float ThreadLabelHeight = 20;
 
 		public List<TaskData> Tasks = new();
@@ -27,39 +26,53 @@ namespace RegionKit.OptionsMenu
 
 		public OpDragger? ThreadsInput = null;
 		public OpCheckBox? ForceBakeInput = null;
-		public OpCheckBox? HiddenSlugcatsInput = null;
-		public readonly Dictionary<string, OpCheckBox> Regions = new();
+		public readonly Dictionary<SlugcatStats.Timeline, OpCheckBox> TimelinesMap = [];
+		public readonly Dictionary<string, OpCheckBox> RegionsMap = [];
 
 		private int _updateTimer;
 
 		public TurboBakerTab(OptionInterface owner) : base(owner, "Bakery")
 		{
-			var regions = Region.GetFullRegionOrder();
+		}
 
-			foreach (var region in regions)
+		private static Color TimelineColor(SlugcatStats.Timeline timeline)
+		{
+			// Check if slugcat has same name as timeline
+			SlugcatStats.Name maybeName = new SlugcatStats.Name(timeline.value, false);
+			if (maybeName.Index > -1)
 			{
-				Regions[region] = null!;
+				Color useColor = PlayerGraphics.DefaultSlugcatColor(maybeName);
+				Vector3 hsl = Custom.RGB2HSL(useColor);
+				return Custom.HSL2RGB(hsl.x, hsl.y, Mathf.Lerp(0.4f, 1f, hsl.z));
 			}
+
+			// No defined slugcat with same name
+			return Color.white;
 		}
 
 		public void Initialize()
 		{
-			OpScrollBox scrollBox = null!;
+			List<SlugcatStats.Timeline> timelines = SlugcatStats.Timeline.values.entries.Select(x => new SlugcatStats.Timeline(x, false)).ToList();
+			List<string> acronyms = Region.GetFullRegionOrder();
+
+			OpScrollBox timelineScrollBox, regionScrollBox;
 			UIelement[] elements = new UIelement[]
 			{
-				ForceBakeInput = new OpCheckBox(OIUtil.CosmeticBind(false), 10, 560),
 				new OpLabel(45f, 560f, "Rebake All Rooms"),
+				ForceBakeInput = new OpCheckBox(OIUtil.CosmeticBind(false), 10f, 560f),
 
-				HiddenSlugcatsInput = new OpCheckBox(OIUtil.CosmeticBind(false), 10, 520),
-				new OpLabel(45f, 520f, "Include Hidden Slugcats"),
+				new OpLabel(45f, 520f, "Baking Threads"),
+				ThreadsInput = new OpDragger(OIUtil.CosmeticRange(Mathf.CeilToInt(Environment.ProcessorCount * 0.5f), 1, Environment.ProcessorCount), 10f, 520f),
 
-				ThreadsInput = new OpDragger(OIUtil.CosmeticRange(Mathf.CeilToInt(Environment.ProcessorCount * 0.5f), 1, Environment.ProcessorCount), 10, 480),
-				new OpLabel(45f, 480f, "Baking Threads"),
+				new OpLabel(10f, 480f, "Timelines:"),
+				timelineScrollBox = new OpScrollBox(new Vector2(0f, 300f), new Vector2(180f, 180f), timelines.Count * CheckboxSpacing, false, false),
 
-				scrollBox = new OpScrollBox(Vector2.zero, new Vector2(120f, 440f), Regions.Count * RegionCheckboxHeight, false, false),
-				new OpLabel(10f, 450, "Regions:"),
-				BakeButton = new OpSimpleButton(new Vector2(130, 0), new Vector2(80, 30), "Bake!"),
-				StatusLabel = new OpLabel(250, 5, "")
+				new OpLabel(10f, 270f, "Regions:"),
+				regionScrollBox = new OpScrollBox(Vector2.zero, new Vector2(180f, 270f), acronyms.Count * CheckboxSpacing, false, false),
+
+				BakeButton = new OpSimpleButton(new Vector2(190f, 0f), new Vector2(80f, 30f), "Bake!"),
+
+				StatusLabel = new OpLabel(310, 5, "")
 			};
 
 			for (int i = 0; i < Environment.ProcessorCount; i++)
@@ -74,17 +87,31 @@ namespace RegionKit.OptionsMenu
 
 			AddItems(elements);
 
-			var acronyms = Regions.Keys.ToList();
+			TimelinesMap.Clear();
+			for (int i = 0; i < timelines.Count; i++)
+			{
+				SlugcatStats.Timeline timeline = timelines[i];
+
+				float posY = (timelines.Count - i - 1) * CheckboxSpacing;
+				var checkBox = new OpCheckBox(OIUtil.CosmeticBind(true), 10, posY);
+				var label = new OpLabel(45, posY, timeline.value);
+				label.color = TimelineColor(timeline);
+				timelineScrollBox.AddItems(checkBox, label);
+				TimelinesMap[timeline] = checkBox;
+			}
+
+			RegionsMap.Clear();
 			for (int i = 0; i < acronyms.Count; i++)
 			{
 				string region = acronyms[i];
 
-				float posY = (Regions.Count - i - 1) * RegionCheckboxHeight;
+				float posY = (acronyms.Count - i - 1) * CheckboxSpacing;
 				var checkBox = new OpCheckBox(OIUtil.CosmeticBind(false), 10, posY);
 				var label = new OpLabel(45, posY, region);
+				label.color = Region.RegionColor(region);
 
-				scrollBox.AddItems(checkBox, label);
-				Regions[region] = checkBox;
+				regionScrollBox.AddItems(checkBox, label);
+				RegionsMap[region] = checkBox;
 			}
 		}
 
@@ -146,8 +173,8 @@ namespace RegionKit.OptionsMenu
 
 		public void BakeClick(UIfocusable trigger)
 		{
-			var regionsToBake = Regions.Where(x => x.Value.GetValueBool()).Select(x => x.Key).ToList();
-			if (DEBUG) LogInfo("REGIONS TO BAKE (prior): " + string.Join(", ", regionsToBake));
+			var regionsToBake = RegionsMap.Where(x => x.Value.GetValueBool()).Select(x => x.Key).ToList();
+			LogInfo("REGIONS TO BAKE (prior): " + string.Join(", ", regionsToBake));
 			if (regionsToBake.Count == 0)
 			{
 				trigger.PlaySound(SoundID.MENU_Error_Ping);
@@ -169,40 +196,38 @@ namespace RegionKit.OptionsMenu
 		{
 			try
 			{
-				bool includeHiddenSlugcats = HiddenSlugcatsInput!.GetValueBool();
 				bool forceRebake = ForceBakeInput!.GetValueBool();
 
-				var regionsToBake = Regions.Where(x => x.Value.GetValueBool()).Select(x => x.Key).ToList();
-				if (DEBUG) LogInfo("REGIONS TO BAKE: " + string.Join(", ", regionsToBake));
+				var regionsToBake = RegionsMap.Where(x => x.Value.GetValueBool()).Select(x => x.Key).ToList();
+				LogInfo("REGIONS TO BAKE: " + string.Join(", ", regionsToBake));
 
 				var worldLoaders = new List<WorldLoader>();
-				foreach (string slugcatName in ExtEnumBase.GetNames(typeof(SlugcatStats.Name)))
+				foreach ((SlugcatStats.Timeline timeline, OpCheckBox timelineCheckbox) in TimelinesMap)
 				{
-					var slugcat = new SlugcatStats.Name(slugcatName);
-
-					if (!includeHiddenSlugcats && SlugcatStats.HiddenOrUnplayableSlugcat(slugcat)) continue;
-
-					IEnumerable<Region> regions = Region.LoadAllRegions(SlugcatStats.SlugcatToTimeline(slugcat), null).Where(x => regionsToBake.Contains(x.name));
-
-					foreach (Region region in regions)
+					if (timelineCheckbox.GetValueBool())
 					{
-						var worldLoader = new WorldLoader(null, slugcat, SlugcatStats.SlugcatToTimeline(slugcat), false, region.name, region, RainWorld.LoadSetupValues(true), WorldLoader.LoadingContext.MAPMERGE);
-						worldLoader.NextActivity();
-						while (!worldLoader.Finished)
+						IEnumerable<Region> regions = Region.LoadAllRegions(timeline, null).Where(x => regionsToBake.Contains(x.name));
+
+						foreach (Region region in regions)
 						{
-							worldLoader.Update();
+							var worldLoader = new WorldLoader(null, null, timeline, false, region.name, region, RainWorld.LoadSetupValues(true), WorldLoader.LoadingContext.MAPMERGE);
+							worldLoader.NextActivity();
+							while (!worldLoader.Finished)
+							{
+								worldLoader.Update();
+							}
+							worldLoaders.Add(worldLoader);
+							LogInfo("Loaded world " + region.name + " for " + timeline);
 						}
-						worldLoaders.Add(worldLoader);
-						if (DEBUG) LogInfo("Loaded world " + region.name + " for " + slugcatName);
 					}
 				}
 
-				if (DEBUG) LogInfo("ITERATING WORLDLOADER LIST");
+				LogInfo("ITERATING WORLDLOADER LIST");
 
 				var queuedRooms = new List<string>();
 				foreach (WorldLoader worldLoader in worldLoaders)
 				{
-					if (DEBUG) LogInfo("Retrieving world " + worldLoader.worldName + " for " + worldLoader.playerCharacter.value);
+					LogInfo("Retrieving world " + worldLoader.worldName + " for " + worldLoader.timelinePosition.value);
 					World world = worldLoader.ReturnWorld();
 
 					for (int i = 0; i < worldLoader.roomAdder.Count; i++)
@@ -256,6 +281,7 @@ namespace RegionKit.OptionsMenu
 								}
 								catch (Exception ex)
 								{
+									LogError("Errored baking room: " + abstractRoom.name);
 									LogError(ex);
 								}
 							});
@@ -275,7 +301,7 @@ namespace RegionKit.OptionsMenu
 				ActualBakeStartTime = DateTime.Now;
 				new Thread(() => Parallel.Invoke(new ParallelOptions { MaxDegreeOfParallelism = ThreadsInput!.GetValueInt() }, Tasks.Select(x => x.BakingTask).ToArray())).Start();
 
-				if (DEBUG) LogInfo("Created thread");
+				LogInfo("Created thread");
 			}
 			catch (Exception e)
 			{

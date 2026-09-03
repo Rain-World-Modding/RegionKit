@@ -158,10 +158,6 @@
 			<HintPath>lib/UnityEngine.UnityWebRequestModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="Newtonsoft.Json">
-			<HintPath>lib/Newtonsoft.Json.dll</HintPath>
-			<Private>True</Private>
-		</Reference>
 		<Reference Include="netstandard">
 			<HintPath>lib/netstandard.dll</HintPath>
 			<Private>False</Private>
@@ -178,6 +174,7 @@
 
 	<!-- NuGet includes. -->
 	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="PolySharp" Version="1.16.0">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>

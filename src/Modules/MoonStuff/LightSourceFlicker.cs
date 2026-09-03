@@ -76,7 +76,8 @@ namespace RegionKit.Modules.MoonStuff
 			{
 				return type == PlacedObject.Type.LightSource
 					|| type == PlacedObject.Type.LightFixture
-					|| type == Objects._Enums.ColouredLightSource;
+					|| type == Objects._Enums.ColouredLightSource
+					|| type == MoonIO._Enums.PlacedObjectType.IOLightSource;
 			}
 		}
 

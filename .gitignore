@@ -1,5 +1,5 @@
 # user
-lib/*.dll
+lib/**
 src/lib/**
 
 # .sln file
@@ -12,3 +12,6 @@ mod/newest/plugins/**
 # unity assetbundle build stuff
 mod/**/*.manifest
 mod/assets/regionkit/regionkit
+
+# editor config stuff
+.vs/**

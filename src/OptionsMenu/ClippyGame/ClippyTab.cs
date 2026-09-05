@@ -1,6 +1,8 @@
 ﻿using System.IO;
+using Menu;
 using Menu.Remix;
 using Menu.Remix.MixedUI;
+using Newtonsoft.Json.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 using static RegionKit.Modules.MoonIO.IOType;
@@ -9,9 +11,140 @@ using Random = UnityEngine.Random;
 
 namespace RegionKit.OptionsMenu.ClippyGame
 {
-	public class ClippyTab : OpTab
+	public class ClippyTab : OpTab, CheckBox.IOwnCheckBox
 	{
 		public const bool DEBUG = false;
+
+		public class ClippyCheckBox : UIfocusable
+		{
+			public bool value;
+
+			new public OpTab tab;
+
+			public DyeableRect rect;
+
+			public FSprite symbolSprite;
+
+			public OpLabel label;
+
+			public Color colorEdge = MenuColorEffect.rgbMediumGrey;
+
+			public Color colorFill = MenuColorEffect.rgbBlack;
+
+			public float _symbolHalfVisible;
+
+			public ClippyCheckBox(OpTab tab, Vector2 pos, string text, bool value = false) : base(pos, new Vector2(24f, 24f))
+			{
+				this.value = value;
+				this.tab = tab;
+				rect = new DyeableRect(myContainer, Vector2.zero, base.size);
+
+				symbolSprite = new FSprite("Menu_Symbol_CheckBox")
+				{
+					anchorX = 0.5f,
+					anchorY = 0.5f,
+					x = 12f,
+					y = 12f
+				};
+				myContainer.AddChild(symbolSprite);
+
+				label = new OpLabel(pos.x + size.x + 10f, pos.y, text) { alignment = FLabelAlignment.Left };
+				tab._AddItem(label);
+			}
+
+			public override string DisplayDescription()
+			{
+				return (value ? "Disable " : "Enable ") + label.text.ToLower() + "?";
+			}
+
+			public override void GrafUpdate(float timeStacker)
+			{
+				base.GrafUpdate(timeStacker);
+				rect.addSize = new Vector2(4f, 4f) * base.bumpBehav.AddSize;
+				if (greyedOut)
+				{
+					if (value)
+					{
+						symbolSprite.alpha = 1f;
+						symbolSprite.color = base.bumpBehav.GetColor(colorEdge);
+					}
+					else
+					{
+						symbolSprite.alpha = 0f;
+					}
+
+					rect.colorEdge = base.bumpBehav.GetColor(colorEdge);
+					rect.colorFill = base.bumpBehav.GetColor(colorFill);
+					rect.GrafUpdate(timeStacker);
+					return;
+				}
+
+				Color color = base.bumpBehav.GetColor(colorEdge);
+				if (base.Focused || MouseOver)
+				{
+					_symbolHalfVisible = Custom.LerpAndTick(_symbolHalfVisible, 1f, 0.07f, 1f / 60f / UIelement.frameMulti);
+					symbolSprite.color = Color.Lerp(MenuColorEffect.MidToDark(color), color, base.bumpBehav.Sin(10f));
+				}
+				else
+				{
+					_symbolHalfVisible = 0f;
+					symbolSprite.color = color;
+				}
+
+				rect.colorEdge = color;
+				if (value)
+				{
+					symbolSprite.alpha = 1f - _symbolHalfVisible * 0.2f;
+				}
+				else
+				{
+					symbolSprite.alpha = _symbolHalfVisible * 0.2f;
+				}
+
+				rect.fillAlpha = base.bumpBehav.FillAlpha;
+				rect.colorFill = colorFill;
+				rect.GrafUpdate(timeStacker);
+			}
+
+			public override void Update()
+			{
+				base.Update();
+				rect.Update();
+				if (greyedOut)
+				{
+					return;
+				}
+
+				if (base.MenuMouseMode)
+				{
+					if (MouseOver)
+					{
+						if (Input.GetMouseButton(0))
+						{
+							held = true;
+						}
+						else if (held)
+						{
+							value = !value;
+							PlaySound(!value ? SoundID.MENU_Checkbox_Check : SoundID.MENU_Checkbox_Uncheck);
+							held = false;
+						}
+					}
+					else if (held && !Input.GetMouseButton(0))
+					{
+						held = false;
+					}
+				}
+				else if (held && !base.CtlrInput.jmp)
+				{
+					value = !value;
+					PlaySound(!value ? SoundID.MENU_Checkbox_Check : SoundID.MENU_Checkbox_Uncheck);
+					held = false;
+				}
+			}
+
+		}
+
 
 		public class Spark : UIelement
 		{
@@ -81,6 +214,8 @@ namespace RegionKit.OptionsMenu.ClippyGame
 			public float speedadd;
 
 			public bool clickLock;
+
+			public bool enableSounds;
 
 			public Vector2 dir;
 
@@ -199,7 +334,10 @@ namespace RegionKit.OptionsMenu.ClippyGame
 				{
 					if (!clickLock)
 					{
-						ConfigContainer.PlaySound(_Enums.CatCube_Meow, 0.5f, 1f, 1f);
+						if (enableSounds)
+						{
+							ConfigContainer.PlaySound(_Enums.CatCube_Meow, 0.5f, 1f, 1f);
+						}
 					}
 
 					clickLock = true;
@@ -306,6 +444,8 @@ namespace RegionKit.OptionsMenu.ClippyGame
 
 		public int blink;
 
+		public float pointHue;
+
 		public FSprite speechBubble;
 
 		public FLabel text;
@@ -331,7 +471,7 @@ namespace RegionKit.OptionsMenu.ClippyGame
 		}
 
 		public int nextMilestone
-		{ 
+		{
 			get
 			{
 				return score switch
@@ -388,6 +528,18 @@ namespace RegionKit.OptionsMenu.ClippyGame
 		public float targetSize = 2f;
 
 		public float targetSizeLerp;
+
+		public ClippySaver saver;
+
+		public MenuMicrophone.MenuSoundLoop music;
+
+		public ClippyCheckBox musicCheck;
+
+		public ClippyCheckBox soundeffectsCheck;
+
+		public bool MusicEnabled = true;
+
+		public bool SoundEffectsEnabled = true;
 
 		public int points_per_click
 		{
@@ -450,13 +602,26 @@ namespace RegionKit.OptionsMenu.ClippyGame
 			}
 		}
 
-		public ClippyTab(OptionInterface owner) : base(owner, "???")
+		public bool GetChecked(CheckBox box)
+		{
+			return false;
+		}
+
+		public void SetChecked(CheckBox box, bool c)
+		{
+
+		}
+
+		public ClippyTab(OptionInterface owner) : base(owner, "Clippy")
 		{
 
 		}
 
 		public void Initialize()
 		{
+			saver = new ClippySaver(this);
+			saver.Load();
+
 			clippy = new FSprite("assets/regionkit/clippy");
 			speechBubble = new FSprite("assets/regionkit/clippy_talker");
 			text = new FLabel(Custom.GetFont(), "");
@@ -496,9 +661,12 @@ namespace RegionKit.OptionsMenu.ClippyGame
 			pointslabel.label.shader = Custom.rainWorld.Shaders["MenuText"];
 			pointslabel.Change();
 
-			AddItems(milestoneLabel, milestoneLabelNum, pointslabel);
+			musicCheck = new ClippyCheckBox(this, new Vector2(0f, CanvasSize.y - 30f), "Music", MusicEnabled);
+			soundeffectsCheck = new ClippyCheckBox(this, new Vector2(0f, CanvasSize.y - 64f), "Sound effects", SoundEffectsEnabled);
 
-			if (highScore == 0)
+			AddItems(milestoneLabel, milestoneLabelNum, pointslabel, musicCheck, soundeffectsCheck);
+
+			if (highScore == score)
 			{
 				newScore = false;
 			}
@@ -527,17 +695,42 @@ namespace RegionKit.OptionsMenu.ClippyGame
 					}
 				}
 
+				if (music != null)
+				{
+					music.Destroy();
+					music = null;
+				}
+
 				return;
+			}
+
+			if (musicCheck != null)
+			{
+				MusicEnabled = musicCheck.value;
+			}
+
+			if (soundeffectsCheck != null)
+			{
+				SoundEffectsEnabled = soundeffectsCheck.value;
+			}
+
+			if (MusicEnabled)
+			{
+				if (music == null)
+				{
+					music = ModdingMenu.instance.PlayLoop(_Enums.Clippy_Song, 0f, 1f, 1f, true);
+				}
+			}
+			else if (music != null)
+			{
+				music.Destroy();
+				music = null!;
 			}
 
 			if (!loaded)
 			{
 				// this.name = "Clippy";
-
-				talkcounter = 40;
-				speechBubble.isVisible = true;
-				text.isVisible = true;
-				text.text = RandomDialogue();
+				Talk();
 
 				loaded = true;
 			}
@@ -628,7 +821,11 @@ namespace RegionKit.OptionsMenu.ClippyGame
 						}
 						joarButton.Unload();
 						joarButton = null!;
-						ConfigContainer.PlaySound(_Enums.Joar_Death, 0.5f, 1f, 1f);
+
+						if (SoundEffectsEnabled)
+						{
+							ConfigContainer.PlaySound(_Enums.Joar_Death, 0.5f, 1f, 1f);
+						}
 					}
 					else if (cutsceneCounter == 160)
 					{
@@ -640,7 +837,11 @@ namespace RegionKit.OptionsMenu.ClippyGame
 						}
 						catCube.Unload();
 						catCube = null!;
-						ConfigContainer.PlaySound(_Enums.CatCube_Meow, 0.5f, 1f, 1f);
+
+						if (SoundEffectsEnabled)
+						{
+							ConfigContainer.PlaySound(_Enums.CatCube_Meow, 0.5f, 1f, 1f);
+						}
 					}
 					else if (cutsceneCounter == 200)
 					{
@@ -660,11 +861,7 @@ namespace RegionKit.OptionsMenu.ClippyGame
 
 			if (talkcounter == 0 && (Random.value < 0.0008f || (DEBUG && Input.GetKeyUp(KeyCode.T))))
 			{
-				talkcounter = 40;
-
-				speechBubble.isVisible = true;
-				text.isVisible = true;
-				text.text = RandomDialogue();
+				Talk();
 			}
 
 			if (Rainbow)
@@ -726,20 +923,34 @@ namespace RegionKit.OptionsMenu.ClippyGame
 						score += points_per_click;
 					}
 
+					if (SoundEffectsEnabled)
+					{
+						ConfigContainer.PlaySound(_Enums.Clippy_Hurt, 0f, 1f, 1f);
+					}
+
 					if (score > highScore && newScore)
 					{
 						newScore = false;
 						AddItems(new PointLabel(MousePos.x - _container.x, MousePos.y - _container.y, "NEW HIGHSCORE"));
-						ConfigContainer.PlaySound(_Enums.Clippy_Highscore, 0.5f, 1f, 1f);
+
+						if (SoundEffectsEnabled)
+						{
+							ConfigContainer.PlaySound(_Enums.Clippy_Highscore, 0f, 1f, 1f);
+						}
 					}
 					else if (Custom.Mod(math.log10(score), 1f) == 0 && score > 100)
 					{
 						AddItems(new PointLabel(MousePos.x - _container.x, MousePos.y - _container.y, "MILESTONE REACHED"));
-						ConfigContainer.PlaySound(_Enums.Clippy_Milestone, 0.5f, 1f, 1f);
+
+						if (SoundEffectsEnabled)
+						{
+							ConfigContainer.PlaySound(_Enums.Clippy_Milestone, 0f, 1f, 1f);
+						}
 					}
 					else
 					{
-						AddItems(new PointLabel(MousePos.x - _container.x, MousePos.y - _container.y, score.ToString(), HSL2RGB(Custom.Mod(score / (score * 10f), 1f), 1f, 0.5f)));
+						pointHue = Custom.Mod(pointHue + (10f / 360f), 1f);
+						AddItems(new PointLabel(MousePos.x - _container.x, MousePos.y - _container.y, score.ToString(), HSL2RGB(pointHue, 1f, 0.5f)));
 					}
 
 					if (score > highScore)
@@ -828,6 +1039,7 @@ namespace RegionKit.OptionsMenu.ClippyGame
 				}
 				else
 				{
+					catCube.enableSounds = SoundEffectsEnabled;
 					catCube.Update();
 					if (DEBUG && Input.GetKey(KeyCode.R))
 					{
@@ -853,6 +1065,26 @@ namespace RegionKit.OptionsMenu.ClippyGame
 			public Joar() : base()
 			{
 
+			}
+		}
+
+		public void Talk() => Talk(RandomDialogue(), 40);
+
+		public void Talk(int length) => Talk(RandomDialogue(), length);
+
+		public void Talk(string dialouge) => Talk(dialouge, 40);
+
+		public void Talk(string dialouge, int length)
+		{
+			talkcounter = length;
+
+			speechBubble.isVisible = true;
+			text.isVisible = true;
+			text.text = dialouge;
+
+			if (SoundEffectsEnabled)
+			{
+				ConfigContainer.PlaySound(_Enums.Clippy_Talk, 0f, 1f, 1f);
 			}
 		}
 

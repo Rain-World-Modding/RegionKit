@@ -44,7 +44,7 @@ public sealed class ModOptions : OptionsTemplate
 
 	public const int TAB_COUNT = 4;
 	private const int TB_INDEX = 2;
-	private const int KB_INDEX = 3;
+	public const int KB_INDEX = 3;
 
 	public override void Initialize()
     {

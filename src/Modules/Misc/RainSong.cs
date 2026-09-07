@@ -3,6 +3,8 @@
 using System.IO;
 using Music;
 
+namespace RegionKit.Modules.Misc;
+
 ///<summary>
 ///Allows specifying a song file per region that will play when rain is coming
 ///</summary>
@@ -68,7 +70,7 @@ internal static class RainSong
 				player?.song == null &&
 				!(room?.abstractRoom.name?.Contains("GATE") ?? false) &&
 				game.Players.Count > 0 &&
-				!game.Players[0].realizedCreature.dead &&
+				game.Players.Any(x => x.realizedCreature != null && !x.realizedCreature.dead) &&
 				self.world.region != null &&
 				rainSongDict.TryGetValue(self.world.region.name.ToLower(), out string songName))
 			{

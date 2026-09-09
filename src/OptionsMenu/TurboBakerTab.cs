@@ -123,50 +123,53 @@ namespace RegionKit.OptionsMenu
 
 			_updateTimer = 0;
 
-			var activeTasks = Tasks.Where(x => x.Started && !x.Finished).ToList();
-
-			if (Tasks.Count > 0)
+			lock (Tasks)
 			{
-				for (int i = 0; i < ThreadLabels.Count; i++)
+				var activeTasks = Tasks.Where(x => x.Started && !x.Finished).ToList();
+
+				if (Tasks.Count > 0)
 				{
-					OpLabel label = ThreadLabels[i];
-					if (i < activeTasks.Count)
+					for (int i = 0; i < ThreadLabels.Count; i++)
 					{
-						TaskData task = activeTasks[i];
-
-						TimeSpan duration;
-						lock (task)
+						OpLabel label = ThreadLabels[i];
+						if (i < activeTasks.Count)
 						{
-							duration = task.Duration;
-						}
+							TaskData task = activeTasks[i];
 
-						label.text = $"{task.Room}: {duration.Minutes:D2}:{duration.Seconds:D2}";
-					}
-					else
-					{
-						label.text = "";
+							TimeSpan duration;
+							lock (task)
+							{
+								duration = task.Duration;
+							}
+
+							label.text = $"{task.Room}: {duration.Minutes:D2}:{duration.Seconds:D2}";
+						}
+						else
+						{
+							label.text = "";
+						}
 					}
 				}
-			}
-			else
-			{
-				ThreadLabels[0].text = "Loading regions...";
-			}
+				else
+				{
+					ThreadLabels[0].text = "Loading regions...";
+				}
 
-			int finished = Tasks.Count(x => x.Finished);
-			TimeSpan elapsed = DateTime.Now - BakeStartTime;
+				int finished = Tasks.Count(x => x.Finished);
+				TimeSpan elapsed = DateTime.Now - BakeStartTime;
 
-			string statusText = "";
-			statusText += $"Baked Rooms: {finished}/{Tasks.Count}\r\n";
-			statusText += $"Baking Time: {elapsed.Hours * 60 + elapsed.Minutes:D2}:{elapsed.Seconds:D2}\r\n";
+				string statusText = "";
+				statusText += $"Baked Rooms: {finished}/{Tasks.Count}\r\n";
+				statusText += $"Baking Time: {elapsed.Hours * 60 + elapsed.Minutes:D2}:{elapsed.Seconds:D2}\r\n";
 
-			StatusLabel!.text = statusText;
+				StatusLabel!.text = statusText;
 
-			if (Tasks.Count > 0 && finished == Tasks.Count)
-			{
-				Baking = false;
-				Tasks.Clear();
-				BakeButton.greyedOut = false;
+				if (Tasks.Count > 0 && finished == Tasks.Count)
+				{
+					Baking = false;
+					Tasks.Clear();
+					BakeButton.greyedOut = false;
+				}
 			}
 		}
 
@@ -286,7 +289,10 @@ namespace RegionKit.OptionsMenu
 							});
 
 							taskData.BakingTask = task;
-							Tasks.Add(taskData);
+							lock (Tasks)
+							{
+								Tasks.Add(taskData);
+							}
 						}
 						else
 						{
@@ -295,10 +301,13 @@ namespace RegionKit.OptionsMenu
 					}
 				}
 
-				Tasks = Tasks.OrderByDescending(x => x.Size).ToList();
-
-				ActualBakeStartTime = DateTime.Now;
-				new Thread(() => Parallel.Invoke(new ParallelOptions { MaxDegreeOfParallelism = ThreadsInput!.GetValueInt() }, Tasks.Select(x => x.BakingTask).ToArray())).Start();
+				lock (Tasks)
+				{
+					Tasks = Tasks.OrderByDescending(x => x.Size).ToList();
+					
+					ActualBakeStartTime = DateTime.Now;
+					new Thread(() => Parallel.Invoke(new ParallelOptions { MaxDegreeOfParallelism = ThreadsInput!.GetValueInt() }, Tasks.Select(x => x.BakingTask).ToArray())).Start();
+				}
 
 				LogInfo("Created thread");
 			}

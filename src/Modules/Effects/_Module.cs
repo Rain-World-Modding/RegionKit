@@ -19,8 +19,7 @@ public static class _Module
 			.Register();
 
 		RainWorld rainworld = CRW;
-		MossWaterRGBBuilder.__RegisterBuilder();
-		ReflectiveWaterBuilder.__RegisterBuilder();
+		RKWaterSurfaces.__RegisterBuilders();
 		//IceWaterBuilder.__RegisterBuilder();
 		RGBElectricDeathBuilder.__RegisterBuilder();
 		RainSirenBuilder.__RegisterBuilder();
@@ -39,9 +38,7 @@ public static class _Module
 		ReplaceCorruptionColors.Apply();
 		HiveColorAlpha.Apply();
 		RoomRainWithoutDeathRain.Apply();
-		MossWaterUnlit.Apply();
-		MossWaterRGB.Apply();
-		ReflectiveWater.Apply();
+		RKWaterSurfaces.Apply();
 		//IceWater.Apply();
 		RGBElectricDeath.Apply();
 		HSLDisplaySnow.Apply();
@@ -51,6 +48,7 @@ public static class _Module
 		PolePlantColor.Apply();
 		FlatFog.Apply();
 		RainPaletteFade.Apply();
+		ReduceNeuronGlow.Apply();
 
 		// Effect types
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
@@ -72,9 +70,7 @@ public static class _Module
 		ReplaceEffectColor.Undo();
 		HiveColorAlpha.Undo();
 		RoomRainWithoutDeathRain.Undo();
-		MossWaterUnlit.Undo();
-		MossWaterRGB.Undo();
-		ReflectiveWater.Undo();
+		RKWaterSurfaces.Undo();
 		//IceWater.Undo();
 		RGBElectricDeath.Undo();
 		HSLDisplaySnow.Undo();
@@ -84,6 +80,7 @@ public static class _Module
 		PolePlantColor.Undo();
 		FlatFog.Undo();
 		RainPaletteFade.Undo();
+		ReduceNeuronGlow.Undo();
 
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 
@@ -108,6 +105,7 @@ public static class _Module
 			|| type == _Enums.Suffocation
 			|| type == AridBarrens._Enums.SandStorm
 			|| type == _Enums.Rumbles
+			|| type == _Enums.ReduceNeuronGlow
 			)
 		{
 			return _Enums.RegionKit_Gameplay;

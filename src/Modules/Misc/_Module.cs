@@ -21,6 +21,7 @@ internal static class _Module
 		CustomSSSong.Enable();
 		LightningFix.Apply();
 		VirtualMicrophoneFix.Apply();
+		ContainerFixes.Apply();
 
 		On.RoomPalette.GetColor += RoomPalette_GetColor;
 	}
@@ -39,6 +40,7 @@ internal static class _Module
 		CustomSSSong.Disable();
 		LightningFix.Undo();
 		VirtualMicrophoneFix.Undo();
+		ContainerFixes.Undo();
 
 		On.RoomPalette.GetColor -= RoomPalette_GetColor;
 	}

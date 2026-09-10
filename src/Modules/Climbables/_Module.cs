@@ -4,13 +4,13 @@
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Climbables")]
 public static class _Module
 {
-	internal const string CLIMBABLES_POM_CATEGORY = Objects._Module.GAMEPLAY_POM_CATEGORY;
 	internal static void Setup()
 	{
-		RegisterFullyManagedObjectType([new IntVector2Field("vector", new IntVector2(), IntVector2Field.IntVectorReprType.rect)], typeof(ClimbablePoleH), "ClimbablePoleH", CLIMBABLES_POM_CATEGORY);
-		RegisterFullyManagedObjectType([new IntVector2Field("vector", new IntVector2(), IntVector2Field.IntVectorReprType.rect)], typeof(ClimbablePoleV), "ClimbablePoleV", CLIMBABLES_POM_CATEGORY);
-		RegisterFullyManagedObjectType([new Vector2Field("vector", new Vector2(), Vector2Field.VectorReprType.line)], typeof(ClimbableRope), "ClimbableRope", CLIMBABLES_POM_CATEGORY);
-		RegisterManagedObject<ClimbableArc, BezierObjectData, BezierObjectRepresentation>("ClimbableArc", CLIMBABLES_POM_CATEGORY);
+		var category = Objects._Enums.GameplayCategory;
+		RegisterFullyManagedObjectType([new IntVector2Field("vector", new IntVector2(), IntVector2Field.IntVectorReprType.rect)], typeof(ClimbablePoleH), _Enums.ClimbablePoleH, category);
+		RegisterFullyManagedObjectType([new IntVector2Field("vector", new IntVector2(), IntVector2Field.IntVectorReprType.rect)], typeof(ClimbablePoleV), _Enums.ClimbablePoleV, category);
+		RegisterFullyManagedObjectType([new Vector2Field("vector", new Vector2(), Vector2Field.VectorReprType.line)], typeof(ClimbableRope), _Enums.ClimbableRope, category);
+		RegisterManagedObject<ClimbableArc, BezierObjectData, BezierObjectRepresentation>(_Enums.ClimbableArc, category);
 	}
 
 	internal static void Enable()

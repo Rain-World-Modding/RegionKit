@@ -1,5 +1,6 @@
 ﻿using Menu.Remix.MixedUI;
 using RegionKit.OptionsMenu;
+using RegionKit.OptionsMenu.ClippyGame;
 
 namespace RegionKit;
 
@@ -41,10 +42,11 @@ public sealed class ModOptions : OptionsTemplate
 
 	// MENU
 
-	public const int TAB_COUNT = 3;
+	public const int TAB_COUNT = 4;
 	private const int TB_INDEX = 2;
+	private const int KB_INDEX = 3;
 
-    public override void Initialize()
+	public override void Initialize()
     {
         base.Initialize();
 
@@ -53,14 +55,20 @@ public sealed class ModOptions : OptionsTemplate
 
         InitGeneral(ref tabIndex);
 		InitCredits(ref tabIndex);
+
 		Tabs[TB_INDEX] = new TurboBakerTab(this);
 		(Tabs[TB_INDEX] as TurboBakerTab)!.Initialize();
+
+		Tabs[KB_INDEX] = new ClippyTab(this);
+		(Tabs[KB_INDEX] as ClippyTab)!.Initialize();
 	}
 
 	public override void Update()
 	{
 		base.Update();
+
 		(Tabs[TB_INDEX] as TurboBakerTab)!.Update();
+		(Tabs[KB_INDEX] as ClippyTab)!.Update();
 	}
 
 

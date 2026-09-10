@@ -7,7 +7,7 @@ namespace RegionKit.Modules.MoonStuff
 {
 	public class ColoredOESphereType : ManagedObjectType
 	{
-		public ColoredOESphereType() : base("Colored OE Sphere", Objects._Module.DECORATIONS_POM_CATEGORY, null, typeof(ColoredOESphereData), typeof(ColoredOESphereRepresentation)) { }
+		public ColoredOESphereType() : base(_Enums.ColoredOESphere, Objects._Enums.DecorationsCategory, null, typeof(ColoredOESphereData), typeof(ColoredOESphereRepresentation)) { }
 
 		public override UpdatableAndDeletable MakeObject(PlacedObject placedObject, Room room) => new ColoredOESphere(placedObject, room);
 

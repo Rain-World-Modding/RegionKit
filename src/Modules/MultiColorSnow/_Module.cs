@@ -33,7 +33,7 @@ public class _Module
 		On.Room.Update += Room_Update;
 		On.Room.NowViewed += Room_NowViewed;
 		On.RoomCamera.ctor += RoomCamera_ctor;
-		On.RoomCamera.DrawUpdate += RoomCamera_DrawUpdate;
+		_CommonHooks.RoomCameraDrawUpdate += RoomCamera_DrawUpdate;
 		On.RoomCamera.ChangeRoom += RoomCamera_ChangeRoom;
 		On.RoomCamera.ApplyFade += RoomCamera_ApplyFade;
 
@@ -45,7 +45,7 @@ public class _Module
 		On.Room.Update -= Room_Update;
 		On.Room.NowViewed -= Room_NowViewed;
 		On.RoomCamera.ctor -= RoomCamera_ctor;
-		On.RoomCamera.DrawUpdate -= RoomCamera_DrawUpdate;
+		_CommonHooks.RoomCameraDrawUpdate -= RoomCamera_DrawUpdate;
 		On.RoomCamera.ChangeRoom -= RoomCamera_ChangeRoom;
 		On.RoomCamera.ApplyFade -= RoomCamera_ApplyFade;
 
@@ -69,7 +69,7 @@ public class _Module
 				new Vector2Field("range", new Vector2(100, 0), Vector2Field.VectorReprType.circle)
 			];
 
-			RegisterFullyManagedObjectType([.. snowSourceFields], typeof(ColoredSnowSourceUAD), "ColoredSnowSource", DECORATIONS_POM_CATEGORY);
+			RegisterFullyManagedObjectType([.. snowSourceFields], typeof(ColoredSnowSourceUAD), "ColoredSnowSource", Objects._Enums.DecorationsCategory.value);
 
 			List<ManagedField> snowSourceSettingsFields =
 			[
@@ -82,7 +82,7 @@ public class _Module
 				new IntegerField("es", 0, 255, 255, ManagedFieldWithPanel.ControlType.slider, "Rain Blend")
 			];
 
-			RegisterFullyManagedObjectType([.. snowSourceSettingsFields], typeof(ColoredSnowGroupUAD), "ColoredSnowGroup", DECORATIONS_POM_CATEGORY);
+			RegisterFullyManagedObjectType([.. snowSourceSettingsFields], typeof(ColoredSnowGroupUAD), "ColoredSnowGroup", Objects._Enums.DecorationsCategory.value);
 
 			foreach (ModManager.Mod mod in ModManager.ActiveMods)
 			{
@@ -156,9 +156,8 @@ public class _Module
 		}
 	}
 
-	private static void RoomCamera_DrawUpdate(On.RoomCamera.orig_DrawUpdate orig, RoomCamera self, float timeStacker, float timeSpeed)
+	private static void RoomCamera_DrawUpdate(RoomCamera self, float timeStacker, float timeSpeed)
 	{
-		orig.Invoke(self, timeStacker, timeSpeed);
 		if (self.room != null)
 		{
 			if (ColoredSnowRoomCamera.GetData(self).snowChange || self.fullscreenSync != UnityEngine.Screen.fullScreen)

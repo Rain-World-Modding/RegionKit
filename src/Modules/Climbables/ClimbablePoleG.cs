@@ -82,7 +82,7 @@ abstract public class ClimbablePoleG : UpdatableAndDeletable, IDrawable
 
 	void IDrawable.ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
 	{
-		sLeaser.sprites[0].color = palette.blackColor;
+		sLeaser.sprites[0].color = rCam.paletteTexture.GetPixel(4, 0);
 	}
 
 	void IDrawable.DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)

@@ -2,8 +2,10 @@
 {
 	public class BarbedWireData : PlacedObject.ConsumableObjectData
 	{
-		public Vector2 endPos;
+		public Vector2 endPos;		
+
 		public float Poisionious;
+
 		public BarbedWireData(PlacedObject owner) : base(owner)
 		{
 			endPos = new Vector2(60, 0);
@@ -41,7 +43,7 @@
 			maxRegen = int.Parse(data[3]);
 			endPos.x = float.Parse(data[4]);
 			endPos.y = float.Parse(data[5]);
-			unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(data, 7);
+			unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(data, 6);
 		}
 	}
 }

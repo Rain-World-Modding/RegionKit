@@ -27,6 +27,7 @@ namespace RegionKit.Modules.MoonStuff
 			public float width;
 
 			public bool mustExitTerrainOnceToBeDestroyedByTerrain;
+
 			public SandGrain(Vector2 pos, Vector2 vel) : base()
 			{
 				life = 1f;
@@ -163,6 +164,10 @@ namespace RegionKit.Modules.MoonStuff
 		public float fallingWaterBottom = 0f;
 		public float setFlow;
 		public float originalFlow;
+
+		public StaticSoundLoop topLoop;
+		public StaticSoundLoop bottomLoop;
+
 		public bool Flooded
 		{
 			get
@@ -175,6 +180,7 @@ namespace RegionKit.Modules.MoonStuff
 				return room.terrain.SnapToTerrain(new Vector2(pos.x, pos.y)).y - 1f >= pos.y;
 			}
 		}
+
 		public SandFall(Room room, IntVector2 tilePos, float flow, int width) : base()
 		{
 			base.room = room;
@@ -299,6 +305,34 @@ namespace RegionKit.Modules.MoonStuff
 					}
 				}
 			}
+
+			if (topLoop == null)
+			{
+				topLoop = new StaticSoundLoop(_Enums.Sandfall_LOOP, pos, room, 0f, 0f)
+				{
+					randomStartPosition = true,
+					pitch = UnityEngine.Random.Range(1f, 1.1f)
+				};
+				bottomLoop = new StaticSoundLoop(_Enums.Sandfall_LOOP, pos, room, 0f, 0f)
+				{
+					randomStartPosition = true,
+					pitch = UnityEngine.Random.Range(1f, 1.1f)
+				};
+			}
+			topLoop.Update();
+			topLoop.pos = new Vector2(pos.x + (width / 2f), pos.y);
+			topLoop.volume = visualDensity;
+			bottomLoop.Update();
+			if (room.terrain != null)
+			{
+
+				bottomLoop.pos = room.terrain.SnapToTerrain(topLoop.pos);
+			}
+			else
+			{
+				bottomLoop.pos = topLoop.pos * Vector2.right;
+			}
+			bottomLoop.volume = visualDensity;
 		}
 
 		public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)

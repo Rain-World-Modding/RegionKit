@@ -11,13 +11,13 @@
 		<Authors>RegionKit team</Authors>
 		<Description>All-in-one custom region dependency library.</Description>
 		<Copyright>GPL v3</Copyright>
-		<FileVersion>3.19.0</FileVersion>
-		<AssemblyVersion>3.19.0</AssemblyVersion>
+		<FileVersion>3.20.2</FileVersion>
+		<AssemblyVersion>3.20.2</AssemblyVersion>
 		<PackageReadmeFile>../README.md</PackageReadmeFile>
 		<PackageLicenseFile>../LICENSE</PackageLicenseFile>
 		<DebugType>Portable</DebugType>
 		<AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
-    	<PathMap>$(AppOutputBase)=RegionKit\</PathMap>
+		<PathMap>$(AppOutputBase)=RegionKit\</PathMap>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<OutputPath>../mod/newest/plugins</OutputPath>
 		<Nowarn>CS1591,CS0649,CS0169,IDE0028</Nowarn>
@@ -127,8 +127,8 @@
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="UnityEngine.AssetBundleModule">
-		  <HintPath>lib/UnityEngine.AssetBundleModule.dll</HintPath>
-		  <Private>False</Private>
+			<HintPath>lib/UnityEngine.AssetBundleModule.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
 			<HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
@@ -158,10 +158,6 @@
 			<HintPath>lib/UnityEngine.UnityWebRequestModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="Newtonsoft.Json">
-			<HintPath>lib/Newtonsoft.Json.dll</HintPath>
-			<Private>True</Private>
-		</Reference>
 		<Reference Include="netstandard">
 			<HintPath>lib/netstandard.dll</HintPath>
 			<Private>False</Private>
@@ -170,15 +166,19 @@
 			<HintPath>lib/com.rlabrecque.steamworks.net.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Reference Include="UnityEngine.Mathematics">
+		<Reference Include="Unity.Mathematics">
 			<HintPath>lib/Unity.Mathematics.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
+
+	<!-- NuGet includes. -->
 	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="PolySharp" Version="1.16.0">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
+		<PackageReference Include="SharpVoronoiLib" Version="1.2.0" />
 	</ItemGroup>
 </Project>

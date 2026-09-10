@@ -1,14 +1,15 @@
-﻿using RegionKit.API;
+﻿using BepInEx;
+using RegionKit.API;
 
 namespace RegionKit;
 /// <summary>
 /// Main plugin class
 /// </summary>
-[BepInEx.BepInDependency("rwmodding.coreorg.pom", BepInEx.BepInDependency.DependencyFlags.HardDependency)]
+[BepInEx.BepInDependency("rwmodding.coreorg.pom", BepInDependency.DependencyFlags.HardDependency)]
 [BepInEx.BepInPlugin(MOD_GUID, MOD_FRIENDLYNAME, MOD_VERSION)]
 public class Mod : BepInEx.BaseUnityPlugin
 {
-	internal const string MOD_VERSION = "3.19.0";
+	internal const string MOD_VERSION = "3.20.2";
 	internal const string MOD_FRIENDLYNAME = "RegionKit";
 	internal const string MOD_GUID = "rwmodding.coreorg.rk";
 	internal const string RK_POM_CATEGORY = "RegionKit";

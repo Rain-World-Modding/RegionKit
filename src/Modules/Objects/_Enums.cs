@@ -1,103 +1,64 @@
-﻿namespace RegionKit.Modules.Objects;
+﻿using DevInterface;
+
+namespace RegionKit.Modules.Objects;
 
 ///<inheritdoc/>
 public class _Enums
 {
-	/// <summary>
-	/// Evil dangle fruit dialogue
-	/// </summary>
+	// Categories
+	public static ObjectsPage.DevObjectCategories GameplayCategory = new(RK_POM_CATEGORY + "-Gameplay", true);
+	public static ObjectsPage.DevObjectCategories DecorationsCategory = new(RK_POM_CATEGORY + "-Decorations", true);
+	public static ObjectsPage.DevObjectCategories MiscObjectsCategory = new(RK_POM_CATEGORY + "-MiscObjects", true);
+
+	// Moon dialogue
 	public static SLOracleBehaviorHasMark.MiscItemType EvilDangleFruitDialogue = new(nameof(EvilDangleFruitDialogue), true);
-	/// <summary>
-	/// LB Climbable wire
-	/// </summary>
-	public static PlacedObject.Type ClimbableWire = new(nameof(ClimbableWire), true);
-	/// <summary>
-	/// LB Climbable pole
-	/// </summary>
-	public static PlacedObject.Type ClimbablePole = new(nameof(ClimbablePole), true);
-	/// <summary>
-	/// Colorable light rod
-	/// </summary>
-	public static PlacedObject.Type PWLightrod = new(nameof(PWLightrod), true);
-	/// <summary>
-	/// Replaces pipe symbols
-	/// </summary>
-	public static PlacedObject.Type CustomEntranceSymbol = new(nameof(CustomEntranceSymbol), true);
-	/// <summary>
-	/// Makes wall slippery
-	/// </summary>
-	public static PlacedObject.Type NoWallSlideZone = new(nameof(NoWallSlideZone), true);
-	/// <summary>
-	/// Planet hologram
-	/// </summary>
-	public static PlacedObject.Type LittlePlanet = new(nameof(LittlePlanet), true);
-	/// <summary>
-	/// Hologram circle
-	/// </summary>
-	/// <returns></returns>
-	public static PlacedObject.Type ProjectedCircle = new(nameof(ProjectedCircle), true);
-	/// <summary>
-	/// Upside down waterfall
-	/// </summary>
-	public static PlacedObject.Type UpsideDownWaterFall = new(nameof(UpsideDownWaterFall), true);
-	/// <summary>
-	/// Colored light beam
-	/// </summary>
-	public static PlacedObject.Type ColoredLightBeam = new(nameof(ColoredLightBeam), true);
-	/// <summary>
-	/// LB's spinning fan light
-	/// </summary>
-	public static PlacedObject.Type FanLight = new(nameof(FanLight), true);
-	/// <summary>
-	/// Prevents batflies from lurking in an area (by pushing them away and somewhat telling them not to pathfind over there)
-	/// </summary>
-	public static PlacedObject.Type NoBatflyLurkZone = new(nameof(NoBatflyLurkZone), true);
-	/// <summary>
-	/// Light source that changes strength depending on distance from player
-	/// </summary>
-	public static PlacedObject.Type PCPlayerSensitiveLightSource = new(nameof(PCPlayerSensitiveLightSource), true);
-	/// <summary>
-	/// Throwable spike tip object created by breaking a spike
-	/// </summary>
+
+	// Abstract object types
 	public static AbstractPhysicalObject.AbstractObjectType SpikeTip = new(nameof(SpikeTip), true);
-	/// <summary>
-	/// WaterFall with custom depth
-	/// </summary>
+
+	// Placed object types
+	public static PlacedObject.Type FreeformDecalOrSprite = new(nameof(FreeformDecalOrSprite), true);
+	public static PlacedObject.Type ColouredLightSource = new(nameof(ColouredLightSource), true);
+	public static PlacedObject.Type Shroud = new(nameof(Shroud), true);
+	public static PlacedObject.Type SpinningFan = new(nameof(SpinningFan), true);
+	public static PlacedObject.Type SteamHazard = new(nameof(SteamHazard), true);
+	public static PlacedObject.Type Spike = new(nameof(Spike), true);
+	public static PlacedObject.Type RoomBorderTP = new(nameof(RoomBorderTP), true);
+	public static PlacedObject.Type WormgrassRect = new(nameof(WormgrassRect), true);
+	public static PlacedObject.Type PlacedWaterfall = new(nameof(PlacedWaterfall), true);
+	public static PlacedObject.Type ShortcutColor = new(nameof(ShortcutColor), true);
+	public static PlacedObject.Type ShortcutCannon = new(nameof(ShortcutCannon), true);
+	public static PlacedObject.Type CameraNoise = new(nameof(CameraNoise), true);
+	public static PlacedObject.Type SlugcatEyeSelector = new(nameof(SlugcatEyeSelector), true);
+	public static PlacedObject.Type BigKarmaShrine = new(nameof(BigKarmaShrine), true);
+	public static PlacedObject.Type KarmaShrineSprite = new(nameof(KarmaShrineSprite), true);
+	public static PlacedObject.Type CustomWallMycelia = new(nameof(CustomWallMycelia), true);
+	public static PlacedObject.Type GuardProtectNode = new(nameof(GuardProtectNode), true);
+	public static PlacedObject.Type SlipperyZone = new(nameof(SlipperyZone), true);
+	public static PlacedObject.Type WaterSpout = new(nameof(WaterSpout), true);
+	public static PlacedObject.Type RoomPopupTrigger = new(nameof(RoomPopupTrigger), true);
+	public static PlacedObject.Type ResizeablePopupTrigger = new(nameof(ResizeablePopupTrigger), true);
+	public static PlacedObject.Type RectanglePopupTrigger = new(nameof(RectanglePopupTrigger), true);
+	public static PlacedObject.Type ClimbableWire = new(nameof(ClimbableWire), true);
+	public static PlacedObject.Type ClimbablePole = new(nameof(ClimbablePole), true);
+	public static PlacedObject.Type PWLightrod = new(nameof(PWLightrod), true);
+	public static PlacedObject.Type CustomEntranceSymbol = new(nameof(CustomEntranceSymbol), true);
+	public static PlacedObject.Type NoWallSlideZone = new(nameof(NoWallSlideZone), true);
+	public static PlacedObject.Type LittlePlanet = new(nameof(LittlePlanet), true);
+	public static PlacedObject.Type ProjectedCircle = new(nameof(ProjectedCircle), true);
+	public static PlacedObject.Type UpsideDownWaterFall = new(nameof(UpsideDownWaterFall), true);
+	public static PlacedObject.Type ColoredLightBeam = new(nameof(ColoredLightBeam), true);
+	public static PlacedObject.Type FanLight = new(nameof(FanLight), true);
+	public static PlacedObject.Type NoBatflyLurkZone = new(nameof(NoBatflyLurkZone), true);
+	public static PlacedObject.Type PCPlayerSensitiveLightSource = new(nameof(PCPlayerSensitiveLightSource), true);
 	public static PlacedObject.Type WaterFallDepth = new(nameof(WaterFallDepth), true);
-	/// <summary>
-	/// Prevents dropwigs from perching in a location
-	/// </summary>
 	public static PlacedObject.Type NoDropwigPerchZone = new(nameof(NoDropwigPerchZone), true);
-	/// <summary>
-	/// Evil dangle fruit
-	/// </summary>
 	public static PlacedObject.Type EvilDangleFruit = new(nameof(EvilDangleFruit), true);
-	/// <summary>
-	/// Background flat light
-	/// </summary>
 	public static PlacedObject.Type BGFlatLight = new(nameof(BGFlatLight), true);
-	/// <summary>
-	/// Shader thingy
-	/// </summary>
 	public static PlacedObject.Type AdvancedShader = new(nameof(AdvancedShader), true);
-	/// <summary>
-	/// Big water wheel
-	/// </summary>
 	public static PlacedObject.Type BigWaterWheel = new(nameof(BigWaterWheel), true);
-	/// <summary>
-	/// Customizable SSFuses
-	/// </summary>
 	public static PlacedObject.Type ColoredSSFuses = new(nameof(ColoredSSFuses), true);
-	/// <summary>
-	/// Customizable mud pit
-	/// </summary>
 	public static PlacedObject.Type ColoredMudPit = new(nameof(ColoredMudPit), true);
-	/// <summary>
-	/// Green sparks direction object
-	/// </summary>
 	public static PlacedObject.Type GreenSparksDir = new(nameof(GreenSparksDir), true);
-	/// <summary>
-	/// Colored local blizzard
-	/// </summary>
 	public static PlacedObject.Type ColoredLocalBlizzard = new(nameof(ColoredLocalBlizzard), true);
 }

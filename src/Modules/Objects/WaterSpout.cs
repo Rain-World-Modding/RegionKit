@@ -15,7 +15,7 @@ public class WaterSpout : UpdatableAndDeletable
 			new FloatField("f2", 0f, 1f, 1f, 0.01f, ManagedFieldWithPanel.ControlType.slider, "Volume"),
 			new Vector2Field("v1", new Vector2(0f,45f), Vector2Field.VectorReprType.line)
 		};
-		RegisterFullyManagedObjectType(fields.ToArray(), typeof(WaterSpout), "WaterSpout", _Module.DECORATIONS_POM_CATEGORY);
+		RegisterFullyManagedObjectType(fields.ToArray(), typeof(WaterSpout), _Enums.WaterSpout, _Enums.DecorationsCategory);
 	}
 
 	internal static void Apply()

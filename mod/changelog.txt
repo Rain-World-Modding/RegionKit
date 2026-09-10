@@ -1,3 +1,47 @@
+3.20.2
+---
+* Added ReduceNeuronGlow effect (by Bro748)
+* Added the ability to select which timelines to load in TurboBaker
+* Changed the color of ClimbablePoleH and ClimbablePoleV to match normal poles
+* Fixed an issue where flat lights would not appear in Watcher or when ripple elements were present in the room, introduced in version 3.20.0
+* Fixed a sprite issue with RGBElectricDeath introduced in version 3.20.0
+* Fixed a sprite issue with custom guide overseers introduced in version 3.20.0
+* Fixed an issue where MurkyWater would turn flat light sources into non-flat light sources
+* Fixed an issue where Light Source Flicker could affect any light source, not just dev tools ones (by Damoonlord and Alduris)
+* Made BGFlatLight and PCPlayerSensitiveLightSource able to interact with Light Source Flicker
+* Fixed an exception log from string controls that could appear with search boxes
+* Fixed a possible crash with WaterFallDepth data
+* Removed the version check for POM so it just outright crashes instead of doing nothing when POM is outdated. Should make it more clear that something went wrong.
+* ??? (by Damoonlord)
+
+3.20.1
+---
+* Now requires POM 3.2. Make sure it is updated!
+* Fixed a crash with MurkyWater involving multiple water surfaces
+* Fixed graphics for water surface effects when multiple surfaces were present, and made them more performant probably
+* Fixed width/height sliders on MossWaterRGB
+* Fixed alpha slider graphics on ReflectiveWater
+* Fixed crash with Seedlings when changing rooms
+* Fixed one-off crash with opening dev tools
+* Changed some object enum names for consistency. Check your dev tools if you used any objects from the last update
+
+3.20.0
+---
+* By Damoonlord: partially merged Moon Stuff mod (more will be merged later)
+  * Moon IO system (see new category and button)
+  * New effect: Rumbles
+  * New placed objects: SandFall, MoonLightSourceFlicker, Crystal, WarmSpot, ConveyorBelt, ConveyorBeltCover, BarbedWire
+  * Note: some enum names differ from the original mod, for mods that used this, make sure to update if you used it in the past
+* By Bro748:
+  * Fixed relationships page crash
+  * Fixed an issue with cloud wind direction being updated at the wrong time
+* By Alduris:
+  * Fixed a crash from the anti panel collapse involving multiple placed object representations
+  * Updated water shaders to add compatibility with air pockets
+  * Fixed an issue with adding more than 4 AdvancedShaders to a room
+  * Fixed VirtualMicrophone dev tool visualization (also known as the ugly purple circle) from persisting after a room change
+  * Fixed a graphics issue involving terrain lightmaps in gate rooms
+
 3.19.0
 ---
 * General additions:

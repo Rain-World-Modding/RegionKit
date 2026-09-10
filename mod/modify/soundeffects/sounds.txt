@@ -1,1 +1,6 @@
 [ADD]FT_Fog_PreDeath : fogdemon/vol=0.5
+[ADD]Sandfall_LOOP : sandfall_sound/vol=0.3
+[ADD]Clippy_Highscore : clippy_highscore/vol=0.5
+[ADD]Clippy_Milestone : clippy_milestone/vol=0.5
+[ADD]CatCube_Meow : catcube_meow/vol=0.5
+[ADD]Joar_Death : joar_death/vol=0.5

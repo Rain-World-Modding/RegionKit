@@ -10,6 +10,7 @@ internal static class _CommonHooks
 		On.Room.Loaded += RoomLoadedPatch;
 		On.RoomSettings.Save_string_bool += RoomSettings_Save_string_bool;
 		On.Region.ctor_string_int_int_RainWorldGame_Timeline += Region_ctor_string_int_int_RainWorldGame_Timeline;
+		On.RoomCamera.DrawUpdate += RoomCamera_DrawUpdate;
 	}
 
 	internal static void Disable()
@@ -17,6 +18,14 @@ internal static class _CommonHooks
 		On.Room.Loaded -= RoomLoadedPatch;
 		On.RoomSettings.Save_string_bool -= RoomSettings_Save_string_bool;
 		On.Region.ctor_string_int_int_RainWorldGame_Timeline -= Region_ctor_string_int_int_RainWorldGame_Timeline;
+	}
+
+	internal static event On.RoomCamera.orig_DrawUpdate? RoomCameraDrawUpdate;
+
+	private static void RoomCamera_DrawUpdate(On.RoomCamera.orig_DrawUpdate orig, RoomCamera self, float timeStacker, float timeSpeed)
+	{
+		orig(self, timeStacker, timeSpeed);
+		RoomCameraDrawUpdate?.Invoke(self, timeStacker, timeSpeed);
 	}
 
 	private static void Region_ctor_string_int_int_RainWorldGame_Timeline(On.Region.orig_ctor_string_int_int_RainWorldGame_Timeline orig, Region self, string name, int firstRoomIndex, int regionNumber, RainWorldGame game, SlugcatStats.Timeline timelineIndex)

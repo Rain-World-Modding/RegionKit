@@ -42,6 +42,7 @@ internal static class OverseerRecolor
 
 		Color color = (self.overseer.graphicsModule as OverseerGraphics)!.MainColor;
 
+		sLeaser.sprites[0].RemoveFromContainer();
 		var newSprite = new FSpriteUVs("Futile_White")
 		{
 			color = color,

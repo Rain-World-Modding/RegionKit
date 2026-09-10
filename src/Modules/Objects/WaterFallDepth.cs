@@ -163,15 +163,16 @@ namespace RegionKit.Modules.Objects
             public override void FromString(string s)
             {
                 string[] array = Regex.Split(s, "~");
-                panelPos.x = ((array.Length > 0) ? float.Parse(array[0], NumberStyles.Any, CultureInfo.InvariantCulture) : panelPos.x);
-                panelPos.y = ((array.Length > 1) ? float.Parse(array[1], NumberStyles.Any, CultureInfo.InvariantCulture) : panelPos.y);
-                width = ((array.Length > 2) ? int.Parse(array[2], NumberStyles.Any, CultureInfo.InvariantCulture) : width);
-                flow = ((array.Length > 3) ? float.Parse(array[3], NumberStyles.Any, CultureInfo.InvariantCulture) : flow);
-                depth = ((array.Length > 4) ? float.Parse(array[4], NumberStyles.Any, CultureInfo.InvariantCulture) : depth);
+				
+                if (array.Length > 0) float.TryParse(array[0], NumberStyles.Any, CultureInfo.InvariantCulture, out panelPos.x);
+                if (array.Length > 1) float.TryParse(array[1], NumberStyles.Any, CultureInfo.InvariantCulture, out panelPos.y);
+                if (array.Length > 2) int.TryParse(array[2], NumberStyles.Any, CultureInfo.InvariantCulture, out width);
+                if (array.Length > 3) float.TryParse(array[3], NumberStyles.Any, CultureInfo.InvariantCulture, out flow);
+                if (array.Length > 4) float.TryParse(array[4], NumberStyles.Any, CultureInfo.InvariantCulture, out depth);
 				dynamic = ((array.Length > 5) ? (array[5] == "D") : dynamic);
-				preDelay = ((array.Length > 6) ? float.Parse(array[6], NumberStyles.Any, CultureInfo.InvariantCulture) : preDelay);
-				postDelay = ((array.Length > 7) ? float.Parse(array[7], NumberStyles.Any, CultureInfo.InvariantCulture) : postDelay);
-				unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(array, 5);
+				if (array.Length > 6) float.TryParse(array[6], NumberStyles.Any, CultureInfo.InvariantCulture, out preDelay);
+				if (array.Length > 7) float.TryParse(array[7], NumberStyles.Any, CultureInfo.InvariantCulture, out postDelay);
+				unrecognizedAttributes = SaveUtils.PopulateUnrecognizedStringAttrs(array, 8);
             }
         }
     }

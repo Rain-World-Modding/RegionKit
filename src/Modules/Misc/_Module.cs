@@ -1,4 +1,6 @@
-﻿namespace RegionKit.Modules.Misc;
+﻿using RegionKit.Modules.Effects;
+
+namespace RegionKit.Modules.Misc;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Miscellanceous")]
 internal static class _Module

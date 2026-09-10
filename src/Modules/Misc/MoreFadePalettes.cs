@@ -9,6 +9,7 @@ using FadePalette = RoomSettings.FadePalette;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using DevInterface;
+using RegionKit.Modules.Effects;
 
 namespace RegionKit.Modules.Misc;
 
@@ -307,8 +308,6 @@ internal static class MoreFadePalettes
 
 	private static void IncrementRefreshPalette(On.DevInterface.PaletteController.orig_Increment orig, PaletteController self, int change)
 	{
-		if (PaletteEffectColor.PaletteController_Increment(self, change)) return;
-
 		orig(self, change);
 
 		ReloadPalettes(self.owner, self.RoomSettings);

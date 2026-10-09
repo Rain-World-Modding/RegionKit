@@ -42,10 +42,10 @@ namespace RegionKit.OptionsMenu.ClippyGame
 		{
 			orig(self);
 
-			if (self is ModOptions)
+			if (self is ModOptions && self.Tabs[ModOptions.KB_INDEX] is ClippyTab clippyTab)
 			{
-				(self.Tabs[ModOptions.KB_INDEX] as ClippyTab).music?.Destroy();
-				(self.Tabs[ModOptions.KB_INDEX] as ClippyTab).music = null;
+				clippyTab.music?.Destroy();
+				clippyTab.music = null;
 			}
 		}
 
@@ -53,11 +53,11 @@ namespace RegionKit.OptionsMenu.ClippyGame
 		{
 			orig(self);
 
-			if (self is ModOptions)
+			if (self is ModOptions && self.Tabs[ModOptions.KB_INDEX] is ClippyTab clippyTab)
 			{
-				(self.Tabs[ModOptions.KB_INDEX] as ClippyTab).music?.Destroy();
-				(self.Tabs[ModOptions.KB_INDEX] as ClippyTab).music = null;
-				(self.Tabs[ModOptions.KB_INDEX] as ClippyTab).saver.Save();
+				clippyTab.music?.Destroy();
+				clippyTab.music = null;
+				clippyTab.saver.Save();
 			}
 		}
 
@@ -120,12 +120,6 @@ namespace RegionKit.OptionsMenu.ClippyGame
 		private static void SoundLoader_LoadSounds(On.SoundLoader.orig_LoadSounds orig, SoundLoader self)
 		{
 			_ = _Enums.Clippy_Highscore;
-			_ = _Enums.Clippy_Milestone;
-			_ = _Enums.Clippy_Hurt;
-			_ = _Enums.Clippy_Talk;
-			_ = _Enums.CatCube_Meow;
-			_ = _Enums.Joar_Death;
-			_ = _Enums.Clippy_Song;
 			orig(self);
 		}
 	}

@@ -9,11 +9,13 @@ using static RegionKit.Modules.MoonIO.IOType;
 using static RegionKit.OptionsMenu.ClippyGame.ClippyTab;
 using Random = UnityEngine.Random;
 
+#nullable disable
+
 namespace RegionKit.OptionsMenu.ClippyGame
 {
 	public class ClippyTab : OpTab, CheckBox.IOwnCheckBox
 	{
-		public const bool DEBUG = false;
+		private static readonly bool DEBUG = false;
 
 		public class ClippyCheckBox : UIfocusable
 		{
@@ -815,12 +817,15 @@ namespace RegionKit.OptionsMenu.ClippyGame
 					{
 						disableJoar = true;
 
-						for (int i = 0; i < (int)Mathf.Lerp(15f, 25f, Random.value); i++)
+						if (joarButton != null)
 						{
-							_AddItem(new Spark(this, joarButton.pos, Custom.RNV() * Mathf.Lerp(5f, 10f, Random.value)));
+							for (int i = 0; i < (int)Mathf.Lerp(15f, 25f, Random.value); i++)
+							{
+								_AddItem(new Spark(this, joarButton.pos, Custom.RNV() * Mathf.Lerp(5f, 10f, Random.value)));
+							}
+							joarButton.Unload();
 						}
-						joarButton.Unload();
-						joarButton = null!;
+						joarButton = null;
 
 						if (SoundEffectsEnabled)
 						{
@@ -831,12 +836,15 @@ namespace RegionKit.OptionsMenu.ClippyGame
 					{
 						disableCat = true;
 
-						for (int i = 0; i < (int)Mathf.Lerp(15f, 25f, Random.value); i++)
+						if (catCube != null)
 						{
-							_AddItem(new Spark(this, catCube.pos, Custom.RNV() * Mathf.Lerp(5f, 10f, Random.value)));
+							for (int i = 0; i < (int)Mathf.Lerp(15f, 25f, Random.value); i++)
+							{
+								_AddItem(new Spark(this, catCube.pos, Custom.RNV() * Mathf.Lerp(5f, 10f, Random.value)));
+							}
+							catCube.Unload();
 						}
-						catCube.Unload();
-						catCube = null!;
+						catCube = null;
 
 						if (SoundEffectsEnabled)
 						{

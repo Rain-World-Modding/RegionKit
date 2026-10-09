@@ -61,4 +61,5 @@ public class _Enums
 	public static PlacedObject.Type ColoredMudPit = new(nameof(ColoredMudPit), true);
 	public static PlacedObject.Type GreenSparksDir = new(nameof(GreenSparksDir), true);
 	public static PlacedObject.Type ColoredLocalBlizzard = new(nameof(ColoredLocalBlizzard), true);
+	public static PlacedObject.Type ModFilter = new(nameof(ModFilter), true);
 }

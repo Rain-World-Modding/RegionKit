@@ -210,6 +210,8 @@ public static class _Module
 			res = _Enums.GameplayCategory;
 		else if (type == _Enums.EvilDangleFruit)
 			res = ObjectsPage.DevObjectCategories.Consumable;
+		else if (type == _Enums.ModFilter)
+			res = _Enums.MiscObjectsCategory;
 
 		return res;
 	}
@@ -400,6 +402,11 @@ public static class _Module
 			CreateObjectIfNeeded();
 			rep = new MoonStuff.BarbedWireRep(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
 		}
+		else if (tp == _Enums.ModFilter)
+		{
+			CreateObjectIfNeeded();
+			rep = new ModFilter.ModFilterRepresentation(self.owner, tp.ToString() + "_Rep", self, pObj, tp.ToString());
+		}
 
 		// Create object or call orig
 		if (rep != null)
@@ -510,6 +517,10 @@ public static class _Module
 		else if (self.type == MoonStuff._Enums.BarbedWire)
 		{
 			self.data = new MoonStuff.BarbedWireData(self);
+		}
+		else if (self.type == _Enums.ModFilter)
+		{
+			self.data = new ModFilter.ModFilterData(self);
 		}
 
 		orig(self);

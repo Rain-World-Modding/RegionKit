@@ -4,3 +4,6 @@
 [ADD]Clippy_Milestone : clippy_milestone/vol=0.5
 [ADD]CatCube_Meow : catcube_meow/vol=0.5
 [ADD]Joar_Death : joar_death/vol=0.5
+[ADD]Clippy_Song : clippy_music/vol=0.5
+[ADD]Clippy_Talk : clippy_talk/vol=0.5
+[ADD]Clippy_Hurt : clippy_hitA/vol=0.5, clippy_hitB/vol=0.5, clippy_hitC/vol=0.5, clippy_hitD/vol=0.5, clippy_hitE/vol=0.5

@@ -10,6 +10,8 @@
 
 		public static readonly SoundID Clippy_Talk = new SoundID(nameof(Clippy_Talk), true);
 
+		public static readonly SoundID Clippy_Song = new SoundID(nameof(Clippy_Song), true);
+
 		public static readonly SoundID CatCube_Meow = new SoundID(nameof(CatCube_Meow), true);
 
 		public static readonly SoundID Joar_Death = new SoundID(nameof(Joar_Death), true);

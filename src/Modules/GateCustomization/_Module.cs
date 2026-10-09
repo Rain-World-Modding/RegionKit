@@ -1,18 +1,17 @@
-﻿using static RegionKit.Modules.GateCustomization.GateDataRepresentations;
+﻿using DevInterface;
+using static RegionKit.Modules.GateCustomization.GateDataRepresentations;
 
 namespace RegionKit.Modules.GateCustomization;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "GateCustomization")]
 internal class _Module
 {
-	public const string GATE_CUSTOMIZATION_POM_CATEGORY = Objects._Module.OBJECTS_POM_CATEGORY;
-
 	// Had to make a new function for this becasue when I used RegisterEmptyObject with a ManagedData class the
 	// order of the fields was not correct (think it sorted them alphabetically?).
 
 	// And the RegisterFullyManagedObjectType which orderd things correctly did not have a option for 
 	// changing the representation type which I wanted to do.
-	public static void RegisterGateDataManagedObjectType(ManagedField[] managedFields, Type reprType, string name, string category)
+	public static void RegisterGateDataManagedObjectType(ManagedField[] managedFields, Type reprType, PlacedObject.Type name, ObjectsPage.DevObjectCategories category)
 	{
 		RegisterManagedObject(new GateDataManagedObjectType(managedFields, name, category, reprType));
 	}
@@ -21,7 +20,7 @@ internal class _Module
 	{
 		private ManagedField[] managedFields;
 
-		public GateDataManagedObjectType(ManagedField[] managedFields, string name, string category, Type reprType) : base(name, category, null, null, reprType)
+		public GateDataManagedObjectType(ManagedField[] managedFields, PlacedObject.Type name, ObjectsPage.DevObjectCategories category, Type reprType) : base(name, category, null, null, reprType)
 		{
 			this.managedFields = managedFields;
 		}
@@ -34,6 +33,8 @@ internal class _Module
 
 	public static void Setup()
 	{
+		var category = Objects._Enums.MiscObjectsCategory;
+
 		RegisterGateDataManagedObjectType(new ManagedField[]
 		{
 			new BooleanField("singleUse", false, displayName: "Single Use"),
@@ -51,7 +52,7 @@ internal class _Module
 			new FloatField("hue", 0f, 1f, 0f, increment: 0.01f, displayName: "Hue"),
 			new FloatField("saturation", 0f, 1f, 1f, increment: 0.01f, displayName: "Saturation"),
 			new FloatField("brightness", 0f, 1f, 1f, increment: 0.01f, displayName: "Brightness"),
-		}, typeof(CommonGateDataRepresentation), "CommonGateData", GATE_CUSTOMIZATION_POM_CATEGORY);
+		}, typeof(CommonGateDataRepresentation), _Enums.CommonGateData, category);
 
 		RegisterGateDataManagedObjectType(new ManagedField[]
 		{
@@ -59,7 +60,7 @@ internal class _Module
 			new BooleanField("bubbleFX", true, displayName: "Bubble Effect"),
 			new EnumField<HeaterData>("heater0", HeaterData.Nrml, displayName: "Left Heater"),
 			new EnumField<HeaterData>("heater1", HeaterData.Nrml, displayName: "Right Heater")
-		}, typeof(WaterGateDataRepresentation), "WaterGateData", GATE_CUSTOMIZATION_POM_CATEGORY);
+		}, typeof(WaterGateDataRepresentation), _Enums.WaterGateData, category);
 
 		RegisterGateDataManagedObjectType(new ManagedField[]
 		{
@@ -81,7 +82,7 @@ internal class _Module
 			new FloatField("batteryHue", 0f, 1f, 0f, increment: 0.01f, displayName: "Hue"),
 			new FloatField("batterySaturation", 0f, 1f, 1f, increment: 0.01f, displayName: "Saturation"),
 			new FloatField("batteryLightness", 0f, 1f, 0.5f, increment: 0.01f, displayName: "Lightness")
-		}, typeof(ElectricGateDataRepresentation), "ElectricGateData", GATE_CUSTOMIZATION_POM_CATEGORY);
+		}, typeof(ElectricGateDataRepresentation), _Enums.ElectricGateData, category);
 
 		LoadShaders();
 	}

@@ -21,6 +21,7 @@ public static class _Module
 		SoundPageSearch.Apply();
 		AntiPanelCollapse.Apply();
 		SelectSongPanelOverhaul.Apply();
+		RoomAttractivenessPanelOverhaul.Apply();
 
 		// bugfix
 		IL.DevInterface.DevUINode.Update += DevUINode_Update;
@@ -39,6 +40,7 @@ public static class _Module
 		SoundPageSearch.Undo();
 		AntiPanelCollapse.Undo();
 		SelectSongPanelOverhaul.Undo();
+		RoomAttractivenessPanelOverhaul.Undo();
 
 		IL.DevInterface.DevUINode.Update -= DevUINode_Update;
 	}

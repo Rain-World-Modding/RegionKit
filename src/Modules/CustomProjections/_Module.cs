@@ -4,11 +4,10 @@
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "CustomProjections")]
 public static class _Module
 {
-	public const string OVERSEER_POM_CATEGORY = Objects._Module.OBJECTS_POM_CATEGORY;
 	internal static void Setup()
 	{
-		RegisterManagedObject<ReliableIggyEntrance, ReliableEntranceData, ReliableEntranceRep>("ReliableIggyEntrance", OVERSEER_POM_CATEGORY);
-		RegisterManagedObject<CustomDoorPointer, DoorPointerData, DoorPointerRep>("CustomIggyDirection", OVERSEER_POM_CATEGORY);
+		RegisterManagedObject<ReliableIggyEntrance, ReliableEntranceData, ReliableEntranceRep>(_Enums.ReliableIggyEntrance, Objects._Enums.MiscObjectsCategory);
+		RegisterManagedObject<CustomDoorPointer, DoorPointerData, DoorPointerRep>(_Enums.CustomIggyDirection, Objects._Enums.MiscObjectsCategory);
 	}
 
 	internal static void Enable()

@@ -14,7 +14,7 @@ namespace RegionKit.Modules.MoonStuff
 			RegisterManagedObject(new WarmSpotType());
 			RegisterManagedObject(new ConveyorBeltType());
 
-			RegisterFullyManagedObjectType(null!, typeof(ConveyorBeltCover), "Conveyor Belt Cover", Objects._Module.GAMEPLAY_POM_CATEGORY);
+			RegisterFullyManagedObjectType(null!, typeof(ConveyorBeltCover), _Enums.ConveyorBeltCover, Objects._Enums.GameplayCategory);
 
 			LoadShaders();
 		}
@@ -23,6 +23,7 @@ namespace RegionKit.Modules.MoonStuff
 		{
 			_CommonHooks.GeneralUnrecognizedRegionParamProcessor += MoonRegionParams;
 			On.MoreSlugcats.OEsphere.AddToContainer += OESphereFix;
+			On.SoundLoader.LoadSounds += SoundLoader_LoadSounds;
 
 			LightSourceFlickerHooks.Apply();
 		}
@@ -31,6 +32,7 @@ namespace RegionKit.Modules.MoonStuff
 		{
 			_CommonHooks.GeneralUnrecognizedRegionParamProcessor -= MoonRegionParams;
 			On.MoreSlugcats.OEsphere.AddToContainer -= OESphereFix;
+			On.SoundLoader.LoadSounds -= SoundLoader_LoadSounds;
 
 			LightSourceFlickerHooks.Undo();
 		}
@@ -72,6 +74,12 @@ namespace RegionKit.Modules.MoonStuff
 			rCam.ReturnFContainer("Foreground").AddChild(sLeaser.sprites[2]);
 			sLeaser.sprites[1].MoveInFrontOfOtherNode(sLeaser.sprites[0]);
 			sLeaser.sprites[0].MoveToBack();
+		}
+
+		private static void SoundLoader_LoadSounds(On.SoundLoader.orig_LoadSounds orig, SoundLoader self)
+		{
+			_ = _Enums.Sandfall_LOOP;
+			orig(self);
 		}
 
 		private static void LoadShaders()

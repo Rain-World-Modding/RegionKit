@@ -3,13 +3,13 @@
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Room zones")]
 public static class _Module
 {
-	public const string ZONES_POM_CATEGORY = Objects._Module.OBJECTS_POM_CATEGORY;
 	public static List<GameObject> colliderHolders = new();
 	public static void Setup()
 	{
+		var category = Objects._Enums.MiscObjectsCategory;
 		// colliderHolder = new GameObject("rk_roomzones_colliderholder");
-		RegisterManagedObject<RectZone, RectZoneData, ManagedRepresentation>("RectZone", ZONES_POM_CATEGORY);
-		RegisterManagedObject<CircleZone, CircleZoneData, ManagedRepresentation>("CircleZone", ZONES_POM_CATEGORY);
+		RegisterManagedObject<RectZone, RectZoneData, ManagedRepresentation>(_Enums.RectZone, category);
+		RegisterManagedObject<CircleZone, CircleZoneData, ManagedRepresentation>(_Enums.CircleZone, category);
 	}
 	public static void Enable()
 	{

@@ -8,17 +8,16 @@ internal class CGShelterRain : UpdatableAndDeletable, IDrawable
 {
 	internal static void Apply()
 	{
-		On.RoomCamera.DrawUpdate += RoomCamera_DrawUpdate;
+		_CommonHooks.RoomCameraDrawUpdate += RoomCamera_DrawUpdate;
 	}
 
 	internal static void Undo()
 	{
-		On.RoomCamera.DrawUpdate -= RoomCamera_DrawUpdate;
+		_CommonHooks.RoomCameraDrawUpdate -= RoomCamera_DrawUpdate;
 	}
 
-	private static void RoomCamera_DrawUpdate(On.RoomCamera.orig_DrawUpdate orig, RoomCamera self, float timeStacker, float timeSpeed)
+	private static void RoomCamera_DrawUpdate(RoomCamera self, float timeStacker, float timeSpeed)
 	{
-		orig(self, timeStacker, timeSpeed);
 		if (self.room == null || self.room.abstractRoom == null || self.room.updateList == null) return;
 		if (self.room.abstractRoom.shelter && self.room.updateList.Any(v => v is CGShelterRain))
 		{

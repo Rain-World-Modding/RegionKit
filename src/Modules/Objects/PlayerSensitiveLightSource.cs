@@ -1,10 +1,9 @@
-﻿using RWCustom;
-using UnityEngine;
+﻿using RegionKit.Modules.MoonStuff;
 
 // Made by Alduris
 namespace RegionKit.Modules.Objects
 {
-    public class PlayerSensitiveLightSource : UpdatableAndDeletable, IDrawable
+    public class PlayerSensitiveLightSource : UpdatableAndDeletable, IDrawable, IFlickerable
     {
         public Vector2 pos;
         public float rad;
@@ -95,7 +94,15 @@ namespace RegionKit.Modules.Objects
             }
         }
 
-        public override void Update(bool eu)
+		public Vector2 CheckPosition => pos;
+
+		public LightSourceFlickerType.LightSourceFlickerData.SunlightType SunlightType => LightSourceFlickerType.LightSourceFlickerData.SunlightType.All;
+
+		public LightSourceFlickerType.LightSourceFlickerData.LightSourceType LightSourceType => _flat 
+			? LightSourceFlickerType.LightSourceFlickerData.LightSourceType.Flat 
+			: LightSourceFlickerType.LightSourceFlickerData.LightSourceType.Normal;
+
+		public override void Update(bool eu)
         {
             base.Update(eu);
             lastDist = dist;
@@ -176,6 +183,11 @@ namespace RegionKit.Modules.Objects
             const bool AFFECTED_BY_DARKNESS = false;
             float alphaFac = Mathf.Lerp(minStrength, maxStrength, Mathf.Lerp(lastAlpha, lastAlpha, timeStacker));
             float darkness = AFFECTED_BY_DARKNESS ? rCam.room.Darkness(pos) : 1f;
+
+			if (this.TryGetMoonFlickerableData(out var data))
+			{
+				alphaFac *= data.Alpha(timeStacker);
+			}
 
             for (int i = 0; i < sLeaser.sprites.Length; i++)
             {

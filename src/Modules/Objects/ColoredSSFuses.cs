@@ -60,7 +60,7 @@ namespace RegionKit.Modules.Objects
 		{
 			orig(self, sLeaser, rCam, timeStacker, camPos);
 
-			if (self.culled || self.debugMode > 0 || self.slatedForDeletetion || self.room != rCam.room || self.room?.world?.region is null) return;
+			if (self.culled || self.debugMode > 0 || self.slatedForDeletetion || self.room != rCam.room) return;
 
 			Color activeColor = Color.blue, brokenColor = Color.red;
 			if (self is ColoredSSFuses coloredSSFuses)
@@ -68,7 +68,7 @@ namespace RegionKit.Modules.Objects
 				activeColor = coloredSSFuses.ActiveColor;
 				brokenColor = coloredSSFuses.BrokenColor;
 			}
-			else if (ssFuseColorTable.TryGetValue(self.room.world.region, out var data))
+			else if (self.room?.world?.region is not null && ssFuseColorTable.TryGetValue(self.room.world.region, out ColorData data))
 			{
 				if (data.activeColor != null) activeColor = data.activeColor.Value;
 				if (data.brokenColor != null) brokenColor = data.brokenColor.Value;

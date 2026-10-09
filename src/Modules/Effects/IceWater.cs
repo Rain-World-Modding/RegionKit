@@ -137,7 +137,7 @@ namespace RegionKit.Modules.Effects
 					for (int i = 0; i < plane.Sites.Count; i++)
 					{
 						// 0 is the center of each cell
-						TriangleMesh.Triangle[] tris = new TriangleMesh.Triangle[plane.Sites[i].cell.Count - 2];
+						TriangleMesh.Triangle[] tris = new TriangleMesh.Triangle[plane.Sites[i].Edges.Count - 2];
 						for (int j = 0; j < tris.Length; j++)
 						{
 							tris[j] = new TriangleMesh.Triangle(0, j + 1, j + 2);
@@ -166,7 +166,7 @@ namespace RegionKit.Modules.Effects
 				for (int i = 0; i < plane.Sites.Count; i++)
 				{
 					// 0 is the center of each cell
-					TriangleMesh.Triangle[] tris = new TriangleMesh.Triangle[plane.Sites[i].cell.Count - 2];
+					TriangleMesh.Triangle[] tris = new TriangleMesh.Triangle[plane.Sites[i].Edges.Count - 2];
 					for (int j = 0; j < tris.Length; j++)
 					{
 						tris[j] = new TriangleMesh.Triangle(0, j + 1, j + 2);

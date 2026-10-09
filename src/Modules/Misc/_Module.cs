@@ -1,4 +1,6 @@
-﻿namespace RegionKit.Modules.Misc;
+﻿using RegionKit.Modules.Effects;
+
+namespace RegionKit.Modules.Misc;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), moduleName: "Miscellanceous")]
 internal static class _Module
@@ -14,6 +16,7 @@ internal static class _Module
 		//CloudAdjustment.Apply();
 		SuperstructureFusesHook.Apply();
 		MoreFadePalettes.Apply();
+		PaletteEffectColor.Apply();
 		SlugcatRoomTemplates.Apply();
 		RainSong.Enable();
 		FadePaletteCombiner.Enable();
@@ -32,6 +35,7 @@ internal static class _Module
 		//CloudAdjustment.Undo();
 		SuperstructureFusesHook.Undo();
 		MoreFadePalettes.Undo();
+		PaletteEffectColor.Undo();
 		SlugcatRoomTemplates.Undo();
 		RainSong.Disable();
 		FadePaletteCombiner.Disable();

@@ -25,7 +25,7 @@ public static class _Module
 		RainSirenBuilder.__RegisterBuilder();
 		SuffocationBuilder.__RegisterBuilder();
 		HSLDisplaySnowBuilder.__RegisterBuilder();
-		PaletteEffectColorBuilder.__RegisterBuilder();
+		PaletteEffectColor.__RegisterBuilder();
 		//LocustSwarmBuilder.__RegisterBuilder();
 		Rumbles.__RegisterBuilder();
 

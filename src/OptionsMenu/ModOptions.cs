@@ -93,7 +93,7 @@ public sealed class ModOptions : OptionsTemplate
 	private static readonly List<(string name, Color color)> Credits =
 	[
 		("DryCryCrystal", hexToColor("e07ec8")),
-		("Thalber", hexToColor("ffffff")),
+		("Kali", hexToColor("ffffff")),
 		("DeltaTime", hexToColor("ad1457")),
 		("M4rbleL1ne", hexToColor("afff00")),
 		("Bro", hexToColor("ad1457")),

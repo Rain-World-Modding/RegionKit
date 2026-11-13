@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using static RegionKit.Modules.GateCustomization.GateDataRepresentations;
@@ -652,8 +653,6 @@ internal static class GateCustomization
 
 	private static void IL_RegionGateGraphics_Update(ILContext il)
 	{
-		// todo: This IL hook is a mess, maybe rewrite it
-
 		var cursor = new ILCursor(il);
 
 		#region WaterGate
@@ -661,36 +660,16 @@ internal static class GateCustomization
 		int test = 0;
 
 		// Matches
-		// 216 FloatRect confines = new FloatRect((float)(17 + 9 * l) * 20f, 0f, (float)(22 + 9 * l) * 20f, 420f);
+		// FloatRect confines = new FloatRect((float)(17 + 9 * l) * 20f, 0f, (float)(22 + 9 * l) * 20f, 420f);
 		cursor.GotoNext(
-			x => x.MatchLdloca(out _),
-			x => x.MatchLdcI4(17),
-			x => x.MatchLdcI4(9),
-			x => x.MatchLdloc(out _),
-			x => x.MatchMul(),
-			x => x.MatchAdd(),
-			x => x.MatchConvR4(),
-			x => x.MatchLdcR4(20),
-			x => x.MatchMul(),
-			x => x.MatchLdcR4(0),
-			x => x.MatchLdcI4(22),
-			x => x.MatchLdcI4(9),
-			x => x.MatchLdloc(out test),
-			x => x.MatchMul(),
-			x => x.MatchAdd(),
-			x => x.MatchConvR4(),
-			x => x.MatchLdcR4(20),
-			x => x.MatchMul(),
-			x => x.MatchLdcR4(420),
+			MoveType.After, 
 			x => x.MatchCall(nameof(FloatRect), ".ctor")
 			);
-
-		cursor.RemoveRange(20);
 
 		cursor.Emit(OpCodes.Ldarg_0);
 		cursor.Emit(OpCodes.Ldloc_S, (byte)test);
 
-		cursor.EmitDelegate<Func<RegionGateGraphics, int, FloatRect>>((self, l) =>
+		cursor.EmitDelegate((FloatRect origRect, RegionGateGraphics self, int l) =>
 		{
 			RegionGateData regionGateData = self.gate.GetData();
 
@@ -698,27 +677,20 @@ internal static class GateCustomization
 			{
 				IntVector2 gateTilePosition = regionGateData.commonGateData.GetTilePosition(self.gate.room);
 
-				return new FloatRect((float)(gateTilePosition.x - 7 + 9 * l) * 20f, (gateTilePosition.y - 12) * 20f, (float)(gateTilePosition.x + 9 * l) * 20f, (gateTilePosition.y + 9) * 20f);
+				return new FloatRect((gateTilePosition.x - 7 + 9 * l) * 20f, (gateTilePosition.y - 12) * 20f, (gateTilePosition.x + 9 * l) * 20f, (gateTilePosition.y + 9) * 20f);
 			}
 			else
 			{
-				return new FloatRect((float)(17 + 9 * l) * 20f, 0f, (float)(22 + 9 * l) * 20f, 420f);
+				return origRect;
 			}
 		});
 
 		cursor.Emit(OpCodes.Stloc_S, (byte)8);
 
 
-		//Matches
-		// 223 this.smoke.EmitSmoke(pos, Custom.DegToVec(Random.value * 360f), confines, Mathf.Pow(this.heatersHeat[l, 2], 0.75f));
-		cursor.GotoNext(
-			x => x.MatchLdarg(0),
-			x => x.MatchLdfld<RegionGateGraphics>(nameof(RegionGateGraphics.smoke)),
-			x => x.MatchLdloc(out _),
-			x => x.MatchCall(out _),
-			x => x.MatchLdcR4(360),
-			x => x.MatchMul()
-			);
+		// Matches just before
+		// Vector2 vector = this.heaterPositions[l] + new Vector2(Mathf.Lerp(-1f, 1f, Random.value) * 15f, Mathf.Lerp(-1f, 1f, Random.value) * 10f);
+		cursor.GotoNext(MoveType.AfterLabel, x => x.MatchLdarg(0), x => x.MatchLdfld<RegionGateGraphics>(nameof(RegionGateGraphics.heaterPositions)));
 
 		cursor.Emit(OpCodes.Ldarg_0);
 
@@ -730,13 +702,10 @@ internal static class GateCustomization
 			{
 				for (int i = 0; i < 2; i++)
 				{
-					if ((self.gate.letThroughDir ? 0 : 1) == i)
+					if ((self.gate.letThroughDir ? 0 : 1) == i && regionGateData.waterGateData.GetValue<HeaterData>($"heater{i}") != HeaterData.Nrml)
 					{
-						if (regionGateData.waterGateData.GetValue<HeaterData>($"heater{i}") != HeaterData.Nrml)
-						{
-							// Skip sound and steam
-							return true;
-						}
+						// Skip sound and steam
+						return true;
 					}
 				}
 			}
@@ -749,7 +718,9 @@ internal static class GateCustomization
 
 		cursor.Emit(OpCodes.Brtrue, label2); // Skip spawning steam and playing sound if heater is broken.
 
-		cursor.Index += 27;
+		MethodInfo roomPlaySound = typeof(Room).GetMethod(nameof(Room.PlaySound), [typeof(SoundID), typeof(Vector2), typeof(float), typeof(float)])
+			?? throw new Exception("Could not find correct overload for Room.PlaySound");
+		cursor.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt(roomPlaySound));
 		cursor.MarkLabel(label2);
 
 		#endregion
@@ -757,36 +728,16 @@ internal static class GateCustomization
 		#region ElectricGate
 
 		// Matches
-		// 285 FloatRect confines2 = new FloatRect((float)(17 + 9 * num4) * 20f, 0f, (float)(22 + 9 * num4) * 20f, 420f);
+		// FloatRect confines2 = new FloatRect((float)(17 + 9 * num4) * 20f, 0f, (float)(22 + 9 * num4) * 20f, 420f);
 		cursor.GotoNext(
-			x => x.MatchLdloca(out _),
-			x => x.MatchLdcI4(17),
-			x => x.MatchLdcI4(9),
-			x => x.MatchLdloc(out _),
-			x => x.MatchMul(),
-			x => x.MatchAdd(),
-			x => x.MatchConvR4(),
-			x => x.MatchLdcR4(20),
-			x => x.MatchMul(),
-			x => x.MatchLdcR4(0),
-			x => x.MatchLdcI4(22),
-			x => x.MatchLdcI4(9),
-			x => x.MatchLdloc(out _),
-			x => x.MatchMul(),
-			x => x.MatchAdd(),
-			x => x.MatchConvR4(),
-			x => x.MatchLdcR4(20),
-			x => x.MatchMul(),
-			x => x.MatchLdcR4(420),
+			MoveType.After,
 			x => x.MatchCall(nameof(FloatRect), ".ctor")
 			);
-
-		cursor.RemoveRange(20);
 
 		cursor.Emit(OpCodes.Ldarg_0);
 		cursor.Emit(OpCodes.Ldloc_S, (byte)11);
 
-		cursor.EmitDelegate<Func<RegionGateGraphics, int, FloatRect>>((self, num4) =>
+		cursor.EmitDelegate((FloatRect origRect, RegionGateGraphics self, int num4) =>
 		{
 			RegionGateData regionGateData = self.gate.GetData();
 
@@ -794,11 +745,11 @@ internal static class GateCustomization
 			{
 				IntVector2 gateTilePosition = regionGateData.commonGateData.GetTilePosition(self.gate.room);
 
-				return new FloatRect((float)(gateTilePosition.x - 7 + 9 * num4) * 20f, (gateTilePosition.y - 12) * 20f, (float)(gateTilePosition.x + 9 * num4) * 20f, (gateTilePosition.y + 9) * 20f);
+				return new FloatRect((gateTilePosition.x - 7 + 9 * num4) * 20f, (gateTilePosition.y - 12) * 20f, (gateTilePosition.x + 9 * num4) * 20f, (gateTilePosition.y + 9) * 20f);
 			}
 			else
 			{
-				return new FloatRect((float)(17 + 9 * num4) * 20f, 0f, (float)(22 + 9 * num4) * 20f, 420f);
+				return origRect;
 			}
 		});
 
@@ -807,52 +758,27 @@ internal static class GateCustomization
 
 		// Steam spawnpos, wasnt needed for the water gate since it uses the heater positions which where already modified
 
-		// Matches
-		// 291 Vector2 pos2 = new Vector2(10f + (this.gate.letThroughDir ? 19f : 28f) * 20f, 30f) + new Vector2(Mathf.Lerp(-1f, 1f, Random.value) * 15f, Mathf.Lerp(-1f, 1f, Random.value) * 10f);
+		// Matches just after
+		// Vector2 pos2 = new Vector2(10f + (this.gate.letThroughDir ? 19f : 28f) * 20f, 30f) + new Vector2(Mathf.Lerp(-1f, 1f, Random.value) * 15f, Mathf.Lerp(-1f, 1f, Random.value) * 10f);
+		int pos2_loc = 10;
+		cursor.GotoNext(x => x.MatchLdcR4(10f));
 		cursor.GotoNext(
-			x => x.MatchLdcR4(10),
-			x => x.MatchLdarg(0),
-			x => x.MatchLdfld<RegionGateGraphics>(nameof(RegionGateGraphics.gate)),
-			x => x.MatchLdfld<RegionGate>(nameof(RegionGate.letThroughDir)),
-			x => x.MatchBrtrue(out _),
-			x => x.MatchLdcR4(28),
-			x => x.MatchBr(out _),
-			x => x.MatchLdcR4(19),
-			x => x.MatchLdcR4(20),
-			x => x.MatchMul(),
-			x => x.MatchAdd(),
-			x => x.MatchLdcR4(30)
+			MoveType.After, x => x.MatchStloc(out pos2_loc)
 			);
 
-		// For some reason the game shits itself if I try to use a RemoveRange(28) here even tough that should be corect?
-		// So instead I have to do this garbage with a branch.
-		// I probably did something wrong but cant bother to fix it since this works
-
-		ILLabel label = il.DefineLabel();
-
-		cursor.Emit(OpCodes.Br, label);
-
-		cursor.Index += 28;
-		cursor.MarkLabel(label);
-
 		cursor.Emit(OpCodes.Ldarg_0);
+		cursor.Emit(OpCodes.Ldloca_S, (byte)pos2_loc);
 
-		cursor.EmitDelegate<Func<RegionGateGraphics, Vector2>>((self) =>
+		cursor.EmitDelegate((RegionGateGraphics self, ref Vector2 pos2) =>
 		{
 			RegionGateData regionGateData = self.gate.GetData();
 
 			if (regionGateData.commonGateData != null)
 			{
 				IntVector2 gateTilePosition = regionGateData.commonGateData.GetTilePosition(self.gate.room);
-				return new Vector2((gateTilePosition.x + (self.gate.letThroughDir ? -5f : 4f)) * 20f + 10f, gateTilePosition.y * 20 - 210f) + new Vector2(Mathf.Lerp(-1f, 1f, Random.value) * 15f, Mathf.Lerp(-1f, 1f, Random.value) * 10f);
-			}
-			else
-			{
-				return new Vector2(10f + (self.gate.letThroughDir ? 19f : 28f) * 20f, 30f) + new Vector2(Mathf.Lerp(-1f, 1f, Random.value) * 15f, Mathf.Lerp(-1f, 1f, Random.value) * 10f);
+				pos2 = new Vector2((gateTilePosition.x + (self.gate.letThroughDir ? -5f : 4f)) * 20f + 10f, gateTilePosition.y * 20 - 210f) + new Vector2(Mathf.Lerp(-1f, 1f, Random.value) * 15f, Mathf.Lerp(-1f, 1f, Random.value) * 10f);
 			}
 		});
-
-		cursor.Emit(OpCodes.Stloc_S, (byte)13);
 
 		#endregion
 	}

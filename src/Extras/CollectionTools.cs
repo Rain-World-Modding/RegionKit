@@ -229,4 +229,16 @@ public static class CollectionTools
 		}
 		return defaultValue;
 	}
+
+	public static TType? FirstOrDefaultOfType<TType>(this IEnumerable collection)
+	{
+		foreach (var item in collection)
+		{
+			if (item is TType result)
+			{
+				return result;
+			}
+		}
+		return default;
+	}
 }

@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using DevInterface;
 using System.Globalization;
+using RegionKit.Modules.DevUIMisc.GenericNodes;
 
 namespace RegionKit.Modules.Objects;
 
@@ -14,8 +15,6 @@ internal static class CustomEntranceSymbols
 	internal static void Apply() => On.ShortcutGraphics.Draw += ShortcutGraphicsDraw;
 
 	internal static void Undo() => On.ShortcutGraphics.Draw -= ShortcutGraphicsDraw;
-
-	internal static void Dispose() => CESRepresentation.CESControlPanel.SelectSpritePanel.DisposeStatic();
 
 	private static void ShortcutGraphicsDraw(On.ShortcutGraphics.orig_Draw orig, ShortcutGraphics self, float timeStacker, Vector2 camPos)
 	{
@@ -91,71 +90,21 @@ public class CESRepresentation : TileObjectRepresentation
 {
 	internal class CESControlPanel : Panel, IDevUISignals
 	{
-		internal class SelectSpritePanel : Panel
+		private SearchableSelectPanel? _spriteSelectPanel;
+
+		public CESRepresentation parentRepresentation;
+
+		internal CESControlPanel(DevUI owner, string IDstring, CESRepresentation parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new(250f, 45f), "Custom Entrance Symbol")
 		{
-			private static FieldInfo _IDstringInfo = typeof(DevUINode).GetField("IDstring");
-
-			public SelectSpritePanel(DevUI owner, DevUINode parentNode, Vector2 pos, string[] decalNames) : base(owner, "Select_Sprite_Panel", parentNode, pos, new(175f, 225f), "Select sprite")
-			{
-				var intVector = new IntVector2(0, 0);
-				for (var i = 0; i < decalNames.Length; i++)
-				{
-					subNodes.Add(new Button(owner, decalNames[i], this, new(5f, size.y - 20f - 20f * intVector.y), 165f, decalNames[i]));
-					intVector.y++;
-					if (intVector.y > 9)
-					{
-						intVector.x++;
-						intVector.y = 0;
-					}
-				}
-				subNodes.Add(new Button(owner, "Button_Sprites_Previous0", this, new(5f, 5f), 80f, "Previous"));
-				subNodes.Add(new Button(owner, "Button_Sprites_Next0", this, new(90f, 5f), 80f, "Next"));
-				OrganizeSprites(0);
-			}
-
-			public void OrganizeSprites(int page)
-			{
-				var intVector = new IntVector2(0, 0);
-				for (var i = 0; i < subNodes.Count; i++)
-				{
-					if (subNodes[i] is not Button button)
-						continue;
-					if (!button.IDstring.StartsWith("Button_Sprites_Next") && !button.IDstring.StartsWith("Button_Sprites_Previous"))
-					{
-						button.pos = (intVector.x >= page && intVector.x <= page) ? new(5f, size.y - 20f - 20f * intVector.y) : new(10000f, 10000f);
-						intVector.y++;
-						if (intVector.y > 9)
-						{
-							intVector.x++;
-							intVector.y = 0;
-						}
-					}
-					else if (button.IDstring.StartsWith("Button_Sprites_Next"))
-						ChangeIDstring(button, "Button_Sprites_Next" + page);
-					else if (button.IDstring.StartsWith("Button_Sprites_Previous"))
-						ChangeIDstring(button, "Button_Sprites_Previous" + page);
-				}
-			}
-
-			private void ChangeIDstring(Button button, string value) => _IDstringInfo.SetValue(button, value);
-
-			internal static void DisposeStatic() => _IDstringInfo = null!;
-		}
-
-		private SelectSpritePanel? _spriteSelectPanel;
-
-		internal CESControlPanel(DevUI owner, string IDstring, DevUINode parentNode, Vector2 pos) : base(owner, IDstring, parentNode, pos, new(250f, 45f), "Custom Entrance Symbol")
-		{
-			CESData data = ((parentNode as CESRepresentation)!.pObj.data as CESData)!;
+			parentRepresentation = parentNode;
+			CESData data = parentRepresentation.cesData;
 			subNodes.Add(new Button(owner, "Sprite_Button", this, new(5f, 5f), 240f, "Sprite: " + data._imageName));
 			subNodes.Add(new Button(owner, "Rotation_Button", this, new(5f, 25f), 240f, "Rotation: " + data._rotation * 360 + "°"));
 		}
 
 		public void Signal(DevUISignalType type, DevUINode sender, string message)
 		{
-			var data = (parentNode as CESRepresentation)!.pObj.data as CESData;
-			if (data is null) 
-				return;
+			CESData data = parentRepresentation.cesData;
 			if (sender.IDstring is "Rotation_Button")
 			{
 				switch (data._rotation)
@@ -174,41 +123,28 @@ public class CESRepresentation : TileObjectRepresentation
 					break;
 				}
 				(sender as Button)!.Text = "Rotation: " + data._rotation * 360 + "°";
-				return;
 			}
-			else if ((parentNode as CESRepresentation)!._files is string[] f)
+			else if (parentRepresentation._files is string[] f)
 			{
-				if (_spriteSelectPanel is SelectSpritePanel s)
+				if (_spriteSelectPanel != null)
 				{
-					if (sender.IDstring.StartsWith("Button_Sprites_Next"))
+
+					if (sender.IDstring == "BackPage99289..?/~")
 					{
-						int.TryParse(sender.IDstring[19..], NumberStyles.Any, CultureInfo.InvariantCulture, out var num);
-						var nP = f.Length / 10f - 1f;
-						if (num < nP)
-						{
-							num++;
-							s.OrganizeSprites(num);
-						}
+						_spriteSelectPanel.PrevPage();
 					}
-					else if (sender.IDstring.StartsWith("Button_Sprites_Previous"))
+					else if (sender.IDstring == "NextPage99289..?/~")
 					{
-						int.TryParse(sender.IDstring[23..], NumberStyles.Any, CultureInfo.InvariantCulture, out var num);
-						if (num > 0)
-						{
-							num--;
-							s.OrganizeSprites(num);
-						}
+						_spriteSelectPanel.NextPage();
 					}
-					else
+					else if (sender.parentNode == _spriteSelectPanel && sender.IDstring != "Search99289..?/~")
 					{
-						if (sender.IDstring != "Sprite_Button")
-						{
-							data._imageName = sender.IDstring;
-							if (subNodes.FirstOrDefault(x => x.IDstring == "Sprite_Button") is Button b)
-								b.Text = "Sprite: " + data._imageName;
-						}
-						subNodes.Remove(s);
-						s.ClearSprites();
+						data._imageName = sender.IDstring;
+						if (subNodes.FirstOrDefault(x => x.IDstring == "Sprite_Button") is Button b)
+							b.Text = "Sprite: " + data._imageName;
+
+						subNodes.Remove(_spriteSelectPanel);
+						_spriteSelectPanel.ClearSprites();
 						_spriteSelectPanel = null;
 					}
 				}
@@ -216,9 +152,8 @@ public class CESRepresentation : TileObjectRepresentation
 				{
 					if (sender.IDstring == "Sprite_Button")
 					{
-						_spriteSelectPanel = new(owner, this, new Vector2(190f, 225f) - absPos, f);
+						_spriteSelectPanel = new(owner, "CustomEntranceSymbols_Search", this, new Vector2(190f, 225f) - absPos, "Select sprite", f, selectedItem: data._imageName);
 						subNodes.Add(_spriteSelectPanel);
-						return;
 					}
 				}
 			}
@@ -228,25 +163,27 @@ public class CESRepresentation : TileObjectRepresentation
 	private readonly string[] _files;
 	private readonly int _pixelIndex;
 	private readonly CESControlPanel _panel;
+	public readonly CESData cesData;
 
 	///<inheritdoc/>
 	public CESRepresentation(DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj) : base(owner, IDstring, parentNode, pObj, pObj.type.ToString())
 	{
-		_panel = new(owner, "CustomEntranceSymbolPanel", this, new(0f, 100f));
+		cesData = (pObj.data as CESData)!;
+		_files = (from n in Futile.atlasManager._allElementsByName.Values where n.name.ToLowerInvariant().Contains("symbol", "shortcut", "kill") select n.name).ToArray();
+
+		_panel = new CESControlPanel(owner, "CustomEntranceSymbolPanel", this, new(0f, 100f)) { pos = cesData._panelPos };
 		subNodes.Add(_panel);
-		_panel.pos = (pObj.data as CESData)!._panelPos;
-		fSprites.Add(new("pixel"));
+
+		fSprites.Add(new FSprite("pixel") { anchorY = 0f });
 		_pixelIndex = fSprites.Count - 1;
 		owner.placedObjectsContainer.AddChild(fSprites[_pixelIndex]);
-		fSprites[_pixelIndex].anchorY = 0f;
-		_files = (from n in Futile.atlasManager._allElementsByName.Values where n.name.Contains("Symbol", "Shortcut", "Kill") select n.name).ToArray();
 	}
 
 	///<inheritdoc/>
 	public override void Refresh()
 	{
 		base.Refresh();
-		(pObj.data as CESData)!._panelPos = _panel.pos;
+		cesData._panelPos = _panel.pos;
 		MoveSprite(_pixelIndex, absPos);
 		fSprites[_pixelIndex].scaleY = _panel.pos.magnitude;
 		fSprites[_pixelIndex].rotation = AimFromOneVectorToAnother(absPos, _panel.absPos);

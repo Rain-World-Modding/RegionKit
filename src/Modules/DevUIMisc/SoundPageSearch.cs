@@ -12,7 +12,6 @@ namespace RegionKit.Modules.DevUIMisc
 	{
 		private const string SEARCH_LABEL = "Search: ";
 		private static readonly float widthOfSearchText = LabelTest.GetWidth(SEARCH_LABEL);
-		private static readonly ConditionalWeakTable<SoundPage, SoundPageSearchBar> _searchCWT = new();
 
 		internal static void Apply()
 		{
@@ -44,12 +43,13 @@ namespace RegionKit.Modules.DevUIMisc
 
 		private static void AddSearchBar(On.DevInterface.SoundPage.orig_RefreshFilesPage orig, SoundPage self)
 		{
+			SoundPageSearchBar? searchBar = self.subNodes.FirstOrDefaultOfType<SoundPageSearchBar>();
 			orig(self);
 			
 			float searchY = self.soundsPanel.size.y - 16f - 55f;
 
 			// Add search bar if necessary
-			if (!_searchCWT.TryGetValue(self, out SoundPageSearchBar searchBar))
+			if (searchBar == null)
 			{
 				self.soundsPanel.size.y += 20f;
 				foreach (DevUINode? node in self.soundsPanel.subNodes)
@@ -64,7 +64,6 @@ namespace RegionKit.Modules.DevUIMisc
 
 				searchBar = new SoundPageSearchBar(self.soundsPanel.owner, "SoundSearch99289..?/~", self, new Vector2(10f + widthOfSearchText, searchY), self.soundsPanel.size.x - 15f - widthOfSearchText);
 				self.soundsPanel.subNodes.Add(searchBar);
-				_searchCWT.Add(self, searchBar);
 				orig(self); // refresh to reposition in list
 			}
 

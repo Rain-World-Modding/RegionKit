@@ -1,7 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
 using DevInterface;
 using Menu.Remix.MixedUI;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Rocks;
 using MonoMod.Cil;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
 using SelectDecalPanel = DevInterface.CustomDecalRepresentation.SelectDecalPanel;
@@ -12,7 +14,6 @@ namespace RegionKit.Modules.DevUIMisc
 	{
 		private const string SEARCH_LABEL = "Search: ";
 		private static readonly float widthOfSearchText = LabelTest.GetWidth(SEARCH_LABEL);
-		private static readonly ConditionalWeakTable<SelectDecalPanel, DecalSelectSearchBar> _searchCWT = new();
 
 		internal static void Apply()
 		{
@@ -30,24 +31,36 @@ namespace RegionKit.Modules.DevUIMisc
 		{
 			var c = new ILCursor(il);
 
+			// Init local variable
+			TypeReference searchBar_typeDef = il.Module.ImportReference(typeof(DecalSelectSearchBar));
+			VariableDefinition searchBar_var = new VariableDefinition(searchBar_typeDef);
+			il.Body.Variables.Add(searchBar_var);
+
 			// Don't clear sprites of decal search bars
 			c.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt<DevUINode>(nameof(DevUINode.ClearSprites)));
 			Instruction brTo = c.Next;
 			c.Index--;
 			c.MoveAfterLabels();
 			c.Emit(OpCodes.Ldloc_2);
-			c.EmitDelegate((List<DevUINode>.Enumerator enumerator) =>
+			c.Emit(OpCodes.Ldloca, searchBar_var);
+			c.EmitDelegate((List<DevUINode>.Enumerator enumerator, ref DecalSelectSearchBar? searchBar) =>
 			{
-				return enumerator.Current is DecalSelectSearchBar;
+				if (enumerator.Current is DecalSelectSearchBar toStore)
+				{
+					searchBar = toStore;
+					return true;
+				}
+				return false;
 			});
 			c.Emit(OpCodes.Brtrue_S, brTo);
 
 			// Don't remove decal search bars
 			c.GotoNext(MoveType.After, x => x.MatchCallOrCallvirt(typeof(List<DevUINode>).GetMethod("Clear")));
 			c.Emit(OpCodes.Ldarg_0);
-			c.EmitDelegate((SelectDecalPanel self) =>
+			c.Emit(OpCodes.Ldloc, searchBar_var);
+			c.EmitDelegate((SelectDecalPanel self, DecalSelectSearchBar? searchBar) =>
 			{
-				if (_searchCWT.TryGetValue(self, out DecalSelectSearchBar searchBar))
+				if (searchBar != null)
 				{
 					self.subNodes.Add(searchBar);
 				}
@@ -56,10 +69,11 @@ namespace RegionKit.Modules.DevUIMisc
 
 		private static void AddSearchBar(On.DevInterface.CustomDecalRepresentation.SelectDecalPanel.orig_PopulateDecals orig, SelectDecalPanel self, int offset)
 		{
+			DecalSelectSearchBar? searchBar = self.subNodes.FirstOrDefaultOfType<DecalSelectSearchBar>();
 			orig(self, offset);
 
 			// Add search bar if necessary
-			if (!_searchCWT.TryGetValue(self, out DecalSelectSearchBar searchBar))
+			if (searchBar == null)
 			{
 				self.size.y += 20f;
 
@@ -74,7 +88,6 @@ namespace RegionKit.Modules.DevUIMisc
 
 				searchBar = new DecalSelectSearchBar(self.owner, "DecalSearch99289..?/~", self, new Vector2(10f + widthOfSearchText, self.size.y - 25f), self.size.x - 15f - widthOfSearchText);
 				self.subNodes.Add(searchBar);
-				_searchCWT.Add(self, searchBar);
 				orig(self, offset); // refresh to reposition in list
 			}
 

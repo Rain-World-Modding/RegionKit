@@ -22,7 +22,7 @@ public sealed class ModOptions : OptionsTemplate
 
 	// CONFIGURABLES
 
-    public static Configurable<bool> EnableIggy { get; } = Instance.config.Bind(nameof(EnableIggy), true, new ConfigurableInfo(
+    public static Configurable<bool> EnableIggy { get; } = Instance.config.Bind(nameof(EnableIggy), false, new ConfigurableInfo(
         "When checked, Iggy will appear in the devtools menu to describe various elements of the UI.", null, "",
         "Enable Iggy?"));
 

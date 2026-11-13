@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Iggy;
+﻿namespace RegionKit.Modules.Iggy;
 
 public class MessageSystem
 {
@@ -8,12 +8,17 @@ public class MessageSystem
 		"Right click an element, and I will try to describe it.",
 		"Clicking on overlapping UI elements clicks all of them. Space your panels out to avoid unwanted input.",
 		"When you exit the room with devtools on, the screen does not automatically clear itself. Close and reopen it to clear.",
-		"Devtools Triggers tab is by far the most underused (except for music events). Very few mods added anything to it.",
-		"You can find all Rain World wikis on Miraheze wikifarm. If someone leads you to another address, don't trust them."
+		"You can find all Rain World wikis on Miraheze wikifarm. If someone leads you to another address, don't trust them.",
+		"You can turn me off in RegionKit's Remix menu.",
+		"Object panels have a copy and paste feature. Hold shift and click the arrows next to the minimize and move handles.",
+		"You can submit your own decals to be included in RegionKit's decal collection! Contact an active RegionKit developer for more information.",
+		"The following effects are mutually exclusive, and each will take priority over effects listed later: SkyBloom, SkyAndLightBloom, Lightning, LightBurn, Fog, Bloom, VoidMelt",
+		"RegionKit adds the ability to use videos as custom decals! Supported extension types are: .asf, .avi, .dv, .m4v, .mov, .mp4, .mpg, .mpeg, .ogv, .vp8, .webm, .wmv",
 	};
 	public readonly List<Hint> hintsConditional = new()
 	{
-		new("The default color scheme of Dev Tools is hard on the eyes. There is a workshop mod called Legible Devtools that makes things blue.", () => !ModManager.ActiveMods.Any(mod => mod.id == "niko.legibledevtools")),
+		new("The default color scheme of Dev Tools is hard on the eyes. There is a workshop mod called Beautiful Devtools that makes things nicer.", () => !ModManager.ActiveMods.Any(mod => mod.id == "better_dev_tools")),
+		new("Joar.", () => UnityEngine.Random.Range(0, 65536) == 0),
 	};
 	public readonly static TimeSpan reselectHintsInterval = TimeSpan.FromMinutes(1f);
 	public readonly static TimeSpan maxIdleTime = TimeSpan.FromSeconds(10);

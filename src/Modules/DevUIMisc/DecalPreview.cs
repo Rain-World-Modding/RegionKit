@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using DevInterface;
-using Newtonsoft.Json.Linq;
+using ModPathPair = (string modName, string basePath);
 
 namespace RegionKit.Modules.DevUIMisc;
 
@@ -8,7 +8,7 @@ internal static class DecalPreview
 {
 	private static Dictionary<string, string> decalSources = new Dictionary<string, string>();
 
-	public static string GetDecalSource(string decal) => decalSources.TryGetValue(decal, out string source) ? source : "UNKNOWN";
+	public static string GetDecalSource(string decal) => decalSources.TryGetValue(decal.ToLowerInvariant().Replace('/', Path.DirectorySeparatorChar), out string source) ? source : "UNKNOWN";
 
 	public static void Enable()
 	{
@@ -65,7 +65,7 @@ internal static class DecalPreview
 
 	private static void CustomDecal_LoadFile(On.CustomDecal.orig_LoadFile orig, CustomDecal self, string fileName)
 	{
-		if (Futile.atlasManager.GetAtlasWithName(fileName) == null)
+		if (Futile.atlasManager.GetAtlasWithName(fileName) == null && !AnimatedDecals.VideoManager.IsVideoFile(fileName))
 		{
 			string decalPath = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
 
@@ -83,39 +83,49 @@ internal static class DecalPreview
 	{
 		decalSources.Clear();
 
-		string[] allDecalPaths = AssetManager.ListDirectory("decals", false, false);
-
-		var decalDirectories = new HashSet<string>();
-
-		for (int i = 0; i < allDecalPaths.Length; i++)
+		List<ModPathPair> modsToFolders = [];
+		for (int i = ModManager.ActiveMods.Count - 1; i >= 0; i--)
 		{
-			if (Directory.GetParent(allDecalPaths[i]).Parent.Name == "streamingassets")
+			string modName = ModManager.ActiveMods[i].name;
+			if (ModManager.ActiveMods[i].hasTargetedVersionFolder)
 			{
-				decalSources[Path.GetFileNameWithoutExtension(allDecalPaths[i])] = "Vanilla";
-				continue;
+				modsToFolders.Add((modName, ModManager.ActiveMods[i].TargetedPath));
 			}
+			if (ModManager.ActiveMods[i].hasNewestFolder)
+			{
+				modsToFolders.Add((modName, ModManager.ActiveMods[i].NewestPath));
+			}
+			modsToFolders.Add((modName, ModManager.ActiveMods[i].path));
+		}
+		modsToFolders.Add(("Vanilla", Custom.RootFolderDirectory()));
 
-			decalDirectories.Add(Directory.GetParent(allDecalPaths[i]).Parent.FullName);
+		foreach ((string modName, string basePath) in modsToFolders)
+		{
+			string decalFolder = Path.Combine(basePath, "decals");
+			if (Directory.Exists(decalFolder))
+			{
+				RecursivelyAddDecals(decalFolder, "", modName);
+			}
 		}
 
-		var pathToModName = new Dictionary<string, string>();
-		foreach (var directory in decalDirectories)
+		// Helper
+		static void RecursivelyAddDecals(string directory, string basePath, string modName)
 		{
-			if (decalSources.ContainsKey(directory)) continue;
-			foreach (ModManager.Mod mod in ModManager.ActiveMods)
+			basePath = basePath.ToLowerInvariant();
+			foreach (var subdir in Directory.EnumerateDirectories(directory))
 			{
-				if (Path.GetFullPath(mod.path).ToLower() == Path.GetFullPath(directory).ToLower())
-				{ pathToModName[directory] = mod.name; break; }
+				RecursivelyAddDecals(subdir, basePath + Path.GetFileName(subdir) + Path.DirectorySeparatorChar.ToString(), modName);
 			}
-		}
-
-		for (int i = 0; i < allDecalPaths.Length; i++)
-		{
-			if (!decalSources.ContainsKey(Path.GetFileNameWithoutExtension(allDecalPaths[i])))
+			foreach (var file in Directory.EnumerateFiles(directory))
 			{
-				if (pathToModName.ContainsKey(Directory.GetParent(allDecalPaths[i]).Parent.FullName))
-				{ decalSources[Path.GetFileNameWithoutExtension(allDecalPaths[i])] = pathToModName[Directory.GetParent(allDecalPaths[i]).Parent.FullName]; }
-				else { decalSources[Path.GetFileNameWithoutExtension(allDecalPaths[i])] = "Unknown"; }
+				if (file.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
+				{
+					decalSources[(basePath + Path.GetFileNameWithoutExtension(file)).ToLowerInvariant()] = modName;
+				}
+				else if (AnimatedDecals.VideoManager.IsVideoFile(file))
+				{
+					decalSources[(basePath + Path.GetFileName(file)).ToLowerInvariant()] = modName;
+				}
 			}
 		}
 	}
@@ -136,6 +146,17 @@ internal static class DecalPreview
 			get
 			{
 				return visabilityTimer > 0;
+			}
+			set
+			{
+				if (value)
+				{
+					visabilityTimer = 5;
+				}
+				else
+				{
+					visabilityTimer = 0;
+				}
 			}
 		}
 
@@ -203,17 +224,25 @@ internal static class DecalPreview
 		{
 			base.Update();
 
-			if (decalName != null && isVisible && Futile.atlasManager.GetAtlasWithName(decalName) != null)
+			if (decalName != null && isVisible)
 			{
-				decalSprite.SetElementByName(decalName);
+				if (Futile.atlasManager.GetAtlasWithName(decalName) != null)
+				{
+					decalSprite.SetElementByName(decalName);
 
-				float longestSide = Math.Max(decalSprite.textureRect.width, decalSprite.textureRect.height);
-				decalSprite.scale = 300f / longestSide;
+					float longestSide = Math.Max(decalSprite.textureRect.width, decalSprite.textureRect.height);
+					decalSprite.scale = 300f / longestSide;
 
-				decalSizeSprite.scaleX = decalSprite.width;
-				decalSizeSprite.scaleY = decalSprite.height;
+					decalSizeSprite.scaleX = decalSprite.width;
+					decalSizeSprite.scaleY = decalSprite.height;
 
-				infoLabel.text = $"Source: {decalSources[decalName]}    Size: {decalSprite.textureRect.width}x{decalSprite.textureRect.height}";
+					infoLabel.text = $"Source: {GetDecalSource(decalName)}    Size: {decalSprite.textureRect.width}x{decalSprite.textureRect.height}";
+				}
+				else
+				{
+					infoLabel.text = $"Source: {GetDecalSource(decalName)}";
+					isVisible = false; // todo: what should it look like if we can't load the decal
+				}
 			}
 
 			overlaySprite.isVisible = isVisible;
@@ -250,7 +279,14 @@ internal static class DecalPreview
 			{
 				return;
 			}
-			string str = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
+
+			if (AnimatedDecals.VideoManager.IsVideoFile(fileName))
+			{
+				AnimatedDecals.VideoManager.LoadAndCacheVideo(fileName, AssetManager.ResolveFilePath(Path.Combine("Decals", fileName)));
+				return;
+			}
+
+			string str = AssetManager.ResolveFilePath(Path.Combine("Decals", fileName + ".png"));
 			if (!File.Exists(str)) return;
 			var texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
 			AssetManager.SafeWWWLoadTexture(ref texture, "file:///" + str, true, true);

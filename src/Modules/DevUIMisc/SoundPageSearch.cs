@@ -1,10 +1,8 @@
-﻿using System.Runtime.CompilerServices;
-using DevInterface;
+﻿using DevInterface;
 using Menu.Remix.MixedUI;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
-using static RegionKit.Modules.DevUIMisc.DecalSelectSearch;
 
 namespace RegionKit.Modules.DevUIMisc
 {

@@ -13,7 +13,7 @@ public class MessageSystem
 		"Object panels have a copy and paste feature. Hold shift and click the arrows next to the minimize and move handles.",
 		"You can submit your own decals to be included in RegionKit's decal collection! Contact an active RegionKit developer for more information.",
 		"The following effects are mutually exclusive, and each will take priority over effects listed later: SkyBloom, SkyAndLightBloom, Lightning, LightBurn, Fog, Bloom, VoidMelt",
-		"RegionKit adds the ability to use videos as custom decals! Supported extension types are: .asf, .avi, .dv, .m4v, .mov, .mp4, .mpg, .mpeg, .ogv, .vp8, .webm, .wmv",
+		"RegionKit adds the ability to use videos as custom decals! Supported extension types are: " + string.Join(", ", AnimatedDecals.VideoManager._supportedExtensions),
 	};
 	public readonly List<Hint> hintsConditional = new()
 	{

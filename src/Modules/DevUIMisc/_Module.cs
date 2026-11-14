@@ -17,7 +17,7 @@ public static class _Module
 		PagedFadePalettes.Apply();
 		SettingsSaveOptions.Apply();
 		DecalPreview.Enable();
-		DecalSelectSearch.Apply();
+		DecalSelectTweaks.Apply();
 		SoundPageSearch.Apply();
 		AntiPanelCollapse.Apply();
 		SelectSongPanelOverhaul.Apply();
@@ -36,7 +36,7 @@ public static class _Module
 		PagedFadePalettes.Undo();
 		SettingsSaveOptions.Undo();
 		DecalPreview.Disable();
-		DecalSelectSearch.Undo();
+		DecalSelectTweaks.Undo();
 		SoundPageSearch.Undo();
 		AntiPanelCollapse.Undo();
 		SelectSongPanelOverhaul.Undo();

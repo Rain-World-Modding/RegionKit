@@ -10,7 +10,7 @@ namespace RegionKit.Modules.AnimatedDecals
 	{
 		static readonly Dictionary<FAtlas, VideoPlayer> _players = new();
 
-		private static readonly string[] _supportedExtensions = new string[]
+		internal static readonly string[] _supportedExtensions = new string[]
 		{
 			".asf", ".avi", ".dv", ".m4v", ".mov", ".mp4", ".mpg", ".mpeg", ".ogv", ".vp8", ".webm", ".wmv"
 		};

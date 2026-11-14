@@ -328,7 +328,7 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 						}
 						else
 						{
-							filePicker = new FilePicker(owner, "AdvancedShader_FilePicker", this, new Vector2(250f, 15f) - absPos, Path.GetDirectoryName(data.filePath), FilePicker.PNGRegex);
+							filePicker = new FilePicker(owner, "AdvancedShader_FilePicker", this, new Vector2(250f, 15f) - absPos, Path.GetDirectoryName(data.filePath), FilePicker.PNGorVideoRegex);
 							filePicker.SetPageToItem(Path.GetFileName(data.filePath));
 							subNodes.Add(filePicker);
 						}

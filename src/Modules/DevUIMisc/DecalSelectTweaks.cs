@@ -179,7 +179,7 @@ namespace RegionKit.Modules.DevUIMisc
 					return true;
 				}
 				if (parentNode?.parentNode?.parentNode is CustomDecalRepresentation 
-					&& DecalPreview.GetDecalSource(value).IndexOf(actualValue, StringComparison.OrdinalIgnoreCase) > -1)
+					&& ListFixes.GetDecalSource(value).IndexOf(actualValue, StringComparison.OrdinalIgnoreCase) > -1)
 				{
 					return true;
 				}

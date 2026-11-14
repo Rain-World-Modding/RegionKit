@@ -6,10 +6,6 @@ namespace RegionKit.Modules.DevUIMisc;
 
 internal static class DecalPreview
 {
-	private static Dictionary<string, string> decalSources = new Dictionary<string, string>();
-
-	public static string GetDecalSource(string decal) => decalSources.TryGetValue(decal.ToLowerInvariant().Replace('/', Path.DirectorySeparatorChar), out string source) ? source : "UNKNOWN";
-
 	public static void Enable()
 	{
 		On.DevInterface.Panel.Update += Panel_Update;
@@ -59,8 +55,6 @@ internal static class DecalPreview
 		orig(self, owner, IDstring, parentNode, name);
 
 		self.subNodes.Add(new DecalPreviewOverlay(owner, "DecalPreviewOverlay", self));
-
-		GetDecalSources();
 	}
 
 	private static void CustomDecal_LoadFile(On.CustomDecal.orig_LoadFile orig, CustomDecal self, string fileName)
@@ -77,57 +71,6 @@ internal static class DecalPreview
 		}
 
 		orig(self, fileName);
-	}
-
-	private static void GetDecalSources()
-	{
-		decalSources.Clear();
-
-		List<ModPathPair> modsToFolders = [];
-		for (int i = ModManager.ActiveMods.Count - 1; i >= 0; i--)
-		{
-			string modName = ModManager.ActiveMods[i].name;
-			if (ModManager.ActiveMods[i].hasTargetedVersionFolder)
-			{
-				modsToFolders.Add((modName, ModManager.ActiveMods[i].TargetedPath));
-			}
-			if (ModManager.ActiveMods[i].hasNewestFolder)
-			{
-				modsToFolders.Add((modName, ModManager.ActiveMods[i].NewestPath));
-			}
-			modsToFolders.Add((modName, ModManager.ActiveMods[i].path));
-		}
-		modsToFolders.Add(("Vanilla", Custom.RootFolderDirectory()));
-
-		foreach ((string modName, string basePath) in modsToFolders)
-		{
-			string decalFolder = Path.Combine(basePath, "decals");
-			if (Directory.Exists(decalFolder))
-			{
-				RecursivelyAddDecals(decalFolder, "", modName);
-			}
-		}
-
-		// Helper
-		static void RecursivelyAddDecals(string directory, string basePath, string modName)
-		{
-			basePath = basePath.ToLowerInvariant();
-			foreach (var subdir in Directory.EnumerateDirectories(directory))
-			{
-				RecursivelyAddDecals(subdir, basePath + Path.GetFileName(subdir) + Path.DirectorySeparatorChar.ToString(), modName);
-			}
-			foreach (var file in Directory.EnumerateFiles(directory))
-			{
-				if (file.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
-				{
-					decalSources[(basePath + Path.GetFileNameWithoutExtension(file)).ToLowerInvariant()] = modName;
-				}
-				else if (AnimatedDecals.VideoManager.IsVideoFile(file))
-				{
-					decalSources[(basePath + Path.GetFileName(file)).ToLowerInvariant()] = modName;
-				}
-			}
-		}
 	}
 
 	public class DecalPreviewOverlay : DevUINode
@@ -236,11 +179,11 @@ internal static class DecalPreview
 					decalSizeSprite.scaleX = decalSprite.width;
 					decalSizeSprite.scaleY = decalSprite.height;
 
-					infoLabel.text = $"Source: {GetDecalSource(decalName)}    Size: {decalSprite.textureRect.width}x{decalSprite.textureRect.height}";
+					infoLabel.text = $"Source: {ListFixes.GetDecalSource(decalName)}    Size: {decalSprite.textureRect.width}x{decalSprite.textureRect.height}";
 				}
 				else
 				{
-					infoLabel.text = $"Source: {GetDecalSource(decalName)}";
+					infoLabel.text = $"Source: {ListFixes.GetDecalSource(decalName)}";
 					isVisible = false; // todo: what should it look like if we can't load the decal
 				}
 			}

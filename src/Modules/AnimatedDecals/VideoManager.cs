@@ -78,10 +78,9 @@ namespace RegionKit.Modules.AnimatedDecals
 		/// <returns><c>true</c> if the file is a video, <c>false</c> otherwise.</returns>
 		public static bool IsVideoFile(string fileName)
 		{
-			fileName = fileName.ToLowerInvariant();
 			for (int i = 0; i < _supportedExtensions.Length; i++)
 			{
-				if (fileName.EndsWith(_supportedExtensions[i]))
+				if (fileName.EndsWith(_supportedExtensions[i], StringComparison.OrdinalIgnoreCase))
 				{
 					return true;
 				}

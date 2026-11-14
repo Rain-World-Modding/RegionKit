@@ -2,75 +2,96 @@
 using DevInterface;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using ModPathPair = (string modName, string basePath);
 
 namespace RegionKit.Modules.DevUIMisc;
 
 internal static class ListFixes
 {
+	private static Dictionary<string, string> decalSources = new Dictionary<string, string>();
+	private static List<string> decalOrdering = [];
+
+	public static string GetDecalSource(string decal) => decalSources.TryGetValue(decal.ToLowerInvariant().Replace('/', Path.DirectorySeparatorChar), out string source) ? source : "UNKNOWN";
+
 	public static void Apply()
 	{
 		IL.DevInterface.SoundPage.ctor += SoundPage_ctor;
 		On.DevInterface.TriggersPage.ctor += TriggersPage_ctor;
-		On.DevInterface.CustomDecalRepresentation.ctor += CustomDecalRepresentation_ctor;
+		On.DevInterface.ObjectsPage.ctor += ObjectsPage_ctor;
+		IL.DevInterface.CustomDecalRepresentation.ctor += CustomDecalRepresentation_ctor;
 	}
 
 	public static void Undo()
 	{
 		IL.DevInterface.SoundPage.ctor -= SoundPage_ctor;
 		On.DevInterface.TriggersPage.ctor -= TriggersPage_ctor;
-		On.DevInterface.CustomDecalRepresentation.ctor -= CustomDecalRepresentation_ctor;
+		On.DevInterface.ObjectsPage.ctor -= ObjectsPage_ctor;
+		IL.DevInterface.CustomDecalRepresentation.ctor -= CustomDecalRepresentation_ctor;
 	}
 
-	private static void CustomDecalRepresentation_ctor(On.DevInterface.CustomDecalRepresentation.orig_ctor orig, CustomDecalRepresentation self, DevUI owner, string IDstring, DevUINode parentNode, PlacedObject pObj, string name)
+	#region Decals
+
+
+	private static void CustomDecalRepresentation_ctor(ILContext il)
 	{
-		orig(self, owner, IDstring, parentNode, pObj, name);
+		// Goal: save a shit ton of file reads and just read from the static list.
+		// This is probably really bad for mod compatibility if they happen to use IL hooks in this range since it breaks over the whole thing
+		// BUT it does save a lot of syscalls
 
-		List<string> decalsList = [];
+		ILCursor c = new ILCursor(il);
+		ILLabel l = c.DefineLabel();
 
-		// Video files
-		string[] files = AssetManager.ListDirectory("decals");
-		for (int i = 0; i < files.Length; i++)
+		c.GotoNext(MoveType.AfterLabel, x => x.MatchLdstr("decals"));
+		c.Emit(OpCodes.Ldarg_0);
+		c.EmitDelegate((CustomDecalRepresentation self) =>
 		{
-			if (AnimatedDecals.VideoManager.IsVideoFile(files[i]))
-			{
-				decalsList.Add(Path.GetFileName(files[i]));
-			}
-		}
+			self.decalFiles = [.. decalOrdering];
+		});
+		c.Emit(OpCodes.Br, l);
 
-		// Decal subfolders
-		List<string> foldersToSearch = [];
+		c.GotoNext(MoveType.After, x => x.MatchStfld<CustomDecalRepresentation>(nameof(CustomDecalRepresentation.decalFiles)));
+		c.MarkLabel(l);
+	}
+
+	private static void ObjectsPage_ctor(On.DevInterface.ObjectsPage.orig_ctor orig, ObjectsPage self, DevUI owner, string IDstring, DevUINode parentNode, string name)
+	{
+		orig(self, owner, IDstring, parentNode, name);
+
+		decalSources.Clear();
+		decalOrdering.Clear();
+
+		List<ModPathPair> modsToFolders = [];
 		for (int i = ModManager.ActiveMods.Count - 1; i >= 0; i--)
 		{
+			string modName = ModManager.ActiveMods[i].name;
 			if (ModManager.ActiveMods[i].hasTargetedVersionFolder)
 			{
-				foldersToSearch.Add(ModManager.ActiveMods[i].TargetedPath);
+				modsToFolders.Add((modName, ModManager.ActiveMods[i].TargetedPath));
 			}
 			if (ModManager.ActiveMods[i].hasNewestFolder)
 			{
-				foldersToSearch.Add(ModManager.ActiveMods[i].NewestPath);
+				modsToFolders.Add((modName, ModManager.ActiveMods[i].NewestPath));
 			}
-			foldersToSearch.Add(ModManager.ActiveMods[i].path);
+			modsToFolders.Add((modName, ModManager.ActiveMods[i].path));
 		}
+		modsToFolders.Add(("Vanilla", Custom.RootFolderDirectory()));
 
-		foreach (string folder in foldersToSearch)
+		foreach ((string modName, string basePath) in modsToFolders)
 		{
-			string decalFolder = Path.Combine(folder, "decals");
+			string decalFolder = Path.Combine(basePath, "decals");
 			if (Directory.Exists(decalFolder))
 			{
-				foreach (var subdir in Directory.EnumerateDirectories(decalFolder))
-				{
-					RecursivelyAddDecals(subdir, Path.GetFileName(subdir) + "/", decalsList);
-				}
+				RecursivelyAddDecals(decalFolder, "", "", modName);
 			}
 		}
 
-		// Sort by load order
-		decalsList = decalsList.Concat(self.decalFiles).Distinct(StringComparer.OrdinalIgnoreCase).ToList(); // filter out duplicates
-		List<string> modLoadOrder = ModManager.ActiveMods.Select(mod => mod.name).Reverse().Append("Vanilla").ToList(); // we need to manually add Vanilla to use with DecalPreview
+		// Sort by load order and then alphabetically
+		decalOrdering = [.. decalOrdering.Distinct(StringComparer.OrdinalIgnoreCase)]; // filter out duplicates
+		List<string> modLoadOrder = [.. ModManager.ActiveMods.Select(mod => mod.name).Reverse(), "Vanilla"]; // we need to manually add Vanilla to use with DecalPreview
 		Dictionary<string, List<string>> buckets = [];
-		foreach (string decal in decalsList)
+		foreach (string decal in decalOrdering)
 		{
-			string modSource = DecalPreview.GetDecalSource(decal);
+			string modSource = GetDecalSource(decal);
 			if (!modLoadOrder.Contains(modSource))
 			{
 				modLoadOrder.Add(modSource); // this should only happen if the mod source is "UNKNOWN"
@@ -83,42 +104,43 @@ internal static class ListFixes
 			bucket.Add(decal);
 		}
 
-		decalsList.Clear();
+		decalOrdering.Clear();
 		foreach (string mod in modLoadOrder)
 		{
 			if (buckets.TryGetValue(mod, out List<string> bucket))
 			{
-				decalsList.AddRange(bucket.OrderBy(static x => x, StringComparer.OrdinalIgnoreCase));
+				decalOrdering.AddRange(bucket.OrderBy(static x => x, StringComparer.OrdinalIgnoreCase));
 			}
 		}
 		foreach (var key in buckets.Keys.Except(modLoadOrder))
 		{
-			decalsList.AddRange(buckets[key].OrderBy(static x => x, StringComparer.OrdinalIgnoreCase));
+			decalOrdering.AddRange(buckets[key].OrderBy(static x => x, StringComparer.OrdinalIgnoreCase));
 		}
+	}
 
-		// Set decal files
-		self.decalFiles = decalsList.ToArray();
-
-		// Helper
-		static void RecursivelyAddDecals(string directory, string basePath, List<string> decalsList)
+	private static void RecursivelyAddDecals(string directory, string sourcePath, string namePath, string modName)
+	{
+		sourcePath = sourcePath.ToLowerInvariant();
+		foreach (var subdir in Directory.EnumerateDirectories(directory))
 		{
-			foreach (var subdir in Directory.EnumerateDirectories(directory))
+			RecursivelyAddDecals(subdir, sourcePath + Path.GetFileName(subdir) + Path.DirectorySeparatorChar.ToString(), namePath + Path.GetFileName(subdir) + "/", modName);
+		}
+		foreach (var file in Directory.EnumerateFiles(directory))
+		{
+			if (file.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
 			{
-				RecursivelyAddDecals(subdir, basePath + Path.GetFileName(subdir) + "/", decalsList);
+				decalSources[(sourcePath + Path.GetFileNameWithoutExtension(file)).ToLowerInvariant()] = modName;
+				decalOrdering.Add(namePath + Path.GetFileNameWithoutExtension(file));
 			}
-			foreach (var file in Directory.EnumerateFiles(directory))
+			else if (AnimatedDecals.VideoManager.IsVideoFile(file))
 			{
-				if (file.EndsWith(".png"))
-				{
-					decalsList.Add(basePath + Path.GetFileNameWithoutExtension(file));
-				}
-				else if (AnimatedDecals.VideoManager.IsVideoFile(file))
-				{
-					decalsList.Add(basePath + Path.GetFileName(file));
-				}
+				decalSources[(sourcePath + Path.GetFileName(file)).ToLowerInvariant()] = modName;
+				decalOrdering.Add(namePath + Path.GetFileName(file));
 			}
 		}
 	}
+
+	#endregion // Decals
 
 	private static void TriggersPage_ctor(On.DevInterface.TriggersPage.orig_ctor orig, TriggersPage self, DevUI owner, string IDstring, DevUINode parentNode, string name)
 	{

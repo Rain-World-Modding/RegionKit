@@ -22,6 +22,8 @@ public static class _Module
 		AntiPanelCollapse.Apply();
 		SelectSongPanelOverhaul.Apply();
 		RoomAttractivenessPanelOverhaul.Apply();
+		TokenInputOverhaul.Apply();
+		DataPearlInputOverhaul.Apply();
 
 		// bugfix
 		IL.DevInterface.DevUINode.Update += DevUINode_Update;
@@ -41,6 +43,8 @@ public static class _Module
 		AntiPanelCollapse.Undo();
 		SelectSongPanelOverhaul.Undo();
 		RoomAttractivenessPanelOverhaul.Undo();
+		TokenInputOverhaul.Undo();
+		DataPearlInputOverhaul.Undo();
 
 		IL.DevInterface.DevUINode.Update -= DevUINode_Update;
 	}

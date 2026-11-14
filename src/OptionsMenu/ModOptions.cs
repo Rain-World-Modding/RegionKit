@@ -38,6 +38,10 @@ public sealed class ModOptions : OptionsTemplate
 		"When checked, makes the fade palette panel paged. Turn off if it is causing issues with other mods.", null, "",
 		"Paged Fade Palettes?"));
 
+	public static Configurable<bool> TokenInputOverhaul { get; } = Instance.config.Bind(nameof(TokenInputOverhaul), true, new ConfigurableInfo(
+		"When checked, overhauls the user interface for the token control panel. Turn off if it is causing issues with other mods.", null, "",
+		"Token input overhaul?"));
+
 
 
 	// MENU
@@ -82,6 +86,9 @@ public sealed class ModOptions : OptionsTemplate
 
 		AddCheckBox(EnableRant);
 		AddCheckBox(PagedFadePalettes);
+		DrawCheckBoxes(ref Tabs[tabIndex]);
+
+		AddCheckBox(TokenInputOverhaul);
 		DrawCheckBoxes(ref Tabs[tabIndex]);
 
 

@@ -1808,7 +1808,7 @@ public static class Data
 		try
 		{
 			path = AssetManager.ResolveFilePath(Path.Combine(_Module.BGPath, name + ".txt"));
-			Custom.LogWarning("load file from path: " + path);
+			//Custom.LogWarning("load file from path: " + path);
 			if (File.Exists(path)) return true;
 			else { return false; }
 		}

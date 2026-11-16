@@ -13,36 +13,42 @@ namespace RegionKit.Modules.ExtendedGates
 			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbol0";
 			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaOpen";
 			public bool Requirement(Gate regionGate) => true;
+			public bool MapRequirement(SaveState saveState) => true;
 		}
 		public class Forbidden : LockData
 		{
 			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolForbidden";
 			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaForbidden";
 			public bool Requirement(Gate gate) => false;
+			public bool MapRequirement(SaveState saveState) => false;
 		}
 		public class ComsMark : LockData
 		{
 			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolComsmark";
 			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaComsmark";
-			public bool Requirement(Gate gate) => gate.room.game.GetStorySession.saveState.deathPersistentSaveData.theMark;
+			public bool Requirement(Gate gate) => MapRequirement(gate.room.game.GetStorySession.saveState);
+			public bool MapRequirement(SaveState saveState) => saveState.deathPersistentSaveData.theMark;
 		}
 		public class Glow : LockData
 		{
 			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolGlow";
 			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaGlow";
-			public bool Requirement(Gate gate) => gate.room.game.GetStorySession.saveState.theGlow;
+			public bool Requirement(Gate gate) => MapRequirement(gate.room.game.GetStorySession.saveState);
+			public bool MapRequirement(SaveState saveState) => saveState.theGlow;
 		}
 		public class UWU : LockData
 		{
 			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolUwu";
 			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaUwu";
 			public bool Requirement(Gate gate) => ExtendedGates.uwu;
+			public bool MapRequirement(SaveState saveState) => ExtendedGates.uwu;
 		}
 		public class Construction : LockData
 		{
 			public string GateElementName(GateKarmaGlyph glyph) => "gateSymbolConstruction";
 			public string MapElementName(Map.GateMarker gateMarker) => "smallKarmaConstruction";
 			public bool Requirement(Gate gate) => false;
+			public bool MapRequirement(SaveState saveState) => false;
 
 			public static bool RegionGateUnderConstruction(string gateName, string currentRegionName)
 			{
@@ -99,13 +105,19 @@ namespace RegionKit.Modules.ExtendedGates
 			{
 				AbstractCreature firstAlivePlayer = gate.room.game.FirstAlivePlayer;
 				if (gate.room.game.Players.Count == 0 || firstAlivePlayer == null || firstAlivePlayer.realizedCreature == null && ModManager.CoopAvailable)
-				{ return false; }
+				{
+					return false;
+				}
 
 				Player player;
 				if (ModManager.CoopAvailable && gate.room.game.AlivePlayers.Count > 0)
-				{ player = (firstAlivePlayer.realizedCreature as Player)!; }
+				{
+					player = (firstAlivePlayer.realizedCreature as Player)!;
+				}
 				else
-				{ player = (gate.room.game.Players[0].realizedCreature as Player)!; }
+				{
+					player = (gate.room.game.Players[0].realizedCreature as Player)!;
+				}
 
 				int karma = player.Karma;
 				if (ModManager.MSC && player.SlugCatClass == MoreSlugcats.MoreSlugcatsEnums.SlugcatStatsName.Artificer && player.grasps.Length != 0)
@@ -114,13 +126,18 @@ namespace RegionKit.Modules.ExtendedGates
 					{
 						if (player.grasps[i] != null && player.grasps[i].grabbedChunk != null && player.grasps[i].grabbedChunk.owner is Scavenger scav)
 						{
-							karma = ((StoryGameSession)gate.room.game.session).saveState.deathPersistentSaveData.karma + scav.abstractCreature.karmicPotential;
+							karma = gate.room.game.GetStorySession.saveState.deathPersistentSaveData.karma + scav.abstractCreature.karmicPotential;
 							break;
 						}
 					}
 				}
 
 				return karma >= req.GetKarmaLevel();
+			}
+
+			public bool MapRequirement(SaveState saveState)
+			{
+				return saveState.deathPersistentSaveData.karma >= req.GetKarmaLevel();
 			}
 		}
 
@@ -138,8 +155,12 @@ namespace RegionKit.Modules.ExtendedGates
 
 			public bool Requirement(Gate regionGate)
 			{
-				float rippleLevel = regionGate.room.game.GetStorySession.saveState.deathPersistentSaveData.rippleLevel;
-				return rippleLevel >= req;
+				return MapRequirement(regionGate.room.game.GetStorySession.saveState);
+			}
+
+			public bool MapRequirement(SaveState saveState)
+			{
+				return saveState.deathPersistentSaveData.rippleLevel >= req;
 			}
 		}
 
@@ -154,6 +175,8 @@ namespace RegionKit.Modules.ExtendedGates
 			public string MapElementName(Map.GateMarker gateMarker) => wrapped.MapElementName(gateMarker) + REINFORCED_SPRITE_POSTFIX;
 
 			public bool Requirement(Gate regionGate) => wrapped.Requirement(regionGate) && regionGate.room.game.Players[0].realizedCreature is Player p && p.KarmaIsReinforced;
+
+			public bool MapRequirement(SaveState saveState) => wrapped.MapRequirement(saveState) && saveState.deathPersistentSaveData.reinforcedKarma;
 		}
 
 		public class Alt : LockData
@@ -165,6 +188,8 @@ namespace RegionKit.Modules.ExtendedGates
 			public string MapElementName(Map.GateMarker gateMarker) => wrapped.MapElementName(gateMarker);
 
 			public bool Requirement(Gate regionGate) => wrapped.Requirement(regionGate);
+
+			public bool MapRequirement(SaveState saveState) => wrapped.MapRequirement(saveState);
 		}
 		public class Txt : Alt
 		{
@@ -176,11 +201,13 @@ namespace RegionKit.Modules.ExtendedGates
 			Req req,
 			string gateElementName,
 			string mapElementName,
-			Func<Gate, bool> requirement) : LockData
+			Func<Gate, bool> requirement,
+			Func<SaveState, bool> mapRequirement) : LockData
 		{
 			public string GateElementName(GateKarmaGlyph glyph) => gateElementName;
 			public string MapElementName(Map.GateMarker gateMarker) => mapElementName;
 			public bool Requirement(Gate regionGate) => requirement(regionGate);
+			public bool MapRequirement(SaveState saveState) => mapRequirement(saveState);
 		}
 	}
 }

@@ -7,5 +7,6 @@ namespace RegionKit.Modules.ExtendedGates
 		public string GateElementName(GateKarmaGlyph glyph);
 		public string MapElementName(Map.GateMarker gateMarker);
 		public bool Requirement(RegionGate regionGate);
+		public bool MapRequirement(SaveState saveState);
 	}
 }

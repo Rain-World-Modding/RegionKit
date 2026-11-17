@@ -1,3 +1,32 @@
+3.20.4
+---
+* Features:
+  * Over 460 new decals by over 45 different artists
+  * CustomDecal now supports folders
+  * Decal preview now supports animated decals
+  * AdvancedShader now supports video files
+  * Token dev tools objects for vanilla token types now have a selection panel with a search bar in addition to the usual slider
+  * The DataPearl dev tools object now has a selection panel with a search bar instead of a cycling button
+  * CustomEntranceSymbol's sprite criteria is now case insensitive and has a search bar now
+  * Added more hints and tooltips to Iggy
+* Bugfixes:
+  * Heavily reduced the amount of lag caused by CustomDecal's dev tools object
+  * PaletteEffectColor now uses the correct shading (by Trainzack)
+  * The in-game map will now flash gate symbols red if the player cannot pass through them if the gate uses a custom requirement type from RegionKit
+  * The player's guide overseer will now be able to calculate whether the player can pass through a gate using a custom requirement type from RegionKit
+  * Fixed background builder flickering in arena mode for AboveCloudsView-type backgrounds
+
+3.20.3
+---
+* Fixed a severe issue where rooms with terrain would not render their map correctly and would not bake accounting for terrain (which, funnily, was caused by RegionKit) (by Alduris)
+* Added mod filter object (by Alduris)
+* Fixed PaletteEffectColor (by MagicaJaphet)
+* Fixed ColoredSSFuses not working in arena (by Alduris)
+* The room attractions creature list in the map page of dev tools is now paged (by Alduris)
+* Fixed a race condition in Turbo Baker (by Alduris)
+* Fixed an issue where RainSong could crash during precycles (by Alduris)
+* Clippy minigame now saves correctly (by Damoonlord)
+
 3.20.2
 ---
 * Added ReduceNeuronGlow effect (by Bro748)

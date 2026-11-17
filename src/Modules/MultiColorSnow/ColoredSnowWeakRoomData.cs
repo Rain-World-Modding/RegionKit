@@ -10,7 +10,7 @@ public class ColoredSnowWeakRoomData
 
 	public static ColoredSnowWeakRoomData GetData(Room obj)
 	{
-		return weakData.GetOrCreateValue(obj);
+		return weakData.GetValue(obj, _ => new());
 	}
 }
 

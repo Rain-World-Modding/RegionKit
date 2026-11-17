@@ -143,7 +143,7 @@ public class ColoredSnowRoomCamera
 
 	public static ColoredSnowRoomCamera GetData(RoomCamera obj)
 	{
-		return weakData.GetOrCreateValue(obj);
+		return weakData.GetValue(obj, _ => new());
 	}
 }
 

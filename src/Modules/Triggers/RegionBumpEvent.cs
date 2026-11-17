@@ -69,7 +69,7 @@ namespace RegionKit.Modules.Triggers
 
 			public static void WaitRegionBump(Room room)
 			{
-				_ = _regionBumpTracker.GetOrCreateValue(room);
+				_ = _regionBumpTracker.GetValue(room, _ => new());
 			}
 
 			public static void FireRegionBump(Room room)

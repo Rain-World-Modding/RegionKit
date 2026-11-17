@@ -12,12 +12,12 @@ namespace RegionKit.Modules.MoonStuff
 
 		public static RegionData MoonRegionData(this Region self)
 		{
-			return RegionCWT.GetOrCreateValue(self);
+			return RegionCWT.GetValue(self, _ => new());
 		}
 
 		public static void InitMoonLightSourceData(this LightSource self)
 		{
-			FlickerData data = LightSourceCWT.GetOrCreateValue(self);
+			FlickerData data = LightSourceCWT.GetValue(self, _ => new());
 			data.On = true;
 			data.LastOn = true;
 			usingFlickerData = true;
@@ -30,7 +30,7 @@ namespace RegionKit.Modules.MoonStuff
 
 		public static void InitMoonLightBeamData(this LightBeam self)
 		{
-			FlickerData data = LightBeamCWT.GetOrCreateValue(self);
+			FlickerData data = LightBeamCWT.GetValue(self, _ => new());
 			data.On = true;
 			data.LastOn = true;
 			usingFlickerData = true;
@@ -43,7 +43,7 @@ namespace RegionKit.Modules.MoonStuff
 
 		public static void InitMoonFlickerableData(this IFlickerable self)
 		{
-			FlickerData data = FlickerableCWT.GetOrCreateValue(self);
+			FlickerData data = FlickerableCWT.GetValue(self, _ => new());
 			data.On = true;
 			data.LastOn = true;
 			usingFlickerData = true;

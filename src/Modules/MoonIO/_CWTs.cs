@@ -12,9 +12,9 @@ namespace RegionKit.Modules.MoonIO
 		static RKConditionalWeakTable<Room, RoomData> RoomCWT = new();
 		static RKConditionalWeakTable<ConsoleVisualizer, ConsoleVisualizerData> ConsoleVisualizerCWT = new();
 
-		public static ObjectsPageData MoonObjectsPageData(this ObjectsPage self) => ObjectsPageCWT.GetOrCreateValue(self);
-		public static RoomData MoonRoomData(this Room self) => RoomCWT.GetOrCreateValue(self);
-		public static ConsoleVisualizerData MoonConsoleVizData(this ConsoleVisualizer self) => ConsoleVisualizerCWT.GetOrCreateValue(self);
+		public static ObjectsPageData MoonObjectsPageData(this ObjectsPage self) => ObjectsPageCWT.GetValue(self, _ => new());
+		public static RoomData MoonRoomData(this Room self) => RoomCWT.GetValue(self, _ => new());
+		public static ConsoleVisualizerData MoonConsoleVizData(this ConsoleVisualizer self) => ConsoleVisualizerCWT.GetValue(self, _ => new());
 
 		public class ObjectsPageData
 		{

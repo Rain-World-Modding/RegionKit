@@ -17,7 +17,7 @@ namespace RegionKit.Modules.Effects
 		public ReplaceCorruptionColors(Room room)
 		{
 			this.room = room;
-			corruptionCWT.GetOrCreateValue(room);
+			corruptionCWT.TryAdd(room, new());
 		}
 
 		internal static void Apply()

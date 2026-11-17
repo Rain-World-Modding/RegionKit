@@ -390,21 +390,6 @@ namespace RegionKit
 		}
 
 		/// <summary>
-		/// Searches for a specified key in the table and returns the corresponding value. 
-		/// If the key does not exist in the table, the method invokes the parameterless constructor of the class 
-		/// that represents the table's value to create a value that is bound to the specified key.
-		/// </summary>
-		/// <param name="key">The key of the value to find. May not be null.</param>
-		/// <returns>The value bound to <paramref name="key"/> after the method completes.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="key"/> is null</exception>
-		public TValue GetOrCreateValue(TKey key)
-		{
-			if (key is null) throw new ArgumentNullException(nameof(key), "Null key");
-
-			return GetValue(key, _ => Activator.CreateInstance<TValue>());
-		}
-
-		/// <summary>
 		/// Gets the value of the specified key if it exists.
 		/// </summary>
 		/// <param name="key">The key that represents an object with an attached property. May not be null.</param>

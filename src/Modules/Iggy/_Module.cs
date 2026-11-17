@@ -191,7 +191,7 @@ public static class _Module
 	public static void __SignalRightClick(On.DevInterface.DevUINode.orig_Update orig, DevInterface.DevUINode self)
 	{
 		orig(self);
-		DTRightClickTracker tracker = __devUIRMB.GetOrCreateValue(self.owner);
+		DTRightClickTracker tracker = __devUIRMB.GetValue(self.owner, _ => new());
 		if (self is DevInterface.RectangularDevUINode rnode && rnode.MouseOver && tracker.RightClick)
 		{
 			__DevUIElementReceivedRMB(rnode);
@@ -201,7 +201,7 @@ public static class _Module
 	{
 		orig(self);
 		bool rmbDown = Input.GetMouseButtonDown(1);
-		DTRightClickTracker tracker = __devUIRMB.GetOrCreateValue(self);
+		DTRightClickTracker tracker = __devUIRMB.GetValue(self, _ => new());
 		tracker.rmbWasDown = tracker.rmbDown;
 		tracker.rmbDown = rmbDown;
 	}

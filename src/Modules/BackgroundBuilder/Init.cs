@@ -65,7 +65,10 @@ internal static class Init
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
 		if (data.Type != BackgroundTemplateType.RotWormScene)
-		{ data.backgroundName = ""; data.Type = BackgroundTemplateType.RotWormScene; }
+		{
+			data.backgroundName = "";
+			data.Type = BackgroundTemplateType.RotWormScene;
+		}
 		data.LoadSceneData(self);
 		data.sceneData.MakeScene(self);
 	}
@@ -103,7 +106,10 @@ internal static class Init
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
 		if (data.Type != BackgroundTemplateType.AncientUrbanView)
-		{ data.backgroundName = ""; data.Type = BackgroundTemplateType.AncientUrbanView; }
+		{
+			data.backgroundName = "";
+			data.Type = BackgroundTemplateType.AncientUrbanView;
+		}
 		data.LoadSceneData(self);
 		data.sceneData.MakeScene(self);
 	}
@@ -151,7 +157,10 @@ internal static class Init
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
 		if (data.Type != BackgroundTemplateType.AboveCloudsView)
-		{ data.backgroundName = ""; data.Type = BackgroundTemplateType.AboveCloudsView; }
+		{
+			data.backgroundName = "";
+			data.Type = BackgroundTemplateType.AboveCloudsView;
+		}
 		data.LoadSceneData(self);
 		data.sceneData.MakeScene(self);
 	}
@@ -173,7 +182,10 @@ internal static class Init
 		Data.RoomBGData data = self.room.roomSettings.BackgroundData();
 
 		if (data.Type != BackgroundTemplateType.RoofTopView)
-		{ data.backgroundName = ""; data.Type = BackgroundTemplateType.RoofTopView; }
+		{
+			data.backgroundName = "";
+			data.Type = BackgroundTemplateType.RoofTopView;
+		}
 		data.LoadSceneData(self);
 		data.sceneData.MakeScene(self);
 	}

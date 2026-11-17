@@ -26,7 +26,6 @@ internal static class CustomBackgroundElements
 			this.AddToContainer(sLeaser, rCam, null);
 		}
 
-		// Token: 0x0600465C RID: 18012 RVA: 0x0057914C File Offset: 0x0057734C
 		public override void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 		{
 			float yShift = scene is AboveCloudsView acv ? acv.yShift : 0f;

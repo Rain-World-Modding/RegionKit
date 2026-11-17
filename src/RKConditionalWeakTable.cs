@@ -36,7 +36,6 @@ namespace RegionKit
 			public TValue value;
 		}
 
-		private readonly object _lock = new();
 		private int[] _buckets;
 		private Entry[] _entries;
 		private int _allocatedEntries = 0;
@@ -87,66 +86,63 @@ namespace RegionKit
 		{
 			if (key is null) throw new ArgumentNullException(nameof(key), "Null key");
 
-			lock (_lock)
+			// Handle precursor operations
+			if (_allocatedEntries == _entries.Length)
+				Expand();
+			else
+				CullDeadIfNeeded();
+
+			// Compute bucket and entry index
+			int hash = RuntimeHelpers.GetHashCode(key);
+			ref int bucket = ref GetBucket(hash);
+			ref int entryIndex = ref bucket;
+
+			// Try to find it if it exists currently
+			while (entryIndex != -1)
 			{
-				// Handle precursor operations
-				if (_allocatedEntries == _entries.Length)
-					Expand();
-				else
-					CullDeadIfNeeded();
-
-				// Compute bucket and entry index
-				int hash = RuntimeHelpers.GetHashCode(key);
-				ref int bucket = ref GetBucket(hash);
-				ref int entryIndex = ref bucket;
-
-				// Try to find it if it exists currently
-				while (entryIndex != -1)
+				ref Entry entry = ref _entries[entryIndex];
+				if (entry.hash == hash)
 				{
-					ref Entry entry = ref _entries[entryIndex];
-					if (entry.hash == hash)
+					object? keyTarget = entry.key.Target;
+					if (keyTarget == null)
 					{
-						object? keyTarget = entry.key.Target;
-						if (keyTarget == null)
-						{
-							// Entry needs to be discarded
-							RemoveEntry(ref entryIndex, ref entry);
-							continue;
-						}
-						else if (ReferenceEquals(keyTarget, key))
-						{
-							// Found the key, update the value
-							entry.value = value;
-							return;
-						}
+						// Entry needs to be discarded
+						RemoveEntry(ref entryIndex, ref entry);
+						continue;
 					}
-					entryIndex = ref entry.next;
+					else if (ReferenceEquals(keyTarget, key))
+					{
+						// Found the key, update the value
+						entry.value = value;
+						return;
+					}
 				}
+				entryIndex = ref entry.next;
+			}
 
-				// If we are here, it doesn't exist. Add it to the table and return true
-				if (_freeList != -1)
-				{
-					// We can reuse an existing free slot
-					int freeIndex = _freeList;
-					ref Entry freeEntry = ref _entries[freeIndex];
-					_freeList = freeEntry.next;
-					freeEntry.key.Target = key;
-					freeEntry.hash = hash;
-					freeEntry.next = bucket;
-					freeEntry.value = value;
-					bucket = freeIndex;
-				}
-				else
-				{
-					// Allocate a new slot
-					int newIndex = _allocatedEntries++;
-					ref Entry newEntry = ref _entries[newIndex];
-					newEntry.key = GCHandle.Alloc(key, GCHandleType.Weak);
-					newEntry.hash = hash;
-					newEntry.next = bucket;
-					newEntry.value = value;
-					bucket = newIndex;
-				}
+			// If we are here, it doesn't exist. Add it to the table and return true
+			if (_freeList != -1)
+			{
+				// We can reuse an existing free slot
+				int freeIndex = _freeList;
+				ref Entry freeEntry = ref _entries[freeIndex];
+				_freeList = freeEntry.next;
+				freeEntry.key.Target = key;
+				freeEntry.hash = hash;
+				freeEntry.next = bucket;
+				freeEntry.value = value;
+				bucket = freeIndex;
+			}
+			else
+			{
+				// Allocate a new slot
+				int newIndex = _allocatedEntries++;
+				ref Entry newEntry = ref _entries[newIndex];
+				newEntry.key = GCHandle.Alloc(key, GCHandleType.Weak);
+				newEntry.hash = hash;
+				newEntry.next = bucket;
+				newEntry.value = value;
+				bucket = newIndex;
 			}
 		}
 
@@ -161,67 +157,64 @@ namespace RegionKit
 		{
 			if (key is null) throw new ArgumentNullException(nameof(key), "Null key");
 
-			lock (_lock)
+			// Handle precursor operations
+			if (_allocatedEntries == _entries.Length)
+				Expand();
+			else
+				CullDeadIfNeeded();
+
+			// Compute bucket and entry index
+			int hash = RuntimeHelpers.GetHashCode(key);
+			ref int bucket = ref GetBucket(hash);
+			ref int entryIndex = ref bucket;
+
+			// Try to find it if it exists currently
+			while (entryIndex != -1)
 			{
-				// Handle precursor operations
-				if (_allocatedEntries == _entries.Length)
-					Expand();
-				else
-					CullDeadIfNeeded();
-
-				// Compute bucket and entry index
-				int hash = RuntimeHelpers.GetHashCode(key);
-				ref int bucket = ref GetBucket(hash);
-				ref int entryIndex = ref bucket;
-
-				// Try to find it if it exists currently
-				while (entryIndex != -1)
+				ref Entry entry = ref _entries[entryIndex];
+				if (entry.hash == hash)
 				{
-					ref Entry entry = ref _entries[entryIndex];
-					if (entry.hash == hash)
+					object? keyTarget = entry.key.Target;
+					if (keyTarget == null)
 					{
-						object? keyTarget = entry.key.Target;
-						if (keyTarget == null)
-						{
-							// Entry needs to be discarded
-							RemoveEntry(ref entryIndex, ref entry);
-							continue;
-						}
-						else if (ReferenceEquals(keyTarget, key))
-						{
-							// Key already exists, we don't need to add. Return false
-							return false;
-						}
+						// Entry needs to be discarded
+						RemoveEntry(ref entryIndex, ref entry);
+						continue;
 					}
-					entryIndex = ref entry.next;
+					else if (ReferenceEquals(keyTarget, key))
+					{
+						// Key already exists, we don't need to add. Return false
+						return false;
+					}
 				}
-
-				// If we are here, it doesn't exist. Add it to the table and return true
-				if (_freeList != -1)
-				{
-					// We can reuse an existing free slot
-					int freeIndex = _freeList;
-					ref Entry freeEntry = ref _entries[freeIndex];
-					_freeList = freeEntry.next;
-					freeEntry.key.Target = key;
-					freeEntry.hash = hash;
-					freeEntry.next = bucket;
-					freeEntry.value = value;
-					bucket = freeIndex;
-				}
-				else
-				{
-					// Allocate a new slot
-					int newIndex = _allocatedEntries++;
-					ref Entry newEntry = ref _entries[newIndex];
-					newEntry.key = GCHandle.Alloc(key, GCHandleType.Weak);
-					newEntry.hash = hash;
-					newEntry.next = bucket;
-					newEntry.value = value;
-					bucket = newIndex;
-				}
-				return true;
+				entryIndex = ref entry.next;
 			}
+
+			// If we are here, it doesn't exist. Add it to the table and return true
+			if (_freeList != -1)
+			{
+				// We can reuse an existing free slot
+				int freeIndex = _freeList;
+				ref Entry freeEntry = ref _entries[freeIndex];
+				_freeList = freeEntry.next;
+				freeEntry.key.Target = key;
+				freeEntry.hash = hash;
+				freeEntry.next = bucket;
+				freeEntry.value = value;
+				bucket = freeIndex;
+			}
+			else
+			{
+				// Allocate a new slot
+				int newIndex = _allocatedEntries++;
+				ref Entry newEntry = ref _entries[newIndex];
+				newEntry.key = GCHandle.Alloc(key, GCHandleType.Weak);
+				newEntry.hash = hash;
+				newEntry.next = bucket;
+				newEntry.value = value;
+				bucket = newIndex;
+			}
+			return true;
 		}
 
 		/// <summary>
@@ -236,67 +229,64 @@ namespace RegionKit
 		{
 			if (key is null) throw new ArgumentNullException(nameof(key), "Null key");
 
-			lock (_lock)
+			// Handle precursor operations
+			if (_allocatedEntries == _entries.Length)
+				Expand();
+			else
+				CullDeadIfNeeded();
+
+			// Compute bucket and entry index
+			int hash = RuntimeHelpers.GetHashCode(key);
+			ref int bucket = ref GetBucket(hash);
+			ref int entryIndex = ref bucket;
+
+			// Try to find it if it exists currently
+			while (entryIndex != -1)
 			{
-				// Handle precursor operations
-				if (_allocatedEntries == _entries.Length)
-					Expand();
-				else
-					CullDeadIfNeeded();
-
-				// Compute bucket and entry index
-				int hash = RuntimeHelpers.GetHashCode(key);
-				ref int bucket = ref GetBucket(hash);
-				ref int entryIndex = ref bucket;
-
-				// Try to find it if it exists currently
-				while (entryIndex != -1)
+				ref Entry entry = ref _entries[entryIndex];
+				if (entry.hash == hash)
 				{
-					ref Entry entry = ref _entries[entryIndex];
-					if (entry.hash == hash)
+					object? keyTarget = entry.key.Target;
+					if (keyTarget == null)
 					{
-						object? keyTarget = entry.key.Target;
-						if (keyTarget == null)
-						{
-							// Entry needs to be discarded
-							RemoveEntry(ref entryIndex, ref entry);
-							continue;
-						}
-						else if (ReferenceEquals(keyTarget, key))
-						{
-							// We have found the key, retrieve the value
-							return entry.value;
-						}
+						// Entry needs to be discarded
+						RemoveEntry(ref entryIndex, ref entry);
+						continue;
 					}
-					entryIndex = ref entry.next;
+					else if (ReferenceEquals(keyTarget, key))
+					{
+						// We have found the key, retrieve the value
+						return entry.value;
+					}
 				}
-
-				// If we are here, it doesn't exist. 
-				if (_freeList != -1)
-				{
-					// We can reuse an existing free slot
-					int freeIndex = _freeList;
-					ref Entry freeEntry = ref _entries[freeIndex];
-					_freeList = freeEntry.next;
-					freeEntry.key.Target = key;
-					freeEntry.hash = hash;
-					freeEntry.next = bucket;
-					freeEntry.value = value;
-					bucket = freeIndex;
-				}
-				else
-				{
-					// Allocate a new slot
-					int newIndex = _allocatedEntries++;
-					ref Entry newEntry = ref _entries[newIndex];
-					newEntry.key = GCHandle.Alloc(key, GCHandleType.Weak);
-					newEntry.hash = hash;
-					newEntry.next = bucket;
-					newEntry.value = value;
-					bucket = newIndex;
-				}
-				return value;
+				entryIndex = ref entry.next;
 			}
+
+			// If we are here, it doesn't exist. 
+			if (_freeList != -1)
+			{
+				// We can reuse an existing free slot
+				int freeIndex = _freeList;
+				ref Entry freeEntry = ref _entries[freeIndex];
+				_freeList = freeEntry.next;
+				freeEntry.key.Target = key;
+				freeEntry.hash = hash;
+				freeEntry.next = bucket;
+				freeEntry.value = value;
+				bucket = freeIndex;
+			}
+			else
+			{
+				// Allocate a new slot
+				int newIndex = _allocatedEntries++;
+				ref Entry newEntry = ref _entries[newIndex];
+				newEntry.key = GCHandle.Alloc(key, GCHandleType.Weak);
+				newEntry.hash = hash;
+				newEntry.next = bucket;
+				newEntry.value = value;
+				bucket = newIndex;
+			}
+			return value;
 		}
 
 		/// <summary>
@@ -311,66 +301,63 @@ namespace RegionKit
 		{
 			if (key is null) throw new ArgumentNullException(nameof(key), "Null key");
 
-			lock (_lock)
+			// Handle precursor operations
+			if (_allocatedEntries == _entries.Length)
+				Expand();
+			else
+				CullDeadIfNeeded();
+
+			// Compute bucket and entry index
+			int hash = RuntimeHelpers.GetHashCode(key);
+			ref int bucket = ref GetBucket(hash);
+			ref int entryIndex = ref bucket;
+
+			// Try to find it if it exists currently
+			while (entryIndex != -1)
 			{
-				// Handle precursor operations
-				if (_allocatedEntries == _entries.Length)
-					Expand();
-				else
-					CullDeadIfNeeded();
-
-				// Compute bucket and entry index
-				int hash = RuntimeHelpers.GetHashCode(key);
-				ref int bucket = ref GetBucket(hash);
-				ref int entryIndex = ref bucket;
-
-				// Try to find it if it exists currently
-				while (entryIndex != -1)
+				ref Entry entry = ref _entries[entryIndex];
+				if (entry.hash == hash)
 				{
-					ref Entry entry = ref _entries[entryIndex];
-					if (entry.hash == hash)
+					object? keyTarget = entry.key.Target;
+					if (keyTarget == null)
 					{
-						object? keyTarget = entry.key.Target;
-						if (keyTarget == null)
-						{
-							RemoveEntry(ref entryIndex, ref entry);
-							continue;
-						}
-						else if (ReferenceEquals(keyTarget, key))
-						{
-							return entry.value;
-						}
+						RemoveEntry(ref entryIndex, ref entry);
+						continue;
 					}
-					entryIndex = ref entry.next;
+					else if (ReferenceEquals(keyTarget, key))
+					{
+						return entry.value;
+					}
 				}
+				entryIndex = ref entry.next;
+			}
 
-				// If we are here, it doesn't exist. Create the new value
-				TValue value = valueFactory.Invoke(key);
-				if (_freeList != -1)
-				{
-					// We can reuse an existing free slot
-					int freeIndex = _freeList;
-					ref Entry freeEntry = ref _entries[freeIndex];
-					_freeList = freeEntry.next;
-					freeEntry.key.Target = key;
-					freeEntry.hash = hash;
-					freeEntry.next = bucket;
-					freeEntry.value = value;
-					bucket = freeIndex;
-					return value;
-				}
-				else
-				{
-					// Allocate a new slot
-					int newIndex = _allocatedEntries++;
-					ref Entry newEntry = ref _entries[newIndex];
-					newEntry.key = GCHandle.Alloc(key, GCHandleType.Weak);
-					newEntry.hash = hash;
-					newEntry.next = bucket;
-					newEntry.value = value;
-					bucket = newIndex;
-					return value;
-				}
+			// If we are here, it doesn't exist. Create the new value
+			TValue value = valueFactory.Invoke(key);
+			if (_freeList != -1)
+			{
+				// We can reuse an existing free slot
+				int freeIndex = _freeList;
+				ref Entry freeEntry = ref _entries[freeIndex];
+				_freeList = freeEntry.next;
+				freeEntry.key.Target = key;
+				freeEntry.hash = hash;
+				freeEntry.next = bucket;
+				freeEntry.value = value;
+				bucket = freeIndex;
+				return value;
+			}
+			else
+			{
+				// Allocate a new slot
+				int newIndex = _allocatedEntries++;
+				ref Entry newEntry = ref _entries[newIndex];
+				newEntry.key = GCHandle.Alloc(key, GCHandleType.Weak);
+				newEntry.hash = hash;
+				newEntry.next = bucket;
+				newEntry.value = value;
+				bucket = newIndex;
+				return value;
 			}
 		}
 
@@ -404,36 +391,33 @@ namespace RegionKit
 
 			value = default!;
 
-			lock (_lock)
-			{
-				int hash = RuntimeHelpers.GetHashCode(key);
-				ref int entryIndex = ref GetBucket(hash);
+			int hash = RuntimeHelpers.GetHashCode(key);
+			ref int entryIndex = ref GetBucket(hash);
 
-				while (entryIndex != -1)
+			while (entryIndex != -1)
+			{
+				ref Entry entry = ref _entries[entryIndex];
+				if (entry.hash == hash)
 				{
-					ref Entry entry = ref _entries[entryIndex];
-					if (entry.hash == hash)
+					object? keyTarget = entry.key.Target;
+					if (keyTarget == null)
 					{
-						object? keyTarget = entry.key.Target;
-						if (keyTarget == null)
-						{
-							// Entry needs to be discarded
-							RemoveEntry(ref entryIndex, ref entry);
-							continue;
-						}
-						else if (ReferenceEquals(keyTarget, key))
-						{
-							// We have found the key, retrieve the value
-							value = entry.value;
-							CullDeadIfNeeded();
-							return true;
-						}
+						// Entry needs to be discarded
+						RemoveEntry(ref entryIndex, ref entry);
+						continue;
 					}
-					entryIndex = ref entry.next;
+					else if (ReferenceEquals(keyTarget, key))
+					{
+						// We have found the key, retrieve the value
+						value = entry.value;
+						CullDeadIfNeeded();
+						return true;
+					}
 				}
-				value = default!;
-				return false;
+				entryIndex = ref entry.next;
 			}
+			value = default!;
+			return false;
 		}
 
 		/// <summary>
@@ -463,40 +447,37 @@ namespace RegionKit
 			// Default value
 			value = default;
 
-			lock (_lock)
+			// Get potential bucket location
+			int hash = RuntimeHelpers.GetHashCode(key);
+			ref int entryIndex = ref GetBucket(hash);
+
+			// Try to find the matching entry
+			while (entryIndex != -1)
 			{
-				// Get potential bucket location
-				int hash = RuntimeHelpers.GetHashCode(key);
-				ref int entryIndex = ref GetBucket(hash);
-
-				// Try to find the matching entry
-				while (entryIndex != -1)
+				ref Entry entry = ref _entries[entryIndex];
+				if (entry.hash == hash)
 				{
-					ref Entry entry = ref _entries[entryIndex];
-					if (entry.hash == hash)
+					object? keyTarget = entry.key.Target;
+					if (keyTarget == null)
 					{
-						object? keyTarget = entry.key.Target;
-						if (keyTarget == null)
-						{
-							// Entry that needs to be removed anyway
-							RemoveEntry(ref entryIndex, ref entry);
-							continue;
-						}
-						else if (ReferenceEquals(keyTarget, key))
-						{
-							// Matches the entry! Return the value
-							value = entry.value;
-
-							RemoveEntry(ref entryIndex, ref entry);
-							CullDeadIfNeeded();
-							return true;
-						}
+						// Entry that needs to be removed anyway
+						RemoveEntry(ref entryIndex, ref entry);
+						continue;
 					}
-					entryIndex = ref entry.next;
-				}
+					else if (ReferenceEquals(keyTarget, key))
+					{
+						// Matches the entry! Return the value
+						value = entry.value;
 
-				return false;
+						RemoveEntry(ref entryIndex, ref entry);
+						CullDeadIfNeeded();
+						return true;
+					}
+				}
+				entryIndex = ref entry.next;
 			}
+
+			return false;
 		}
 
 		/// <summary>
@@ -504,23 +485,20 @@ namespace RegionKit
 		/// </summary>
 		public void Clear()
 		{
-			lock (_lock)
+			for (int i = 0; i < _allocatedEntries; i++)
 			{
-				for (int i = 0; i < _allocatedEntries; i++)
-				{
-					ref Entry entry = ref _entries[i];
-					entry.key.Free();
-					entry.value = default!;
-				}
-				for (int i = 0; i < _buckets.Length; i++)
-				{
-					_buckets[i] = -1;
-				}
-				_allocatedEntries = 0;
-				_freeList = -1;
-				_lastGCCount = GC.CollectionCount(0);
-				_checkGCCount = 0;
+				ref Entry entry = ref _entries[i];
+				entry.key.Free();
+				entry.value = default!;
 			}
+			for (int i = 0; i < _buckets.Length; i++)
+			{
+				_buckets[i] = -1;
+			}
+			_allocatedEntries = 0;
+			_freeList = -1;
+			_lastGCCount = GC.CollectionCount(0);
+			_checkGCCount = 0;
 		}
 
 		/// <summary>
@@ -529,10 +507,7 @@ namespace RegionKit
 		/// </summary>
 		public void CullDead()
 		{
-			lock (_lock)
-			{
-				ActuallyCullDead();
-			}
+			ActuallyCullDead();
 		}
 
 		/// <inheritdoc/>

@@ -52,9 +52,9 @@ internal static class BackgroundUpdates
 		c.Emit(OpCodes.Ldarg_0);
 		c.EmitDelegate((bool isArenaSession, AboveCloudsView self) =>
 		{
-			if (!self.effect.save && self.effect.type == RoomSettings.RoomEffect.Type.AboveCloudsView)
+			if (!string.IsNullOrEmpty(self.room.roomSettings.BackgroundData().backgroundName))
 			{
-				return isArenaSession && self.room.roomSettings.effects.Any(x => x.type == RoomSettings.RoomEffect.Type.AboveCloudsView);
+				return false;
 			}
 			return isArenaSession;
 		});

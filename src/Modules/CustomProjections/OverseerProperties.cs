@@ -6,74 +6,95 @@ internal class OverseerProperties
 {
 	private static readonly RKConditionalWeakTable<Region.RegionParams, OverseerProperties> _AttachedProperties = new();
 
-	public static OverseerProperties GetOverseerProperties(Region? p) => p != null ? _AttachedProperties.GetValue(p.regionParams, _ => new()) : new();
+	public static OverseerProperties? GetOverseerProperties(Region? r) => r != null && _AttachedProperties.TryGetValue(r.regionParams, out OverseerProperties p) ? p : null;
 
 	public static void Apply()
 	{
-		_CommonHooks.GeneralUnrecognizedRegionParamProcessor += Region_Ctor;
+		_CommonHooks.GeneralUnrecognizedRegionParamProcessor += OverseerParamProcessor;
 	}
 
 	public static void Undo()
 	{
-		_CommonHooks.GeneralUnrecognizedRegionParamProcessor -= Region_Ctor;
+		_CommonHooks.GeneralUnrecognizedRegionParamProcessor -= OverseerParamProcessor;
 	}
 
-	public static void Region_Ctor(Region region, string key, string value)
+	public static void OverseerParamProcessor(Region region, string key, string value)
 	{
-		GetOverseerProperties(region).SetProperties(key, value);
+		if (_AttachedProperties.TryGetValue(region.regionParams, out OverseerProperties properties))
+		{
+			properties.SetProperties(key, value);
+		}
+		else
+		{
+			properties = new();
+			if (properties.SetProperties(key, value))
+			{
+				_AttachedProperties.Add(region.regionParams, properties);
+			}
+		}
 	}
 
-	public void SetProperties(string key, string value)
+	private bool SetProperties(string key, string value)
 	{
 		switch (key)
 		{
-		case "guideDestinationRoom":
-			CustomDestinationRoom = value;
-			break;
+			case "guideDestinationRoom":
+				CustomDestinationRoom = value;
+				return true;
 
-		case "guideProgressionSymbol":
-			ProgressionSymbol = value;
-			break;
+			case "guideProgressionSymbol":
+				ProgressionSymbol = value;
+				return true;
 
-		case "guideShelterWeight":
-			float.TryParse(value, out ShelterShowWeight);
-			break;
+			case "guideShelterWeight":
+				float.TryParse(value, out ShelterShowWeight);
+				return true;
 
-		case "guideBatWeight":
-			float.TryParse(value, out BatShowWeight);
-			break;
+			case "guideBatWeight":
+				float.TryParse(value, out BatShowWeight);
+				return true;
 
-		case "guideProgressionWeight":
-			float.TryParse(value, out ProgressionShowWeight);
-			break;
+			case "guideProgressionWeight":
+				float.TryParse(value, out ProgressionShowWeight);
+				return true;
 
-		case "guideDangerousCreatureWeight":
-			float.TryParse(value, out DangerousCreatureWeight);
-			break;
+			case "guideDangerousCreatureWeight":
+				float.TryParse(value, out DangerousCreatureWeight);
+				return true;
 
-		case "guideDeliciousFoodWeight":
-			float.TryParse(value, out DeliciousFoodWeight);
-			break;
+			case "guideDeliciousFoodWeight":
+				float.TryParse(value, out DeliciousFoodWeight);
+				return true;
 
-		case "guideColor":
-			if (TryParseOverseerColor(value, out var result))
-			{ guideColor = result; }
-			break;
+			case "guideColor":
+				if (TryParseOverseerColor(value, out var result))
+				{ 
+					guideColor = result;
+					return true;
+				}
+				break;
 
-		case "inspectorColor":
-			if (TryParseOverseerColor(value, out var result2))
-			{ inspectorColor = result2; }
-			break;
+			case "inspectorColor":
+				if (TryParseOverseerColor(value, out var result2))
+				{
+					inspectorColor = result2;
+					return true;
+				}
+				break;
 
-		default:
-			if (key.StartsWith("overseersColorOverride"))
-			{
-				int start = key.IndexOf('(') + 1, end = key.IndexOf(')');
-				if (start != -1 && start < end && TryParseOverseerColor(key.Substring(start, end - start), out var result3) && float.TryParse(value, out var num))
-				{ overseerColorChances[result3] = num; }
-			}
-			break;
+			default:
+				if (key.StartsWith("overseersColorOverride"))
+				{
+					int start = key.IndexOf('(') + 1, end = key.IndexOf(')');
+					if (start != -1 && start < end && TryParseOverseerColor(key.Substring(start, end - start), out var result3) && float.TryParse(value, out var num))
+					{ 
+						overseerColorChances[result3] = num;
+						return true;
+					}
+				}
+				break;
 		}
+		return false;
 	}
 
 	public static bool TryParseOverseerColor(string s, out Color result)
@@ -92,7 +113,10 @@ internal class OverseerProperties
 		string[] array4 = Regex.Split(Custom.ValidateSpacedDelimiter(s, ","), ", ");
 
 		if (array4.Length >= 3 && float.TryParse(array4[0], out var r) && float.TryParse(array4[1], out var g) && float.TryParse(array4[2], out var b))
-		{ result = new Color(r, g, b); return true; }
+		{ 
+			result = new Color(r, g, b); 
+			return true; 
+		}
 
 		return false;
 	}
@@ -111,7 +135,7 @@ internal class OverseerProperties
 
 	public float DeliciousFoodWeight = 1f;
 
-	public int guideID  => guideColor is Color color? GetOverseerID(color) : -1;
+	public int guideID => guideColor is Color color ? GetOverseerID(color) : -1;
 
 	private Color? guideColor = null;
 	public int inspectorID => inspectorColor is Color color ? GetOverseerID(color) : -1;
@@ -126,10 +150,14 @@ internal class OverseerProperties
 	public int GetOverseerID(Color color)
 	{
 		if (BaseGameColors.Contains(color) && BaseIndex(BaseGameColors.IndexOf(color)))
-		{ return BaseGameColors.IndexOf(color); }
+		{ 
+			return BaseGameColors.IndexOf(color); 
+		}
 
 		if (!overseerColorLookup.ContainsValue(color))
-		{ overseerColorLookup[BaseNumber + overseerColorLookup.Count] = color; }
+		{ 
+			overseerColorLookup[BaseNumber + overseerColorLookup.Count] = color; 
+		}
 
 		return overseerColorLookup.FirstOrDefault(x => x.Value == color).Key;
 	}

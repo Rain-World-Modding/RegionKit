@@ -135,7 +135,7 @@ internal class SlipperyZone : UpdatableAndDeletable
 				x => x.MatchLdflda<Vector2>(nameof(Vector2.x)),
 				x => x.MatchDup(),
 				x => x.MatchLdindR4(),
-				x => x.MatchLdloc(out _)) 
+				x => x.MatchLdloc(out _))
 				&& c.TryGotoNext(i == 2 ? MoveType.After : MoveType.Before, i switch
 				{
 					0 => new Func<Instruction, bool>[]
@@ -218,7 +218,7 @@ internal class SlipperyZone : UpdatableAndDeletable
 		else { LogError("failed to il hook BodyChunk.checkAgainstSlopesVertically"); }
 	}
 
-	public SlipperyZone(PlacedObject pObj, Room room) 
+	public SlipperyZone(PlacedObject pObj, Room room)
 	{
 		//room.AddObject(new SlipperyZoneDebug());
 		IntVector2 originIntVec = new((int)pObj.pos.x / 20, (int)pObj.pos.y / 20);
@@ -226,6 +226,11 @@ internal class SlipperyZone : UpdatableAndDeletable
 		data = (pObj.data as ManagedData)!;
 		zone.ExpandToInclude(originIntVec + data.GetValue<IntVector2>("0zone"));
 		Rect = zone;
+		if (!_slippyCWT.TryGetValue(room, out List<SlipperyZone> list))
+		{
+			_slippyCWT.Add(room, list = []);
+		}
+		list.Add(this);
 	}
 
 	private ManagedData data;

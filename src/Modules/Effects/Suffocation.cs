@@ -48,13 +48,10 @@ namespace RegionKit.Modules.Effects
 		private static void AbstractCreature_ctor(On.AbstractCreature.orig_ctor orig, AbstractCreature self, World world, CreatureTemplate creatureTemplate, Creature realizedCreature, WorldCoordinate pos, EntityID ID)
 		{
 			orig(self, world, creatureTemplate, realizedCreature, pos, ID);
-			ImmuneData.Add(self, new(false));
 		}
 
 		private static void AbstractCreature_setCustomFlags(On.AbstractCreature.orig_setCustomFlags orig, AbstractCreature self)
 		{
-			ImmuneData.Remove(self);
-			bool found = false;
 			if (self.spawnData is not null && self.spawnData.StartsWith("{"))
 			{
 				var list = self.spawnData[1..^1].Split(',', '|');
@@ -62,15 +59,11 @@ namespace RegionKit.Modules.Effects
 				{
 					if (item.Trim().Equals("SuffocationImmune", StringComparison.InvariantCultureIgnoreCase))
 					{
+						ImmuneData.Remove(self);
 						ImmuneData.Add(self, new(true));
-						found = true;
 						break;
 					}
 				}
-			}
-			if (!found)
-			{
-				ImmuneData.Add(self, new(false));
 			}
 			orig(self);
 		}

@@ -1064,6 +1064,8 @@ namespace RegionKit.OptionsMenu.ClippyGame
 			text.isVisible = true;
 			text.text = "Fuck You.";
 
+			saver.Save();
+
 			kill = true;
 			UnityEngine.Debug.LogException(new Joar());
 		}

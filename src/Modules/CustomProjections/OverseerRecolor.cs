@@ -62,8 +62,10 @@ internal static class OverseerRecolor
 
 	private static void OverseerAbstractAI_SetAsPlayerGuide(On.OverseerAbstractAI.orig_SetAsPlayerGuide orig, OverseerAbstractAI self, int ownerOverride)
 	{
-		if (OverseerProperties.GetOverseerProperties(self.world.region).guideID != -1)
-		{ ownerOverride = OverseerProperties.GetOverseerProperties(self.world.region).guideID; }
+		if (OverseerProperties.GetOverseerProperties(self.world.region)?.guideID is { } guideID && guideID != -1)
+		{ 
+			ownerOverride = guideID;
+		}
 
 		orig(self, ownerOverride);
 	}
@@ -74,8 +76,10 @@ internal static class OverseerRecolor
 
 		if (!OverseerProperties.BaseIndex(id))
 		{
-			if (OverseerProperties.GetOverseerProperties(self.OwnerRoom?.world.region).overseerColorLookup.TryGetValue(id, out var color))
-			{ return color; }
+			if (OverseerProperties.GetOverseerProperties(self.OwnerRoom?.world.region)?.overseerColorLookup.TryGetValue(id, out var color) ?? false)
+			{ 
+				return color; 
+			}
 		}
 		return orig(self);
 	}
@@ -85,10 +89,13 @@ internal static class OverseerRecolor
 		orig(self, world, parent);
 
 		var properties = OverseerProperties.GetOverseerProperties(world.region);
+		if (properties is null) return;
 		foreach (Color color in properties.overseerColorChances.OrderByDescending(x => x.Value).Select(x => x.Key))
 		{
 			if (Random.value < properties.overseerColorChances[color])
-			{ self.ownerIterator = properties.GetOverseerID(color); }
+			{ 
+				self.ownerIterator = properties.GetOverseerID(color); 
+			}
 		}
 	}
 
@@ -100,8 +107,10 @@ internal static class OverseerRecolor
 
 		if (result == OverseerProperties.BaseGameColors[0] && id != 0)
 		{
-			if (OverseerProperties.GetOverseerProperties(self.room?.world.region).overseerColorLookup.TryGetValue(id, out var color))
-			{ return color; }
+			if (OverseerProperties.GetOverseerProperties(self.room?.world.region)?.overseerColorLookup.TryGetValue(id, out var color) ?? false)
+			{ 
+				return color; 
+			}
 		}
 		return result;
 	}
@@ -110,7 +119,7 @@ internal static class OverseerRecolor
 	{
 		if (self.ownerIterator == -1)
 		{
-			int id = OverseerProperties.GetOverseerProperties(self.abstractCreature.Room.world.region).inspectorID;
+			int id = OverseerProperties.GetOverseerProperties(self.abstractCreature.Room.world.region)?.inspectorID ?? -1;
 			if (id != -1) self.ownerIterator = id;
 		}
 		orig(self);

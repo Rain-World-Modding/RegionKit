@@ -29,7 +29,12 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 			base.Update(eu);
 			timer++;
 			if (timer > TimerLength || player.room != room)
-			{ Destroy(); player.waterRetardationImmunity = origWaterRetardation; GetPostCorrector(player).Value = null!; return; }
+			{ 
+				Destroy(); 
+				player.waterRetardationImmunity = origWaterRetardation;
+				_shortcutCannonHelpers.Remove(player);
+				return; 
+			}
 
 			if (player.submerged)
 			{
@@ -54,25 +59,28 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		
 	}
 
-	private static readonly RKConditionalWeakTable<Room, List<ShortcutCannon>> _shortcutCannonsInRoom = new();
-	private static readonly RKConditionalWeakTable<Player, StrongBox<PostCorrector>> _shortcutCannonHelpers = new();
+	private static RKConditionalWeakTable<Room, List<ShortcutCannon>> _shortcutCannonsInRoom = new();
+	private static RKConditionalWeakTable<Player, PostCorrector> _shortcutCannonHelpers = new();
 
-	public static List<ShortcutCannon> GetShortcutCannons(Room room) => _shortcutCannonsInRoom.GetValue(room, _ => new List<ShortcutCannon>());
+	public static List<ShortcutCannon>? GetShortcutCannons(Room room) => _shortcutCannonsInRoom.TryGetValue(room, out List<ShortcutCannon> list) ? list : null;
 
-	public static StrongBox<PostCorrector> GetPostCorrector(Player p) => _shortcutCannonHelpers.GetValue(p, _ => new StrongBox<PostCorrector>());
+	public static PostCorrector? GetPostCorrector(Player p) => _shortcutCannonHelpers.TryGetValue(p, out PostCorrector box) ? box : null;
 
 	public static bool TryGetSuperShortcut(Room room, IntVector2 pos, out ShortcutCannon shortcut)
 	{
 		//the entire point of this method is so you don't do stuff with a null value
 		//so outputting a nullable is very silly
 		shortcut = null!;
-		foreach (ShortcutCannon ss in GetShortcutCannons(room))
+
+		var shortcuts = GetShortcutCannons(room);
+		if (shortcuts == null) return false;
+
+		foreach (ShortcutCannon ss in shortcuts)
 		{
 			if (room.GetTilePosition(ss.pObj.pos) == pos)
 			{
 				shortcut = ss;
 				return true;
-
 			}
 		}
 		return false;
@@ -111,9 +119,15 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 			))
 			{
 				c.Emit(OpCodes.Ldarg_0);
-				c.EmitDelegate((float orig, Player self) => GetPostCorrector(self).Value == null ? orig : orig * GetPostCorrector(self).Value.JumpBoostMultiplier());
+				c.EmitDelegate((float orig, Player self) =>
+				{
+					return GetPostCorrector(self) is { } corrector ? orig * corrector.JumpBoostMultiplier() : orig;
+				});
 			}
-			else { LogError("ShortcutCannon failed to il match Player.UpdateBodyMode jump boost " + j); }
+			else 
+			{ 
+				LogError("ShortcutCannon failed to il match Player.UpdateBodyMode jump boost " + j); 
+			}
 		}
 
 		//changes the velocity when pushing a direction into a wall, mainly for wall sliding
@@ -138,10 +152,10 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 				c.Emit(OpCodes.Ldarg_0);
 				c.EmitDelegate((Func<float, int, Player, float>)(j switch
 				{
-					0 => (float orig, int i, Player self) => GetPostCorrector(self).Value == null ? orig : self.bodyChunks[i].vel.y,
-					1 => (float orig, int i, Player self) => GetPostCorrector(self).Value == null ? orig : self.bodyChunks[1 - i].vel.y,
-					2 => (float orig, int i, Player self) => GetPostCorrector(self).Value == null ? orig : self.bodyChunks[i].vel.x,
-					3 => (float orig, int i, Player self) => GetPostCorrector(self).Value == null ? orig : self.bodyChunks[1 - i].vel.x,
+					0 => (float orig, int i, Player self) => GetPostCorrector(self) == null ? orig : self.bodyChunks[i].vel.y,
+					1 => (float orig, int i, Player self) => GetPostCorrector(self) == null ? orig : self.bodyChunks[1 - i].vel.y,
+					2 => (float orig, int i, Player self) => GetPostCorrector(self) == null ? orig : self.bodyChunks[i].vel.x,
+					3 => (float orig, int i, Player self) => GetPostCorrector(self) == null ? orig : self.bodyChunks[1 - i].vel.x,
 					_ => (float orig, int i, Player self) => orig
 				}));
 			}
@@ -221,9 +235,13 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		orig(self, pos, newRoom, spitOutAllSticks);
 		if (!TryGetSuperShortcut(newRoom, pos, out var shortcutCannon)) return;
 
-		GetPostCorrector(self).Value?.Destroy();
-		GetPostCorrector(self).Value = new(self, shortcutCannon);
-		newRoom.AddObject(GetPostCorrector(self).Value);
+		if (_shortcutCannonHelpers.TryGetValue(self, out var corrector))
+		{
+			corrector.Destroy();
+			_shortcutCannonHelpers.Remove(self);
+		}
+		_shortcutCannonHelpers.Add(self, corrector = new PostCorrector(self, shortcutCannon));
+		newRoom.AddObject(corrector);
 
 		Vector2 a = IntVector2ToVector2(newRoom.ShorcutEntranceHoleDirection(pos));
 		for (int i = 0; i < self.bodyChunks.Length; i++)
@@ -307,15 +325,20 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		this.pObj = pObj;
 		this.room = room;
 		prevAmount = amount;
-		if (!GetShortcutCannons(room).Contains(this))
-		{ GetShortcutCannons(room).Add(this); }
+		if (!_shortcutCannonsInRoom.TryGetValue(room, out List<ShortcutCannon>? shortcutCannons))
+		{
+			_shortcutCannonsInRoom.Add(room, shortcutCannons = []);
+		}
+		shortcutCannons.Add(this);
 	}
 
 	public void AIMapReady()
 	{ }
 
 	public void ShortcutsReady()
-	{ Refresh(); }
+	{ 
+		Refresh(); 
+	}
 
 	public void Refresh()
 	{

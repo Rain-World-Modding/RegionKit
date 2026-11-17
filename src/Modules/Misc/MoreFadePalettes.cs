@@ -13,7 +13,8 @@ internal static class MoreFadePalettes
 	#region FadeExtensions
 	private static readonly RKConditionalWeakTable<RoomSettings, List<FadePalette>> _AllFadePalettes = new();
 
-	private static List<FadePalette> AllFadePalettes(this RoomSettings rs) => _AllFadePalettes.GetValue(rs, _ => new());
+	private static List<FadePalette>? AllFadePalettes(this RoomSettings rs) => _AllFadePalettes.TryGetValue(rs, out var list) ? list : null;
+	private static List<FadePalette> AllFadePalettesOrInit(this RoomSettings rs) => _AllFadePalettes.GetValue(rs, _ => []);
 
 	public static FadePalette[] GetAllFades(this RoomSettings rs)
 	{
@@ -30,11 +31,15 @@ internal static class MoreFadePalettes
 	{
 		if (index < 0) throw new IndexOutOfRangeException("Palette index below zero");
 
-		if (rs.AllFadePalettes().Count > index && rs.AllFadePalettes()[index] != null)
-		{ return rs.AllFadePalettes()[index]; }
+		if (rs.AllFadePalettes() is { } palettes && palettes.Count > index && palettes[index] != null)
+		{
+			return palettes[index];
+		}
 
-		if (rs.parent.AllFadePalettes().Count > 0 && rs.parent.AllFadePalettes()[0] != null)
-		{ return rs.parent.AllFadePalettes()[0]; }
+		if (rs.parent.AllFadePalettes() is { } parentPalettes && parentPalettes.Count > 0 && parentPalettes[0] != null)
+		{
+			return parentPalettes[0];
+		}
 
 		return null!;
 	}
@@ -42,19 +47,19 @@ internal static class MoreFadePalettes
 	public static void SetMoreFade(this RoomSettings rs, int index, FadePalette palette)
 	{
 		if (index < 0) throw new IndexOutOfRangeException("Palette index below zero");
-		if (rs.AllFadePalettes().Count > index)
+		if (rs.AllFadePalettes() is { } palettes && index < palettes.Count)
 		{
-			rs.AllFadePalettes()[index] = palette;
+			palettes[index] = palette;
 		}
 		else
 		{
-			rs.AllFadePalettes().Add(palette);
+			rs.AllFadePalettesOrInit().Add(palette);
 		}
 	}
 
 	public static int AddMoreFade(this RoomSettings rs, FadePalette palette)
 	{
-		List<FadePalette> allFadePalettes = rs.AllFadePalettes();
+		List<FadePalette> allFadePalettes = rs.AllFadePalettesOrInit();
 		allFadePalettes.Add(palette);
 		return allFadePalettes.Count - 1;
 	}
@@ -62,11 +67,11 @@ internal static class MoreFadePalettes
 	public static void DeleteMoreFade(this RoomSettings rs, int index)
 	{
 		if (index < 0) throw new IndexOutOfRangeException("Palette index below zero");
-		if (rs.AllFadePalettes().Count > index && index >= 0)
+		if (rs.AllFadePalettes() is { } palettes && index >= 0 && index < palettes.Count)
 		{
-			rs.AllFadePalettes().RemoveAt(index);
+			palettes.RemoveAt(index);
+			LogMessage($"removing at index {index}, count is now {palettes.Count}");
 		}
-		LogMessage($"removing at index {index}, count is now {rs.AllFadePalettes().Count()}");
 	}
 
 	public static FadePalette GetParentFade(this RoomSettings rs, Room room)
@@ -75,7 +80,9 @@ internal static class MoreFadePalettes
 		if (rs.parent.fadePalette == null) return null!;
 		var palette = new FadePalette(rs.parent.fadePalette.palette, room.cameraPositions.Length);
 		for (int i = 0; i < room.cameraPositions.Length - 1; i++)
-		{ palette.fades[i] = rs.parent.fadePalette.fades[0]; }
+		{
+			palette.fades[i] = rs.parent.fadePalette.fades[0];
+		}
 		return palette;
 	}
 
@@ -86,15 +93,22 @@ internal static class MoreFadePalettes
 	public static void ClearMoreFadeTextures(this RoomCamera rc)
 	{
 		foreach (Texture2D tex in MoreFadeTextures(rc).Values)
-		{ UnityEngine.Object.Destroy(tex); }
+		{
+			UnityEngine.Object.Destroy(tex);
+		}
 		MoreFadeTextures(rc).Clear();
 	}
 
 	public static Texture2D GetMoreFadeTexture(this RoomCamera rc, FadePalette palette)
 	{
 		if (rc.MoreFadeTextures().ContainsKey(palette))
-		{ return rc.MoreFadeTextures()[palette]; }
-		else { return null!; }
+		{
+			return rc.MoreFadeTextures()[palette];
+		}
+		else
+		{
+			return null!;
+		}
 	}
 
 	public static void RefreshMoreFade(this RoomCamera self)
@@ -127,7 +141,10 @@ internal static class MoreFadePalettes
 		{
 			IL.RoomCamera.ApplyFade += RoomCamera_ApplyFade;
 		}
-		catch (Exception e) { LogError($"[MoreFadePalettes] ApplyFade IL Failed!\n{e}"); }
+		catch (Exception e)
+		{
+			LogError($"[MoreFadePalettes] ApplyFade IL Failed!\n{e}");
+		}
 		//On.HUD.RoomTransition.PlayerEnterShortcut += nah not important enough for the hassle
 
 		On.RoomSettings.Load_Timeline += RoomSettings_Load;
@@ -255,16 +272,21 @@ internal static class MoreFadePalettes
 			}
 		}
 
-		self.AllFadePalettes().Clear();
-		for (int i = 0; i <= greatest; i++)
+		if (greatest > -1)
 		{
-			if (moreFadeIndex.ContainsKey(i))
-			{ 
-				self.AllFadePalettes().Add(moreFadeIndex[i]); 
-			}
-			else
-			{ 
-				self.AllFadePalettes().Add(null!); 
+			var palettes = self.AllFadePalettesOrInit();
+			palettes.Clear();
+
+			for (int i = 0; i <= greatest; i++)
+			{
+				if (moreFadeIndex.ContainsKey(i))
+				{ 
+					palettes.Add(moreFadeIndex[i]); 
+				}
+				else
+				{ 
+					palettes.Add(null!); 
+				}
 			}
 		}
 

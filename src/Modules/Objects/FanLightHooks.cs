@@ -6,7 +6,7 @@ namespace RegionKit.Modules.Objects;
 
 public static class FanLightHooks
 {
-	public static ConditionalWeakTable<LightSource, float[]> data = new();
+	public static RKConditionalWeakTable<LightSource, float[]> data = new();
 	public static LinearBlur blur = new();
 
 	internal static void Apply()

@@ -240,10 +240,10 @@ public static class Data
 	}
 	#endregion hooks
 
-	private static readonly ConditionalWeakTable<RoomSettings, RoomBGData> table = new();
+	private static readonly RKConditionalWeakTable<RoomSettings, RoomBGData> table = new();
 
 	public static RoomBGData BackgroundData(this RoomSettings p) => table.GetValue(p, _ => new RoomBGData(p));
-	public static RoomBGData BackgroundData(this RoomSettings p, RoomBGData r) => table.GetValue(p, _ => r);
+	public static RoomBGData BackgroundData(this RoomSettings p, RoomBGData r) => table.GetOrAdd(p, r);
 
 	public class RoomBGData
 	{

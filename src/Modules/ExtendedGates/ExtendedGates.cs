@@ -26,8 +26,8 @@ public static class ExtendedGates
 	public static Dictionary<Req, LockData> SpecialConditions = new();
 	public static List<ExtraRequirement> ExtraRequirements = new();
 
-	private static readonly ConditionalWeakTable<Gate, List<string>> _Tags = new();
-	private static readonly ConditionalWeakTable<Gate, List<(bool side, ExtraRequirement req)>> _ExtraReqs = new();
+	private static readonly RKConditionalWeakTable<Gate, List<string>> _Tags = new();
+	private static readonly RKConditionalWeakTable<Gate, List<(bool side, ExtraRequirement req)>> _ExtraReqs = new();
 	private static readonly HashSet<WinState.EndgameID> _RegisteredPassageReqs = new();
 	public static List<string> Tags(this Gate p) => _Tags.GetValue(p, _ => new());
 

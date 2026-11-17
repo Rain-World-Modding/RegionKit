@@ -1,13 +1,10 @@
-﻿using System;
-using System.Runtime;
-using System.Runtime.CompilerServices;
-using static RoomSettings;
+﻿using static RoomSettings;
 
 namespace RegionKit.Modules.DevUIMisc;
 
 internal static class FadePaletteTemplate
 {
-	static ConditionalWeakTable<RoomSettings, List<bool>> _template = new();
+	static RKConditionalWeakTable<RoomSettings, List<bool>> _template = new();
 
 	/// <summary>
 	/// use -1 for the fade palette, 0+ for fade screen

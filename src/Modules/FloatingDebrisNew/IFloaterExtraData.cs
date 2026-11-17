@@ -40,8 +40,8 @@ namespace RegionKit.Modules.FloatingDebrisNew
 
 		internal static class Implementation
 		{
-			private static readonly ConditionalWeakTable<FloatingDebrisData, FloaterDataHolder> _dataCWT = new();
-			private static readonly ConditionalWeakTable<Handle, FloaterDevUIContainer> _devNodeCWT = new();
+			private static readonly RKConditionalWeakTable<FloatingDebrisData, FloaterDataHolder> _dataCWT = new();
+			private static readonly RKConditionalWeakTable<Handle, FloaterDevUIContainer> _devNodeCWT = new();
 			private const string IDENTIFIER = "RKFloaterData";
 			private const string SEPARATOR = "$$";
 			private const string SUBSEPARATOR = "||";

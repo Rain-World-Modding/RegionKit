@@ -53,7 +53,7 @@ public class ForcedEyePlayerData
     public int durationMin;
     public int durationMax;
 
-    private static ConditionalWeakTable<PlayerGraphics, ForcedEyePlayerData> _cwt = new();
+    private static RKConditionalWeakTable<PlayerGraphics, ForcedEyePlayerData> _cwt = new();
     
     public static ForcedEyePlayerData Get(PlayerGraphics pg) => _cwt.GetValue(pg, _ => new());
 }

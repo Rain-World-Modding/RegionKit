@@ -5,7 +5,7 @@ namespace RegionKit.Modules.IndividualPlacedObjectViewer;
 
 internal static partial class IndividualPlacedObjectViewer
 {
-	private static readonly ConditionalWeakTable<ObjectsPage, ObjectsPageData> objectsPageCWT = new ConditionalWeakTable<ObjectsPage, ObjectsPageData>();
+	private static readonly RKConditionalWeakTable<ObjectsPage, ObjectsPageData> objectsPageCWT = new();
 	
 	internal class ObjectsPageData
 	{

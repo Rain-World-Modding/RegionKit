@@ -5,9 +5,9 @@ namespace RegionKit.Modules.Effects
 {
 	internal static class RKWaterSurfaces
 	{
-		private static readonly ConditionalWeakTable<Water, ReflectiveWater> reflectiveWaterCWT = new();
-		private static readonly ConditionalWeakTable<Water, MossWaterUnlit> mossWaterUnlitCWT = new();
-		private static readonly ConditionalWeakTable<Water, MossWaterRGB> mossWaterRgbCWT = new();
+		private static readonly RKConditionalWeakTable<Water, ReflectiveWater> reflectiveWaterCWT = new();
+		private static readonly RKConditionalWeakTable<Water, MossWaterUnlit> mossWaterUnlitCWT = new();
+		private static readonly RKConditionalWeakTable<Water, MossWaterRGB> mossWaterRgbCWT = new();
 		private static bool RunCWTs = false;
 		internal static void __RegisterBuilders()
 		{

@@ -30,7 +30,7 @@ public class WaterSpout : UpdatableAndDeletable
 		catch (Exception e) { LogError("WaterSpout failed to il hook Splash.Update\n" + e); }
 	}
 
-	private static ConditionalWeakTable<SplashWater.WaterParticle, StrongBox<float>> _particleVolume = new();
+	private static readonly RKConditionalWeakTable<SplashWater.WaterParticle, StrongBox<float>> _particleVolume = new();
 	public static StrongBox<float> ParticleVolume(SplashWater.WaterParticle p) => _particleVolume.GetValue(p, _ => new(1f));
 
 	internal static void Undo()

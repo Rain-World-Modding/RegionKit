@@ -54,12 +54,12 @@ internal class ShortcutCannon : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		
 	}
 
-	private static ConditionalWeakTable<Room, List<ShortcutCannon>> _shortcutCannonsInRoom = new();
-	private static ConditionalWeakTable<Player, StrongBox<PostCorrector>> _shortcutCannonHelpers = new();
+	private static readonly RKConditionalWeakTable<Room, List<ShortcutCannon>> _shortcutCannonsInRoom = new();
+	private static readonly RKConditionalWeakTable<Player, StrongBox<PostCorrector>> _shortcutCannonHelpers = new();
 
-	public static List<ShortcutCannon> GetShortcutCannons(Room room) => _shortcutCannonsInRoom.GetValue(room, _ => new());
+	public static List<ShortcutCannon> GetShortcutCannons(Room room) => _shortcutCannonsInRoom.GetValue(room, _ => new List<ShortcutCannon>());
 
-	public static StrongBox<PostCorrector> GetPostCorrector(Player p) => _shortcutCannonHelpers.GetValue(p, _ => new());
+	public static StrongBox<PostCorrector> GetPostCorrector(Player p) => _shortcutCannonHelpers.GetValue(p, _ => new StrongBox<PostCorrector>());
 
 	public static bool TryGetSuperShortcut(Room room, IntVector2 pos, out ShortcutCannon shortcut)
 	{

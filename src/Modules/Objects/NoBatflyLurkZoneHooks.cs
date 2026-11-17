@@ -4,7 +4,7 @@ namespace RegionKit.Modules.Objects
 {
 	internal static class NoBatflyLurkZoneHooks
 	{
-		private static ConditionalWeakTable<Fly, List<PlacedObject>> flyNoLurkZones = new();
+		private static RKConditionalWeakTable<Fly, List<PlacedObject>> flyNoLurkZones = new();
 
 		public static void Apply()
 		{

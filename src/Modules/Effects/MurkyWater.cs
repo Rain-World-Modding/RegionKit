@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using UnityEngine.Rendering;
-using Object = UnityEngine.Object;
+﻿using Object = UnityEngine.Object;
 
 namespace RegionKit.Modules.Effects
 {
@@ -12,7 +10,7 @@ namespace RegionKit.Modules.Effects
 		private const string MaskName = "_MurkyWaterMask";
 		private const string MaskShader = "MurkyWaterSaveMask";
 
-		private static readonly ConditionalWeakTable<RoomCamera, MurkyWaterCameraData> cameraDataCWT = new();
+		private static readonly RKConditionalWeakTable<RoomCamera, MurkyWaterCameraData> cameraDataCWT = new();
 
 		private static void UpdateCameraData(RoomCamera rCam, Room updateRoom)
 		{

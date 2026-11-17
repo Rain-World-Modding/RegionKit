@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Runtime.CompilerServices;
 using DevInterface;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -11,7 +10,7 @@ namespace RegionKit.Modules.Objects
 {
 	public static class GreenSparksDir
 	{
-		private static readonly ConditionalWeakTable<Room, Handler> _implCWT = new();
+		private static readonly RKConditionalWeakTable<Room, Handler> _implCWT = new();
 
 		public static Handler? GetHandler(Room room)
 		{

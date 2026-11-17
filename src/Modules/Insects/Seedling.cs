@@ -9,7 +9,7 @@ namespace RegionKit.Modules.Insects
 	/// </summary>
 	public class Seedling : CosmeticInsect
 	{
-		private static readonly ConditionalWeakTable<Room, RoomTracker> trackerCWT = new();
+		private static readonly RKConditionalWeakTable<Room, RoomTracker> trackerCWT = new();
 		private RoomTracker AddToRoomSchool()
 		{
 			if (!trackerCWT.TryGetValue(room, out RoomTracker swarm))

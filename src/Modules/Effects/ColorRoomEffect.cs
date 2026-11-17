@@ -18,7 +18,7 @@ public static class ColorRoomEffect
 	/// The list of effects that should have the three additional sliders.
 	/// </summary>
 	public static readonly HashSet<RoomSettings.RoomEffect.Type> colorEffectTypes = new();
-	private static readonly ConditionalWeakTable<RoomSettings.RoomEffect, ColorSettings> __colorEffectSettings = new();
+	private static readonly RKConditionalWeakTable<RoomSettings.RoomEffect, ColorSettings> __colorEffectSettings = new();
 
 	internal static void Apply()
 	{

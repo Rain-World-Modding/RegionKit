@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using DevInterface;
 using RegionKit.Modules.DevUIMisc.GenericNodes;
 using Watcher;
@@ -13,7 +8,7 @@ namespace RegionKit.Modules.BackgroundBuilder;
 public static class BackgroundElementData
 {
 
-	private static readonly ConditionalWeakTable<BackgroundScene.BackgroundSceneElement, InstanceData> table = new();
+	private static readonly RKConditionalWeakTable<BackgroundScene.BackgroundSceneElement, InstanceData> table = new();
 
 	public static InstanceData CData(this BackgroundScene.BackgroundSceneElement p) => table.GetValue(p, _ => new InstanceData());
 

@@ -34,7 +34,7 @@ internal class GuardProtectNode : UpdatableAndDeletable, INotifyWhenRoomIsReady
 		return orig(self, crit);
 	}
 
-	static ConditionalWeakTable<TempleGuardAI, GuardProtectNode> ProtectNode = new();
+	static readonly RKConditionalWeakTable<TempleGuardAI, GuardProtectNode> ProtectNode = new();
 
 
 	private static void TempleGuardAI_NewRoom(On.TempleGuardAI.orig_NewRoom orig, TempleGuardAI self, Room room)

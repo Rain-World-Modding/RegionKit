@@ -20,7 +20,7 @@ internal static class RegionGateCWT
 		}
 	}
 
-	private static readonly ConditionalWeakTable<RegionGate, RegionGateData> _regionGateCWT = new ConditionalWeakTable<RegionGate, RegionGateData>();
+	private static readonly RKConditionalWeakTable<RegionGate, RegionGateData> _regionGateCWT = new();
 
 	public static RegionGateData GetData(this RegionGate regionGate)
 	{

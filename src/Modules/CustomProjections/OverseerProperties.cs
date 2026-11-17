@@ -1,14 +1,10 @@
-﻿using System;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace RegionKit.Modules.CustomProjections;
 
 internal class OverseerProperties
 {
-	private static ConditionalWeakTable<Region.RegionParams, OverseerProperties> _AttachedProperties = new();
+	private static readonly RKConditionalWeakTable<Region.RegionParams, OverseerProperties> _AttachedProperties = new();
 
 	public static OverseerProperties GetOverseerProperties(Region? p) => p != null ? _AttachedProperties.GetValue(p.regionParams, _ => new()) : new();
 

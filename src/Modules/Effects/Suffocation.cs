@@ -24,8 +24,8 @@ namespace RegionKit.Modules.Effects
 
     public static class SuffocationHooks
     {
-		private static readonly ConditionalWeakTable<Creature, float[]> BreathData = new();
-		private static readonly ConditionalWeakTable<AbstractCreature, StrongBox<bool>> ImmuneData = new();
+		private static readonly RKConditionalWeakTable<Creature, float[]> BreathData = new();
+		private static readonly RKConditionalWeakTable<AbstractCreature, StrongBox<bool>> ImmuneData = new();
 
 		internal static void Apply()
 		{

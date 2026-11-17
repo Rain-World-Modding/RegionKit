@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using Mono.Cecil.Cil;
+﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RegionKit.Extras;
 
@@ -11,9 +6,17 @@ namespace RegionKit.Modules.Objects;
 
 internal class SlipperyZone : UpdatableAndDeletable
 {
-	private static ConditionalWeakTable<Room.Tile, SlipperyZone?> _IsSlippy = new();
-	public static SlipperyZone? GetSlippy(Room.Tile t) => _IsSlippy.GetValue(t, _ => null);
-	public static SlipperyZone? GetSlippy(BodyChunk b) => b.owner?.room == null? null : GetSlippy(b.owner.room.GetTile(b.pos + new Vector2(0f, b.contactPoint.y * 20f)));
+	private static readonly RKConditionalWeakTable<Room, List<SlipperyZone>> _slippyCWT = new();
+	public static SlipperyZone? GetSlippy(BodyChunk b)
+	{
+		if (b.owner?.room == null) return null;
+
+		if (_slippyCWT.TryGetValue(b.owner.room, out var zone) && zone != null)
+		{
+			return zone.FirstOrDefault(x => x.Rect.Contains(b.owner.room.GetTilePosition(b.pos + new Vector2(0f, b.contactPoint.y * 20f))));
+		}
+		return null;
+	}
 
 	public static void ApplyHooks()
 	{
@@ -222,15 +225,12 @@ internal class SlipperyZone : UpdatableAndDeletable
 		IntRect zone = IntRect.MakeFromIntVector2(originIntVec);
 		data = (pObj.data as ManagedData)!;
 		zone.ExpandToInclude(originIntVec + data.GetValue<IntVector2>("0zone"));
-		foreach (IntVector2 pos in RainWorldTools.ReturnTiles(zone))
-		{
-			if (room.IsPositionInsideBoundries(pos))
-				_IsSlippy.GetValue(room.GetTile(pos), _ => this);
-		}
+		Rect = zone;
 	}
 
 	private ManagedData data;
 
+	public IntRect Rect { get; private set; }
 	public float Slippy => data.GetValue<float>("1traction");
 	public bool AffectSlopes => data.GetValue<bool>("2slope");
 	public bool DisableCrawlHoles => data.GetValue<bool>("3tunnel");

@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Globalization;
 using System.IO;
-using System.Globalization;
-using FadePalette = RoomSettings.FadePalette;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
+using System.Text.RegularExpressions;
 using DevInterface;
-using RegionKit.Modules.Effects;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using FadePalette = RoomSettings.FadePalette;
 
 namespace RegionKit.Modules.Misc;
 
 internal static class MoreFadePalettes
 {
 	#region FadeExtensions
-	private static ConditionalWeakTable<RoomSettings, List<FadePalette>> _AllFadePalettes = new();
+	private static readonly RKConditionalWeakTable<RoomSettings, List<FadePalette>> _AllFadePalettes = new();
 
 	private static List<FadePalette> AllFadePalettes(this RoomSettings rs) => _AllFadePalettes.GetValue(rs, _ => new());
 
@@ -84,7 +79,7 @@ internal static class MoreFadePalettes
 		return palette;
 	}
 
-	public static ConditionalWeakTable<RoomCamera, Dictionary<FadePalette, Texture2D>> _MoreFadeTextures = new();
+	public static RKConditionalWeakTable<RoomCamera, Dictionary<FadePalette, Texture2D>> _MoreFadeTextures = new();
 
 	public static Dictionary<FadePalette, Texture2D> MoreFadeTextures(this RoomCamera rc) => _MoreFadeTextures.GetValue(rc, _ => new());
 

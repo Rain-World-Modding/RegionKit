@@ -9,8 +9,8 @@ namespace RegionKit.Modules.Effects
 	/// </summary>
 	internal class ReplaceCorruptionColors : UpdatableAndDeletable
 	{
-		private static ConditionalWeakTable<Room, CorruptionValues> corruptionCWT = new();
-		private static ConditionalWeakTable<AbstractCreature, CorruptionValues> dllCWT = new();
+		private static readonly RKConditionalWeakTable<Room, CorruptionValues> corruptionCWT = new();
+		private static readonly RKConditionalWeakTable<AbstractCreature, CorruptionValues> dllCWT = new();
 		internal List<DaddyLongLegs> dllList = [];
 
 		/// <inheritdoc cref="ReplaceCorruptionColors"/>

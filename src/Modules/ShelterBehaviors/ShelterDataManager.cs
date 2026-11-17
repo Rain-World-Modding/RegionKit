@@ -5,7 +5,7 @@ namespace RegionKit.Modules.ShelterBehaviors
 {
 	public class ShelterDataManager
 	{
-		private static readonly ConditionalWeakTable<Room, ShelterDataManager> dataCWT = new();
+		private static readonly RKConditionalWeakTable<Room, ShelterDataManager> dataCWT = new();
 		public static bool TryGetManager(Room? room, out ShelterDataManager? data)
 		{
 			// Extra safety

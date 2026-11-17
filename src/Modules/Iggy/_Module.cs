@@ -3,9 +3,9 @@
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), nameof(Update), tickPeriod: 1, moduleName: "Iggy")]
 public static class _Module
 {
-	internal static System.Runtime.CompilerServices.ConditionalWeakTable<DevInterface.Page, DevInterface.Panel> __iggys = new() { };
-	internal static System.Runtime.CompilerServices.ConditionalWeakTable<DevInterface.DevUI, DTRightClickTracker> __devUIRMB = new();
-	internal static System.Runtime.CompilerServices.ConditionalWeakTable<DevInterface.DevUINode, Func<ToolTip>> __attachedToolTips = new();
+	internal static RKConditionalWeakTable<DevInterface.Page, DevInterface.Panel> __iggys = new() { };
+	internal static RKConditionalWeakTable<DevInterface.DevUI, DTRightClickTracker> __devUIRMB = new();
+	internal static RKConditionalWeakTable<DevInterface.DevUINode, Func<ToolTip>> __attachedToolTips = new();
 	internal static MessageSystem __messageSystem = new();
 	internal static List<ToolTip> __requestedToolTips = new();
 	internal static bool __IggyCollapsed = false;
@@ -58,7 +58,7 @@ public static class _Module
 	{
 		//todo: cover more vanilla shit
 		IGiveAToolTip givesAToolTip when givesAToolTip.ToolTip is ToolTip tt => tt,
-		_ when __attachedToolTips.TryGetValue(node, out Func<ToolTip> ttf) => ttf(),
+		_ when __attachedToolTips.TryGetValue(node, out Func<ToolTip>? ttf) && ttf is not null => ttf(),
 		_ when __GetSpecialHardcodedTooltip(node) is ToolTip tt => tt,
 		_ => new($"This is a {node.GetType().FullName}. Its ID string is {node.IDstring}.", 0, node)
 	};

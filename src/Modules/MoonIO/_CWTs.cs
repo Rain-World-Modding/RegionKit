@@ -8,9 +8,9 @@ namespace RegionKit.Modules.MoonIO
 {
 	internal static class _CWTs
 	{
-		static ConditionalWeakTable<ObjectsPage, ObjectsPageData> ObjectsPageCWT = new ConditionalWeakTable<ObjectsPage, ObjectsPageData>();
-		static ConditionalWeakTable<Room, RoomData> RoomCWT = new ConditionalWeakTable<Room, RoomData>();
-		static ConditionalWeakTable<ConsoleVisualizer, ConsoleVisualizerData> ConsoleVisualizerCWT = new ConditionalWeakTable<ConsoleVisualizer, ConsoleVisualizerData>();
+		static RKConditionalWeakTable<ObjectsPage, ObjectsPageData> ObjectsPageCWT = new();
+		static RKConditionalWeakTable<Room, RoomData> RoomCWT = new();
+		static RKConditionalWeakTable<ConsoleVisualizer, ConsoleVisualizerData> ConsoleVisualizerCWT = new();
 
 		public static ObjectsPageData MoonObjectsPageData(this ObjectsPage self) => ObjectsPageCWT.GetOrCreateValue(self);
 		public static RoomData MoonRoomData(this Room self) => RoomCWT.GetOrCreateValue(self);

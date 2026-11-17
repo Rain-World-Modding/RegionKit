@@ -37,7 +37,7 @@ namespace RegionKit.Modules.Objects
 
 		private class ColorData { public Color? activeColor; public Color? brokenColor; }
 
-		private static readonly ConditionalWeakTable<Region, ColorData> ssFuseColorTable = new();
+		private static readonly RKConditionalWeakTable<Region, ColorData> ssFuseColorTable = new();
 
 		internal static void Apply()
 		{

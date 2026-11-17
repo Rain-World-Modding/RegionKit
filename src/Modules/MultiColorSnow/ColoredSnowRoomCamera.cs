@@ -1,11 +1,7 @@
 ﻿namespace RegionKit.Modules.MultiColorSnow;
-
-using System.Reflection;
-using System.Runtime.CompilerServices;
-
 public class ColoredSnowRoomCamera
 {
-	private static readonly ConditionalWeakTable<RoomCamera, ColoredSnowRoomCamera> weakData = new ConditionalWeakTable<RoomCamera, ColoredSnowRoomCamera>();
+	private static readonly RKConditionalWeakTable<RoomCamera, ColoredSnowRoomCamera> weakData = new();
 
 	public static Color[] empty;
 	public static Color[] empty2;

@@ -6,15 +6,7 @@ public static class RainWorldTools
 	/// Current RainWorld instance. Uses Unity lookup, may be slow.
 	/// </summary>
 	public static RainWorld CRW => Custom.rainWorld;
-	/// <summary>
-	/// Gets a <see cref="StaticWorld"/> template object by type.
-	/// </summary>
-	/// <param name="t"></param>
-	/// <returns></returns>
-	public static CreatureTemplate GetCreatureTemplate(CreatureTemplate.Type t)
-	{
-		return StaticWorld.creatureTemplates[(int)t];
-	}
+
 	/// <summary>
 	/// Finds specified subprocess in ProcessManager (looks at both mainloop and side processes).
 	/// </summary>

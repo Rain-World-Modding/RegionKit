@@ -35,7 +35,7 @@ namespace RegionKit.Modules.Effects
 	
 	internal class RGBElectricDeathUAD : UpdatableAndDeletable
 	{
-		private static readonly ConditionalWeakTable<Room, RGBElectricDeathUAD> uadCWT = new();
+		private static readonly RKConditionalWeakTable<Room, RGBElectricDeathUAD> uadCWT = new();
 		public static RGBElectricDeathUAD? Instance(Room room) => room != null && uadCWT.TryGetValue(room, out RGBElectricDeathUAD result) ? result : null;
 
 		private bool addedToRoom = false;

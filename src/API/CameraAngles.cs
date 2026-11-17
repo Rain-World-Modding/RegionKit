@@ -9,7 +9,7 @@ namespace RegionKit.API
 	/// </summary>
 	public static class CameraAngles
 	{
-		private static readonly ConditionalWeakTable<Room, CameraAngle[]?> cangleCWT = new();
+		private static readonly RKConditionalWeakTable<Room, CameraAngle[]?> cangleCWT = new();
 
 		public static CameraAngle? GetAngle(Room room, int camera)
 		{

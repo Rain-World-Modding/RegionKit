@@ -5,7 +5,7 @@ namespace RegionKit.Modules.DevUIMisc
 {
 	internal static class PagedFadePalettes
 	{
-		private static readonly ConditionalWeakTable<RoomSettingsPage, CWTData> dataCWT = new();
+		private static readonly RKConditionalWeakTable<RoomSettingsPage, CWTData> dataCWT = new();
 		public const string PrevButtonMessage = "RK_MainFadePalette_Prev";
 		public const string NextButtonMessage = "RK_MainFadePalette_Next";
 		public static readonly int SlidersPerPage = 20;

@@ -10,9 +10,9 @@ namespace RegionKit.Modules.CustomProjections;
 
 internal static class CustomProjections
 {
-	private static ConditionalWeakTable<IOwnAHoloImage, StrongBox<string>> _RNDName = new();
+	private static RKConditionalWeakTable<IOwnAHoloImage, StrongBox<string>> _RNDName = new();
 
-	public static StrongBox<string> RNDName(this IOwnAHoloImage p) => _RNDName.GetValue(p, _ => new("RND_PROJ"));
+	public static StrongBox<string> RNDName(this IOwnAHoloImage p) => _RNDName.GetValue(p, static _ => new("RND_PROJ"));
 
 	public static Dictionary<string, List<OverseerImage.ImageID>> Registry = new();
 

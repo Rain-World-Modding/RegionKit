@@ -86,7 +86,7 @@ public static class _Module
 	}
 
 	//caching room values because loading a room is very expensive
-	private static readonly ConditionalWeakTable<GhostWorldPresence, Dictionary<string, float>> _RoomOverrides = new();
+	private static readonly RKConditionalWeakTable<GhostWorldPresence, Dictionary<string, float>> _RoomOverrides = new();
 	public static Dictionary<string, float> RoomOverrides(this GhostWorldPresence p) => _RoomOverrides.GetValue(p, _ => []);
 
 	private static void RoomOnLoaded(On.Room.orig_Loaded orig, Room self)

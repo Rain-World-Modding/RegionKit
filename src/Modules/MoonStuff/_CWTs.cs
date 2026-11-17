@@ -4,10 +4,10 @@ namespace RegionKit.Modules.MoonStuff
 {
 	internal static class _CWTs
 	{
-		private static readonly ConditionalWeakTable<Region, RegionData> RegionCWT = new ConditionalWeakTable<Region, RegionData>();
-		private static readonly ConditionalWeakTable<LightSource, FlickerData> LightSourceCWT = new ConditionalWeakTable<LightSource, FlickerData>();
-		private static readonly ConditionalWeakTable<LightBeam, FlickerData> LightBeamCWT = new ConditionalWeakTable<LightBeam, FlickerData>();
-		private static readonly ConditionalWeakTable<IFlickerable, FlickerData> FlickerableCWT = new ConditionalWeakTable<IFlickerable, FlickerData>();
+		private static readonly RKConditionalWeakTable<Region, RegionData> RegionCWT = new();
+		private static readonly RKConditionalWeakTable<LightSource, FlickerData> LightSourceCWT = new();
+		private static readonly RKConditionalWeakTable<LightBeam, FlickerData> LightBeamCWT = new();
+		private static readonly RKConditionalWeakTable<IFlickerable, FlickerData> FlickerableCWT = new();
 		private static bool usingFlickerData = false;
 
 		public static RegionData MoonRegionData(this Region self)

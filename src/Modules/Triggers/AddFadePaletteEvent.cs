@@ -148,7 +148,7 @@ namespace RegionKit.Modules.Triggers
 
 		public static class Implementation
 		{
-			private static readonly ConditionalWeakTable<RainWorldGame, Dictionary<string, List<Fade>>> _fadeHandler = new();
+			private static readonly RKConditionalWeakTable<RainWorldGame, Dictionary<string, List<Fade>>> _fadeHandler = new();
 			private static bool _appliedHooks = false;
 			internal static void ApplyHooks()
 			{

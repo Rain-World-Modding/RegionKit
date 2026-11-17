@@ -38,7 +38,7 @@ namespace RegionKit.Modules.Triggers
 
 		private static class Implementation
 		{
-			private static readonly ConditionalWeakTable<Room, object> _regionBumpTracker = new(); // basically just being used as a weak reference set
+			private static readonly RKConditionalWeakTable<Room, object> _regionBumpTracker = new(); // basically just being used as a weak reference set
 			private static bool _appliedHooks = false;
 			internal static void ApplyHooks()
 			{

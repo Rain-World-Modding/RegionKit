@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Runtime.CompilerServices;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RegionKit.Extras;
@@ -11,9 +7,17 @@ namespace RegionKit.Modules.Objects;
 
 internal class SlipperyZone : UpdatableAndDeletable
 {
-	private static ConditionalWeakTable<Room.Tile, SlipperyZone?> _IsSlippy = new();
-	public static SlipperyZone? GetSlippy(Room.Tile t) => _IsSlippy.GetValue(t, _ => null);
-	public static SlipperyZone? GetSlippy(BodyChunk b) => b.owner?.room == null? null : GetSlippy(b.owner.room.GetTile(b.pos + new Vector2(0f, b.contactPoint.y * 20f)));
+	private static readonly ConditionalWeakTable<Room, List<SlipperyZone>> _slippyCWT = new();
+	public static SlipperyZone? GetSlippy(BodyChunk b)
+	{
+		if (b.owner?.room == null) return null;
+
+		if (_slippyCWT.TryGetValue(b.owner.room, out var zone) && zone != null)
+		{
+			return zone.FirstOrDefault(x => x.Rect.Contains(b.owner.room.GetTilePosition(b.pos + new Vector2(0f, b.contactPoint.y * 20f))));
+		}
+		return null;
+	}
 
 	public static void ApplyHooks()
 	{
@@ -132,7 +136,7 @@ internal class SlipperyZone : UpdatableAndDeletable
 				x => x.MatchLdflda<Vector2>(nameof(Vector2.x)),
 				x => x.MatchDup(),
 				x => x.MatchLdindR4(),
-				x => x.MatchLdloc(out _)) 
+				x => x.MatchLdloc(out _))
 				&& c.TryGotoNext(i == 2 ? MoveType.After : MoveType.Before, i switch
 				{
 					0 => new Func<Instruction, bool>[]
@@ -215,22 +219,24 @@ internal class SlipperyZone : UpdatableAndDeletable
 		else { LogError("failed to il hook BodyChunk.checkAgainstSlopesVertically"); }
 	}
 
-	public SlipperyZone(PlacedObject pObj, Room room) 
+	public SlipperyZone(PlacedObject pObj, Room room)
 	{
 		//room.AddObject(new SlipperyZoneDebug());
 		IntVector2 originIntVec = new((int)pObj.pos.x / 20, (int)pObj.pos.y / 20);
 		IntRect zone = IntRect.MakeFromIntVector2(originIntVec);
 		data = (pObj.data as ManagedData)!;
 		zone.ExpandToInclude(originIntVec + data.GetValue<IntVector2>("0zone"));
-		foreach (IntVector2 pos in RainWorldTools.ReturnTiles(zone))
+		Rect = zone;
+		if (!_slippyCWT.TryGetValue(room, out List<SlipperyZone> list))
 		{
-			if (room.IsPositionInsideBoundries(pos))
-				_IsSlippy.GetValue(room.GetTile(pos), _ => this);
+			_slippyCWT.Add(room, list = []);
 		}
+		list.Add(this);
 	}
 
 	private ManagedData data;
 
+	public IntRect Rect { get; private set; }
 	public float Slippy => data.GetValue<float>("1traction");
 	public bool AffectSlopes => data.GetValue<bool>("2slope");
 	public bool DisableCrawlHoles => data.GetValue<bool>("3tunnel");

@@ -125,7 +125,7 @@ Our goal for RegionKit is to have a unified mod to hold objects, room effects, a
 	- Old repo maintenance
 	- Legacy Component Porting
 
-- Thalber
+- Kali
 	- BepInEx migration
 	- Downpour migration
 	- RegionKit.Machinery
@@ -163,6 +163,7 @@ Our goal for RegionKit is to have a unified mod to hold objects, room effects, a
 	- BackgroundBuilder
 	- Many object fixes
 	- Custom Projections
+	- Reduce neuron glow effect
 
 - Henpemaz
 	- Placed Objects Manager Framework
@@ -183,6 +184,7 @@ Our goal for RegionKit is to have a unified mod to hold objects, room effects, a
 	- The Mast
 	- Conditional Effects
 	- Fog of War Effects (Line of Sight)
+	- Animated decals
 
 - LeeMoriya
 	- RainbowNoFade + ARKillRect (ARObjects)
@@ -223,23 +225,28 @@ Our goal for RegionKit is to have a unified mod to hold objects, room effects, a
 	- Turbo Baker permission
 
 - Alduris
-	- Butterfly insect effect
-	- Zipper insect effect
+	- Effects: FlatFog, RainPaletteFade
+	- Objects: NoBatflyLurkZone, PCPlayerSensitiveLightSource, WaterfallDepth, NoDropwigPerchZone, EvilDangleFruit, BGFlatLight, BigWaterWheel, AdvancedShader, ColoredSSFuses, ColoredMudPit, GreenSparksDir, ColoredLocalBlizzard
+	- Insects: ButterflyA/B, Zipper, Seedling, RippleFly, RippleGlowworm, SITinyDragonfly
+	- Floating debris: RK Dust, RK White Dust, RK Colored Dust, RK Ripple Ring, RK Ripple Smooth
+	- Event triggers: Rect, Quad, ScavengerOutpost, PickUpObject
+	- Triggered events: SpawnCreature, AddFadePalette, PlaySound, RegionBump, Explode
 	- Turbo Baker integration
-	- No batfly lurk zone
-	- PCPlayerSensitiveLightSource
-	- Waterfall depth
-	- No dropwig perch zone
-	- Evil dangle fruit
-	- BGFlatLight
-	- BigWaterWheel
-	- AdvancedShader
 	- Shelter behaviors reimplementation
 	- Colored SuperStructureFuses region property
-	- Dust and White Dust floating debris types
-	- Colored mud pit
 	- Passage gate requirements integration
 	- Ripple gate requirements
+	- Extra gate requirements system
+	- Paged fade palettes
+	- Lightning fade palette fix
+	- SeeCreature event fix
+	- Custom decal folder support
+	- Various search bars
+	- Song select panel overhaul
+	- Token picker overhaul
+	- Pearl picker overhaul
+	- Panel collapse fix
+	- Sound debug sprite fix
 
 - LudoCrypt
 	- Multicolor snow sources
@@ -255,25 +262,83 @@ Our goal for RegionKit is to have a unified mod to hold objects, room effects, a
 - glebi574
 	- Bugfixes
 
-**Initial ExtendedGates authors**: Henpemaz (code); Mehri'Kairotep, Thalber, LB/M4rbleL1ne and Nautillo (spritework).
+- InspectNerd
+	- Ripple gate art
+
+- Coder23848
+	- Reinforced karma gates, including art
+
+- Damoonlord
+	- IO system
+	- Rumbles effect
+	- Objects: SandFall, LightSourceFlicker, Crystal, ColoredOESphere, WarmSpot, ConveyorBelt, COnveyorBeltCover, BarbedWire
+	- Clippy minigame
+
+- Trainzack
+	- Bugfixes
+
+**Initial ExtendedGates authors**: Henpemaz (code); Mehri'Kairotep, Kali, LB/M4rbleL1ne and Nautillo (spritework).
 
 ### Decal collection credits
 - A10
+- animatingdragon
 - aprilistheworstmonth
+- Ars0n F0x
 - av3ryrandomperson
+- Chroma
+- clamber-cloud
+- Cookietehscugcat
+- crystal cats
 - Dragonly44
+- EcoVerm
+- Eepy-beepy
+- Faraam
+- Fivepebbles188
+- funkytrashcan
 - glowingglassroses
+- IceWindNFire
 - inspectnerd
+- iolite
+- isame5505
+- jaylien
+- K1ttyb34ns
+- Keldjin
+- kittycatroaraction
 - lagg
+- LetOpposite3396
+- lkelly
 - Mold223
+- mrm4xl1v3
+- Mungbean
+- overskogstuff
 - Ovidia
+- paninicut
+- prismpawsstudios
 - qtpi
+- reaper
+- Scarecrow
+- scarymegakiller
+- Scugfaunatic
+- Semander
+- skyball
 - slithersss
 - snoodle
 - SonixYakuza
+- Spektralism
+- Submerso106
 - tapok
+- Th0nly1
 - TotallyDutch
+- tz
+- \_veiled\_echo\_.
 - Void Computer
+- WHYER4
+- Willow Crow
+- Yellow Ghost
+- zelda\_fan3
+- zipzapchap\_
+- ztarhaven
+- Zyb3rS
 
 ## Download
 Downloads can be found [here](https://github.com/Rain-World-Modding/RegionKit/releases/latest).

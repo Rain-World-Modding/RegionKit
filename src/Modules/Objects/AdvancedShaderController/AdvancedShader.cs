@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.IO;
 using RegionKit.Extras.FutileExtras;
+using RegionKit.Modules.AnimatedDecals;
 
 namespace RegionKit.Modules.Objects.AdvancedShaderController
 {
@@ -123,9 +124,16 @@ namespace RegionKit.Modules.Objects.AdvancedShaderController
 					// Make sure it is loaded
 					if (!Futile.atlasManager.DoesContainAtlas(filePath))
 					{
-						Texture2D tex = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-						AssetManager.SafeWWWLoadTexture(ref tex, "file:///" + fullFilePath, true, true);
-						Futile.atlasManager.LoadAtlasFromTexture(filePath, tex, false);
+						if (VideoManager.IsVideoFile(filePath))
+						{
+							VideoManager.LoadAndCacheVideo(filePath, fullFilePath);
+						}
+						else
+						{
+							Texture2D tex = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+							AssetManager.SafeWWWLoadTexture(ref tex, "file:///" + fullFilePath, true, true);
+							Futile.atlasManager.LoadAtlasFromTexture(filePath, tex, false);
+						}
 					}
 
 					// Return

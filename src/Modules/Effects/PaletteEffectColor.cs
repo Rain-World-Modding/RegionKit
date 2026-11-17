@@ -110,7 +110,7 @@ namespace RegionKit.Modules.Effects
 				{
 					for (int y = 0; y < 2; y++)
 					{
-						int sunOffset = sun == 0 ? 2 : 10;
+						int sunOffset = sun == 0 ? 10 : 2;
 						int effectTypeOffset = effA ? 0 : 2;
 						finalColors[index++] = texture.GetPixel(30 + x, sunOffset + effectTypeOffset + y);
 					}

@@ -77,7 +77,6 @@ internal static class BuilderPageHooks
 
 public class BackgroundPage : Page
 {
-	// Token: 0x060028F3 RID: 10483 RVA: 0x0031DEDC File Offset: 0x0031C0DC
 	public BackgroundPage(DevUI owner, string IDstring, DevUINode parentNode, string name) : base(owner, IDstring, parentNode, name)
 	{
 		subNodes.Add(new GenericSlider(owner, "XOffset", this, new Vector2(120f, 660f), "XOffset", true, 60f, RoomSettings.BackgroundData().roomOffset.x, minValue: -5000, maxValue: 5000, stringWidth: 32) { defaultValue = RoomSettings.parent.BackgroundData().roomOffset.x });

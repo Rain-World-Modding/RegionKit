@@ -1581,7 +1581,7 @@ public static class BackgroundElementData
 				button.Text = ShaderTypeName;
 			}
 
-				base.SingalFromDevUI(type, sender, message);
+			base.SingalFromDevUI(type, sender, message);
 		}
 
 

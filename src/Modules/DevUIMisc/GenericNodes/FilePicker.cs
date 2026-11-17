@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using DevInterface;
 using Menu.Remix.MixedUI;
+using RegionKit.Modules.AnimatedDecals;
 
 namespace RegionKit.Modules.DevUIMisc.GenericNodes
 {
@@ -11,9 +12,11 @@ namespace RegionKit.Modules.DevUIMisc.GenericNodes
 	public class FilePicker : Panel
 	{
 		public static readonly Regex PNGRegex = new(@".*\.png", RegexOptions.IgnoreCase);
+		public static readonly Regex PNGorVideoRegex = new(@".*(?:" + string.Join("|", VideoManager._supportedExtensions.Append(".png").Select(x => x.Replace(".", @"\."))) + ")", RegexOptions.IgnoreCase);
 		public static readonly Regex ImageRegex = new(@".*\.(?:png|jpe?g|gif)", RegexOptions.IgnoreCase); // the ones that can be read by the game
 		public static readonly Regex TXTRegex = new(@".*\.txt", RegexOptions.IgnoreCase);
 		public static readonly Regex SoundRegex = new(@".*\.(?:wav|ogg)", RegexOptions.IgnoreCase); // also the ones that can be read by the game
+		public static readonly Regex VideoRegex = new(@".*(?:" + string.Join("|", VideoManager._supportedExtensions.Select(x => x.Replace(".", @"\."))) + ")", RegexOptions.IgnoreCase);
 
 		public static readonly DevUISignalType FilePickedSignal = new(nameof(FilePickedSignal), true);
 

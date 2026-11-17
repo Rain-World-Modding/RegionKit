@@ -1,4 +1,4 @@
-namespace RegionKit.Modules.Iggy;
+﻿namespace RegionKit.Modules.Iggy;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), nameof(Setup), nameof(Update), tickPeriod: 1, moduleName: "Iggy")]
 public static class _Module
@@ -12,22 +12,22 @@ public static class _Module
 	internal static Vector2 __IggyPos = new(100f, 100f);
 
 	#region L I F E
-	public static void Setup() { }
-	public static void Enable()
+	internal static void Setup() { }
+	internal static void Enable()
 	{
 		On.DevInterface.Page.ctor += __SpawnDevIggy;
 		On.DevInterface.DevUI.ctor += __ShowIggyHelp;
 		On.DevInterface.DevUI.Update += __TrackRightClicks;
 		On.DevInterface.DevUINode.Update += __SignalRightClick;
 	}
-	public static void Disable()
+	internal static void Disable()
 	{
 		On.DevInterface.Page.ctor -= __SpawnDevIggy;
 		On.DevInterface.DevUI.ctor -= __ShowIggyHelp;
 		On.DevInterface.DevUI.Update -= __TrackRightClicks;
 		On.DevInterface.DevUINode.Update -= __SignalRightClick;
 	}
-	public static void Update()
+	internal static void Update()
 	{
 		if (__requestedToolTips.Count > 0)
 		{
@@ -64,7 +64,7 @@ public static class _Module
 	};
 	internal static ToolTip? __GetSpecialHardcodedTooltip(DevInterface.DevUINode node)
 	{
-		//meant to ONLY handle tooltips for elements from vanilla/msc
+		//meant to ONLY handle tooltips for elements from base game/dlcs
 		ToolTip? result = node switch
 		{
 			//----
@@ -94,6 +94,8 @@ public static class _Module
 				"Entrance_Button" => new("Require player to enter the room from a specific pipe.", 10, node), //trigger option
 				"Slugcat_Button" => new("Allow or disallow a specific slugcat campaign to activate the trigger.", 10, node), //trigger option
 				"Event_Button" => new("Select a result for this trigger.", 10, node),
+				"NextPage99289..?/~" => new("Next page.", 10, node),
+				"BackPage99289..?/~" => new("Previous page.", 10, node),
 				_ => null
 			},
 			//----
@@ -106,8 +108,7 @@ public static class _Module
 			DevInterface.SelectEventPanel => new("Select what event will the trigger cause", 5, node), //event type
 			DevInterface.MusicEventPanel => new("This event will ask the music player to start a specific track. Requested tracks can have different priority.", 5, node), //event type
 			DevInterface.StopMusicEventPanel => new("This event will stop music tracks that are currently playing.", 5, node), //event type
-			DevInterface.ShowProjectedImageEventPanel => new("This event will tell me to show the player something.", 5, node), //event type
-			DevInterface.StandardEventPanel => new("This event doesn't have any extra options", 5, node), //event type
+			DevInterface.ShowProjectedImageEventPanel => new("This event will tell the player's guide overseer to show the player something.", 5, node), //event type
 			DevInterface.Panel panel => panel.IDstring switch
 			{
 				"Palette_Panel" => new("Select room's primary and fade palette", 5, node),
@@ -119,6 +120,53 @@ public static class _Module
 			},
 			DevInterface.MouseOverSwitchColorLabel label when label.IDstring.StartsWith("Inherit_From_Template_") => new("Sets the room to inherit from a specific region-wide template. Basic room settings, effect list and ambient sounds (excluding spot sounds) are inherited.", 10, node), //weird pseudo button for templates
 			DevInterface.MouseOverSwitchColorLabel label when label.IDstring.StartsWith("Save_As_Template_") => new("Saves current room properties. Basic room settings, effect list and ambient sounds (excluding spot sounds) are inherited.", 10, node), //weird pseudo button for templates
+			//----
+			//HANDLES
+			//----
+			DevInterface.TerrainHandleRepresentation => new("Add two or more TerrainHandles to a room to add terrain.", 10, node), // terrain handles
+			DevInterface.TerrainRubbleRepresentation => new("Change placements of rubble by moving or resizing this object.", 10, node), // terrain rubble
+			DevInterface.CompetitiveFilterRepresentation => new("Prevents objects within its radius from spawning unless the selected arena competitive mode group is active.", 10, node), // filter
+			Watcher.AxisHandle axisHandle => axisHandle.IDstring switch
+			{
+				// Terrain grass patch
+				_ when axisHandle.parentNode is Watcher.TerrainGrassPatchRepresentation => axisHandle.fLabels[0].text switch
+				{
+					"Range" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {Mathf.Abs(axisHandle.value)})", 5, node),
+					"FallOff" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {axisHandle.value * 0.005f})", 5, node),
+					"Width" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {axisHandle.value * 0.02f})", 5, node),
+					"Depth Offset" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {axisHandle.value * 0.005f + 0.5f})", 5, node),
+					"Depth Range" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {axisHandle.value * 0.01f})", 5, node),
+					"Amount" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {(int)(axisHandle.value * 4)})", 5, node),
+					"Min Height" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {axisHandle.value})", 5, node),
+					"Max Height" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {axisHandle.value})", 5, node),
+					_ => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {axisHandle.value})", 5, node)
+				},
+				// Urban candle holders
+				_ when axisHandle.parentNode is Watcher.UrbanCandleHolderRepresentation => axisHandle.IDstring switch
+				{
+					"Height" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {Mathf.Abs(axisHandle.value) / 100f})", 5, node),
+					"Depth" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {Mathf.Abs(axisHandle.value) / 100f})", 5, node),
+					"Scale" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {Mathf.Abs(axisHandle.value) / 100f})", 5, node),
+					"Tilt" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {Mathf.Abs(axisHandle.value) / 100f})", 5, node),
+					"CandleWidth" => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {Mathf.Abs(axisHandle.value) / 100f})", 5, node),
+					"Seed" => new($"Slide to change the random seed.", 5, node),
+					_ => new($"Slide to change the {axisHandle.fLabels[0].text}. (Current value: {axisHandle.value})", 5, node),
+				},
+				// Base case
+				_ => new($"Slide to change the {axisHandle.fLabels[0].text}. (Base value: {axisHandle.value}, may not be accurate to used value)", 5, node)
+			},
+			DevInterface.Handle handle => handle.IDstring switch // this NEEDS to be the last case for any handles
+			{
+				// Terrain handles
+				"Curve_Handle" when handle.parentNode is DevInterface.TerrainHandleRepresentation => new("Changes the Bezier curve of the terrain.", 20, node),
+				"Curve_Back_Handle" when handle.parentNode is DevInterface.TerrainHandleRepresentation => new("Changes the height of the background terrain.", 20, node),
+				// Misc specific cases
+				"Mud_Decal_Handle" => new("Changes the size of the decorative mud stain.", 10, node),
+				"Water_Level_Slider" => new("Changes the level of the water within the air pocket.", 10, node),
+				"Waterfall_Width" => new("Changes the width of the waterfall.", 10, node),
+				// Base case
+				_ => null,
+			},
 			_ => null,
 		};
 

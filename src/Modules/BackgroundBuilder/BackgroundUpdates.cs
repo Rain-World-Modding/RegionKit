@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using EffExt;
+﻿using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using RegionKit.Extras;
 using static AboveCloudsView;
-using static RoofTopView;
 
 namespace RegionKit.Modules.BackgroundBuilder;
 
@@ -27,6 +21,7 @@ internal static class BackgroundUpdates
 		On.RoofTopView.Smoke.InitiateSprites += Building_InitiateSprites;
 		On.BackgroundScene.FullScreenSingleColor.DrawSprites += FullScreenSingleColor_DrawSprites;
 		On.BackgroundScene.LoadGraphic += BackgroundScene_LoadGraphic;
+		IL.AboveCloudsView.Update += AboveCloudsView_Update;
 	}
 
 	public static void Undo()
@@ -43,6 +38,26 @@ internal static class BackgroundUpdates
 		On.RoofTopView.Smoke.InitiateSprites -= Building_InitiateSprites;
 		On.BackgroundScene.FullScreenSingleColor.DrawSprites -= FullScreenSingleColor_DrawSprites;
 		On.BackgroundScene.LoadGraphic -= BackgroundScene_LoadGraphic;
+		IL.AboveCloudsView.Update -= AboveCloudsView_Update;
+	}
+
+	private static void AboveCloudsView_Update(ILContext il)
+	{
+		// Stop arena flickering
+		var c = new ILCursor(il);
+
+		c.Goto(-1);
+		c.GotoPrev(MoveType.After, x => x.MatchCallOrCallvirt(typeof(RainWorldGame).GetProperty(nameof(RainWorldGame.IsArenaSession)).GetGetMethod()));
+
+		c.Emit(OpCodes.Ldarg_0);
+		c.EmitDelegate((bool isArenaSession, AboveCloudsView self) =>
+		{
+			if (!string.IsNullOrEmpty(self.room.roomSettings.BackgroundData().backgroundName))
+			{
+				return false;
+			}
+			return isArenaSession;
+		});
 	}
 
 	private static void BackgroundScene_LoadGraphic(On.BackgroundScene.orig_LoadGraphic orig, BackgroundScene self, string elementName, bool crispPixels, bool clampWrapMode)
@@ -138,7 +153,7 @@ internal static class BackgroundUpdates
 
 					if (element.depth < frontmostDepth)
 					{
-					frontmostNode = i.sprites[^1];
+						frontmostNode = i.sprites[^1];
 						frontmostDepth = element.depth;
 					}
 

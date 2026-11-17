@@ -1,15 +1,11 @@
 ﻿using System.IO;
 using DevInterface;
-using Newtonsoft.Json.Linq;
+using ModPathPair = (string modName, string basePath);
 
 namespace RegionKit.Modules.DevUIMisc;
 
 internal static class DecalPreview
 {
-	private static Dictionary<string, string> decalSources = new Dictionary<string, string>();
-
-	public static string GetDecalSource(string decal) => decalSources.TryGetValue(decal, out string source) ? source : "UNKNOWN";
-
 	public static void Enable()
 	{
 		On.DevInterface.Panel.Update += Panel_Update;
@@ -59,13 +55,11 @@ internal static class DecalPreview
 		orig(self, owner, IDstring, parentNode, name);
 
 		self.subNodes.Add(new DecalPreviewOverlay(owner, "DecalPreviewOverlay", self));
-
-		GetDecalSources();
 	}
 
 	private static void CustomDecal_LoadFile(On.CustomDecal.orig_LoadFile orig, CustomDecal self, string fileName)
 	{
-		if (Futile.atlasManager.GetAtlasWithName(fileName) == null)
+		if (Futile.atlasManager.GetAtlasWithName(fileName) == null && !AnimatedDecals.VideoManager.IsVideoFile(fileName))
 		{
 			string decalPath = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
 
@@ -77,47 +71,6 @@ internal static class DecalPreview
 		}
 
 		orig(self, fileName);
-	}
-
-	private static void GetDecalSources()
-	{
-		decalSources.Clear();
-
-		string[] allDecalPaths = AssetManager.ListDirectory("decals", false, false);
-
-		var decalDirectories = new HashSet<string>();
-
-		for (int i = 0; i < allDecalPaths.Length; i++)
-		{
-			if (Directory.GetParent(allDecalPaths[i]).Parent.Name == "streamingassets")
-			{
-				decalSources[Path.GetFileNameWithoutExtension(allDecalPaths[i])] = "Vanilla";
-				continue;
-			}
-
-			decalDirectories.Add(Directory.GetParent(allDecalPaths[i]).Parent.FullName);
-		}
-
-		var pathToModName = new Dictionary<string, string>();
-		foreach (var directory in decalDirectories)
-		{
-			if (decalSources.ContainsKey(directory)) continue;
-			foreach (ModManager.Mod mod in ModManager.ActiveMods)
-			{
-				if (Path.GetFullPath(mod.path).ToLower() == Path.GetFullPath(directory).ToLower())
-				{ pathToModName[directory] = mod.name; break; }
-			}
-		}
-
-		for (int i = 0; i < allDecalPaths.Length; i++)
-		{
-			if (!decalSources.ContainsKey(Path.GetFileNameWithoutExtension(allDecalPaths[i])))
-			{
-				if (pathToModName.ContainsKey(Directory.GetParent(allDecalPaths[i]).Parent.FullName))
-				{ decalSources[Path.GetFileNameWithoutExtension(allDecalPaths[i])] = pathToModName[Directory.GetParent(allDecalPaths[i]).Parent.FullName]; }
-				else { decalSources[Path.GetFileNameWithoutExtension(allDecalPaths[i])] = "Unknown"; }
-			}
-		}
 	}
 
 	public class DecalPreviewOverlay : DevUINode
@@ -136,6 +89,17 @@ internal static class DecalPreview
 			get
 			{
 				return visabilityTimer > 0;
+			}
+			set
+			{
+				if (value)
+				{
+					visabilityTimer = 5;
+				}
+				else
+				{
+					visabilityTimer = 0;
+				}
 			}
 		}
 
@@ -203,17 +167,25 @@ internal static class DecalPreview
 		{
 			base.Update();
 
-			if (decalName != null && isVisible && Futile.atlasManager.GetAtlasWithName(decalName) != null)
+			if (decalName != null && isVisible)
 			{
-				decalSprite.SetElementByName(decalName);
+				if (Futile.atlasManager.GetAtlasWithName(decalName) != null)
+				{
+					decalSprite.SetElementByName(decalName);
 
-				float longestSide = Math.Max(decalSprite.textureRect.width, decalSprite.textureRect.height);
-				decalSprite.scale = 300f / longestSide;
+					float longestSide = Math.Max(decalSprite.textureRect.width, decalSprite.textureRect.height);
+					decalSprite.scale = 300f / longestSide;
 
-				decalSizeSprite.scaleX = decalSprite.width;
-				decalSizeSprite.scaleY = decalSprite.height;
+					decalSizeSprite.scaleX = decalSprite.width;
+					decalSizeSprite.scaleY = decalSprite.height;
 
-				infoLabel.text = $"Source: {decalSources[decalName]}    Size: {decalSprite.textureRect.width}x{decalSprite.textureRect.height}";
+					infoLabel.text = $"Source: {ListFixes.GetDecalSource(decalName)}    Size: {decalSprite.textureRect.width}x{decalSprite.textureRect.height}";
+				}
+				else
+				{
+					infoLabel.text = $"Source: {ListFixes.GetDecalSource(decalName)}";
+					isVisible = false; // todo: what should it look like if we can't load the decal
+				}
 			}
 
 			overlaySprite.isVisible = isVisible;
@@ -250,7 +222,14 @@ internal static class DecalPreview
 			{
 				return;
 			}
-			string str = AssetManager.ResolveFilePath("Decals" + Path.DirectorySeparatorChar.ToString() + fileName + ".png");
+
+			if (AnimatedDecals.VideoManager.IsVideoFile(fileName))
+			{
+				AnimatedDecals.VideoManager.LoadAndCacheVideo(fileName, AssetManager.ResolveFilePath(Path.Combine("Decals", fileName)));
+				return;
+			}
+
+			string str = AssetManager.ResolveFilePath(Path.Combine("Decals", fileName + ".png"));
 			if (!File.Exists(str)) return;
 			var texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
 			AssetManager.SafeWWWLoadTexture(ref texture, "file:///" + str, true, true);

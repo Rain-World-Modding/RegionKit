@@ -87,7 +87,7 @@ internal static class SettingsSaveOptions
 					self.owner,
 					self,
 					new Vector2(420f, 250f),
-					settingsSaveOptionsMenu.modNames.Keys.ToArray(),
+					[.. settingsSaveOptionsMenu.modNames.Keys],
 					"ModPanel",
 					"Select Mod")
 				{
@@ -99,11 +99,12 @@ internal static class SettingsSaveOptions
 
 		else if (settingsSaveOptionsMenu.modSelectPanel != null && sender.IDstring.StartsWith(settingsSaveOptionsMenu.modSelectPanel.idstring + "Button99289_"))
 		{
-			string subbuttonid = sender.IDstring.Remove(0, (settingsSaveOptionsMenu.modSelectPanel.idstring + "Button99289_").Length);
+			string subbuttonid = sender.IDstring[(settingsSaveOptionsMenu.modSelectPanel.idstring + "Button99289_").Length..];
 
 			if (settingsSaveOptionsMenu.ChangePath != null)
 			{ 
-				settingsSaveOptionsMenu.ChangePath.Text = subbuttonid;
+				settingsSaveOptionsMenu.ChangePath.Text = "Save to: " + subbuttonid;
+				settingsSaveOptionsMenu.SaveToPath = subbuttonid;
 			}
 
 			if (DevUIUtils.URoomSettings.PathToSpecificSettings(settingsSaveOptionsMenu.modNames[subbuttonid], self.RoomSettings.name, out string filePath, slugName: DevUIUtils.URoomSettings.UsingSpecificSlugcatName(self.owner)))
@@ -125,7 +126,7 @@ internal static class SettingsSaveOptions
 
 		else if (sender.IDstring == "Create_Modify" && settingsSaveOptionsMenu.ChangePath != null)
 		{
-			new ModifySettingsGenerator(self.owner, settingsSaveOptionsMenu.ChangePath.Text);
+			new ModifySettingsGenerator(self.owner, settingsSaveOptionsMenu.SaveToPath);
 		}
 	}
 	public static SettingsSaveOptionsMenu? settingsSaveOptionsMenu;
@@ -151,7 +152,7 @@ internal static class SettingsSaveOptions
 
 			//self.subNodes.Add(SavedPath);
 
-			ChangePath = new Button(owner, "Change_Path", this, new Vector2(790f, 700f), 100f, "Default");
+			ChangePath = new Button(owner, "Change_Path", this, new Vector2(790f, 700f), 100f, "Save to: " + SaveToPath);
 			API.Iggy.AddTooltip(ChangePath, () => new($"[RK] Select where the modified room settings files should be saved. This can be vanilla files, mergedmods or a mod's folder.", 10, ChangePath));
 
 			subNodes.Add(ChangePath);
@@ -191,6 +192,8 @@ internal static class SettingsSaveOptions
 		public DevUILabel? SettingsPathLabel = null;
 
 		public Button ChangePath;
+
+		public string SaveToPath = "Default";
 
 		public Button CreateModify;
 

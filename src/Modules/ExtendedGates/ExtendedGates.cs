@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Globalization;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using HUD;
@@ -116,6 +118,43 @@ public static class ExtendedGates
 		}
 	}
 
+	private static (bool leftSide, string[] tags) Tags(PlayerProgression progression, World initWorld, string roomName)
+	{
+		if (initWorld.game != null && initWorld.game.IsStorySession && initWorld.game.GetStorySession.saveState.deathPersistentSaveData.unlockedGates != null && initWorld.game.GetStorySession.saveState.deathPersistentSaveData.CanUseUnlockedGates(initWorld.game.StoryCharacter))
+		{
+			for (int i = 0; i < initWorld.game.GetStorySession.saveState.deathPersistentSaveData.unlockedGates.Count; i++)
+			{
+				if (initWorld.game.GetStorySession.saveState.deathPersistentSaveData.unlockedGates[i] == roomName)
+				{
+					return (false, []);
+				}
+			}
+		}
+		for (int j = 0; j < progression.karmaLocks.Length; j++)
+		{
+			string[] split = Regex.Split(progression.karmaLocks[j], " : ");
+			if (split[0] == roomName && split.Length >= 4)
+			{
+				// Figure out side
+				bool leftSide = false;
+				bool swap = split[3] == "SWAPMAPSYMBOL";
+				if (Region.EquivalentRegion(Regex.Split(roomName, "_")[1], initWorld.region.name) != swap)
+				{
+					leftSide = true;
+				}
+
+				// Tags
+				string[] tags = new string[split.Length - 3];
+				for (int i = 3; i < split.Length; i++)
+				{
+					tags[i - 3] = split[i];
+				}
+				return (leftSide, [.. tags]);
+			}
+		}
+		return (false, []);
+	}
+
 	internal static bool uwu;
 
 	// 1.0 initial release
@@ -165,6 +204,9 @@ public static class ExtendedGates
 		On.GateKarmaGlyph.DrawSprites += GateKarmaGlyph_DrawSprites;
 		On.HUD.Map.GateMarker.ctor += GateMarker_ctor;
 		On.HUD.Map.MapData.KarmaOfGate += MapData_KarmaOfGate;
+		IL.HUD.Map.ctor += Map_ctor;
+
+		IL.OverseersWorldAI.DirectionFinder.ctor += DirectionFinder_ctor;
 
 		uwu = ModManager.ActiveMods.Any(x => x.id == "henpemaz_uwumod");
 	}
@@ -185,9 +227,15 @@ public static class ExtendedGates
 
 		On.GateKarmaGlyph.DrawSprites -= GateKarmaGlyph_DrawSprites;
 		On.HUD.Map.GateMarker.ctor -= GateMarker_ctor;
-		On.HUD.Map.MapData.KarmaOfGate += MapData_KarmaOfGate;
+		On.HUD.Map.MapData.KarmaOfGate -= MapData_KarmaOfGate;
+		IL.HUD.Map.ctor -= Map_ctor;
+
+		IL.OverseersWorldAI.DirectionFinder.ctor -= DirectionFinder_ctor;
 	}
+	
+
 	#region misc fixes
+
 	private static void RegionGateGraphics_DrawSprites(On.RegionGateGraphics.orig_DrawSprites orig, RegionGateGraphics self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
 	{
 		orig(self, sLeaser, rCam, timeStacker, camPos);
@@ -433,7 +481,9 @@ public static class ExtendedGates
 	private static void GateMarker_ctor(On.HUD.Map.GateMarker.orig_ctor orig, Map.GateMarker self, Map map, int room, Req req, bool showAsOpen)
 	{
 		if (req != null && RequirementAliases.TryGetValue(req.value, out Req realValue))
-		{ req = realValue; }
+		{ 
+			req = realValue; 
+		}
 
 		orig(self, map, room, !(req != null && ExLocks.ContainsKey(req)) ? req : null, showAsOpen);
 
@@ -477,43 +527,6 @@ public static class ExtendedGates
 					extraReqs[i].SpawnMapSymbol(self, i, extraReqs.Count);
 				}
 			}
-		}
-
-		static (bool leftSide, string[] tags) Tags(PlayerProgression progression, World initWorld, string roomName)
-		{
-			if (initWorld.game != null && initWorld.game.IsStorySession && initWorld.game.GetStorySession.saveState.deathPersistentSaveData.unlockedGates != null && initWorld.game.GetStorySession.saveState.deathPersistentSaveData.CanUseUnlockedGates(initWorld.game.StoryCharacter))
-			{
-				for (int i = 0; i < initWorld.game.GetStorySession.saveState.deathPersistentSaveData.unlockedGates.Count; i++)
-				{
-					if (initWorld.game.GetStorySession.saveState.deathPersistentSaveData.unlockedGates[i] == roomName)
-					{
-						return (false, []);
-					}
-				}
-			}
-			for (int j = 0; j < progression.karmaLocks.Length; j++)
-			{
-				string[] split = Regex.Split(progression.karmaLocks[j], " : ");
-				if (split[0] == roomName && split.Length >= 4)
-				{
-					// Figure out side
-					bool leftSide = false;
-					bool swap = split[3] == "SWAPMAPSYMBOL";
-					if (Region.EquivalentRegion(Regex.Split(roomName, "_")[1], initWorld.region.name) != swap)
-					{
-						leftSide = true;
-					}
-
-					// Tags
-					string[] tags = new string[split.Length - 3];
-					for (int i = 3; i < split.Length; i++)
-					{
-						tags[i - 3] = split[i];
-					}
-					return (leftSide, [.. tags]);
-				}
-			}
-			return (false, []);
 		}
 	}
 
@@ -568,6 +581,121 @@ public static class ExtendedGates
 		if (wanderer == null || wanderer.progress.Count(c => c) < 5) return false;
 
 		return true;
+	}
+
+	private static void Map_ctor(ILContext il)
+	{
+		// Goal: allow maps to properly display the passability of a gate
+
+		var c = new ILCursor(il);
+
+		c.GotoNext(x => x.MatchNewobj<Map.GateMarker>());
+		c.GotoPrev(MoveType.AfterLabel, x => x.MatchLdarg(0), x => x.MatchLdfld<Map>(nameof(Map.mapObjects)));
+
+		c.Emit(OpCodes.Ldarg_0);
+		c.Emit(OpCodes.Ldloc_S, (byte)7);
+		c.Emit(OpCodes.Ldloca_S, (byte)6);
+		c.EmitDelegate((Map self, Req? req, ref bool showAsOpen) =>
+		{
+			// Determine aliases just in case
+			if (req != null && RequirementAliases.TryGetValue(req.value, out Req realValue))
+			{
+				req = realValue;
+			}
+
+			// Handle extended locks logic, WITHOUT tags, as they aren't necessary for the main symbol.
+			if (req != null && ExLocks.TryGetValue(req, out LockData lockData))
+			{
+				SaveState saveState = self.GetSaveState();
+				showAsOpen = lockData.MapRequirement(saveState);
+			}
+		});
+	}
+
+	private static void DirectionFinder_ctor(ILContext il)
+	{
+		// Goal: allow overseers to figure out if a gate is passable or not without crashing
+
+		var c = new ILCursor(il);
+
+		c.GotoNext(x => x.MatchStfld<OverseersWorldAI.DirectionFinder>(nameof(OverseersWorldAI.DirectionFinder.minKarma)));
+		c.GotoPrev(MoveType.After, x => x.MatchBle(out _));
+		c.MoveAfterLabels();
+
+		c.Emit(OpCodes.Ldarg_0);
+		c.Emit(OpCodes.Ldloc_S, (byte)7);
+		c.Emit(OpCodes.Ldloc_S, (byte)9);
+		c.Emit(OpCodes.Ldloc_S, (byte)11);
+		c.EmitDelegate((OverseersWorldAI.DirectionFinder self, string[] gateSplit, int gateSplitIndex, int gateReqIndex) =>
+		{
+			// Retrieve the gate karma
+			string[] locksLineParts = gateSplit[gateSplitIndex].Split([" : "], StringSplitOptions.None);
+			string result = locksLineParts[gateReqIndex];
+			Req req = new(result, false);
+			if (RequirementAliases.ContainsKey(result))
+			{
+				req = RequirementAliases[result];
+			}
+
+			// Figure out if we need to run extended gates logic
+			if (ExLocks.TryGetValue(req, out LockData lockData))
+			{
+				// Default pass
+				bool passedReq = lockData.MapRequirement(self.world.game.GetStorySession.saveState);
+				LogDebug($"Gate requirement type: {result}, can pass: {passedReq}");
+
+				// Extra requirements
+				if (passedReq)
+				{
+					(bool leftSide, string[] tags) = Tags(Custom.rainWorld.progression, self.world, locksLineParts[0]);
+					if (tags.Length > 0)
+					{
+						IEnumerable<string> extraReqTags = tags.Where(x => x.StartsWith(leftSide ? "Left-" : "Right-", StringComparison.InvariantCultureIgnoreCase));
+						if (extraReqTags.Any())
+						{
+							List<ExtraRequirement> extraReqs = [];
+							foreach (string extraReqTag in extraReqTags)
+							{
+								string tag = leftSide ? extraReqTag[5..] : extraReqTag[6..];
+								foreach (ExtraRequirement extraReq in ExtraRequirements)
+								{
+									if (extraReq.BaseKeyword.Equals(tag, StringComparison.InvariantCultureIgnoreCase))
+									{
+										extraReqs.Add(extraReq);
+									}
+								}
+							}
+
+							for (int i = 0; i < extraReqs.Count; i++)
+							{
+								if (!extraReqs[i].Completed(self.world.game.GetStorySession.saveState))
+								{
+									passedReq = false;
+									break;
+								}
+							}
+						}
+					}
+				}
+
+				// Turn the bool result into a fake karma requirement that makes it behave equivalently
+				self.minKarma = passedReq ? 0 : int.MaxValue;
+
+				return true;
+			}
+			else if (!int.TryParse(result, NumberStyles.Any, CultureInfo.InvariantCulture, out _))
+			{
+				LogWarning($"GATE INDEX WAS NOT AN INTEGER! ({result})");
+				//return true; // left out so as to not cause issues with other mods that potentially hook the same spot
+			}
+			return false;
+		});
+
+		ILLabel label = c.DefineLabel();
+		c.Emit(OpCodes.Brtrue, label);
+
+		c.GotoNext(MoveType.After, x => x.MatchStfld<OverseersWorldAI.DirectionFinder>(nameof(OverseersWorldAI.DirectionFinder.minKarma)));
+		c.MarkLabel(label);
 	}
 
 

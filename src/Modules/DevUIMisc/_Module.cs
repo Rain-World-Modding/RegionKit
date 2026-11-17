@@ -17,11 +17,13 @@ public static class _Module
 		PagedFadePalettes.Apply();
 		SettingsSaveOptions.Apply();
 		DecalPreview.Enable();
-		DecalSelectSearch.Apply();
+		DecalSelectTweaks.Apply();
 		SoundPageSearch.Apply();
 		AntiPanelCollapse.Apply();
 		SelectSongPanelOverhaul.Apply();
 		RoomAttractivenessPanelOverhaul.Apply();
+		TokenInputOverhaul.Apply();
+		DataPearlInputOverhaul.Apply();
 
 		// bugfix
 		IL.DevInterface.DevUINode.Update += DevUINode_Update;
@@ -36,11 +38,13 @@ public static class _Module
 		PagedFadePalettes.Undo();
 		SettingsSaveOptions.Undo();
 		DecalPreview.Disable();
-		DecalSelectSearch.Undo();
+		DecalSelectTweaks.Undo();
 		SoundPageSearch.Undo();
 		AntiPanelCollapse.Undo();
 		SelectSongPanelOverhaul.Undo();
 		RoomAttractivenessPanelOverhaul.Undo();
+		TokenInputOverhaul.Undo();
+		DataPearlInputOverhaul.Undo();
 
 		IL.DevInterface.DevUINode.Update -= DevUINode_Update;
 	}

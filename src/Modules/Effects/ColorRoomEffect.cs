@@ -17,8 +17,8 @@ public static class ColorRoomEffect
 	/// <summary>
 	/// The list of effects that should have the three additional sliders.
 	/// </summary>
-	[AllowNull] public static HashSet<RoomSettings.RoomEffect.Type> colorEffectTypes = new();
-	[AllowNull] private static ConditionalWeakTable<RoomSettings.RoomEffect, ColorSettings> __colorEffectSettings = new();
+	public static readonly HashSet<RoomSettings.RoomEffect.Type> colorEffectTypes = new();
+	private static readonly ConditionalWeakTable<RoomSettings.RoomEffect, ColorSettings> __colorEffectSettings = new();
 
 	internal static void Apply()
 	{
@@ -34,13 +34,6 @@ public static class ColorRoomEffect
 		IL.RoomSettings.RoomEffect.FromString -= RoomEffectFromString;
 		IL.RoomSettings.RoomEffect.ToString -= RoomEffectToString;
 		On.DevInterface.EffectPanel.ctor -= EffectPanelCtor;
-	}
-
-	internal static void Dispose()
-	{
-		colorEffectTypes.Clear();
-		colorEffectTypes = null;
-		__colorEffectSettings = null;
 	}
 
 	#region Hooks

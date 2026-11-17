@@ -202,10 +202,14 @@ public static class Data
 	{
 		orig(self);
 		if (self.parent.BackgroundData().roomOffsetInit && !self.BackgroundData().roomOffsetInit)
-		{ self.BackgroundData().roomOffset = self.parent.BackgroundData().roomOffset; }
+		{ 
+			self.BackgroundData().roomOffset = self.parent.BackgroundData().roomOffset; 
+		}
 
 		if (self.parent.BackgroundData().HasData() && !self.BackgroundData().HasData())
-		{ self.BackgroundData().InheritFromTemplate(self.parent.BackgroundData()); }
+		{ 
+			self.BackgroundData().InheritFromTemplate(self.parent.BackgroundData()); 
+		}
 	}
 
 	private static List<string> RoomSettings_Save_string_bool(RoomSettings self, bool saveAsTemplate)
@@ -251,7 +255,11 @@ public static class Data
 		public Vector2 roomOffset = Vector2.zero;
 		public bool roomOffsetInit = false; //nullables were too painful to work with
 
-		public void UpdateOffsetInit() => roomOffsetInit = (roomOffset != roomSettings.parent.BackgroundData().roomOffset);
+		public void UpdateOffsetInit()
+		{
+			roomOffsetInit = (roomOffset != roomSettings.parent.BackgroundData().roomOffset);
+			//roomOffset = roomSettings.parent.BackgroundData().roomOffset;
+		}
 
 		public string backgroundName = "";
 
@@ -459,11 +467,15 @@ public static class Data
 		{
 			List<string> result = new();
 			if (roomOffsetInit && roomOffset != roomSettings.parent.BackgroundData().roomOffset)
-			{ result.Add($"BackgroundOffset: {roomOffset.x},{roomOffset.y}"); }
+			{ 
+				result.Add($"BackgroundOffset: {roomOffset.x},{roomOffset.y}"); 
+			}
 
 			bool isParent = TryGetPathFromName(roomSettings.parent.BackgroundData().backgroundName, out _) && backgroundName.ToLower() == roomSettings.parent.BackgroundData().backgroundName.ToLower();
 			if (TryGetPathFromName(backgroundName, out _) && !isParent)
-			{ result.Add($"BackgroundType: {backgroundName}"); }
+			{ 
+				result.Add($"BackgroundType: {backgroundName}"); 
+			}
 
 			return result.ToArray();
 		}
@@ -1055,7 +1067,8 @@ public static class Data
 		{ 
 			get => _endAltitude ?? ACVParent?.endAltitude ?? Scene?.endAltitude ?? 31400; 
 			set { 
-				_endAltitude = value; if (Scene != null)
+				_endAltitude = value;
+				if (Scene != null)
 				{
 					Scene.endAltitude = value;
 					Scene.sceneOrigo = new Vector2(2514f, (startAltitude + endAltitude) / 2f);
@@ -1247,7 +1260,15 @@ public static class Data
 
 		public void RedoClouds(AboveCloudsView scene)
 		{
-			scene.elements.RemoveAll(x => { if (x is Cloud && x is not FlyingCloud) { x.Destroy(); return true; } return false; });
+			scene.elements.RemoveAll(x =>
+			{
+				if (x is Cloud && x is not FlyingCloud)
+				{
+					x.Destroy();
+					return true;
+				}
+				return false;
+			});
 			scene.clouds = new();
 
 			for (int i = 0; i < cloudsCount; i++)
@@ -1808,7 +1829,7 @@ public static class Data
 		try
 		{
 			path = AssetManager.ResolveFilePath(Path.Combine(_Module.BGPath, name + ".txt"));
-			Custom.LogWarning("load file from path: " + path);
+			//Custom.LogWarning("load file from path: " + path);
 			if (File.Exists(path)) return true;
 			else { return false; }
 		}

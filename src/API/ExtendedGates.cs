@@ -32,7 +32,21 @@ public static class ExtendedGates
 	public static void RegisterLockCallback(RegionGate.GateRequirement req, string gateElementName, string mapElementName, Func<RegionGate, bool> openCondition)
 	{
 		ThrowIfModNotInitialized();
-		RegisterLock(req, new ExtendedLocks.DelegateDriven(req, gateElementName, mapElementName, openCondition));
+		RegisterLock(req, new ExtendedLocks.DelegateDriven(req, gateElementName, mapElementName, openCondition, _ => true)); // legacy always shows as elligible on map
+	}
+
+	/// <summary>
+	/// Attempts registering a new lock condition, using raw data rather than a class implementing <see cref="LockData"/>.
+	/// </summary>
+	/// <param name="req">GateRequirement extended value your lock should be associated with.</param>
+	/// <param name="gateElementName">Name of the gate hologram sprite element.</param>
+	/// <param name="mapElementName">Name of the map icon sprite element.</param>
+	/// <param name="openCondition">A callback that will be used each time a gate needs to check whether it should open.</param>
+	/// <param name="mapCondition">A callback that will be used each time a gate needs to check whether it is open from the map or from overseers.</param>
+	public static void RegisterLockCallback(RegionGate.GateRequirement req, string gateElementName, string mapElementName, Func<RegionGate, bool> openCondition, Func<SaveState, bool> mapCondition)
+	{
+		ThrowIfModNotInitialized();
+		RegisterLock(req, new ExtendedLocks.DelegateDriven(req, gateElementName, mapElementName, openCondition, mapCondition));
 	}
 
 	/// <summary>

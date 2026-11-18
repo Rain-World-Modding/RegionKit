@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using Menu.Remix.MixedUI;
-using Newtonsoft.Json.Linq;
 
 namespace RegionKit
 {
@@ -19,6 +18,9 @@ namespace RegionKit
 	/// AttachedField is licensed under the MIT license. 
 	/// </para>
 	/// </summary>
+	/// <remarks>
+	/// <c>GetOrCreateValue</c> is not implemented as it is an expensive operation to perform using generics.
+	/// </remarks>
 	/// <typeparam name="TKey">The table's key type. Must be a reference type.</typeparam>
 	/// <typeparam name="TValue">The table's value type. Does not have to be a reference type.</typeparam>
 	public sealed class RKConditionalWeakTable<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>> where TKey : class

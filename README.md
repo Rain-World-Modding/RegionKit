@@ -290,9 +290,10 @@ Our goal for RegionKit is to have a unified mod to hold objects, room effects, a
 - Cookietehscugcat
 - crystal cats
 - Dragonly44
-- EcoVerm
+- EcoVermination
 - Eepy-beepy
-- Faraam
+- Faraam Knight
+- \_felissaurusrex\_
 - Fivepebbles188
 - funkytrashcan
 - glowingglassroses
@@ -307,6 +308,7 @@ Our goal for RegionKit is to have a unified mod to hold objects, room effects, a
 - lagg
 - LetOpposite3396
 - lkelly
+- Minnarew
 - Mold223
 - mrm4xl1v3
 - Mungbean
@@ -330,7 +332,7 @@ Our goal for RegionKit is to have a unified mod to hold objects, room effects, a
 - Th0nly1
 - TotallyDutch
 - tz
-- \_veiled\_echo\_.
+- .\_veiled\_echo\_.
 - Void Computer
 - WHYER4
 - Willow Crow

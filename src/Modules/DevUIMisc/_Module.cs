@@ -24,6 +24,7 @@ public static class _Module
 		RoomAttractivenessPanelOverhaul.Apply();
 		TokenInputOverhaul.Apply();
 		DataPearlInputOverhaul.Apply();
+		ObjectsPageCategoryBrowser.Apply();
 
 		// bugfix
 		IL.DevInterface.DevUINode.Update += DevUINode_Update;
@@ -45,6 +46,7 @@ public static class _Module
 		RoomAttractivenessPanelOverhaul.Undo();
 		TokenInputOverhaul.Undo();
 		DataPearlInputOverhaul.Undo();
+		ObjectsPageCategoryBrowser.Undo();
 
 		IL.DevInterface.DevUINode.Update -= DevUINode_Update;
 	}

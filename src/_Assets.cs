@@ -24,7 +24,7 @@ internal static class _Assets
 		];
 		foreach (string dir in dirsToCheck)
 		{
-			string fdir = Path.Combine("assets", "regionkit", dir);
+			string fdir = "assets/regionkit" + (string.IsNullOrEmpty(dir) ? "" : ("/" + dir));
 			foreach (string f in AssetManager.ListDirectory(fdir, false, true))
 			{
 				string? atlasname = null;

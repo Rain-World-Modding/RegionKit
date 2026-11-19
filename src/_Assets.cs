@@ -1,14 +1,14 @@
 ﻿
+using System.IO;
+
 namespace RegionKit;
 
 [RegionKitModule(nameof(Enable), nameof(Disable), moduleName: "Assets")]
 internal static class _Assets
 {
-	//private static bool __appliedOnce = false;
 	public static void Enable()
 	{
 		LoadResources();
-		//__appliedOnce = true;
 	}
 
 	internal static void LoadResources(/* On.RainWorld.orig_OnModsInit orig, RainWorld self */)
@@ -17,34 +17,30 @@ internal static class _Assets
 		LogMessage($"Assets module loading atlases from assetpath assets/regionkit");
 		loadTime.Start();
 
-		foreach (string? dir in new[] { "", "sprites", /* "littleplanet", "extendedgates" */ })
+		string[] dirsToCheck =
+		[
+			"",
+			"sprites",
+		];
+		foreach (string dir in dirsToCheck)
 		{
-			string fdir = $"assets/regionkit{(dir is not "" ? "/" + dir : dir)}";
+			string fdir = Path.Combine("assets", "regionkit", dir);
 			foreach (string f in AssetManager.ListDirectory(fdir, false, true))
 			{
 				string? atlasname = null;
-				System.IO.FileInfo fi = new(f);
+			FileInfo fi = new(f);
 				if (fi.Extension is ".png")
 				{
-					//LogMessage($"Assets module Found an image: {f}");
-					//FAtlasManager..LoadImage("");
-					atlasname = fi.Name[..^fi.Extension.Length];
-					Futile.atlasManager.LoadAtlasOrImage($"{fdir}/{atlasname}");
-
-
-#if false
-					System.IO.FileInfo
-						slicerfile = new(atlasname + ".json"),
-						metafile = new(atlasname + ".meta");
-					using System.IO.Stream 
-						pngstream = fi.OpenRead();
-					using System.IO.Stream?
-						slicerstream = slicerfile.Exists ? slicerfile.OpenRead() : null,
-						metastream = metafile.Exists ? metafile.OpenRead() : null;
-					LogDebug($"Assets module loading png {pngstream.Length}, slicer {slicerstream?.Length ?? -1}, meta {metastream?.Length ?? -1}");
-					LoadCustomAtlas(atlasname, pngstream, slicerstream, metastream);
-#endif
-					//fi.AppendText();
+					try
+					{
+						//LogMessage($"Assets module Found an image: {f}");
+						atlasname = fi.Name[..^fi.Extension.Length];
+						Futile.atlasManager.LoadAtlasOrImage($"{fdir}/{atlasname}");
+					}
+					catch (Exception e)
+					{
+						LogFatal($"Error loading asset: {f}\n{e}");
+					}
 				}
 			}
 		}
@@ -58,9 +54,10 @@ internal static class _Assets
 		var buff = GetBytes(assetpath);
 		return System.Text.Encoding.UTF8.GetString(buff);
 	}
+
 	internal static byte[]? GetBytes(params string[] assetpath)
 	{
-		using System.IO.Stream? stream = GetStream(assetpath);
+		using Stream? stream = GetStream(assetpath);
 		if (stream is null) return null;
 		byte[] buff = new byte[stream.Length];
 		stream.Read(buff, 0, (int)stream.Length);
@@ -69,7 +66,7 @@ internal static class _Assets
 	/// <summary>
 	/// Returns an asset stream, taking from merged assets or ER. Dispose of it properly!
 	/// </summary>
-	internal static System.IO.Stream? GetStream(params string[] assetpath)
+	internal static Stream? GetStream(params string[] assetpath)
 	{
 		Func<string, string, string>
 			dotjoin = (x, y) => $"{x}.{y}",
@@ -81,30 +78,6 @@ internal static class _Assets
 
 	#region ATLASES
 
-	// internal static void LoadAditionalResources()
-	// {
-	// 	if (__appliedOnce) return;
-	// 	const string LittlePlanet = "LittlePlanet";
-	// 	const string ExtendedGates = "ExtendedGates";
-	// 	foreach (string[] path in new[] {
-	// 		new[] { LittlePlanet, LittlePlanet},
-	// 		new[] { LittlePlanet, "LittlePlanetRing"},
-	// 		new[] { ExtendedGates, "ExtendedGateSymbols"}  }) try
-	// 		{
-	// 			using System.IO.Stream?
-	// 				pngstream = _Assets.GetStream(path[0], $"{path[1]}.png")!,
-	// 				jsonstream = _Assets.GetStream(path[0], $"{path[1]}.json")!;
-	// 			LoadCustomAtlas(path[1], pngstream, jsonstream);
-	// 		}
-	// 		catch (Exception ex)
-	// 		{
-	// 			LogError($"Problem loading LittlePlanet atlases {ex}");
-	// 		}
-	// 	LogInfo("Loading additional EG resources");
-
-
-	// }
-
 	internal static KeyValuePair<string, string> MetaEntryToKeyVal(string input)
 	{
 		if (string.IsNullOrEmpty(input)) return new KeyValuePair<string, string>("", "");
@@ -114,7 +87,7 @@ internal static class _Assets
 		return new KeyValuePair<string, string>(pieces[0].Trim(), pieces[1].Trim());
 	}
 
-	internal static FAtlas LoadCustomAtlas(string atlasName, System.IO.Stream textureStream, System.IO.Stream? slicerStream, System.IO.Stream? metaStream = null)
+	internal static FAtlas LoadCustomAtlas(string atlasName, Stream textureStream, Stream? slicerStream, Stream? metaStream = null)
 	{
 		try
 		{
@@ -125,13 +98,13 @@ internal static class _Assets
 			Dictionary<string, object>? slicerData = null;
 			if (slicerStream != null)
 			{
-				System.IO.StreamReader sr = new(slicerStream, System.Text.Encoding.UTF8);
+				StreamReader sr = new(slicerStream, System.Text.Encoding.UTF8);
 				slicerData = sr.ReadToEnd().dictionaryFromJson();
 			}
 			Dictionary<string, string>? metaData = null;
 			if (metaStream != null)
 			{
-				System.IO.StreamReader sr = new(metaStream, System.Text.Encoding.UTF8);
+				StreamReader sr = new(metaStream, System.Text.Encoding.UTF8);
 				metaData = new Dictionary<string, string>(); // Boooooo no linq and no splitlines, shame on you c#
 				for (string fullLine = sr.ReadLine(); fullLine != null; fullLine = sr.ReadLine())
 				{

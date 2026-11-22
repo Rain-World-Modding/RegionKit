@@ -260,6 +260,7 @@ Our goal for RegionKit is to have a unified mod to hold objects, room effects, a
 	- Passage gate requirements
 
 - glebi574
+	- AbstractSpacePathFinder optimization
 	- Bugfixes
 
 - InspectNerd
@@ -276,6 +277,9 @@ Our goal for RegionKit is to have a unified mod to hold objects, room effects, a
 
 - Trainzack
 	- Bugfixes
+
+- MyztiLeaf
+	- Object + effect category browser
 
 **Initial ExtendedGates authors**: Henpemaz (code); Mehri'Kairotep, Kali, LB/M4rbleL1ne and Nautillo (spritework).
 

@@ -130,6 +130,7 @@ public sealed class ModOptions : OptionsTemplate
 		("coder23848", hexToColor("38a336")),
 		("Damoonlord", hexToColor("2b8c5c")),
 		("Trainzack", hexToColor("474134")),
+		("MyztiLeaf", hexToColor("f1c40f")),
 	];
 
 	private void InitCredits(ref int tabIndex)

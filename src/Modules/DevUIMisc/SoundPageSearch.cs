@@ -41,7 +41,7 @@ namespace RegionKit.Modules.DevUIMisc
 
 		private static void AddSearchBar(On.DevInterface.SoundPage.orig_RefreshFilesPage orig, SoundPage self)
 		{
-			SoundPageSearchBar? searchBar = self.subNodes.FirstOrDefaultOfType<SoundPageSearchBar>();
+			SoundPageSearchBar? searchBar = self.soundsPanel.subNodes.FirstOrDefaultOfType<SoundPageSearchBar>();
 			orig(self);
 			
 			float searchY = self.soundsPanel.size.y - 16f - 55f;

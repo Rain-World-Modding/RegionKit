@@ -24,6 +24,7 @@ internal static class _Module
 		LightningFix.Apply();
 		VirtualMicrophoneFix.Apply();
 		ContainerFixes.Apply();
+		AbstractSpacePathFinderOptimization.Apply();
 
 		On.RoomPalette.GetColor += RoomPalette_GetColor;
 	}
@@ -43,6 +44,7 @@ internal static class _Module
 		LightningFix.Undo();
 		VirtualMicrophoneFix.Undo();
 		ContainerFixes.Undo();
+		AbstractSpacePathFinderOptimization.Undo();
 
 		On.RoomPalette.GetColor -= RoomPalette_GetColor;
 	}

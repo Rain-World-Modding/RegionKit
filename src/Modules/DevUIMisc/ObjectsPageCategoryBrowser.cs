@@ -34,11 +34,11 @@ namespace RegionKit.Modules.DevUIMisc
 
 		private static void ObjectsPage_RefreshObjectsPage(On.DevInterface.ObjectsPage.orig_RefreshObjectsPage orig, ObjectsPage self)
 		{
-			BrowserState state = _states.GetOrCreateValue(self);
+			BrowserState state = _states.GetValue(self, _ => new());
 			if (!state.InCategoryView)
 			{
 				orig(self);
-				self.objectsPanel.subNodes.Add(new Button(self.owner, "Category:", self.objectsPanel, new Vector2(205f, self.objectsPanel.size.y - 16f - 5f), 190f, "Categories"));
+				self.objectsPanel.subNodes.Add(new Button(self.owner, "Categories_Button", self.objectsPanel, new Vector2(205f, self.objectsPanel.size.y - 16f - 5f), 95f, "Categories"));
 				return;
 			}
 
@@ -50,7 +50,7 @@ namespace RegionKit.Modules.DevUIMisc
 				panel.subNodes.RemoveAt(i);
 			}
 
-			self.objectsPanel.subNodes.Add(new Button(self.owner, "Category:", self.objectsPanel, new Vector2(205f, self.objectsPanel.size.y - 16f - 5f), 190f, "Back to Objects"));
+			self.objectsPanel.subNodes.Add(new Button(self.owner, "Category:", self.objectsPanel, new Vector2(205f, self.objectsPanel.size.y - 16f - 5f), 95f, "Back to Objects"));
 			List<(string Name, int FirstPage)> categories = CollectCategories(self);
 			int perPage = Math.Max(2, self.maxObjectsPerPage);
 			state.TotalCategoryPages = Math.Max(1, (categories.Count + perPage - 1) / perPage);
@@ -74,7 +74,7 @@ namespace RegionKit.Modules.DevUIMisc
 		private static void ObjectsPage_Update(On.DevInterface.ObjectsPage.orig_Update orig, ObjectsPage self)
 		{
 			orig(self);
-			BrowserState state = _states.GetOrCreateValue(self);
+			BrowserState state = _states.GetValue(self, _ => new());
 			if (state.NeedsRefresh)
 			{
 				state.NeedsRefresh = false;
@@ -86,7 +86,7 @@ namespace RegionKit.Modules.DevUIMisc
 		{
 			if (type == DevUISignalType.ButtonClick && sender != null)
 			{
-				BrowserState state = _states.GetOrCreateValue(self);
+				BrowserState state = _states.GetValue(self, _ => new());
 				string id = sender?.IDstring ?? string.Empty;
 
 				if (id == "Categories_Button")
@@ -123,7 +123,7 @@ namespace RegionKit.Modules.DevUIMisc
 					{
 						foreach ((string Name, int FirstPage) in CollectCategories(self))
 						{
-							if (string.Equals(Name, "Category:", StringComparison.OrdinalIgnoreCase))
+							if (id[9..].Equals(Name, StringComparison.OrdinalIgnoreCase))
 							{
 								self.currObjectsPage = FirstPage;
 								break;
@@ -148,6 +148,7 @@ namespace RegionKit.Modules.DevUIMisc
 			if (types == null || types.Length == 0) return list;
 
 			int perPage = Math.Max(1, self.maxObjectsPerPage);
+			HashSet<string> collectedCategories = [];
 			for (int i = 0; i < types.Length; i++)
 			{
 				PlacedObject.Type type = types[i];
@@ -155,7 +156,7 @@ namespace RegionKit.Modules.DevUIMisc
 
 				ObjectsPage.DevObjectCategories Getcategory = self.DevObjectGetCategoryFromPlacedType(type);
 				string? categoryName = Getcategory?.value;
-				if (string.IsNullOrEmpty(categoryName) || !new HashSet<string>(StringComparer.OrdinalIgnoreCase).Add(categoryName!)) continue;
+				if (string.IsNullOrEmpty(categoryName) || !collectedCategories.Add(categoryName!)) continue;
 				list.Add((categoryName!, i / perPage));
 			}
 			return list;

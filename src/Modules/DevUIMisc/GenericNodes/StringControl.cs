@@ -1,4 +1,5 @@
-﻿using DevInterface;
+﻿using System.Globalization;
+using DevInterface;
 
 namespace RegionKit.Modules.DevUIMisc.GenericNodes;
 
@@ -158,21 +159,21 @@ public class StringControl : DevUILabel
 
 	public static bool TextIsFloat(string value)
 	{
-		return float.TryParse(value, out _);
+		return float.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out _);
 	}
 	public static bool TextIsPositiveFloat(string value)
 	{
-		return float.TryParse(value, out var f) && f >= 0;
+		return float.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var f) && f >= 0;
 	}
 
 	public static bool TextIsInt(string value)
 	{
-		return (int.TryParse(value, out int i) && i.ToString() == value);
+		return (int.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out int i) && i.ToString() == value);
 	}
 
 	public static bool TextIsIntNonNegative(string value)
 	{
-		return (int.TryParse(value, out int i) && i >= 0 && i.ToString() == value);
+		return (int.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out int i) && i >= 0 && i.ToString() == value);
 	}
 	public static bool TextIsColor(string value)
 	{
@@ -185,11 +186,12 @@ public class StringControl : DevUILabel
 		return ExtEnumBase.TryParse(typeof(T), value, false, out _);
 	}
 
-	public static bool TextIsAny(string value)
-	{ return true; }
+	public static bool TextIsAny(string value) => true;
 
 	public static bool TextIsValidFilename(string value)
-	{ return value.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) < 0; }
+	{
+		return value.IndexOfAny(System.IO.Path.GetInvalidFileNameChars()) < 0;
+	}
 
 	public static readonly DevUISignalType StringEdit = new DevUISignalType("StringEdit", true);
 	public static readonly DevUISignalType StringFinish = new DevUISignalType("StringFinish", true);

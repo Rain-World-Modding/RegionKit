@@ -50,6 +50,7 @@ public static class _Module
 		FlatFog.Apply();
 		RainPaletteFade.Apply();
 		ReduceNeuronGlow.Apply();
+		CloudShadowSpeed.Apply();
 
 		// Effect types
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType += RoomSettingsPageDevEffectGetCategoryFromEffectType;
@@ -82,6 +83,7 @@ public static class _Module
 		FlatFog.Undo();
 		RainPaletteFade.Undo();
 		ReduceNeuronGlow.Undo();
+		CloudShadowSpeed.Undo();
 
 		On.DevInterface.RoomSettingsPage.DevEffectGetCategoryFromEffectType -= RoomSettingsPageDevEffectGetCategoryFromEffectType;
 
@@ -124,6 +126,7 @@ public static class _Module
 			|| type == EchoExtender._Enums.EchoPresenceOverride
 			|| type == _Enums.FlatFog
 			|| type == _Enums.RainPaletteFade
+			|| type == _Enums.CloudsShadowSpeed
 			)
 		{
 			return _Enums.RegionKit_Decoration;
@@ -231,6 +234,10 @@ public static class _Module
 				_ => 0f
 			};
 		}
+		if (type == _Enums.CloudsShadowSpeed)
+		{
+			return 1f;
+		}
 		return orig(type, index);
 	}
 
@@ -241,4 +248,5 @@ public static class _Module
 	}
 
 	#endregion
+
 }
